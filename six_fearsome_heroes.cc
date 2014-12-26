@@ -43,7 +43,7 @@ int main( void ) {
     s.AddPredicate([](const Puzzle::Solution& s) {return s.Id(Geordi).Class(TRID) == 2;});
     // Picard ranks two positions behind Troi at Fizzbin.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(Picard).Class(FIZZBIN) == s.Id(Troi).Class(FIZZBIN) - 2;; });
+            return s.Id(Picard).Class(FIZZBIN) == s.Id(Troi).Class(FIZZBIN) - 2; });
     // Troi is feared by the person Geordi fears.
     s.AddPredicate([](const Puzzle::Solution& s) {
             return s.Id(s.Id(Geordi).Class(FEAR)).Class(FEAR) == Troi;});

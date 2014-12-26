@@ -50,11 +50,10 @@ class IntRangeDescriptor : public Descriptor {
 class StringDescriptor : public Descriptor {
 public:
     StringDescriptor() {}
-    StringDescriptor(const vector<string>& names) : names_(names) {}
     ~StringDescriptor() override {}
 
-    void SetDescription(int i, string d) { names_[i] = d; }
-    string ToStr(int i) const override { return names_[i]; }
+    void SetDescription(int i, const string& d) { names_[i] = d; }
+    string ToStr(int i) const override { auto it = names_.find(i); if (it != names_.end()) return it->second; return ""; }
 
     virtual vector<int> Values() const override {
         vector<int> ret;
@@ -65,19 +64,22 @@ public:
     }
 
 private:
-    vector<string> names_;
+    unordered_map<int,string> names_;
 };
 
 class EntryDescriptor {
 public:
     EntryDescriptor() {}
-    EntryDescriptor(const Descriptor& id_descriptor,
-                    const Descriptor& class_descriptor,
-                    const vector<Descriptor>& name_descriptors)
-        : id_descriptor_(id_descriptor),
-          class_descriptor_(class_descriptor),
-          name_descriptors_(name_descriptors) {
+
+    void SetIds(const Descriptor& id_descriptor) { id_descriptor_ = id_descriptor; }
+    void SetClass(int class_int, const string& class_name, const Descriptor& name_descriptor ) {
+        class_descriptor_.SetDescription(class_int, class_name);
+        name_descriptors_[class_int] = name_descriptor;
     }
+
+    const Descriptor& AllIds() const { return id_descriptor_; }
+    const Descriptor& AllClasses() const { return class_descriptor_; }
+    const Descriptor& AllClassValues(int class_int) const { return name_descriptors_[class_int]; }
 
     string Id(int id_int) const { return id_descriptor_.ToStr(id_int); }
     string Class(int class_int) const { return class_descriptor_.ToStr(class_int); }
@@ -87,7 +89,7 @@ public:
 
 private:
     Descriptor id_descriptor_;
-    Descriptor class_descriptor_;
+    StringDescriptor class_descriptor_;
     vector<Descriptor> name_descriptors_;
 
     static EntryDescriptor invalid_;
@@ -99,6 +101,14 @@ public:
         : id_(id), classes_(classes), entry_descriptor_(entry_descriptor) {
     }
     ~Entry() {}
+
+    bool operator==(const Entry& other) const {
+        if (this == &other)
+            return true;
+        if (id_ != other.id_)
+            return false;
+        return classes_ == other.classes_;
+    }
 
     int id() const { return id_; }
     bool IsValid() const { return id_ >= 0; }
@@ -128,6 +138,12 @@ public:
     Solution(const vector<Entry>& entries) : entries_(entries) {}
     ~Solution() {}
 
+    bool operator==(const Solution& other) const {
+        if (this == &other)
+            return true;
+        return entries_ == other.entries_;
+    }
+
     bool IsValid() const { return entries_.size() > 0; }
     const vector<Entry>& entries() const { return entries_; }
     const Entry& Id(int id) const { return entries_[id]; }
@@ -148,14 +164,55 @@ private:
     vector<Entry> entries_;
 };
 
+class SolutionPermuter {
+ public:
+    class Iterator {
+    public:
+        Iterator() : Iterator(EntryDescriptor::Invalid()) {}
+        Iterator(const EntryDescriptor& entry_descriptor);
+
+        bool operator!=(const Iterator& other) {
+            return !(*this == other);
+        }
+        bool operator==(const Iterator& other) {
+            return current_ == other.current_;
+        }
+        const Solution& operator*() {
+            return current_;
+        }
+        Iterator& operator++() {
+            Advance();
+            return *this;
+        }
+
+    private:
+        void Advance();
+
+        const EntryDescriptor& entry_descriptor_;
+        vector<Entry> entries_;
+        Solution current_;
+    };
+
+    SolutionPermuter(const EntryDescriptor& e) : entry_descriptor_(e) {}
+    ~SolutionPermuter() {}
+
+    Iterator begin() { return Iterator(entry_descriptor_); }
+    Iterator end() { return Iterator(); }
+
+ private:
+    EntryDescriptor entry_descriptor_;
+};
+
 class Solver {
     public:
     Solver() {}
     ~Solver() {}
 
     void SetIdentifiers(const Descriptor& id_descriptor) {
+        entry_descriptor_.SetIds(id_descriptor);
     }
-    void AddClass(int class_int, const string& classname, const Descriptor& name_descriptor) {
+    void AddClass(int class_int, const string& class_name, const Descriptor& name_descriptor) {
+        entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
     }
     void AddPredicate(function<bool(const Entry&)> predicate) {
         AddPredicate([predicate](const Solution& s) {
@@ -172,7 +229,6 @@ class Solver {
 
     private:
     EntryDescriptor entry_descriptor_;
-    vector<Solution> possibleSolutions();
 
     vector<function<bool(const Solution&)>> onSolution;
 };
