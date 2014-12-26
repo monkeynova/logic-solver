@@ -85,19 +85,15 @@ public:
     string Class(int class_int) const { return class_descriptor_.ToStr(class_int); }
     string Name(int class_int, int name_int) const { return name_descriptors_[class_int].ToStr(name_int); }
 
-    static const EntryDescriptor& Invalid() { return invalid_; }
-
 private:
     Descriptor id_descriptor_;
     StringDescriptor class_descriptor_;
     vector<Descriptor> name_descriptors_;
-
-    static EntryDescriptor invalid_;
 };
 
 class Entry {
 public:
-    Entry(int id, const vector<int>& classes, const EntryDescriptor& entry_descriptor)
+    Entry(int id, const vector<int>& classes, const EntryDescriptor* entry_descriptor)
         : id_(id), classes_(classes), entry_descriptor_(entry_descriptor) {
     }
     ~Entry() {}
@@ -115,20 +111,33 @@ public:
     int Class(int classname) const {
         return classes_[classname];
     }
+    void SetClass(int classname, int value) {
+        classes_[classname] = value;
+    }
     string ToStr() const {
-        string ret = entry_descriptor_.Id(id_) + ": ";
-        for (int i = 0; i < classes_.size(); ++i) {
-            ret += entry_descriptor_.Class(i) + "=" + entry_descriptor_.Name(i, classes_[i]);
+        stringstream ret;
+        if (entry_descriptor_ != nullptr) {
+            ret << entry_descriptor_->Id(id_);
+        } else {
+            ret << id_;
         }
-        return ret;
+        ret << ":";
+        for (int i = 0; i < classes_.size(); ++i) {
+            if (entry_descriptor_) {
+                ret << " " << entry_descriptor_->Class(i) << "=" << entry_descriptor_->Name(i, classes_[i]);
+            } else {
+                ret << " " << classes_[i];
+            }
+        }
+        return ret.str();
     }
     static const Entry& Invalid() { return invalid_; }
 
 private:
-    Entry(int id) : id_(id), entry_descriptor_(EntryDescriptor::Invalid()) {}
+    Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
     int id_;
     vector<int> classes_;
-    const EntryDescriptor& entry_descriptor_;
+    const EntryDescriptor* entry_descriptor_;
 
     static Entry invalid_;
 };
@@ -164,23 +173,26 @@ private:
     vector<Entry> entries_;
 };
 
-class SolutionPermuter {
+class ClassPermuter {
  public:
-    class Iterator {
+    class iterator {
     public:
-        Iterator() : Iterator(EntryDescriptor::Invalid()) {}
-        Iterator(const EntryDescriptor& entry_descriptor);
+        iterator() : iterator(nullptr) {}
+        iterator(const Descriptor* descriptor);
 
-        bool operator!=(const Iterator& other) {
+        bool operator!=(const iterator& other) {
             return !(*this == other);
         }
-        bool operator==(const Iterator& other) {
+        bool operator==(const iterator& other) {
             return current_ == other.current_;
         }
-        const Solution& operator*() {
+        const vector<int>& operator*() {
             return current_;
         }
-        Iterator& operator++() {
+        const vector<int>* operator->() {
+            return &current_;
+        }
+        iterator& operator++() {
             Advance();
             return *this;
         }
@@ -188,19 +200,62 @@ class SolutionPermuter {
     private:
         void Advance();
 
-        const EntryDescriptor& entry_descriptor_;
+        const Descriptor* descriptor_;
+        vector<int> current_;
+    };
+
+    ClassPermuter(const Descriptor* d) : descriptor_(d) {}
+    ~ClassPermuter() {}
+
+    iterator begin() { return iterator(descriptor_); }
+    iterator end() { return iterator(); }
+
+ private:
+    const Descriptor* descriptor_;
+};
+
+class SolutionPermuter {
+ public:
+    class iterator {
+    public:
+        iterator() : iterator(nullptr) {}
+        iterator(const EntryDescriptor* entry_descriptor);
+
+        bool operator!=(const iterator& other) {
+            return !(*this == other);
+        }
+        bool operator==(const iterator& other) {
+            return current_ == other.current_;
+        }
+        const Solution& operator*() {
+            return current_;
+        }
+        const Solution* operator->() {
+            return &current_;
+        }
+        iterator& operator++() {
+            Advance();
+            return *this;
+        }
+
+    private:
+        void Advance();
+
+        const EntryDescriptor* entry_descriptor_;
         vector<Entry> entries_;
+        vector<ClassPermuter> permuters_;
+        vector<ClassPermuter::iterator> iterators_;
         Solution current_;
     };
 
-    SolutionPermuter(const EntryDescriptor& e) : entry_descriptor_(e) {}
+    SolutionPermuter(const EntryDescriptor* e) : entry_descriptor_(e) {}
     ~SolutionPermuter() {}
 
-    Iterator begin() { return Iterator(entry_descriptor_); }
-    Iterator end() { return Iterator(); }
+    iterator begin() { return iterator(entry_descriptor_); }
+    iterator end() { return iterator(); }
 
  private:
-    EntryDescriptor entry_descriptor_;
+    const EntryDescriptor* entry_descriptor_;
 };
 
 class Solver {
