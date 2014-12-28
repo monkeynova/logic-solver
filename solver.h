@@ -72,23 +72,25 @@ public:
     EntryDescriptor() {}
 
     void SetIds(const Descriptor& id_descriptor) { id_descriptor_ = id_descriptor; }
-    void SetClass(int class_int, const string& class_name, const Descriptor& name_descriptor ) {
+    void SetClass(int class_int, const string& class_name, const Descriptor* name_descriptor ) {
         class_descriptor_.SetDescription(class_int, class_name);
+        name_descriptors_.resize(class_int + 1);
         name_descriptors_[class_int] = name_descriptor;
     }
 
     const Descriptor& AllIds() const { return id_descriptor_; }
     const Descriptor& AllClasses() const { return class_descriptor_; }
-    const Descriptor& AllClassValues(int class_int) const { return name_descriptors_[class_int]; }
+    const Descriptor* AllClassValues(int class_int) const { return name_descriptors_[class_int]; }
 
     string Id(int id_int) const { return id_descriptor_.ToStr(id_int); }
     string Class(int class_int) const { return class_descriptor_.ToStr(class_int); }
-    string Name(int class_int, int name_int) const { return name_descriptors_[class_int].ToStr(name_int); }
+    string Name(int class_int, int name_int) const {
+        return name_descriptors_[class_int] ? name_descriptors_[class_int]->ToStr(name_int) : ""; }
 
 private:
     Descriptor id_descriptor_;
     StringDescriptor class_descriptor_;
-    vector<Descriptor> name_descriptors_;
+    vector<const Descriptor*> name_descriptors_;
 };
 
 class Entry {
@@ -266,7 +268,7 @@ class Solver {
     void SetIdentifiers(const Descriptor& id_descriptor) {
         entry_descriptor_.SetIds(id_descriptor);
     }
-    void AddClass(int class_int, const string& class_name, const Descriptor& name_descriptor) {
+    void AddClass(int class_int, const string& class_name, const Descriptor* name_descriptor) {
         entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
     }
     void AddPredicate(function<bool(const Entry&)> predicate) {

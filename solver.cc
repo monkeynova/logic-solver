@@ -9,11 +9,13 @@ Solution Solution::invalid_(empty_entry_vector);
 
 ClassPermuter::iterator::iterator(const Descriptor* descriptor)
     : descriptor_(descriptor) {
-
+    if (descriptor_ != nullptr) {
+        current_ = descriptor_->Values();
+    }
 }
 
 void ClassPermuter::iterator::Advance() {
-
+    
 }
 
 SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
@@ -28,8 +30,8 @@ SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
         entries_.push_back(Entry(id,empty,entry_descriptor_));
     }
     for (auto class_int: entry_descriptor_->AllClasses().Values()) {
-        const Descriptor& class_descriptor = entry_descriptor_->AllClassValues(class_int);
-        permuters_.push_back(ClassPermuter(&class_descriptor));
+        const Descriptor* class_descriptor = entry_descriptor_->AllClassValues(class_int);
+        permuters_.push_back(ClassPermuter(class_descriptor));
         iterators_.push_back(permuters_[permuters_.size() - 1].begin());
     }
 

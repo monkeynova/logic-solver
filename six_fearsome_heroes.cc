@@ -28,13 +28,13 @@ int main( void ) {
     who_descriptor.SetDescription( Worf, "Worf" );
 
     s.SetIdentifiers( who_descriptor );
-    s.AddClass( HERO, "hero", who_descriptor );
-    s.AddClass( FEAR, "fear", who_descriptor );
+    s.AddClass( HERO, "hero", &who_descriptor );
+    s.AddClass( FEAR, "fear", &who_descriptor );
 
     Puzzle::IntRangeDescriptor ranking_descriptor(1, 6);
 
-    s.AddClass( TRID, "trid", ranking_descriptor );
-    s.AddClass( FIZZBIN, "fizzbin", ranking_descriptor );
+    s.AddClass( TRID, "trid", &ranking_descriptor );
+    s.AddClass( FIZZBIN, "fizzbin", &ranking_descriptor );
     
     s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(HERO) != e.id(); } );
     s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(FEAR) != e.id(); } );
