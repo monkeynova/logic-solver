@@ -57,7 +57,7 @@ public:
 
     virtual vector<int> Values() const override {
         vector<int> ret;
-        for (int i = 0; i < names_.size(); ++i ) {
+        for (unsigned int i = 0; i < names_.size(); ++i ) {
             ret.push_back(i);
         }
         return ret;
@@ -124,7 +124,7 @@ public:
             ret << id_;
         }
         ret << ":";
-        for (int i = 0; i < classes_.size(); ++i) {
+        for (unsigned int i = 0; i < classes_.size(); ++i) {
             if (entry_descriptor_) {
                 ret << " " << entry_descriptor_->Class(i) << "=" << entry_descriptor_->Name(i, classes_[i]);
             } else {
@@ -179,6 +179,12 @@ class ClassPermuter {
  public:
     class iterator {
     public:
+	typedef std::forward_iterator_tag iterator_category;
+        typedef int difference_type;
+        typedef ClassPermuter value_type;
+        typedef ClassPermuter& reference;
+        typedef ClassPermuter* pointer;
+
         iterator() : iterator(nullptr) {}
         iterator(const Descriptor* descriptor) {
             if (descriptor != nullptr) {
@@ -237,6 +243,12 @@ class SolutionPermuter {
  public:
     class iterator {
     public:
+        typedef std::forward_iterator_tag iterator_category;
+	typedef int difference_type;
+	typedef SolutionPermuter value_type;
+	typedef SolutionPermuter& reference;
+	typedef SolutionPermuter* pointer;
+
         iterator() : iterator(nullptr) {}
         iterator(const EntryDescriptor* entry_descriptor);
 
