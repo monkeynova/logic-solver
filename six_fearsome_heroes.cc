@@ -20,21 +20,21 @@ int main( void ) {
     Puzzle::Solver s;
 
     Puzzle::StringDescriptor who_descriptor;
-    who_descriptor.SetDescription( Picard, "Picard" );
-    who_descriptor.SetDescription( Riker, "Riker" );
-    who_descriptor.SetDescription( Troi, "Troi" );
-    who_descriptor.SetDescription( Geordi, "Geordi" );
-    who_descriptor.SetDescription( Data, "Data" );
-    who_descriptor.SetDescription( Worf, "Worf" );
+    who_descriptor.SetDescription(Picard, "Picard");
+    who_descriptor.SetDescription(Riker, "Riker");
+    who_descriptor.SetDescription(Troi, "Troi");
+    who_descriptor.SetDescription(Geordi, "Geordi");
+    who_descriptor.SetDescription(Data, "Data");
+    who_descriptor.SetDescription(Worf, "Worf");
 
-    s.SetIdentifiers( who_descriptor );
-    s.AddClass( HERO, "hero", &who_descriptor );
-    s.AddClass( FEAR, "fear", &who_descriptor );
+    s.SetIdentifiers(&who_descriptor);
+    s.AddClass(HERO, "hero", &who_descriptor);
+    s.AddClass(FEAR, "fear", &who_descriptor);
 
     Puzzle::IntRangeDescriptor ranking_descriptor(1, 6);
 
-    s.AddClass( TRID, "trid", &ranking_descriptor );
-    s.AddClass( FIZZBIN, "fizzbin", &ranking_descriptor );
+    s.AddClass(TRID, "trid", &ranking_descriptor);
+    s.AddClass(FIZZBIN, "fizzbin", &ranking_descriptor);
     
     s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(HERO) != e.id(); } );
     s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(FEAR) != e.id(); } );

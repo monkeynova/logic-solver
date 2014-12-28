@@ -1,6 +1,10 @@
-all: dirs bin/opt/six_fearsome_heroes
+BINS=six_fearsome_heroes class_permuter_test solution_permuter_test
 
-debug: bin/dbg/six_fearsome_heroes
+all: opt
+
+opt: dirs $(addprefix bin/opt/,$(BINS))
+
+debug: dirs $(addprefix bin/dbg/,$(BINS))
 
 CCOPTS=-Wall -Werror --std=c++11
 CCOPTIMIZE=-O2
@@ -10,19 +14,16 @@ dirs:
 	@mkdir -p bin/opt
 	@mkdir -p bin/dbg
 
-bin/opt/six_fearsome_heroes: bin/opt/six_fearsome_heroes.o bin/opt/solver.o
+.PRECIOUS: bin/opt/%.o bin/dbg/%.o
+
+bin/opt/%: bin/opt/%.o bin/opt/solver.o
 	g++ -o $@ $^
 
-bin/dbg/six_fearsome_heroes: bin/dbg/six_fearsome_heroes.o bin/dbg/solver.o
+bin/dbg/%: bin/dbg/%.o bin/dbg/solver.o
 	g++ -o $@ $^
 
-bin/opt/%.o:
+bin/opt/%.o: %.cc solver.h Makefile
 	g++ -c $< -o $@ $(CCOPTS) $(CCOPT)
 
-bin/dbg/%.o:
+bin/dbg/%.o: %.cc solver.h Makefile
 	g++ -c $< -o $@ $(CCOPTS) $(CCDEBUG)
-
-bin/opt/six_fearsome_heroes.o: six_fearsome_heroes.cc solver.h Makefile
-bin/dbg/six_fearsome_heroes.o: six_fearsome_heroes.cc solver.h Makefile
-bin/opt/solver.o: solver.cc solver.h Makefile
-bin/dbg/solver.o: solver.cc solver.h Makefile

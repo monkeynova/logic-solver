@@ -1,5 +1,7 @@
 #include "solver.h"
 
+#include <sys/time.h>
+
 using namespace Puzzle;
 
 Entry Entry::invalid_(-1);
@@ -7,15 +9,19 @@ Entry Entry::invalid_(-1);
 static vector<Entry> empty_entry_vector;
 Solution Solution::invalid_(empty_entry_vector);
 
-ClassPermuter::iterator::iterator(const Descriptor* descriptor)
-    : descriptor_(descriptor) {
-    if (descriptor_ != nullptr) {
-        current_ = descriptor_->Values();
+void ClassPermuter::iterator::BuildCurrent() {
+    if (position_ >= max_) {
+        current_.resize(0);
+    } else {
+        int tmp = position_;
+        vector<int> choose = values_;
+        for (int i = 0; i < choose.size(); ++i) {
+            int next = tmp % (choose.size() - i);
+            tmp /= (choose.size() - i);
+            current_[i] = choose[next];
+            choose[next] = choose[choose.size() - i - 1];
+        }
     }
-}
-
-void ClassPermuter::iterator::Advance() {
-    
 }
 
 SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
@@ -24,15 +30,24 @@ SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
         return;
     }
 
-    vector<int> empty;
+    class_types_ = entry_descriptor->AllClasses()->Values();
     
-    for (auto id: entry_descriptor_->AllIds().Values()) {
-        entries_.push_back(Entry(id,empty,entry_descriptor_));
+    vector<int> bad_classes(class_types_.size(),-1);
+
+    for (auto id: entry_descriptor_->AllIds()->Values()) {
+        entries_.push_back(Entry(id,bad_classes,entry_descriptor_));
     }
-    for (auto class_int: entry_descriptor_->AllClasses().Values()) {
+    permuters_.resize(class_types_.size(),nullptr);
+    iterators_.resize(class_types_.size());
+    for (auto class_int: class_types_) {
         const Descriptor* class_descriptor = entry_descriptor_->AllClassValues(class_int);
-        permuters_.push_back(ClassPermuter(class_descriptor));
-        iterators_.push_back(permuters_[permuters_.size() - 1].begin());
+        permuters_[class_int] = ClassPermuter(class_descriptor);
+        iterators_[class_int] = permuters_[class_int].begin();
+
+        const vector<int>& class_values = *(iterators_[class_int]);
+        for (int j = 0; j < class_values.size(); j++ ) {
+            entries_[j].SetClass(class_int, class_values[j]);
+        }
     }
 
     current_ = Solution(entries_);
@@ -40,17 +55,18 @@ SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
 
 void SolutionPermuter::iterator::Advance() {
     bool at_end = true;
-    for (int i = 0; i < permuters_.size(); ++i) {
-        ++iterators_[i];
+    for (int class_int: class_types_) {
+        ++iterators_[class_int];
         
         bool carry = false;
-        if (iterators_[i] == permuters_[i].end()) {
-            iterators_[i] = permuters_[i].begin();
+        if (iterators_[class_int] == permuters_[class_int].end()) {
+            iterators_[class_int] = permuters_[class_int].begin();
             carry = true;
         }
 
-        for (int j = 0; j < iterators_[i]->size(); j++ ) {
-            entries_[j].SetClass(i, (*iterators_[i])[j]);
+        const vector<int>& class_values = *(iterators_[class_int]);
+        for (int j = 0; j < class_values.size(); j++ ) {
+            entries_[j].SetClass(class_int, class_values[j]);
         }
 
         if (!carry) {
@@ -60,15 +76,38 @@ void SolutionPermuter::iterator::Advance() {
     }
     if (at_end) {
         current_ = Solution::Invalid();
+    } else {
+        current_ = Solution(entries_);
     }
+}
+
+long long SolutionPermuter::permutation_count() const {
+    long long count = 1;
+    for (auto class_int: entry_descriptor_->AllClasses()->Values()) {
+        int value_count = entry_descriptor_->AllClassValues(class_int)->Values().size();
+        for (int i = 2; i <= value_count; i++) {
+            count *= i;
+        }
+    }
+
+    return count;
 }
 
 Solution Solver::Solve() {
     SolutionPermuter permuter(&entry_descriptor_);
+    long long total = permuter.permutation_count();
+    long long attempts = 0;
+    struct timeval start;
+    gettimeofday(&start,nullptr);
     auto it = find_if(permuter.begin(),
                       permuter.end(),
-                      [this](const Solution& s) {
-                          cout << "Trying" << endl << s.ToStr() << endl;
+                      [this,&attempts,total,start](const Solution& s) {
+                          if (++attempts % 777 == 0) {
+                              struct timeval end;
+                              gettimeofday(&end,nullptr);
+                              double qps = attempts / (end.tv_sec - start.tv_sec + 1e-6 * (end.tv_usec - start.tv_usec));
+                              cout << "Trying " << (100 * attempts / static_cast<double>(total)) << "%, " << qps/1000 << "Kqps\r" << flush;
+                          }
                           return all_of(onSolution.begin(),
                                         onSolution.end(),
                                         [s](const function<bool(const Solution&)>& p) { return p(s); } );

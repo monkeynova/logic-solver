@@ -71,24 +71,24 @@ class EntryDescriptor {
 public:
     EntryDescriptor() {}
 
-    void SetIds(const Descriptor& id_descriptor) { id_descriptor_ = id_descriptor; }
+    void SetIds(const Descriptor* id_descriptor) { id_descriptor_ = id_descriptor; }
     void SetClass(int class_int, const string& class_name, const Descriptor* name_descriptor ) {
         class_descriptor_.SetDescription(class_int, class_name);
         name_descriptors_.resize(class_int + 1);
         name_descriptors_[class_int] = name_descriptor;
     }
 
-    const Descriptor& AllIds() const { return id_descriptor_; }
-    const Descriptor& AllClasses() const { return class_descriptor_; }
+    const Descriptor* AllIds() const { return id_descriptor_; }
+    const Descriptor* AllClasses() const { return &class_descriptor_; }
     const Descriptor* AllClassValues(int class_int) const { return name_descriptors_[class_int]; }
 
-    string Id(int id_int) const { return id_descriptor_.ToStr(id_int); }
+    string Id(int id_int) const { return id_descriptor_->ToStr(id_int); }
     string Class(int class_int) const { return class_descriptor_.ToStr(class_int); }
     string Name(int class_int, int name_int) const {
         return name_descriptors_[class_int] ? name_descriptors_[class_int]->ToStr(name_int) : ""; }
 
 private:
-    Descriptor id_descriptor_;
+    const Descriptor* id_descriptor_;
     StringDescriptor class_descriptor_;
     vector<const Descriptor*> name_descriptors_;
 };
@@ -165,7 +165,7 @@ public:
     }
     string ToStr() const {
         string ret;
-        for  (const Entry& e: entries_ ) { ret += e.ToStr() + "\n"; }
+        for (const Entry& e: entries_ ) { ret += e.ToStr() + "\n"; }
         return ret;
     }
     static const Solution& Invalid() { return invalid_; }
@@ -180,7 +180,21 @@ class ClassPermuter {
     class iterator {
     public:
         iterator() : iterator(nullptr) {}
-        iterator(const Descriptor* descriptor);
+        iterator(const Descriptor* descriptor) {
+            if (descriptor != nullptr) {
+                values_ = descriptor->Values();
+            }
+            int entries = values_.size();
+            if (entries > 0) {
+                max_ = 1;
+                for (int i = 2; i <= entries; i++ ) {
+                    max_ *= i;
+                }
+            }
+            position_ = 0;
+            current_.resize(values_.size());
+            BuildCurrent();
+        }
 
         bool operator!=(const iterator& other) {
             return !(*this == other);
@@ -195,15 +209,18 @@ class ClassPermuter {
             return &current_;
         }
         iterator& operator++() {
-            Advance();
+            ++position_;
+            BuildCurrent();
             return *this;
         }
 
     private:
-        void Advance();
+        void BuildCurrent();
 
-        const Descriptor* descriptor_;
+        vector<int> values_;
         vector<int> current_;
+        int position_;
+        int max_;
     };
 
     ClassPermuter(const Descriptor* d) : descriptor_(d) {}
@@ -245,6 +262,7 @@ class SolutionPermuter {
 
         const EntryDescriptor* entry_descriptor_;
         vector<Entry> entries_;
+        vector<int> class_types_;
         vector<ClassPermuter> permuters_;
         vector<ClassPermuter::iterator> iterators_;
         Solution current_;
@@ -256,6 +274,8 @@ class SolutionPermuter {
     iterator begin() { return iterator(entry_descriptor_); }
     iterator end() { return iterator(); }
 
+    long long permutation_count() const;
+
  private:
     const EntryDescriptor* entry_descriptor_;
 };
@@ -265,7 +285,7 @@ class Solver {
     Solver() {}
     ~Solver() {}
 
-    void SetIdentifiers(const Descriptor& id_descriptor) {
+    void SetIdentifiers(const Descriptor* id_descriptor) {
         entry_descriptor_.SetIds(id_descriptor);
     }
     void AddClass(int class_int, const string& class_name, const Descriptor* name_descriptor) {
