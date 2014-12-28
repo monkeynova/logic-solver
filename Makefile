@@ -12,7 +12,7 @@ LDOPTIMIZE=
 CCDEBUG=-g
 LDDEBUG=
 CCPROF=-g -O2
-LDPROF=-lprofile
+LDPROF=-lprofiler
 
 dirs:
 	@mkdir -p bin/opt
@@ -31,7 +31,7 @@ bin/dbg/%: bin/dbg/%.o bin/dbg/solver.o
 	g++ -o $@ $^ $(LDDEBUG)
 
 bin/opt/%.o: %.cc solver.h Makefile
-	g++ -c $< -o $@ $(CCOPTS) $(CCOPT)
+	g++ -c $< -o $@ $(CCOPTS) $(CCOPTIMIZE)
 
 bin/prof/%.o: %.cc solver.h Makefile
 	g++ -c $< -o $@ $(CCOPTS) $(CCPROF)
