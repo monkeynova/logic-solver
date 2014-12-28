@@ -9,9 +9,9 @@ debug: dirs $(addprefix bin/dbg/,$(BINS))
 CCOPTS=-Wall -Werror --std=c++11
 CCOPTIMIZE=-O2
 LDOPTIMIZE=
-CCDEBUG=-g
+CCDEBUG=-g -ggdb
 LDDEBUG=
-CCPROF=-g -O2
+CCPROF=-g -ggdb -O2 -DPROFILE
 LDPROF=-lprofiler
 
 dirs:

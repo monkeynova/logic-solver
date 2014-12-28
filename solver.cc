@@ -108,6 +108,11 @@ Solution Solver::Solve() {
                               double qps = attempts / (end.tv_sec - start.tv_sec + 1e-6 * (end.tv_usec - start.tv_usec));
                               cout << "\033[1K\rTrying " << (100 * attempts / static_cast<double>(total)) << "%, " << qps/1000 << "Kqps" << flush;
                           }
+#ifdef PROFILE
+                          if (attempts > 1e7) {
+                              return true;
+                          }
+#endif
                           return all_of(onSolution.begin(),
                                         onSolution.end(),
                                         [s](const function<bool(const Solution&)>& p) { return p(s); } );
