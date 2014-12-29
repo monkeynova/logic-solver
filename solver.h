@@ -146,40 +146,43 @@ private:
 
 class Solution {
 public:
-    Solution(const vector<Entry>& entries) : entries_(entries) {}
+    Solution() : Solution(nullptr) {}
+    Solution(const vector<Entry>* entries) : entries_(entries) {}
     ~Solution() {}
 
     bool operator==(const Solution& other) const {
-        if (this == &other)
+        if (this == &other) {
             return true;
-        return entries_ == other.entries_;
+        }
+        if (entries_ == nullptr || other.entries_ == nullptr) {
+            return entries_ == other.entries_;
+        }
+        return *entries_ == *other.entries_;
     }
 
-    bool IsValid() const { return entries_.size() > 0; }
-    const vector<Entry>& entries() const { return entries_; }
-    const Entry& Id(int id) const { return entries_[id]; }
+    bool IsValid() const { return entries_ != nullptr; }
+    const vector<Entry>& entries() const { return *entries_; }
+    const Entry& Id(int id) const { return (*entries_)[id]; }
     const Entry& Find(function<bool(const Entry&)> pred) const {
-        for (const Entry& e: entries_) {if (pred(e)) {return e;}}
+        for (const Entry& e: *entries_) {if (pred(e)) {return e;}}
         cerr << "Cannot find and entry for the given predicate" << endl;
         return Entry::Invalid();
     }
     string ToStr() const {
         string ret;
-        for (const Entry& e: entries_ ) { ret += e.ToStr() + "\n"; }
+        for (const Entry& e: *entries_ ) { ret += e.ToStr() + "\n"; }
         return ret;
     }
-    static const Solution& Invalid() { return invalid_; }
 
 private:
-    static Solution invalid_;
-    vector<Entry> entries_;
+    const vector<Entry>* entries_;
 };
 
 class ClassPermuter {
  public:
     class iterator {
     public:
-	typedef std::forward_iterator_tag iterator_category;
+        typedef std::forward_iterator_tag iterator_category;
         typedef int difference_type;
         typedef ClassPermuter value_type;
         typedef ClassPermuter& reference;
@@ -244,10 +247,10 @@ class SolutionPermuter {
     class iterator {
     public:
         typedef std::forward_iterator_tag iterator_category;
-	typedef int difference_type;
-	typedef SolutionPermuter value_type;
-	typedef SolutionPermuter& reference;
-	typedef SolutionPermuter* pointer;
+        typedef int difference_type;
+        typedef SolutionPermuter value_type;
+        typedef SolutionPermuter& reference;
+        typedef SolutionPermuter* pointer;
 
         iterator() : iterator(nullptr) {}
         iterator(const EntryDescriptor* entry_descriptor);

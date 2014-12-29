@@ -6,9 +6,6 @@ using namespace Puzzle;
 
 Entry Entry::invalid_(-1);
 
-static vector<Entry> empty_entry_vector;
-Solution Solution::invalid_(empty_entry_vector);
-
 void ClassPermuter::iterator::BuildCurrent() {
     if (position_ >= max_) {
         current_.resize(0);
@@ -25,7 +22,7 @@ void ClassPermuter::iterator::BuildCurrent() {
 }
 
 SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
-    : entry_descriptor_(entry_descriptor), current_(Solution::Invalid()) {
+    : entry_descriptor_(entry_descriptor), current_() {
     if (entry_descriptor_ == nullptr) {
         return;
     }
@@ -50,7 +47,7 @@ SolutionPermuter::iterator::iterator(const EntryDescriptor* entry_descriptor)
         }
     }
 
-    current_ = Solution(entries_);
+    current_ = Solution(&entries_);
 }
 
 void SolutionPermuter::iterator::Advance() {
@@ -75,9 +72,7 @@ void SolutionPermuter::iterator::Advance() {
         }
     }
     if (at_end) {
-        current_ = Solution::Invalid();
-    } else {
-        current_ = Solution(entries_);
+        current_ = Solution();
     }
 }
 
@@ -102,14 +97,14 @@ Solution Solver::Solve() {
     auto it = find_if(permuter.begin(),
                       permuter.end(),
                       [this,&attempts,total,start](const Solution& s) {
-                          if (++attempts % 77777 == 0) {
+                          if (++attempts % 777777 == 0) {
                               struct timeval end;
                               gettimeofday(&end,nullptr);
                               double qps = attempts / (end.tv_sec - start.tv_sec + 1e-6 * (end.tv_usec - start.tv_usec));
                               cout << "\033[1K\rTrying " << (100 * attempts / static_cast<double>(total)) << "%, " << qps/1000 << "Kqps" << flush;
                           }
 #ifdef PROFILE
-                          if (attempts > 1e7) {
+                          if (attempts > 1e8) {
                               return true;
                           }
 #endif
@@ -121,5 +116,5 @@ Solution Solver::Solve() {
     if (it != permuter.end()) {
         return *it;
     }
-    return Solution::Invalid();
+    return Solution();
 }
