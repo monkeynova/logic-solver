@@ -102,7 +102,7 @@ Solution Solver::Solve() {
     auto it = find_if(permuter.begin(),
                       permuter.end(),
                       [this,&attempts,total,start](const Solution& s) {
-                          if (++attempts % 7777 == 0) {
+                          if (++attempts % 77777 == 0) {
                               struct timeval end;
                               gettimeofday(&end,nullptr);
                               double qps = attempts / (end.tv_sec - start.tv_sec + 1e-6 * (end.tv_usec - start.tv_usec));
@@ -115,7 +115,7 @@ Solution Solver::Solve() {
 #endif
                           return all_of(onSolution.begin(),
                                         onSolution.end(),
-                                        [s](const function<bool(const Solution&)>& p) { return p(s); } );
+                                        [&s](const function<bool(const Solution&)>& p) { return p(s); } );
                       });
     cout << endl;
     if (it != permuter.end()) {
