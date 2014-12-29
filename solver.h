@@ -313,7 +313,27 @@ class Solver {
                               predicate);
             });
     }
+    void AddPredicate(function<bool(const Entry&)> predicate, int class_int_restrict) {
+        AddPredicate([predicate](const Solution& s) {
+                return all_of(s.entries().begin(),
+                              s.entries().end(),
+                              predicate);
+            }, class_int_restrict);
+    }
+    void AddPredicate(function<bool(const Entry&)> predicate, const vector<int>& class_int_restricts) {
+        AddPredicate([predicate](const Solution& s) {
+                return all_of(s.entries().begin(),
+                              s.entries().end(),
+                              predicate);
+            }, class_int_restricts);
+    }
     void AddPredicate(function<bool(const Solution&)> predicate) {
+        onSolution.push_back(predicate);
+    }
+    void AddPredicate(function<bool(const Solution&)> predicate, int class_int_restrict) {
+        onSolution.push_back(predicate);
+    }
+    void AddPredicate(function<bool(const Solution&)> predicate, const vector<int>& class_int_restricts) {
         onSolution.push_back(predicate);
     }
 

@@ -2,76 +2,104 @@
 
 #include "solver.h"
 
-int main( void ) {
-    enum WHO { 
-        Picard = 0,
-        Riker = 1,
-        Troi = 2,
-        Geordi = 3,
-        Data = 4,
-        Worf = 5};
+enum WHO { 
+    Picard = 0,
+    Riker = 1,
+    Troi = 2,
+    Geordi = 3,
+    Data = 4,
+    Worf = 5};
 
-    enum CLASSES {
-        HERO = 0,
-        FEAR = 1,
-        TRID = 2,
-        FIZZBIN = 3};
+enum CLASSES {
+    HERO = 0,
+    FEAR = 1,
+    TRID = 2,
+    FIZZBIN = 3};
 
-    Puzzle::Solver s;
+void SetupProblem(Puzzle::Solver& s, vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
+    Puzzle::StringDescriptor *who_descriptor = new Puzzle::StringDescriptor();
+    descriptors->push_back(std::unique_ptr<Puzzle::Descriptor>(who_descriptor));
 
-    Puzzle::StringDescriptor who_descriptor;
-    who_descriptor.SetDescription(Picard, "Picard");
-    who_descriptor.SetDescription(Riker, "Riker");
-    who_descriptor.SetDescription(Troi, "Troi");
-    who_descriptor.SetDescription(Geordi, "Geordi");
-    who_descriptor.SetDescription(Data, "Data");
-    who_descriptor.SetDescription(Worf, "Worf");
-
-    s.SetIdentifiers(&who_descriptor);
-    s.AddClass(HERO, "hero", &who_descriptor);
-    s.AddClass(FEAR, "fear", &who_descriptor);
-
-    Puzzle::IntRangeDescriptor ranking_descriptor(1, 6);
-
-    s.AddClass(TRID, "trid", &ranking_descriptor);
-    s.AddClass(FIZZBIN, "fizzbin", &ranking_descriptor);
+    who_descriptor->SetDescription(Picard, "Picard");
+    who_descriptor->SetDescription(Riker, "Riker");
+    who_descriptor->SetDescription(Troi, "Troi");
+    who_descriptor->SetDescription(Geordi, "Geordi");
+    who_descriptor->SetDescription(Data, "Data");
+    who_descriptor->SetDescription(Worf, "Worf");
     
-    s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(HERO) != e.id(); } );
-    s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(FEAR) != e.id(); } );
+    s.SetIdentifiers(who_descriptor);
+    s.AddClass(HERO, "hero", who_descriptor);
+    s.AddClass(FEAR, "fear", who_descriptor);
 
+    Puzzle::IntRangeDescriptor *ranking_descriptor = new Puzzle::IntRangeDescriptor(1, 6);
+    descriptors->push_back(std::unique_ptr<Puzzle::Descriptor>(ranking_descriptor));
+
+    s.AddClass(TRID, "trid", ranking_descriptor);
+    s.AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
+}
+
+void AddProblemPredicates(Puzzle::Solver& s) {
+    s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(HERO) != e.id(); }, HERO );
+    s.AddPredicate([](const Puzzle::Entry& e) {return e.Class(FEAR) != e.id(); }, FEAR );
+}
+
+void AddRulePredicates(Puzzle::Solver& s) {
     // Geordi ranks 2 at Tri-D Chess.
-    s.AddPredicate([](const Puzzle::Solution& s) {return s.Id(Geordi).Class(TRID) == 2;});
+    s.AddPredicate([](const Puzzle::Solution& s) {return s.Id(Geordi).Class(TRID) == 2;}, TRID);
+
     // Picard ranks two positions behind Troi at Fizzbin.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(Picard).Class(FIZZBIN) == s.Id(Troi).Class(FIZZBIN) - 2; });
+            return s.Id(Picard).Class(FIZZBIN) == s.Id(Troi).Class(FIZZBIN) - 2; }, FIZZBIN);
+
     // Troi is feared by the person Geordi fears.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(s.Id(Geordi).Class(FEAR)).Class(FEAR) == Troi;});
+            return s.Id(s.Id(Geordi).Class(FEAR)).Class(FEAR) == Troi;}, FEAR);
+
     // Worf's hero ranks 3 times lower at Tri-D Chess than the crew member who is best at Fizzbin.
     s.AddPredicate([](const Puzzle::Solution& s) {
             return s.Id(s.Id(Worf).Class(HERO)).Class(TRID) * 3 == 
-                s.Find([](const Puzzle::Entry& e) {return e.Class(FIZZBIN) == 6;}).Class(TRID); });
+                s.Find([](const Puzzle::Entry& e) {return e.Class(FIZZBIN) == 6;}).Class(TRID); }, {HERO, TRID, FIZZBIN});
+
     // Picard's hero fears Geordi.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(s.Id(Picard).Class(HERO)).Class(FEAR) == Geordi;});
+            return s.Id(s.Id(Picard).Class(HERO)).Class(FEAR) == Geordi;}, {HERO, FEAR});
+
     // Data's hero is not Geordi.
-    s.AddPredicate([](const Puzzle::Solution& s) {return s.Id(Data).Class(HERO) != Geordi;});
+    s.AddPredicate([](const Puzzle::Solution& s) {return s.Id(Data).Class(HERO) != Geordi;}, HERO);
+
     // Data is the hero of Riker's hero.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(s.Id(Riker).Class(HERO)).Class(HERO) == Data;});
+            return s.Id(s.Id(Riker).Class(HERO)).Class(HERO) == Data;}, HERO);
+
     // The person who is worst at Fizzbin is better than Troi at Tri-D Chess.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(Troi).Class(TRID) < s.Find([](const Puzzle::Entry& e) {return e.Class(FIZZBIN) == 1;}).Class(TRID);});
+            return s.Id(Troi).Class(TRID) < s.Find([](const Puzzle::Entry& e) {return e.Class(FIZZBIN) == 1;}).Class(TRID);},
+        {TRID, FIZZBIN});
+
     // The person ranked number 3 at Tri-D Chess is ranked 4 positions higher than Data at Fizzbin.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Find([](const Puzzle::Entry& e) {return e.Class(TRID) == 3;}).Class(FIZZBIN) == 4 + s.Id(Data).Class(FIZZBIN);});
+            return s.Find([](const Puzzle::Entry& e) {return e.Class(TRID) == 3;}).Class(FIZZBIN) == 4 + s.Id(Data).Class(FIZZBIN);},
+        {TRID, FIZZBIN});
+
     // Riker is feared by the person Picard fears and is the hero of Worf's hero.
     s.AddPredicate([](const Puzzle::Solution& s) {
             return s.Id(s.Id(Worf).Class(HERO)).Class(HERO) == Riker &&
-                s.Id(s.Id(Picard).Class(FEAR)).Class(FEAR) == Riker;});
+                s.Id(s.Id(Picard).Class(FEAR)).Class(FEAR) == Riker;},
+        {HERO, FEAR});
+
     // Riker is ranked 2 lower at Tri-D Chess than the crew member ranked 2 at Fizzbin.
     s.AddPredicate([](const Puzzle::Solution& s) {
-            return s.Id(Riker).Class(TRID) + 2 == s.Find([](const Puzzle::Entry& e) {return e.Class(FIZZBIN) == 2;}).Class(TRID);});
+            return s.Id(Riker).Class(TRID) + 2 == s.Find([](const Puzzle::Entry& e) {return e.Class(FIZZBIN) == 2;}).Class(TRID);},
+        {TRID, FIZZBIN});
+}
+
+int main( void ) {
+    Puzzle::Solver s;
+    vector<std::unique_ptr<Puzzle::Descriptor>> descriptors;
+
+    SetupProblem(s, &descriptors);
+    AddProblemPredicates(s);
+    AddRulePredicates(s);
 
     Puzzle::Solution answer = s.Solve();
 

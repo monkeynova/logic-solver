@@ -11,12 +11,13 @@ void ClassPermuter::iterator::BuildCurrent() {
         current_.resize(0);
     } else {
         int tmp = position_;
-        vector<int> choose = values_;
-        for (unsigned int i = 0; i < choose.size(); ++i) {
-            int next = tmp % (choose.size() - i);
-            tmp /= (choose.size() - i);
-            current_[i] = choose[next];
-            choose[next] = choose[choose.size() - i - 1];
+        for (unsigned int i = 0; i < current_.size(); ++i) {
+            current_[i] = values_[i];
+        }
+        for (unsigned int i = 0; i < current_.size(); ++i) {
+            int next = tmp % (current_.size() - i);
+            tmp /= (current_.size() - i);
+            swap(current_[i], current_[i + next]);
         }
     }
 }
@@ -62,7 +63,7 @@ void SolutionPermuter::iterator::Advance() {
         }
 
         const vector<int>& class_values = *(iterators_[class_int]);
-        for (unsigned int j = 0; j < class_values.size(); j++ ) {
+        for (unsigned int j = 0; j < class_values.size(); ++j ) {
             entries_[j].SetClass(class_int, class_values[j]);
         }
 
