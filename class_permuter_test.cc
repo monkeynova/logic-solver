@@ -15,6 +15,6 @@ int main(void) {
             }
             cout << *it2;
         }
-        cout << "]" << endl;
+        cout << "]: " << it.position() << "/" << p.permutation_count() << "==" << it.completion() << endl;
     }
 }

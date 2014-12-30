@@ -21,7 +21,7 @@ void ClassPermuter::iterator::BuildCurrent() {
 long long ClassPermuter::permutation_count() const {
     long long ret = 1;
     int value_count = descriptor_->Values().size();
-    for (int i = 2; i < value_count; i++ ) {
+    for (int i = 2; i <= value_count; i++ ) {
         ret *= i;
     }
     return ret;

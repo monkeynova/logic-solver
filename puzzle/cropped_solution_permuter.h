@@ -36,6 +36,9 @@ class CroppedSolutionPermuter {
             return *this;
         }
 
+        long long position() const;
+        double completion() const;
+
     private:
         void Advance();
 
@@ -47,7 +50,8 @@ class CroppedSolutionPermuter {
         Solution current_;
     };
 
-    CroppedSolutionPermuter(const EntryDescriptor* e);
+    CroppedSolutionPermuter(const EntryDescriptor* e, 
+                            const vector<pair<Predicate,vector<int>>>& croppers_with_class);
     ~CroppedSolutionPermuter() {}
 
     iterator begin() const { return iterator(*this, entry_descriptor_); }
@@ -59,6 +63,7 @@ class CroppedSolutionPermuter {
  private:
     const EntryDescriptor* entry_descriptor_;
     vector<ClassPermuter> class_permuters_;
+    vector<vector<Predicate>> class_crop_predicates_;
 };
 
 }  // namespace Puzzle

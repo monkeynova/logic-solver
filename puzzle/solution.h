@@ -178,6 +178,8 @@ private:
     const vector<Entry>* entries_;
 };
 
+ typedef function<bool(const Solution&)> Predicate;
+
 }  // namespace Puzzle
 
 #endif  // __PUZZLE_SOLUTION_H

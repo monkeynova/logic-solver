@@ -15,6 +15,7 @@ class Solver {
     }
     void AddClass(int class_int, const string& class_name, const Descriptor* name_descriptor) {
         entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
+        on_solution_with_class_.resize(class_int);
     }
     void AddPredicate(function<bool(const Entry&)> predicate) {
         AddPredicate([predicate](const Solution& s) {
@@ -30,21 +31,23 @@ class Solver {
                               predicate);
             }, class_int_restrict);
     }
-    void AddPredicate(function<bool(const Entry&)> predicate, const vector<int>& class_int_restricts) {
+    void AddPredicate(function<bool(const Entry&)> predicate, const vector<int>& class_int_restrict_list) {
         AddPredicate([predicate](const Solution& s) {
                 return all_of(s.entries().begin(),
                               s.entries().end(),
                               predicate);
-            }, class_int_restricts);
+            }, class_int_restrict_list);
     }
-    void AddPredicate(function<bool(const Solution&)> predicate) {
-        onSolution.push_back(predicate);
+    void AddPredicate(Predicate predicate) {
+        on_solution_.push_back(predicate);
     }
-    void AddPredicate(function<bool(const Solution&)> predicate, int class_int_restrict) {
-        onSolution.push_back(predicate);
+    void AddPredicate(Predicate predicate, int class_int_restrict) {
+        vector<int> class_int_restrict_list = {class_int_restrict};
+        AddPredicate(predicate, class_int_restrict_list);
     }
-    void AddPredicate(function<bool(const Solution&)> predicate, const vector<int>& class_int_restricts) {
-        onSolution.push_back(predicate);
+    void AddPredicate(Predicate predicate, const vector<int>& class_int_restrict_list) {
+        on_solution_.push_back(predicate);
+        on_solution_with_class_.push_back(std::pair<Predicate,vector<int>>(predicate, class_int_restrict_list));
     }
 
     Solution Solve();
@@ -52,7 +55,8 @@ class Solver {
     private:
     EntryDescriptor entry_descriptor_;
 
-    vector<function<bool(const Solution&)>> onSolution;
+    vector<pair<Predicate,vector<int>>> on_solution_with_class_;
+    vector<Predicate> on_solution_;
 };
 
 }  // namespace Puzzle

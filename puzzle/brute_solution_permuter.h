@@ -16,7 +16,7 @@ class BruteSolutionPermuter {
         typedef BruteSolutionPermuter& reference;
         typedef BruteSolutionPermuter* pointer;
 
-        iterator(const BruteSolutionPermuter& permuter, 
+        iterator(const BruteSolutionPermuter& permuter,
                  const EntryDescriptor* entry_descriptor);
 
         bool operator!=(const iterator& other) {
@@ -35,6 +35,9 @@ class BruteSolutionPermuter {
             Advance();
             return *this;
         }
+
+        long long position() const;
+        double completion() const;
 
     private:
         void Advance();

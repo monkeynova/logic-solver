@@ -16,6 +16,7 @@ int main(void) {
 
     Puzzle::BruteSolutionPermuter p(&ed);
     for (auto it = p.begin(); it != p.end(); ++it) {
+        cout << it.position() << "/" << p.permutation_count() << "==" << it.completion() << endl;
         cout << it->ToStr() << endl;
     }
 }

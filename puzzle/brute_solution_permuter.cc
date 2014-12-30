@@ -56,6 +56,22 @@ void BruteSolutionPermuter::iterator::Advance() {
     }
 }
 
+long long BruteSolutionPermuter::iterator::position() const {
+    long long position = 0;
+
+    for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
+        int class_int = *it;
+        position *= permuter_.class_permuter(class_int).permutation_count();
+        position += iterators_[class_int].position();
+    }
+
+    return position;
+}
+
+double BruteSolutionPermuter::iterator::completion() const {
+    return static_cast<double>(position()) / permuter_.permutation_count();
+}
+
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e) 
     : entry_descriptor_(e) {
 

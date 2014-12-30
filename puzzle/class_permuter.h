@@ -50,6 +50,9 @@ class ClassPermuter {
             return *this;
         }
 
+        long long position() const { return position_; }
+        double completion() const { return static_cast<double>(position_) / max_; }
+
     private:
         void BuildCurrent();
 

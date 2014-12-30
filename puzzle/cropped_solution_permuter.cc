@@ -56,7 +56,24 @@ void CroppedSolutionPermuter::iterator::Advance() {
     }
 }
 
-CroppedSolutionPermuter::CroppedSolutionPermuter(const EntryDescriptor* e) 
+long long CroppedSolutionPermuter::iterator::position() const {
+    long long position = 0;
+
+    for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
+        int class_int = *it;
+        position *= permuter_.class_permuter(class_int).permutation_count();
+        position += iterators_[class_int].position();
+    }
+
+    return position;
+}
+
+double CroppedSolutionPermuter::iterator::completion() const {
+    return static_cast<double>(position()) / permuter_.permutation_count();
+}
+
+CroppedSolutionPermuter::CroppedSolutionPermuter(const EntryDescriptor* e, 
+                                                 const vector<pair<Predicate,vector<int>>>& croppers_with_class)
     : entry_descriptor_(e) {
 
     const vector<int>& class_types = entry_descriptor_->AllClasses()->Values();

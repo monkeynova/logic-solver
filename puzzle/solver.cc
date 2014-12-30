@@ -1,6 +1,7 @@
 #include "puzzle/solver.h"
 
 #include "puzzle/brute_solution_permuter.h"
+#include "puzzle/cropped_solution_permuter.h"
 
 #include <sys/time.h>
 
@@ -9,7 +10,8 @@ using namespace Puzzle;
 Entry Entry::invalid_(-1);
 
 Solution Solver::Solve() {
-    BruteSolutionPermuter permuter(&entry_descriptor_);
+    //BruteSolutionPermuter permuter(&entry_descriptor_);
+    CroppedSolutionPermuter permuter(&entry_descriptor_, on_solution_with_class_);
     long long total = permuter.permutation_count();
     long long attempts = 0;
     struct timeval start;
@@ -28,8 +30,8 @@ Solution Solver::Solve() {
                               return true;
                           }
 #endif
-                          return all_of(onSolution.begin(),
-                                        onSolution.end(),
+                          return all_of(on_solution_.begin(),
+                                        on_solution_.end(),
                                         [&s](const function<bool(const Solution&)>& p) { return p(s); } );
                       });
     cout << endl;
