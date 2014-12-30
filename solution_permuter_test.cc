@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "solver.h"
+#include "puzzle/brute_solution_permuter.h"
 
 using namespace std;
 
@@ -14,7 +14,7 @@ int main(void) {
     ed.SetClass(0,"foo",&cd1);
     ed.SetClass(1,"bar",&cd2);
 
-    Puzzle::SolutionPermuter p(&ed);
+    Puzzle::BruteSolutionPermuter p(&ed);
     for (auto it = p.begin(); it != p.end(); ++it) {
         cout << it->ToStr() << endl;
     }

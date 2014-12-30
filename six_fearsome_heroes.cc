@@ -1,4 +1,6 @@
 /*
+From: http://io9.com/can-you-solve-this-extremely-difficult-star-trek-puzzle-1667991339
+
 Grobly Grizik is planning to write a novel fashioned after Star Trek: The Next Generation.
 In this novel, six of the crew members compete both at Fizzbin and at Tridimensional chess.
 Each crew member gets two independent rankings for ability at these games, with 1 ranked
@@ -23,7 +25,7 @@ at Fizzbin and at Tri-D chess, as well as whom he/she fears and whom he/she coun
 #include <iostream>
 #include <memory>
 
-#include "solver.h"
+#include "puzzle/solver.h"
 
 enum WHO { 
     Picard = 0,

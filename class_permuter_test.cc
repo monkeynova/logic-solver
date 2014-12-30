@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "solver.h"
+#include "puzzle/class_permuter.h"
 
 using namespace std;
 
