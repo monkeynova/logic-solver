@@ -62,6 +62,8 @@ class BruteSolutionPermuter {
  private:
     const EntryDescriptor* entry_descriptor_;
     vector<ClassPermuter> class_permuters_;
+
+    friend iterator;
 };
 
 }  // namespace Puzzle

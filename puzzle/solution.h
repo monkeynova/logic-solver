@@ -148,7 +148,15 @@ class Solution {
 public:
     Solution() : Solution(nullptr) {}
     Solution(const vector<Entry>* entries) : entries_(entries) {}
-    ~Solution() {}
+    Solution(const Solution& other)
+        : entries_(other.entries_ == nullptr ? nullptr : new vector<Entry>(*other.entries_)) {
+        own_entries_ = true;
+    }
+    ~Solution() {
+        if (own_entries_ && entries_ != nullptr) {
+            delete entries_;
+        }
+    }
 
     bool operator==(const Solution& other) const {
         if (this == &other) {
@@ -160,6 +168,14 @@ public:
         return *entries_ == *other.entries_;
     }
 
+    long long permutation_position() const { return permutation_position_; }
+    void set_permutation_position(long long position) { permutation_position_ = position; }
+
+    long long permutation_count() const { return permutation_count_; }
+    void set_permutation_count(long long count) { permutation_count_ = count; }
+
+    double completion() const { return static_cast<double>(permutation_position_) / permutation_count_; }
+
     bool IsValid() const { return entries_ != nullptr; }
     const vector<Entry>& entries() const { return *entries_; }
     const Entry& Id(int id) const { return (*entries_)[id]; }
@@ -170,15 +186,30 @@ public:
     }
     string ToStr() const {
         string ret;
-        for (const Entry& e: *entries_ ) { ret += e.ToStr() + "\n"; }
+        if (entries_ != nullptr) {
+            for (const Entry& e: *entries_ ) { ret += e.ToStr() + "\n"; }
+        }
         return ret;
     }
 
 private:
     const vector<Entry>* entries_;
+    bool own_entries_ = false;
+    long long permutation_position_;
+    long long permutation_count_;
 };
 
- typedef function<bool(const Solution&)> Predicate;
+typedef function<bool(const Solution&)> Predicate;
+
+struct SolutionCropper {
+    SolutionCropper() {}
+    SolutionCropper(string name, Predicate p, const vector<int>& classes)
+      : name_(name), p_(p), classes_(classes) {}
+    string name_;
+    Predicate p_;
+    vector<int> classes_;
+ };
+
 
 }  // namespace Puzzle
 

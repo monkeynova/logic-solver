@@ -17,37 +17,37 @@ class Solver {
         entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
         on_solution_with_class_.resize(class_int);
     }
-    void AddPredicate(function<bool(const Entry&)> predicate) {
-        AddPredicate([predicate](const Solution& s) {
+    void AddPredicate(string name, function<bool(const Entry&)> predicate) {
+        AddPredicate(name, [predicate](const Solution& s) {
                 return all_of(s.entries().begin(),
                               s.entries().end(),
                               predicate);
             });
     }
-    void AddPredicate(function<bool(const Entry&)> predicate, int class_int_restrict) {
-        AddPredicate([predicate](const Solution& s) {
+    void AddPredicate(string name, function<bool(const Entry&)> predicate, int class_int_restrict) {
+        AddPredicate(name, [predicate](const Solution& s) {
                 return all_of(s.entries().begin(),
                               s.entries().end(),
                               predicate);
             }, class_int_restrict);
     }
-    void AddPredicate(function<bool(const Entry&)> predicate, const vector<int>& class_int_restrict_list) {
-        AddPredicate([predicate](const Solution& s) {
+    void AddPredicate(string name, function<bool(const Entry&)> predicate, const vector<int>& class_int_restrict_list) {
+        AddPredicate(name, [predicate](const Solution& s) {
                 return all_of(s.entries().begin(),
                               s.entries().end(),
                               predicate);
             }, class_int_restrict_list);
     }
-    void AddPredicate(Predicate predicate) {
+    void AddPredicate(string name, Predicate predicate) {
         on_solution_.push_back(predicate);
     }
-    void AddPredicate(Predicate predicate, int class_int_restrict) {
+    void AddPredicate(string name, Predicate predicate, int class_int_restrict) {
         vector<int> class_int_restrict_list = {class_int_restrict};
-        AddPredicate(predicate, class_int_restrict_list);
+        AddPredicate(name, predicate, class_int_restrict_list);
     }
-    void AddPredicate(Predicate predicate, const vector<int>& class_int_restrict_list) {
+    void AddPredicate(string name, Predicate predicate, const vector<int>& class_int_restrict_list) {
         on_solution_.push_back(predicate);
-        on_solution_with_class_.push_back(std::pair<Predicate,vector<int>>(predicate, class_int_restrict_list));
+        on_solution_with_class_.push_back(SolutionCropper(name, predicate, class_int_restrict_list));
     }
 
     Solution Solve();
@@ -55,7 +55,7 @@ class Solver {
     private:
     EntryDescriptor entry_descriptor_;
 
-    vector<pair<Predicate,vector<int>>> on_solution_with_class_;
+    vector<SolutionCropper> on_solution_with_class_;
     vector<Predicate> on_solution_;
 };
 

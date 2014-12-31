@@ -19,7 +19,7 @@ BruteSolutionPermuter::iterator::iterator(const BruteSolutionPermuter& permuter,
 
     iterators_.resize(class_types_.size());
     for (auto class_int: class_types_) {
-        iterators_[class_int] = permuter_.class_permuter(class_int).begin();
+        iterators_[class_int] = permuter_.class_permuters_[class_int].begin();
 
         const vector<int>& class_values = *(iterators_[class_int]);
         for (unsigned int j = 0; j < class_values.size(); j++ ) {
@@ -28,6 +28,8 @@ BruteSolutionPermuter::iterator::iterator(const BruteSolutionPermuter& permuter,
     }
 
     current_ = Solution(&entries_);
+    current_.set_permutation_count(permuter_.permutation_count());
+    current_.set_permutation_position(0);
 }
 
 void BruteSolutionPermuter::iterator::Advance() {
@@ -36,8 +38,8 @@ void BruteSolutionPermuter::iterator::Advance() {
         ++iterators_[class_int];
         
         bool carry = false;
-        if (iterators_[class_int] == permuter_.class_permuter(class_int).end()) {
-            iterators_[class_int] = permuter_.class_permuter(class_int).begin();
+        if (iterators_[class_int] == permuter_.class_permuters_[class_int].end()) {
+            iterators_[class_int] = permuter_.class_permuters_[class_int].begin();
             carry = true;
         }
 
@@ -53,6 +55,10 @@ void BruteSolutionPermuter::iterator::Advance() {
     }
     if (at_end) {
         current_ = Solution();
+        current_.set_permutation_count(permuter_.permutation_count());
+        current_.set_permutation_position(permuter_.permutation_count());
+    } else {
+        current_.set_permutation_position(current_.permutation_position() + 1);
     }
 }
 
@@ -61,7 +67,7 @@ long long BruteSolutionPermuter::iterator::position() const {
 
     for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
         int class_int = *it;
-        position *= permuter_.class_permuter(class_int).permutation_count();
+        position *= permuter_.class_permuters_[class_int].permutation_count();
         position += iterators_[class_int].position();
     }
 
