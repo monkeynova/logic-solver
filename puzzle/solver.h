@@ -3,6 +3,8 @@
 
 #include "puzzle/solution.h"
 
+struct timeval;
+
 namespace Puzzle {
 
 class Solver {
@@ -51,8 +53,10 @@ class Solver {
     }
 
     Solution Solve();
+    vector<Solution> AllSolutions();
 
     private:
+    bool TestSolution(const Solution& s, const struct timeval &start);
     EntryDescriptor entry_descriptor_;
 
     vector<SolutionCropper> on_solution_with_class_;

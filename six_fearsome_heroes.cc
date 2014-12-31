@@ -136,7 +136,8 @@ void AddRulePredicates(Puzzle::Solver& s) {
                    {TRID, FIZZBIN});
 }
 
-int main( void ) {
+int main(int argc, char* argv[]) {
+    bool flag_all = find_if(argv, argv + argc, [](char* arg) { return string("--all") == arg; }) != argv + argc;
     Puzzle::Solver s;
     vector<std::unique_ptr<Puzzle::Descriptor>> descriptors;
 
@@ -144,9 +145,25 @@ int main( void ) {
     AddProblemPredicates(s);
     AddRulePredicates(s);
 
-    Puzzle::Solution answer = s.Solve();
+    int exit_code = 1;
 
-    cout << answer.ToStr();
+    if (flag_all) {
+      cout << "[AllSolutions]" << endl;
+      bool first = true;
+      for (auto answer: s.AllSolutions()) {
+	exit_code = 0;
+	if (!first) {
+	  cout << endl;  // space between results
+	}
+        cout << answer.ToStr();  // string ends with endl
+	first = false;
+      }
+    } else {
+      Puzzle::Solution answer = s.Solve();
+      cout << answer.ToStr();  // string ends with endl
+      exit_code = answer.IsValid() ? 0 : 1;
+    }
 
-    return answer.IsValid() ? 0 : 1;
+
+    return exit_code;
 }

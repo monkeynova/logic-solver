@@ -39,7 +39,7 @@ CroppedSolutionPermuter::iterator::iterator(const CroppedSolutionPermuter& permu
 //#define DEBUG_CROP
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
-    if (class_position >= class_types_.size()) {
+    if ((unsigned int)class_position >= class_types_.size()) {
         return true;
     }
 
@@ -93,13 +93,13 @@ void CroppedSolutionPermuter::iterator::Advance() {
             break;
         }
     }
-    if (at_end) {
+    if (!at_end && FindNextValid(0)) {
+        current_.set_permutation_count(permuter_.permutation_count());
+        current_.set_permutation_position(position());
+    } else {
         current_ = Solution();
         current_.set_permutation_count(permuter_.permutation_count());
         current_.set_permutation_position(permuter_.permutation_count());
-    } else {
-        //FindNextValid(0);
-        current_.set_permutation_position(current_.permutation_position() + 1);
     }
 }
 
