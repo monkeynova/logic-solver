@@ -1,10 +1,11 @@
 #include "puzzle/brute_solution_permuter.h"
 
-using namespace Puzzle;
+namespace Puzzle {
 
-BruteSolutionPermuter::iterator::iterator(const BruteSolutionPermuter& permuter, 
-                                          const EntryDescriptor* entry_descriptor)
-  : permuter_(permuter), entry_descriptor_(entry_descriptor) {
+BruteSolutionPermuter::iterator::iterator(
+   const BruteSolutionPermuter& permuter, 
+   const EntryDescriptor* entry_descriptor)
+   : permuter_(permuter), entry_descriptor_(entry_descriptor) {
   if (entry_descriptor_ == nullptr) {
     return;
   }
@@ -81,11 +82,13 @@ double BruteSolutionPermuter::iterator::completion() const {
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e) 
   : entry_descriptor_(e) {
   
-  const std::vector<int>& class_types = entry_descriptor_->AllClasses()->Values();
+  const std::vector<int>& class_types =
+      entry_descriptor_->AllClasses()->Values();
   
   class_permuters_.resize(class_types.size(),nullptr);
   for (auto class_int: class_types) {
-    const Descriptor* class_descriptor = entry_descriptor_->AllClassValues(class_int);
+    const Descriptor* class_descriptor =
+        entry_descriptor_->AllClassValues(class_int);
     class_permuters_[class_int] = ClassPermuter(class_descriptor);
   }
 }
@@ -98,3 +101,4 @@ long long BruteSolutionPermuter::permutation_count() const {
   return count;
 }
 
+}  // namespace Puzzle

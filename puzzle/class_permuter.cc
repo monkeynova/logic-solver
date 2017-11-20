@@ -1,6 +1,6 @@
 #include "puzzle/class_permuter.h"
 
-using namespace Puzzle;
+namespace Puzzle {
 
 void ClassPermuter::iterator::BuildCurrent() {
   if (position_ >= max_) {
@@ -26,3 +26,5 @@ long long ClassPermuter::permutation_count() const {
   }
   return ret;
 }
+
+}  // namespace Puzzle

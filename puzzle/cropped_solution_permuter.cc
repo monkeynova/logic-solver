@@ -1,10 +1,11 @@
 #include "puzzle/cropped_solution_permuter.h"
 
-using namespace Puzzle;
+namespace Puzzle {
 
-CroppedSolutionPermuter::iterator::iterator(const CroppedSolutionPermuter& permuter, 
-					    const EntryDescriptor* entry_descriptor)
-  : permuter_(permuter), entry_descriptor_(entry_descriptor) {
+CroppedSolutionPermuter::iterator::iterator(
+    const CroppedSolutionPermuter& permuter, 
+    const EntryDescriptor* entry_descriptor)
+   : permuter_(permuter), entry_descriptor_(entry_descriptor) {
   if (entry_descriptor_ == nullptr) {
     return;
   }
@@ -45,14 +46,20 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   
   int class_int = class_types_[class_position];
   int found = false;
-  
-  while (!found && iterators_[class_int] != permuter_.class_permuters_[class_int].end()) {
-    while(!std::all_of(permuter_.class_crop_predicates_[class_int].begin(),
-		       permuter_.class_crop_predicates_[class_int].end(),
-		       [this](const SolutionCropper& c) { return c.p_(current_); }) ) {
+
+  const ClassPermuter& class_permuter = permuter_.class_permuters_[class_int];
+  const std::vector<SolutionCropper>& solution_cropper =
+      permuter_.class_crop_predicates_[class_int];
+
+  while (!found && iterators_[class_int] != class_permuter.end()) {
+    while(!std::all_of(solution_cropper.begin(),
+		       solution_cropper.end(),
+		       [this](const SolutionCropper& c) {
+			 return c.p_(current_);
+		       })) {
       ++iterators_[class_int];
-      if (iterators_[class_int] == permuter_.class_permuters_[class_int].end()) {
-	iterators_[class_int] = permuter_.class_permuters_[class_int].begin();
+      if (iterators_[class_int] == class_permuter.end()) {
+	iterators_[class_int] = class_permuter.begin();
                 return false;
       }
       UpdateEntries(class_int);
@@ -119,15 +126,17 @@ double CroppedSolutionPermuter::iterator::completion() const {
   return static_cast<double>(position()) / permuter_.permutation_count();
 }
 
-CroppedSolutionPermuter::CroppedSolutionPermuter(const EntryDescriptor* e, 
-                                                 const std::vector<SolutionCropper>& croppers_with_class)
-  : entry_descriptor_(e) {
-  
-  const std::vector<int>& class_types = entry_descriptor_->AllClasses()->Values();
+CroppedSolutionPermuter::CroppedSolutionPermuter(
+    const EntryDescriptor* e, 
+    const std::vector<SolutionCropper>& croppers_with_class)
+   : entry_descriptor_(e) { 
+  const std::vector<int>& class_types =
+      entry_descriptor_->AllClasses()->Values();
   
   class_permuters_.resize(class_types.size(),nullptr);
   for (int class_int: class_types) {
-    const Descriptor* class_descriptor = entry_descriptor_->AllClassValues(class_int);
+    const Descriptor* class_descriptor =
+        entry_descriptor_->AllClassValues(class_int);
     class_permuters_[class_int] = ClassPermuter(class_descriptor);
   }
   
@@ -138,7 +147,9 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(const EntryDescriptor* e,
       
       auto it2 = std::find_if(cropper.classes_.begin(),
 			      cropper.classes_.end(),
-			      [class_int](int find_int) { return class_int == find_int; });
+			      [class_int](int find_int) {
+				return class_int == find_int;
+			      });
       if (it2 != cropper.classes_.end()) {
 	class_crop_predicates_[class_int].push_back(cropper);
 	break;  // class_int
@@ -155,3 +166,4 @@ long long CroppedSolutionPermuter::permutation_count() const {
   return count;
 }
 
+}  // namespace Puzzle

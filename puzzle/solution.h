@@ -15,9 +15,8 @@ class Descriptor {
  public:
   virtual ~Descriptor() {}
 
-  virtual std::vector<int> Values() const {
-    return std::vector<int>();
-  }
+  virtual std::vector<int> Values() const = 0;
+
   virtual std::string ToStr(int i) const {
     std::stringstream ss;
     ss << i;
@@ -104,6 +103,8 @@ class EntryDescriptor {
 
 class Entry {
  public:
+  using Predicate = std::function<bool(const Entry&)>;
+
   Entry(int id, const std::vector<int>& classes,
         const EntryDescriptor* entry_descriptor)
    : id_(id),
@@ -159,6 +160,8 @@ class Entry {
 
 class Solution {
  public:
+  using Predicate = std::function<bool(const Solution&)>;
+
   Solution() : Solution(nullptr) {}
   Solution(const std::vector<Entry>* entries) : entries_(entries) {}
   Solution(const Solution& other)
@@ -221,15 +224,14 @@ class Solution {
   long long permutation_count_;
 };
 
-using Predicate = std::function<bool(const Solution&)>;
-
 struct SolutionCropper {
   SolutionCropper() {}
-  SolutionCropper(std::string name, Predicate p,
+  SolutionCropper(std::string name, Solution::Predicate p,
                   const std::vector<int>& classes)
-  : name_(name), p_(p), classes_(classes) {}
+   : name_(name), p_(p), classes_(classes) {}
+
   std::string name_;
-  Predicate p_;
+  Solution::Predicate p_;
   std::vector<int> classes_;
 };
 
