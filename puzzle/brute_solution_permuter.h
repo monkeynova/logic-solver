@@ -44,9 +44,9 @@ class BruteSolutionPermuter {
 
         const BruteSolutionPermuter& permuter_;
         const EntryDescriptor* entry_descriptor_;
-        vector<Entry> entries_;
-        vector<int> class_types_;
-        vector<ClassPermuter::iterator> iterators_;
+        std::vector<Entry> entries_;
+        std::vector<int> class_types_;
+        std::vector<ClassPermuter::iterator> iterators_;
         Solution current_;
     };
 
@@ -61,7 +61,7 @@ class BruteSolutionPermuter {
 
  private:
     const EntryDescriptor* entry_descriptor_;
-    vector<ClassPermuter> class_permuters_;
+    std::vector<ClassPermuter> class_permuters_;
 
     friend iterator;
 };

@@ -38,10 +38,10 @@ class ClassPermuter {
         bool operator==(const iterator& other) {
             return current_ == other.current_;
         }
-        const vector<int>& operator*() {
+        const std::vector<int>& operator*() {
             return current_;
         }
-        const vector<int>* operator->() {
+        const std::vector<int>* operator->() {
             return &current_;
         }
         iterator& operator++() {
@@ -56,8 +56,8 @@ class ClassPermuter {
     private:
         void BuildCurrent();
 
-        vector<int> values_;
-        vector<int> current_;
+        std::vector<int> values_;
+        std::vector<int> current_;
         int position_;
         int max_;
     };

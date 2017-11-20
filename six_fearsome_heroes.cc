@@ -58,7 +58,7 @@ enum Classes {
 };
 
 void SetupProblem(Puzzle::Solver* s,
-		  vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
+		  std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
     Puzzle::StringDescriptor *who_descriptor = new Puzzle::StringDescriptor();
     descriptors->push_back(std::unique_ptr<Puzzle::Descriptor>(who_descriptor));
 
@@ -197,7 +197,7 @@ void AddRulePredicates(Puzzle::Solver* s) {
 int main(int argc, char* argv[]) {
   bool flag_all = std::find_if(argv, argv + argc,
 			       [](char* arg) {
-				 return string("--all") == arg; 
+				 return std::string("--all") == arg; 
 			       }) != argv + argc;
   Puzzle::Solver s;
   std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors;
@@ -209,19 +209,19 @@ int main(int argc, char* argv[]) {
   int exit_code = 1;
   
   if (flag_all) {
-    cout << "[AllSolutions]" << endl;
+    std::cout << "[AllSolutions]" << std::endl;
     bool first = true;
     for (auto answer: s.AllSolutions()) {
       exit_code = 0;
       if (!first) {
-	cout << endl;  // empty line between results.
+	std::cout << std::endl;  // empty line between results.
       }
-      cout << answer.ToStr();  // string ends with endl.
+      std::cout << answer.ToStr();  // string ends with endl.
       first = false;
     }
   } else {
     Puzzle::Solution answer = s.Solve();
-    cout << answer.ToStr();  // string ends with endl.
+    std::cout << answer.ToStr();  // string ends with endl.
     exit_code = answer.IsValid() ? 0 : 1;
   }
  
