@@ -16,7 +16,7 @@ class CroppedSolutionPermuter {
     typedef CroppedSolutionPermuter& reference;
     typedef CroppedSolutionPermuter* pointer;
     
-    iterator(const CroppedSolutionPermuter& permuter, 
+    iterator(const CroppedSolutionPermuter* permuter, 
              const EntryDescriptor* entry_descriptor);
     iterator(const iterator& other) 
       : permuter_(other.permuter_),
@@ -25,6 +25,15 @@ class CroppedSolutionPermuter {
         class_types_(other.class_types_),
         iterators_(other.iterators_),
         current_(&entries_) {
+    }
+    iterator& operator=(const iterator& other) {
+      permuter_ = other.permuter_;
+      entry_descriptor_ = other.entry_descriptor_;
+      entries_ = other.entries_;
+      class_types_ = other.class_types_;
+      iterators_ = other.iterators_;
+      current_ = &entries_;
+      return *this;
     }
 
     bool operator!=(const iterator& other) {
@@ -52,7 +61,7 @@ class CroppedSolutionPermuter {
     bool FindNextValid(int class_position);
     void UpdateEntries(int class_int);
     
-    const CroppedSolutionPermuter& permuter_;
+    const CroppedSolutionPermuter* permuter_;
     const EntryDescriptor* entry_descriptor_;
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
@@ -64,8 +73,8 @@ class CroppedSolutionPermuter {
                           const std::vector<SolutionCropper>& croppers_with_class);
   ~CroppedSolutionPermuter() {}
   
-  iterator begin() const { return iterator(*this, entry_descriptor_); }
-  iterator end() const { return iterator(*this, nullptr); }
+  iterator begin() const { return iterator(this, entry_descriptor_); }
+  iterator end() const { return iterator(this, nullptr); }
   
   long long permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
