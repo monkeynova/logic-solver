@@ -1,20 +1,24 @@
-#include <iostream>
-
 #include "puzzle/class_permuter.h"
 
-using namespace std;
+#include <iostream>
 
-int main(void) {
-    Puzzle::IntRangeDescriptor d(3, 5);
-    Puzzle::ClassPermuter p(&d);
-    for (auto it = p.begin(); it != p.end(); ++it) {
-        cout << "[";
-        for (auto it2 = it->begin(); it2 != it->end(); ++it2) {
-            if (it2 != it->begin()) {
-                cout << ", ";
-            }
-            cout << *it2;
-        }
-        cout << "]: " << it.position() << "/" << p.permutation_count() << "==" << it.completion() << endl;
-    }
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+using ::testing::UnorderedElementsAre;
+
+TEST(ClassPermuter, Simple) {
+  Puzzle::IntRangeDescriptor d(3, 5);
+  Puzzle::ClassPermuter p(&d);
+  EXPECT_THAT(p.permutation_count(), 6);
+
+  std::set<std::vector<int>> history;
+  int position = 0;
+  for (auto it = p.begin(); it != p.end(); ++it) {
+    EXPECT_THAT(it.position(), position);
+    EXPECT_TRUE(history.insert(*it).second);
+    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    position++;
+  }
+  EXPECT_THAT(position, 6);
 }

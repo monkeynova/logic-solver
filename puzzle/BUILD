@@ -47,3 +47,22 @@ cc_library(
 )
 
  
+cc_test(
+    name = "class_permuter_test",
+    srcs = ["class_permuter_test.cc"],
+    deps = [
+        ":class_permuter",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ]
+)
+
+cc_test(
+    name = "brute_solution_permuter_test",
+    srcs = ["brute_solution_permuter_test.cc"],
+    deps = [
+        ":brute_solution_permuter",
+        "@googletest//:gtest",
+        "@googletest//:gtest_main",
+    ]
+)
