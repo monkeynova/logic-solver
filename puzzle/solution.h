@@ -9,6 +9,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include "absl/strings/str_cat.h"
+#include "absl/strings/str_join.h"
+
 namespace Puzzle {
 
 class Descriptor {
@@ -91,7 +94,7 @@ class EntryDescriptor {
     return class_descriptor_.ToStr(class_int);
   }
   std::string Name(int class_int, int name_int) const {
-    return name_descriptors_[class_int] 
+    return name_descriptors_[class_int]
       ? name_descriptors_[class_int]->ToStr(name_int) : "";
   }
 
@@ -108,7 +111,7 @@ class Entry {
   Entry(int id, const std::vector<int>& classes,
         const EntryDescriptor* entry_descriptor)
    : id_(id),
-     classes_(classes), 
+     classes_(classes),
      entry_descriptor_(entry_descriptor) {}
   ~Entry() {}
 
@@ -165,7 +168,7 @@ class Solution {
   Solution() : Solution(nullptr) {}
   Solution(const std::vector<Entry>* entries) : entries_(entries) {}
   Solution(const Solution& other)
-   : entries_(other.entries_ == nullptr 
+   : entries_(other.entries_ == nullptr
                   ? nullptr : new std::vector<Entry>(*other.entries_)) {
     own_entries_ = true;
   }
@@ -210,13 +213,12 @@ class Solution {
     return Entry::Invalid();
   }
   std::string ToStr() const {
-    std::string ret;
-    if (entries_ != nullptr) {
-      for (const Entry& e: *entries_ ) { ret += e.ToStr() + "\n"; }
-    }
-    return ret;
+    return absl::StrJoin(*entries_, "\n",
+                         [](std::string* out, const Entry& e) {
+                             absl::StrAppend(out, e.ToStr());
+                         });
   }
-  
+
  private:
   const std::vector<Entry>* entries_;
   bool own_entries_ = false;
