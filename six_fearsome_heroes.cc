@@ -213,15 +213,12 @@ int main(int argc, char* argv[]) {
     bool first = true;
     for (auto answer: s.AllSolutions()) {
       exit_code = 0;
-      if (!first) {
-	std::cout << std::endl;  // empty line between results.
-      }
-      std::cout << answer.ToStr();  // string ends with endl.
+      std::cout << answer.ToStr() << std::endl;
       first = false;
     }
   } else {
     Puzzle::Solution answer = s.Solve();
-    std::cout << answer.ToStr();  // string ends with endl.
+    std::cout << answer.ToStr() << std::endl;
     exit_code = answer.IsValid() ? 0 : 1;
   }
  

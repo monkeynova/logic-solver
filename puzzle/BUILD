@@ -42,9 +42,9 @@ cc_library(
 cc_library(
     name="solution",
     hdrs=["solution.h"],
-    deps = [
+    deps = [ 
         "@com_google_absl//absl/strings",
-    ],
+   ],
 )
 
  

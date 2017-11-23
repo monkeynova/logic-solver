@@ -31,8 +31,13 @@ static void DumpProfiling(const strict timeval& start) {
 #endif
 
 Solution Solver::Solve() {
-  //BruteSolutionPermuter permuter(&entry_descriptor_);
-  CroppedSolutionPermuter permuter(&entry_descriptor_, on_solution_with_class_);
+  // return SolveImpl<BruteSolutionPermuter>();
+  return SolveImpl<CroppedSolutionPermuter>();
+}
+
+template <class Permuter>
+Solution Solver::SolveImpl() {
+  Permuter permuter(&entry_descriptor_, on_solution_with_class_);
 #ifdef PROFILING
   struct timeval start;
   gettimeofday(&start, nullptr);
@@ -53,8 +58,13 @@ Solution Solver::Solve() {
 }
 
 std::vector<Solution> Solver::AllSolutions() {
-  //BruteSolutionPermuter permuter(&entry_descriptor_);
-  CroppedSolutionPermuter permuter(&entry_descriptor_, on_solution_with_class_);
+  // return AllSolutions<BruteSolutionPermuter>();
+  return AllSolutionsImpl<CroppedSolutionPermuter>();
+}
+
+template <class Permuter>
+std::vector<Solution> Solver::AllSolutionsImpl() {
+  Permuter permuter(&entry_descriptor_, on_solution_with_class_);
 #ifdef PROFILING
   struct timeval start;
   gettimeofday(&start, nullptr);

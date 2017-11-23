@@ -22,7 +22,7 @@ class Solver {
     entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
     on_solution_with_class_.resize(class_int);
   }
-  
+
   void AddPredicate(std::string name, Entry::Predicate predicate) {
     AddPredicate(name, [predicate](const Solution& s) {
         return all_of(s.entries().begin(),
@@ -30,7 +30,7 @@ class Solver {
                       predicate);
       });
   }
-  
+
   void AddPredicate(std::string name, Entry::Predicate predicate,
                     int class_int_restrict) {
     AddPredicate(name, [predicate](const Solution& s) {
@@ -39,7 +39,7 @@ class Solver {
                       predicate);
       }, class_int_restrict);
   }
-  
+
   void AddPredicate(std::string name, Entry::Predicate predicate,
                     const std::vector<int>& class_int_restrict_list) {
     AddPredicate(name, [predicate](const Solution& s) {
@@ -48,28 +48,34 @@ class Solver {
                       predicate);
       }, class_int_restrict_list);
   }
-  
+
   void AddPredicate(std::string name, Solution::Predicate predicate) {
     on_solution_.push_back(predicate);
   }
-  
+
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     int class_int_restrict) {
     std::vector<int> class_int_restrict_list = {class_int_restrict};
     AddPredicate(name, predicate, class_int_restrict_list);
   }
-  
+
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     const std::vector<int>& class_int_restrict_list) {
     on_solution_.push_back(predicate);
     on_solution_with_class_.push_back(SolutionCropper(name, predicate,
                                                       class_int_restrict_list));
   }
-  
+
  private:
+  template <class Permuter>
+  Solution SolveImpl();
+
+  template <class Permuter>
+  std::vector<Solution> AllSolutionsImpl();
+
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
-  
+
   std::vector<SolutionCropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
 };
