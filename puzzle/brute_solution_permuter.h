@@ -8,62 +8,62 @@ namespace Puzzle {
 
 class BruteSolutionPermuter {
  public:
-    class iterator {
-    public:
-        typedef std::forward_iterator_tag iterator_category;
-        typedef int difference_type;
-        typedef BruteSolutionPermuter value_type;
-        typedef BruteSolutionPermuter& reference;
-        typedef BruteSolutionPermuter* pointer;
+  class iterator {
+   public:
+    typedef std::forward_iterator_tag iterator_category;
+    typedef int difference_type;
+    typedef BruteSolutionPermuter value_type;
+    typedef BruteSolutionPermuter& reference;
+    typedef BruteSolutionPermuter* pointer;
 
-        iterator(const BruteSolutionPermuter& permuter,
-                 const EntryDescriptor* entry_descriptor);
-
-        bool operator!=(const iterator& other) {
-            return !(*this == other);
-        }
-        bool operator==(const iterator& other) {
-            return current_ == other.current_;
-        }
-        const Solution& operator*() {
-            return current_;
-        }
-        const Solution* operator->() {
-            return &current_;
-        }
-        iterator& operator++() {
-            Advance();
-            return *this;
-        }
-
-        long long position() const;
-        double completion() const;
-
-    private:
-        void Advance();
-
-        const BruteSolutionPermuter& permuter_;
-        const EntryDescriptor* entry_descriptor_;
-        std::vector<Entry> entries_;
-        std::vector<int> class_types_;
-        std::vector<ClassPermuter::iterator> iterators_;
-        Solution current_;
-    };
-
-    BruteSolutionPermuter(const EntryDescriptor* e);
-    ~BruteSolutionPermuter() {}
-
-    iterator begin() const { return iterator(*this, entry_descriptor_); }
-    iterator end() const { return iterator(*this, nullptr); }
-
-    long long permutation_count() const;
-    const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
-
- private:
+    iterator(const BruteSolutionPermuter& permuter,
+             const EntryDescriptor* entry_descriptor);
+    
+    bool operator!=(const iterator& other) {
+      return !(*this == other);
+    }
+    bool operator==(const iterator& other) {
+      return current_ == other.current_;
+    }
+    const Solution& operator*() {
+      return current_;
+    }
+    const Solution* operator->() {
+      return &current_;
+    }
+    iterator& operator++() {
+      Advance();
+      return *this;
+    }
+    
+    long long position() const;
+    double completion() const;
+    
+   private:
+    void Advance();
+    
+    const BruteSolutionPermuter& permuter_;
     const EntryDescriptor* entry_descriptor_;
-    std::vector<ClassPermuter> class_permuters_;
-
-    friend iterator;
+    std::vector<Entry> entries_;
+    std::vector<int> class_types_;
+    std::vector<ClassPermuter::iterator> iterators_;
+    Solution current_;
+  };
+  
+  BruteSolutionPermuter(const EntryDescriptor* e);
+  ~BruteSolutionPermuter() {}
+  
+  iterator begin() const { return iterator(*this, entry_descriptor_); }
+  iterator end() const { return iterator(*this, nullptr); }
+  
+  long long permutation_count() const;
+  const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
+  
+ private:
+  const EntryDescriptor* entry_descriptor_;
+  std::vector<ClassPermuter> class_permuters_;
+  
+  friend iterator;
 };
 
 }  // namespace Puzzle
