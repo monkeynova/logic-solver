@@ -16,7 +16,7 @@ class BruteSolutionPermuter {
     typedef BruteSolutionPermuter& reference;
     typedef BruteSolutionPermuter* pointer;
 
-    iterator(const BruteSolutionPermuter& permuter,
+    iterator(const BruteSolutionPermuter* permuter,
              const EntryDescriptor* entry_descriptor);
     
     bool operator!=(const iterator& other) {
@@ -42,7 +42,7 @@ class BruteSolutionPermuter {
    private:
     void Advance();
     
-    const BruteSolutionPermuter& permuter_;
+    const BruteSolutionPermuter* permuter_;
     const EntryDescriptor* entry_descriptor_;
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
@@ -50,11 +50,12 @@ class BruteSolutionPermuter {
     Solution current_;
   };
   
-  BruteSolutionPermuter(const EntryDescriptor* e);
+  BruteSolutionPermuter(const EntryDescriptor* e,
+                        const std::vector<SolutionCropper>& ignored);
   ~BruteSolutionPermuter() {}
   
-  iterator begin() const { return iterator(*this, entry_descriptor_); }
-  iterator end() const { return iterator(*this, nullptr); }
+  iterator begin() const { return iterator(this, entry_descriptor_); }
+  iterator end() const { return iterator(this, nullptr); }
   
   long long permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }

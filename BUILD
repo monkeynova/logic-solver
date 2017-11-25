@@ -3,6 +3,7 @@ cc_binary(
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
         "//puzzle:solver",
+	"@com_github_gflags_gflags//:gflags",
     ]
 )
 

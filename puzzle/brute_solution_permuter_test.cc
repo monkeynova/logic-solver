@@ -15,7 +15,7 @@ TEST(BruteSolutionPermuter, Simple) {
   ed.SetClass(0,"foo",&cd1);
   ed.SetClass(1,"bar",&cd2);
 
-  Puzzle::BruteSolutionPermuter p(&ed);
+  Puzzle::BruteSolutionPermuter p(&ed, {});
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   int position = 0;
   for (auto it = p.begin(); it != p.end(); ++it) {

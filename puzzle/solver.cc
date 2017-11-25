@@ -1,7 +1,10 @@
 #include "puzzle/solver.h"
 
+#include "gflags/gflags.h"
 #include "puzzle/brute_solution_permuter.h"
 #include "puzzle/cropped_solution_permuter.h"
+
+DEFINE_bool(brute_force, false, "Brute force all possible solutions");
 
 #ifdef PROFILING
 #include <sys/time.h>
@@ -12,6 +15,10 @@ namespace Puzzle {
 Entry Entry::invalid_(-1);
 
 bool Solver::TestSolution(const Solution& s) {
+  if (s.permutation_position() % 7777 == 1) {
+    std::cout << "\033[1K\rTrying " << s.permutation_position()
+	      << "/" << s.permutation_count() << std::flush;
+  }
   return std::all_of(on_solution_.begin(),
 		     on_solution_.end(),
 		     [&s](const Solution::Predicate& p) {
@@ -31,8 +38,11 @@ static void DumpProfiling(const strict timeval& start) {
 #endif
 
 Solution Solver::Solve() {
-  // return SolveImpl<BruteSolutionPermuter>();
-  return SolveImpl<CroppedSolutionPermuter>();
+  if (FLAGS_brute_force) {
+    return SolveImpl<BruteSolutionPermuter>();
+  } else {
+    return SolveImpl<CroppedSolutionPermuter>();
+  }
 }
 
 template <class Permuter>
@@ -58,8 +68,11 @@ Solution Solver::SolveImpl() {
 }
 
 std::vector<Solution> Solver::AllSolutions() {
-  // return AllSolutions<BruteSolutionPermuter>();
-  return AllSolutionsImpl<CroppedSolutionPermuter>();
+  if (FLAGS_brute_force) {
+    return AllSolutionsImpl<BruteSolutionPermuter>();
+  } else {
+    return AllSolutionsImpl<CroppedSolutionPermuter>();
+  }
 }
 
 template <class Permuter>

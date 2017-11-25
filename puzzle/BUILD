@@ -6,6 +6,7 @@ cc_library(
         ":brute_solution_permuter",
         ":cropped_solution_permuter",
         ":solution",
+	"@com_github_gflags_gflags//:gflags",
     ],
     visibility=[
         "//visibility:public"
