@@ -57,7 +57,7 @@ class BruteSolutionPermuter {
   };
 
   BruteSolutionPermuter(const EntryDescriptor* e,
-                        const std::vector<SolutionCropper>& ignored);
+                        const std::vector<Solution::Cropper>& ignored);
   ~BruteSolutionPermuter() {}
 
   iterator begin() const { return iterator(this, entry_descriptor_); }

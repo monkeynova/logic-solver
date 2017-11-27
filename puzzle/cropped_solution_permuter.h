@@ -59,7 +59,7 @@ class CroppedSolutionPermuter {
   };
 
   CroppedSolutionPermuter(const EntryDescriptor* e,
-                          const std::vector<SolutionCropper>& croppers_with_class);
+                          const std::vector<Solution::Cropper>& croppers_with_class);
   ~CroppedSolutionPermuter() {}
 
   iterator begin() const { return iterator(this, entry_descriptor_); }
@@ -71,7 +71,7 @@ class CroppedSolutionPermuter {
  private:
   const EntryDescriptor* entry_descriptor_;
   std::vector<ClassPermuter> class_permuters_;
-  std::vector<std::vector<SolutionCropper>> class_crop_predicates_;
+  std::vector<std::vector<Solution::Cropper>> class_crop_predicates_;
 
   friend iterator;
 };

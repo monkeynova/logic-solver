@@ -37,8 +37,6 @@ CroppedSolutionPermuter::iterator::iterator(
   }
 }
 
-//#define DEBUG_CROP
-
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   if ((unsigned int)class_position >= class_types_.size()) {
     return true;
@@ -48,19 +46,19 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   int found = false;
 
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
-  const std::vector<SolutionCropper>& solution_cropper =
+  const std::vector<Solution::Cropper>& solution_cropper =
       permuter_->class_crop_predicates_[class_int];
 
   while (!found && iterators_[class_int] != class_permuter.end()) {
     while(!std::all_of(solution_cropper.begin(),
 		       solution_cropper.end(),
-		       [this](const SolutionCropper& c) {
+		       [this](const Solution::Cropper& c) {
 			 return c.p_(current_);
 		       })) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
 	iterators_[class_int] = class_permuter.begin();
-                return false;
+        return false;
       }
       UpdateEntries(class_int);
     }
@@ -128,7 +126,7 @@ double CroppedSolutionPermuter::iterator::completion() const {
 
 CroppedSolutionPermuter::CroppedSolutionPermuter(
     const EntryDescriptor* e, 
-    const std::vector<SolutionCropper>& croppers_with_class)
+    const std::vector<Solution::Cropper>& croppers_with_class)
    : entry_descriptor_(e) { 
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();

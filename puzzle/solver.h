@@ -62,8 +62,8 @@ class Solver {
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     const std::vector<int>& class_int_restrict_list) {
     on_solution_.push_back(predicate);
-    on_solution_with_class_.push_back(SolutionCropper(name, predicate,
-                                                      class_int_restrict_list));
+    on_solution_with_class_.emplace_back(name, predicate,
+                                         class_int_restrict_list);
   }
 
  private:
@@ -76,7 +76,7 @@ class Solver {
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
 
-  std::vector<SolutionCropper> on_solution_with_class_;
+  std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
 };
 

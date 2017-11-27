@@ -165,6 +165,17 @@ class Solution {
  public:
   using Predicate = std::function<bool(const Solution&)>;
 
+  struct Cropper {
+    Cropper() {}
+    Cropper(std::string name, Solution::Predicate p,
+            const std::vector<int>& classes)
+    : name_(name), p_(p), classes_(classes) {}
+
+      const std::string name_;
+      const Solution::Predicate p_;
+      const std::vector<int> classes_;
+  };
+
   Solution() {}
   Solution(const std::vector<Entry>* entries) : entries_(entries) {}
 
@@ -246,17 +257,6 @@ class Solution {
   bool own_entries_ = false;
   long long permutation_position_;
   long long permutation_count_;
-};
-
-struct SolutionCropper {
-  SolutionCropper() {}
-  SolutionCropper(std::string name, Solution::Predicate p,
-                  const std::vector<int>& classes)
-   : name_(name), p_(p), classes_(classes) {}
-
-  std::string name_;
-  Solution::Predicate p_;
-  std::vector<int> classes_;
 };
 
 }  // namespace Puzzle
