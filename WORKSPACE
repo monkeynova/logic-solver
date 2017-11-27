@@ -14,15 +14,9 @@ git_repository(
     commit = "6a88b407715315e99b372baa82a01f26608091dc",
 )
 
-new_local_repository(
+git_repository(
     name = "com_github_gflags_gflags",
-    path = "Y:/cygwin/home/monkeynova/github/gflags",
-    build_file = "Y:/cygwin/home/monkeynova/github/gflags/BUILD",
+    remote = "https://github.com/gflags/gflags.git",
+    # Latest on 2017.11.23
+    commit = "77592648e3f3be87d6c7123eb81cbad75f9aef5a",
 )
-
-#git_repository(
-#    name = "com_github_gflags_gflags",
-#    remote = "https://github.com/gflags/gflags.git",
-#    # Latest on 2017.11.23
-#    commit = "77592648e3f3be87d6c7123eb81cbad75f9aef5a",
-#)

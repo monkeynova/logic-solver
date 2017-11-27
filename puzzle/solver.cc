@@ -1,5 +1,7 @@
 #include "puzzle/solver.h"
 
+#include <functional>
+
 #include "gflags/gflags.h"
 #include "puzzle/brute_solution_permuter.h"
 #include "puzzle/cropped_solution_permuter.h"
@@ -12,18 +14,22 @@ DEFINE_bool(brute_force, false, "Brute force all possible solutions");
 
 namespace Puzzle {
 
+using std::placeholders::_1;
+
 Entry Entry::invalid_(-1);
 
 bool Solver::TestSolution(const Solution& s) {
-  if (s.permutation_position() % 7777 == 1) {
-    std::cout << "\033[1K\rTrying " << s.permutation_position()
-	      << "/" << s.permutation_count() << std::flush;
-  }
-  return std::all_of(on_solution_.begin(),
+#if 0
+  std::cout << "Testing " << s.permutation_position() << "/"
+            << s.permutation_count() << std::endl
+            << s.ToStr() << std::endl;
+#endif
+  bool ret = std::all_of(on_solution_.begin(),
 		     on_solution_.end(),
 		     [&s](const Solution::Predicate& p) {
 		       return p(s);
 		     });
+  return ret;
 }
 
 #ifdef PROFILING
@@ -52,19 +58,22 @@ Solution Solver::SolveImpl() {
   struct timeval start;
   gettimeofday(&start, nullptr);
 #endif
-  auto it = std::find_if(permuter.begin(),
-			 permuter.end(),
-			 [this](const Solution& s) {
-			   return this->TestSolution(s);
-			 });
+  Solution ret;
+  for (auto it = permuter.begin(); it != permuter.end(); ++it) {
+    if (TestSolution(*it)) {
+#if 0
+      std::cout << "Found: " << it->ToStr() << std::endl;
+#endif
+      ret = it->Clone();
+    }
+  }
+
 #ifdef PROFILING
   DumpProfiling(start);
 #endif
   std::cout << "\033[1K\r" << std::flush;
-  if (it != permuter.end()) {
-    return *it;
-  }
-  return Solution();
+
+  return ret;
 }
 
 std::vector<Solution> Solver::AllSolutions() {
@@ -83,13 +92,14 @@ std::vector<Solution> Solver::AllSolutionsImpl() {
   gettimeofday(&start, nullptr);
 #endif
   std::vector<Solution> ret;
-  
-  std::copy_if(permuter.begin(),
-	       permuter.end(),
-	       back_inserter(ret),
-	       [this](const Solution& s) {
-		 return this->TestSolution(s);
-	       });
+  for (auto it = permuter.begin(); it != permuter.end(); ++it) {
+    if (TestSolution(*it)) {
+#if 0
+      std::cout << "Found: " << it->ToStr() << std::endl;
+#endif
+      ret.emplace_back(it->Clone());
+    }
+  }
 #ifdef PROFILING
   DumpProfiling(start);
 #endif

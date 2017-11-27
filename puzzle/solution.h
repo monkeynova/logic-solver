@@ -165,17 +165,35 @@ class Solution {
  public:
   using Predicate = std::function<bool(const Solution&)>;
 
-  Solution() : Solution(nullptr) {}
+  Solution() {}
   Solution(const std::vector<Entry>* entries) : entries_(entries) {}
-  Solution(const Solution& other)
-   : entries_(other.entries_ == nullptr
-                  ? nullptr : new std::vector<Entry>(*other.entries_)) {
-    own_entries_ = true;
-  }
+
   ~Solution() {
     if (own_entries_ && entries_ != nullptr) {
       delete entries_;
     }
+  }
+
+  Solution(const Solution& other) = delete;
+  Solution& operator=(const Solution& other) = delete;
+
+  Solution(Solution&& other) {
+    *this = std::move(other);
+  }
+  Solution& operator=(Solution&& other) {
+    entries_ = other.entries_;
+    other.entries_ = nullptr;
+    own_entries_ = other.own_entries_;
+    return *this;
+  }
+
+  Solution Clone() const {
+    const std::vector<Entry>* new_entries =
+        entries_ == nullptr
+        ? nullptr : new std::vector<Entry>(*entries_);
+    Solution ret(new_entries);
+    ret.own_entries_ = true;
+    return ret;
   }
 
   bool operator==(const Solution& other) const {
@@ -209,18 +227,22 @@ class Solution {
         return e;
       }
     }
-    std::cerr << "Cannot find and entry for the given predicate" << std::endl;
+    std::cerr << "Cannot find an entry for the given predicate" << std::endl;
     return Entry::Invalid();
   }
   std::string ToStr() const {
-    return absl::StrJoin(*entries_, "\n",
-                         [](std::string* out, const Entry& e) {
-                             absl::StrAppend(out, e.ToStr());
-                         });
+    return entries_ == nullptr
+        ? "<invalid>"
+        : entries_->size() == 0
+          ? "<empty>"
+          : absl::StrJoin(*entries_, "\n",
+                          [](std::string* out, const Entry& e) {
+                              absl::StrAppend(out, e.ToStr());
+                          });
   }
 
  private:
-  const std::vector<Entry>* entries_;
+  const std::vector<Entry>* entries_ = nullptr;
   bool own_entries_ = false;
   long long permutation_position_;
   long long permutation_count_;

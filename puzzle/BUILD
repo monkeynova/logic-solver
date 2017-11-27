@@ -68,3 +68,13 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ]
 )
+
+cc_test(
+    name = "cropped_solution_permuter_test",
+    srcs = ["cropped_solution_permuter_test.cc"],
+    deps = [
+        ":cropped_solution_permuter",
+        "@com_google_googletest//:gtest",
+        "@com_google_googletest//:gtest_main",
+    ]
+)

@@ -1,4 +1,4 @@
-#include "puzzle/brute_solution_permuter.h"
+#include "puzzle/cropped_solution_permuter.h"
 
 #include <iostream>
 #include <string>
@@ -8,7 +8,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-TEST(BruteSolutionPermuterTest, Simple) {
+TEST(CroppedSolutionPermuterTest, Simple) {
   Puzzle::EntryDescriptor ed;
   Puzzle::IntRangeDescriptor id(3, 5);
   Puzzle::IntRangeDescriptor cd1(6, 8);
@@ -18,7 +18,7 @@ TEST(BruteSolutionPermuterTest, Simple) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  Puzzle::BruteSolutionPermuter p(&ed, /*ignored=*/{});
+  Puzzle::CroppedSolutionPermuter p(&ed, /*ignored=*/{});
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<Puzzle::Solution> solutions;

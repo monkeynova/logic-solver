@@ -22,7 +22,10 @@ Calculated solution:
 #include <memory>
 
 #include "absl/memory/memory.h"
+#include "gflags/gflags.h"
 #include "puzzle/solver.h"
+
+DEFINE_bool(all, false, "Show all solutions");
 
 enum Who { 
     BETTY = 0,
@@ -169,29 +172,31 @@ void AddRulePredicates(Puzzle::Solver* s) {
                     LANE);
 }
 
-int main(int argc, char* argv[]) {
-  bool flag_all = std::find_if(argv, argv + argc,
-			       [](char* arg) {
-				 return std::string("--all") == arg; 
-			       }) != argv + argc;
-  Puzzle::Solver s;
+int main(int argc, char** argv) {
+  gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
+  Puzzle::Solver solver;
   std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors;
   
-  SetupProblem(&s, &descriptors);
-  AddRulePredicates(&s);
+  SetupProblem(&solver, &descriptors);
+  AddRulePredicates(&solver);
   
   int exit_code = 1;
   
-  if (flag_all) {
+  if (FLAGS_all) {
     std::cout << "[AllSolutions]" << std::endl;
-    bool first = true;
-    for (auto answer: s.AllSolutions()) {
-      exit_code = 0;
-      std::cout << answer.ToStr() << std::endl;
-      first = false;
-    }
+    std::vector<Puzzle::Solution> all_solutions = solver.AllSolutions();
+    exit_code = all_solutions.size() > 0 ? 0 : 1;
+    std::cout << "[" << all_solutions.size() << " solutions]"
+	      << std::endl;
+    std::cout
+      << absl::StrJoin(
+	     all_solutions, "\n",
+	     [](std::string* out, const Puzzle::Solution& s) {
+	       absl::StrAppend(out, s.ToStr());
+	     })
+      << std::endl;
   } else {
-    Puzzle::Solution answer = s.Solve();
+    Puzzle::Solution answer = solver.Solve();
     std::cout << answer.ToStr() << std::endl;
     exit_code = answer.IsValid() ? 0 : 1;
   }

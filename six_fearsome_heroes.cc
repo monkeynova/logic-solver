@@ -211,12 +211,13 @@ int main(int argc, char** argv) {
   
   if (FLAGS_all) {
     std::cout << "[AllSolutions]" << std::endl;
-    exit_code = solver.AllSolutions().size() > 0 ? 0 : 1;
-    std::cout << "[" << solver.AllSolutions().size() << " solutions]"
+    std::vector<Puzzle::Solution> all_solutions = solver.AllSolutions();
+    exit_code = all_solutions.size() > 0 ? 0 : 1;
+    std::cout << "[" << all_solutions.size() << " solutions]"
 	      << std::endl;
     std::cout
       << absl::StrJoin(
-	     solver.AllSolutions(), "\n",
+	     all_solutions, "\n",
 	     [](std::string* out, const Puzzle::Solution& s) {
 	       absl::StrAppend(out, s.ToStr());
 	     })
