@@ -20,7 +20,6 @@ class Solver {
   void AddClass(int class_int, const std::string& class_name,
                 const Descriptor* name_descriptor) {
     entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
-    on_solution_with_class_.resize(class_int);
   }
 
   void AddPredicate(std::string name, Entry::Predicate predicate) {

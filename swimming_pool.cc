@@ -16,7 +16,10 @@ style is the Canadian practicing?
 6. Daisy is not swimming in lane #2.
 
 Calculated solution:
-
+Betty: style=Dolphin country=US lane=2
+Carol: style=Butterfly country=CA lane=1
+Daisy: style=Backstroke country=AU lane=4
+Emily: style=Freestyle country=UK lane=3
  */
 #include <iostream>
 #include <memory>
@@ -46,9 +49,9 @@ enum Country {
 };
 
 enum Classes{
-    STYLE = 0,
+    LANE = 0,
     COUNTRY = 1,
-    LANE = 2,
+    STYLE = 2,
 };
 
 void SetupProblem(Puzzle::Solver* s,
@@ -68,15 +71,15 @@ void SetupProblem(Puzzle::Solver* s,
     auto lane_descriptor = absl::make_unique<Puzzle::IntRangeDescriptor>(1, 4);
 
     auto country_descriptor = absl::make_unique<Puzzle::StringDescriptor>();
-    country_descriptor->SetDescription(AUSTRALIA, "Australia");;
-    country_descriptor->SetDescription(CANADA, "Canada");
+    country_descriptor->SetDescription(AUSTRALIA, "AU");;
+    country_descriptor->SetDescription(CANADA, "CA");
     country_descriptor->SetDescription(UK, "UK");
-    country_descriptor->SetDescription(USA, "USA");
+    country_descriptor->SetDescription(USA, "US");
 
     s->SetIdentifiers(who_descriptor.get());    
-    s->AddClass(STYLE, "style", style_descriptor.get());
     s->AddClass(LANE, "lane", lane_descriptor.get());
     s->AddClass(COUNTRY, "country", country_descriptor.get());
+    s->AddClass(STYLE, "style", style_descriptor.get());
 
     descriptors->push_back(std::move(who_descriptor));
     descriptors->push_back(std::move(style_descriptor));

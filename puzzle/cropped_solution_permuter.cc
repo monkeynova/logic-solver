@@ -53,14 +53,14 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     while(!std::all_of(solution_cropper.begin(),
 		       solution_cropper.end(),
 		       [this](const Solution::Cropper& c) {
-			 return c.p_(current_);
+			 return c.p(current_);
 		       })) {
       ++iterators_[class_int];
+      UpdateEntries(class_int);
       if (iterators_[class_int] == class_permuter.end()) {
 	iterators_[class_int] = class_permuter.begin();
         return false;
       }
-      UpdateEntries(class_int);
     }
     if (FindNextValid(class_position+1)) {
       found = true;
@@ -131,7 +131,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();
   
-  class_permuters_.resize(class_types.size(),nullptr);
+  class_permuters_.resize(class_types.size(), nullptr);
   for (int class_int: class_types) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
@@ -140,18 +140,23 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   
   class_crop_predicates_.resize(class_types.size());
   for (auto cropper: croppers_with_class) {
+    bool added = false;
     for (auto it = class_types.rbegin(); it != class_types.rend(); ++it) {
       int class_int = *it;
-      
-      auto it2 = std::find_if(cropper.classes_.begin(),
-			      cropper.classes_.end(),
-			      [class_int](int find_int) {
-				return class_int == find_int;
-			      });
-      if (it2 != cropper.classes_.end()) {
+
+      auto it2 = std::find(cropper.classes.begin(),
+                           cropper.classes.end(),
+                           class_int);
+
+      if (it2 != cropper.classes.end()) {
 	class_crop_predicates_[class_int].push_back(cropper);
+        added = true;
 	break;  // class_int
       }
+    }
+    if (!added) {
+      std::cerr << "Could not add cropper for " << cropper.name << " ["
+                << absl::StrJoin(cropper.classes, ",") << "]" << std::endl;
     }
   }
 }

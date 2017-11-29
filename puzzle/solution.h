@@ -169,11 +169,11 @@ class Solution {
     Cropper() {}
     Cropper(std::string name, Solution::Predicate p,
             const std::vector<int>& classes)
-    : name_(name), p_(p), classes_(classes) {}
+    : name(name), p(p), classes(classes) {}
 
-      const std::string name_;
-      const Solution::Predicate p_;
-      const std::vector<int> classes_;
+      const std::string name;
+      const Solution::Predicate p;
+      const std::vector<int> classes;
   };
 
   Solution() {}
