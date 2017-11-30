@@ -22,17 +22,15 @@ TEST(BruteSolutionPermuterTest, Simple) {
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<Puzzle::Solution> solutions;
-  int position = 0;
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_THAT(it.position(), position);
+    EXPECT_THAT(it.position(), solutions.size());
     EXPECT_THAT(history.insert(it->ToStr()).second, true)
         << it->ToStr();
-    position++;
     solutions.emplace_back(it->Clone());
   }
+  EXPECT_THAT(solutions.size(), 6 * 6);
   for (const auto& solution : solutions) {
     EXPECT_THAT(history.insert(solution.ToStr()).second, false)
         << solution.ToStr();
   }
-  EXPECT_THAT(position, 6 * 6);
 }

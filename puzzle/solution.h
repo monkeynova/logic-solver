@@ -86,6 +86,7 @@ class EntryDescriptor {
   EntryDescriptor() {}
 
   void SetIds(const Descriptor* id_descriptor) {
+    // TODO(petersk): Verify descriptor covers values 0..N.
     id_descriptor_ = id_descriptor;
   }
   void SetClass(int class_int, const std::string& class_name,
