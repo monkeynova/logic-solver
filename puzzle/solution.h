@@ -11,6 +11,7 @@
 
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
+#include "google/protobuf/descriptor.h"
 
 namespace Puzzle {
 
@@ -67,6 +68,17 @@ class StringDescriptor : public Descriptor {
 
  private:
   std::unordered_map<int, std::string> names_;
+};
+
+class ProtoEnumDescriptor : public StringDescriptor {
+ public:
+  ProtoEnumDescriptor(
+      const google::protobuf::EnumDescriptor* proto_descriptor) {
+    for (int i = 0; i < proto_descriptor->value_count(); ++i) {
+      SetDescription(proto_descriptor->value(i)->number(),
+                     proto_descriptor->value(i)->name());
+    }
+  }
 };
 
 class EntryDescriptor {

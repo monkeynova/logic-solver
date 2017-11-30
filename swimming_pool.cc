@@ -26,59 +26,28 @@ Emily: style=Freestyle country=UK lane=3
 
 #include "absl/memory/memory.h"
 #include "puzzle/solver.h"
+#include "swimming_pool.pb.h"
 
-enum Who { 
-    BETTY = 0,
-    CAROL = 1,
-    DAISY = 2,
-    EMILY = 3,
-};
+using namespace SwimmingPool;
 
-enum Style {
-    BACKSTROKE = 0,
-    BUTTERFLY = 1,
-    DOLPHIN = 2,
-    FREESTYLE = 3,
-};
+void SetupProblem(
+    Puzzle::Solver* s,
+    std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
+    auto who_descriptor = absl::make_unique<Puzzle::ProtoEnumDescriptor>(
+        Who_descriptor());
 
-enum Country {
-    AUSTRALIA = 0,
-    CANADA = 1,
-    UK = 2,
-    USA = 3,
-};
-
-enum Classes{
-    LANE = 0,
-    COUNTRY = 1,
-    STYLE = 2,
-};
-
-void SetupProblem(Puzzle::Solver* s,
-		  std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
-    auto who_descriptor = absl::make_unique<Puzzle::StringDescriptor>();
-    who_descriptor->SetDescription(BETTY, "Betty");
-    who_descriptor->SetDescription(CAROL, "Carol");
-    who_descriptor->SetDescription(DAISY, "Daisy");
-    who_descriptor->SetDescription(EMILY, "Emily");
-
-    auto style_descriptor = absl::make_unique<Puzzle::StringDescriptor>();
-    style_descriptor->SetDescription(BACKSTROKE, "Backstroke");
-    style_descriptor->SetDescription(BUTTERFLY, "Butterfly");
-    style_descriptor->SetDescription(DOLPHIN, "Dolphin");
-    style_descriptor->SetDescription(FREESTYLE, "Freestyle");
+    auto style_descriptor = absl::make_unique<Puzzle::ProtoEnumDescriptor>(
+        Style_descriptor());
 
     auto lane_descriptor = absl::make_unique<Puzzle::IntRangeDescriptor>(1, 4);
 
-    auto country_descriptor = absl::make_unique<Puzzle::StringDescriptor>();
-    country_descriptor->SetDescription(AUSTRALIA, "AU");;
-    country_descriptor->SetDescription(CANADA, "CA");
-    country_descriptor->SetDescription(UK, "UK");
-    country_descriptor->SetDescription(USA, "US");
+    auto country_descriptor = absl::make_unique<Puzzle::ProtoEnumDescriptor>(
+        Country_descriptor());
 
     s->SetIdentifiers(who_descriptor.get());    
     s->AddClass(LANE, "lane", lane_descriptor.get());
-    s->AddClass(COUNTRY, "country", country_descriptor.get());
+    s->AddClass(COUNTRY, "country",
+                country_descriptor.get());
     s->AddClass(STYLE, "style", style_descriptor.get());
 
     descriptors->push_back(std::move(who_descriptor));

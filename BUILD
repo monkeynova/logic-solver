@@ -12,8 +12,19 @@ cc_binary(
     srcs = ["swimming_pool.cc"],
     deps = [
         ":puzzle_main",
+        ":swimming_pool_cc_proto",
         "//puzzle:solver",
     ]
+)
+
+cc_proto_library(
+    name = "swimming_pool_cc_proto",
+    deps = [":swimming_pool_proto"],
+)
+
+proto_library(
+    name = "swimming_pool_proto",
+    srcs = ["swimming_pool.proto"],
 )
 
 cc_library(

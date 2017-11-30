@@ -1,0 +1,31 @@
+syntax = "proto2";
+
+package SwimmingPool;
+
+enum Who { 
+    BETTY = 0;
+    CAROL = 1;
+    DAISY = 2;
+    EMILY = 3;
+}
+    
+enum Style {
+    BACKSTROKE = 0;
+    BUTTERFLY = 1;
+    DOLPHIN = 2;
+    FREESTYLE = 3;
+}
+
+enum Country {
+    AUSTRALIA = 0;
+    CANADA = 1;
+    UK = 2;
+    USA = 3;
+}
+
+enum Classes{
+    LANE = 0;
+    COUNTRY = 1;
+    STYLE = 2;
+}
+
