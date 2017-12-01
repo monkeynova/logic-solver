@@ -65,6 +65,8 @@ class Solver {
                                          class_int_restrict_list);
   }
 
+  int test_calls() const { return test_calls_; }
+  
  private:
   template <class Permuter>
   Solution SolveImpl();
@@ -75,6 +77,8 @@ class Solver {
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
 
+  int test_calls_;
+  
   std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
 };

@@ -35,7 +35,8 @@ BruteSolutionPermuter::iterator::iterator(
 
 void BruteSolutionPermuter::iterator::Advance() {
   bool at_end = true;
-  for (int class_int: class_types_) {
+  for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
+    int class_int = *it;
     ++iterators_[class_int];
     
     bool carry = false;
@@ -65,9 +66,8 @@ void BruteSolutionPermuter::iterator::Advance() {
 
 long long BruteSolutionPermuter::iterator::position() const {
   long long position = 0;
-  
-  for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
-    int class_int = *it;
+
+  for (int class_int : class_types_) {
     position *= permuter_->class_permuters_[class_int].permutation_count();
     position += iterators_[class_int].position();
   }

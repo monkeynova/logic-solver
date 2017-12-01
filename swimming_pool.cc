@@ -136,11 +136,11 @@ void AddRulePredicates(Puzzle::Solver* s) {
                                         s.Find([](const Puzzle::Entry& e){
                                                  return e.Class(COUNTRY) == USA;
                                                }));
-                    });
-                    //{COUNTRY, LANE});
+                    },
+                    {COUNTRY, LANE});
     s->AddPredicate("6. Daisy is not swimming in lane #2.",
                     [](const Puzzle::Solution& s) {
                       return s.Id(DAISY).Class(LANE) != 2;
-                    });
-                    //LANE);
+                    },
+                    LANE);
 }

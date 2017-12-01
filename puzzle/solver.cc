@@ -19,11 +19,7 @@ using std::placeholders::_1;
 Entry Entry::invalid_(-1);
 
 bool Solver::TestSolution(const Solution& s) {
-#if 0
-  std::cout << "Testing " << s.permutation_position() << "/"
-            << s.permutation_count() << std::endl
-            << s.ToStr() << std::endl;
-#endif
+  ++test_calls_;
   bool ret = std::all_of(on_solution_.begin(),
 		     on_solution_.end(),
 		     [&s](const Solution::Predicate& p) {

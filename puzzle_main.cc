@@ -41,6 +41,8 @@ int main(int argc, char** argv) {
     std::cout << answer.ToStr() << std::endl;
     exit_code = answer.IsValid() ? 0 : 1;
   }
- 
+
+  std::cout << "[tested " << solver.test_calls() << " solutions]" << std::endl;
+  
   return exit_code;
 }
