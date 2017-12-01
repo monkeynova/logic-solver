@@ -9,3 +9,4 @@ Puzzles from:
 
 * http://io9.com/can-you-solve-this-extremely-difficult-star-trek-puzzle-1667991339
 * https://www.brainzilla.com/logic/logic-grid/swimming-pool/
+** More at: https://www.brainzilla.com/logic/logic-grid/
