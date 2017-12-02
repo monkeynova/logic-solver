@@ -5,12 +5,9 @@
 #include "gflags/gflags.h"
 #include "puzzle/brute_solution_permuter.h"
 #include "puzzle/cropped_solution_permuter.h"
+#include "puzzle/profiler.h"
 
 DEFINE_bool(brute_force, false, "Brute force all possible solutions");
-
-#ifdef PROFILING
-#include <sys/time.h>
-#endif
 
 namespace Puzzle {
 
@@ -27,18 +24,6 @@ bool Solver::TestSolution(const Solution& s) {
 		     });
   return ret;
 }
-
-#ifdef PROFILING
-static void DumpProfiling(const struct timeval& start,
-                          const Puzzle::Solution& s) {
-  struct timeval end;
-  gettimeofday(&end, nullptr);
-  double qps = s.permutation_position() /
-    (end.tv_sec - start.tv_sec + 1e-6 * (end.tv_usec - start.tv_usec));
-  std::cout << "\033[1K\rTrying " << (100 * s.completion()) << "%, "
-	    << qps/1000 << "Kqps" << std::flush;
-}
-#endif
 
 Solution Solver::Solve() {
   std::vector<Solution> ret = AllSolutions(1);
@@ -59,17 +44,12 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
 template <class Permuter>
 std::vector<Solution> Solver::AllSolutionsImpl(int limit) {
   Permuter permuter(&entry_descriptor_, on_solution_with_class_);
-#ifdef PROFILING
-  struct timeval start;
-  gettimeofday(&start, nullptr);
-#endif
+  auto profiler = Profiler::Create();
+
   std::vector<Solution> ret;
   for (auto it = permuter.begin(); it != permuter.end(); ++it) {
-#ifdef PROFILING
-    if (test_calls_ % 777777 == 1) {
-      DumpProfiling(start, *it);
-    }
-#endif
+    profiler->NotePosition(it->permutation_position(),
+                           it->permutation_count());
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
       if (limit != -1 && ret.size() >= limit) {
@@ -77,9 +57,6 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit) {
       }
     }
   }
-#ifdef PROFILING
-  std::cout << "\033[1K\r" << std::flush;
-#endif
   return ret;
 }
 

@@ -5,6 +5,7 @@ cc_library(
     deps = [
         ":brute_solution_permuter",
         ":cropped_solution_permuter",
+	":profiler",
         ":solution",
 	"@com_github_gflags_gflags//:gflags",
     ],
@@ -49,6 +50,14 @@ cc_library(
    ],
 )
 
+cc_library(
+    name="profiler",
+    hdrs=["profiler.h"],
+    srcs=["profiler.cc"],
+    deps = [ 
+        "@com_google_absl//absl/memory",
+   ],
+)
  
 cc_test(
     name = "class_permuter_test",
