@@ -17,6 +17,15 @@ cc_binary(
     ]
 )
 
+cc_binary(
+    name = "sudoku",
+    srcs = ["sudoku.cc"],
+    deps = [
+        ":puzzle_main",
+        "//puzzle:solver",
+    ]
+)
+
 cc_proto_library(
     name = "swimming_pool_cc_proto",
     deps = [":swimming_pool_proto"],
