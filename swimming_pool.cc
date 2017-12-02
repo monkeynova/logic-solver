@@ -78,8 +78,8 @@ void AddRulePredicates(Puzzle::Solver* s) {
                         return IsNextTo(betty, from_uk) && 
                             betty.Class(STYLE) != BUTTERFLY &&
                             from_uk.Class(STYLE) != BUTTERFLY;
-                    });
-                    //{COUNTRY, STYLE, LANE});
+                    },
+                    {COUNTRY, STYLE, LANE});
 
     s->AddPredicate("2. Among Emily and the Backstroker, one is from the UK "
                     "and the other is in the fourth lane.",
@@ -99,8 +99,8 @@ void AddRulePredicates(Puzzle::Solver* s) {
                           return true;
                         }
                         return false;
-                    });
-                    //{COUNTRY, STYLE, LANE});
+                    },
+                    {COUNTRY, STYLE, LANE});
     s->AddPredicate("3. Carol is not swimming Backstroke nor Dolphin. She is "
                     "not Australian, and is not swiming in lates #2 nor #4.",
                     [](const Puzzle::Solution& s) {
@@ -110,8 +110,8 @@ void AddRulePredicates(Puzzle::Solver* s) {
                             s.Id(CAROL).Class(COUNTRY) != AUSTRALIA &&
                             s.Id(CAROL).Class(LANE) != 2 &&
                             s.Id(CAROL).Class(LANE) != 4;
-                    });
-                    //{STYLE, COUNTRY, LANE});
+                    },
+                    {STYLE, COUNTRY, LANE});
     s->AddPredicate("4. The Freestyler is next to both Daisy and the American "
                     "swimmer.",
                     [](const Puzzle::Solution& s) {
@@ -128,8 +128,8 @@ void AddRulePredicates(Puzzle::Solver* s) {
                                      s.Find([](const Puzzle::Entry& e){
                                                return e.Class(STYLE) == FREESTYLE;
                                              }));
-                    });
-                    //{STYLE, COUNTRY, LANE});
+                    },
+                    {STYLE, COUNTRY, LANE});
     s->AddPredicate("5. The American swimmer is next to Carol.",
                     [](const Puzzle::Solution& s) {
                         return IsNextTo(s.Id(CAROL),

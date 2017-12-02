@@ -64,8 +64,8 @@ Solution Solver::SolveImpl() {
 
 #ifdef PROFILING
   DumpProfiling(start);
-#endif
   std::cout << "\033[1K\r" << std::flush;
+#endif
 
   return ret;
 }
@@ -93,8 +93,8 @@ std::vector<Solution> Solver::AllSolutionsImpl() {
   }
 #ifdef PROFILING
   DumpProfiling(start);
-#endif
   std::cout << "\033[1K\r" << std::flush;
+#endif
   return ret;
 }
 

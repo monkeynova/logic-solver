@@ -83,7 +83,10 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
       UpdateEntries(class_int);
     }
   }
-  
+
+  // Didn't find an entry in iteration. Reset iterator and return "no match".
+  iterators_[class_int] = class_permuter.begin();
+  UpdateEntries(class_int);
   return false;
 }
 
@@ -95,7 +98,7 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
                                 const ClassPermuter::iterator& it) {
                                  absl::StrAppend(out, it.position());
                              })
-            << ")" << std::endl;
+            << "): " << position() << std::endl;
 #endif
   const std::vector<int>& class_values = *(iterators_[class_int]);
   for (unsigned int j = 0; j < class_values.size(); ++j ) {
