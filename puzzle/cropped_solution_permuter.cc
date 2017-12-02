@@ -39,7 +39,7 @@ CroppedSolutionPermuter::iterator::iterator(
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   if ((unsigned int)class_position >= class_types_.size()) {
-#ifdef DEBUG
+#ifndef NDEBUG
     std::cout << "FindNextValid(" << class_position << ") Terminate." << std::endl;
 #endif
     return true;
@@ -51,7 +51,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   const std::vector<Solution::Cropper>& solution_cropper =
       permuter_->class_crop_predicates_[class_int];
 
-#ifdef DEBUG
+#ifndef NDEBUG
   std::cout << "FindNextValid(" << class_position << ", "
             << solution_cropper.size() << ")" << std::endl;
 #endif
@@ -66,7 +66,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
       if (iterators_[class_int] == class_permuter.end()) {
 	iterators_[class_int] = class_permuter.begin();
         UpdateEntries(class_int);
-#ifdef DEBUG
+#ifndef NDEBUG
         std::cout << "  Missing(" << class_position << ")" << std::endl;
 #endif
         return false;
@@ -74,7 +74,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
       UpdateEntries(class_int);
     }
     if (FindNextValid(class_position+1)) {
-#ifdef DEBUG
+#ifndef NDEBUG
       std::cout << "  Found(" << class_position << ")" << std::endl;
 #endif
       return true;
@@ -88,7 +88,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 }
 
 void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
-#ifdef DEBUG
+#ifndef NDEBUG
   std::cout << "UpdateEntries(" << class_int << ") ("
             << absl::StrJoin(iterators_, ", ",
                              [](std::string* out,
@@ -104,7 +104,7 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
 }
 
 void CroppedSolutionPermuter::iterator::Advance() {
-#ifdef DEBUG
+#ifndef NDEBUG
   std::cout << "Advance" << std::endl;
 #endif
   bool at_end = true;

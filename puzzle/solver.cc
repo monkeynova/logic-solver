@@ -57,10 +57,8 @@ Solution Solver::SolveImpl() {
   Solution ret;
   for (auto it = permuter.begin(); it != permuter.end(); ++it) {
     if (TestSolution(*it)) {
-#if 0
-      std::cout << "Found: " << it->ToStr() << std::endl;
-#endif
       ret = it->Clone();
+      break;
     }
   }
 
@@ -90,9 +88,6 @@ std::vector<Solution> Solver::AllSolutionsImpl() {
   std::vector<Solution> ret;
   for (auto it = permuter.begin(); it != permuter.end(); ++it) {
     if (TestSolution(*it)) {
-#if 0
-      std::cout << "Found: " << it->ToStr() << std::endl;
-#endif
       ret.emplace_back(it->Clone());
     }
   }
@@ -101,6 +96,10 @@ std::vector<Solution> Solver::AllSolutionsImpl() {
 #endif
   std::cout << "\033[1K\r" << std::flush;
   return ret;
+}
+
+std::string Solver::DebugStatistics() const {
+  return absl::StrCat("[", test_calls_, " solutions tested]");
 }
 
 }  // namespace Puzzle

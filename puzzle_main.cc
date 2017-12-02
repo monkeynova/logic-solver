@@ -33,16 +33,23 @@ int main(int argc, char** argv) {
       << absl::StrJoin(
 	     all_solutions, "\n",
 	     [](std::string* out, const Puzzle::Solution& s) {
+               absl::StrAppend(out, "[position=",
+                               s.permutation_position(), "/",
+                               s.permutation_count(), "]\n");
 	       absl::StrAppend(out, s.ToStr());
 	     })
       << std::endl;
   } else {
     Puzzle::Solution answer = solver.Solve();
+    if (answer.IsValid()) {
+      std::cout << "[position=" << answer.permutation_position() << "/"
+                << answer.permutation_count() << "]" << std::endl;
+    }
     std::cout << answer.ToStr() << std::endl;
     exit_code = answer.IsValid() ? 0 : 1;
   }
 
-  std::cout << "[tested " << solver.test_calls() << " solutions]" << std::endl;
+  std::cout << solver.DebugStatistics() << std::endl;
   
   return exit_code;
 }

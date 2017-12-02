@@ -208,6 +208,8 @@ class Solution {
     entries_ = other.entries_;
     other.entries_ = nullptr;
     own_entries_ = other.own_entries_;
+    permutation_position_ = other.permutation_position_;
+    permutation_count_ = other.permutation_count_;
     return *this;
   }
 
@@ -217,6 +219,8 @@ class Solution {
         ? nullptr : new std::vector<Entry>(*entries_);
     Solution ret(new_entries);
     ret.own_entries_ = true;
+    ret.permutation_position_ = permutation_position_;
+    ret.permutation_count_ = permutation_count_;
     return ret;
   }
 

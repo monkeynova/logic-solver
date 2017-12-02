@@ -66,6 +66,8 @@ class Solver {
   }
 
   int test_calls() const { return test_calls_; }
+
+  std::string DebugStatistics() const;
   
  private:
   template <class Permuter>
