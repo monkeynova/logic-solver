@@ -29,7 +29,8 @@ bool Solver::TestSolution(const Solution& s) {
 }
 
 #ifdef PROFILING
-static void DumpProfiling(const strict timeval& start) {
+static void DumpProfiling(const struct timeval& start,
+                          const Puzzle::Solution& s) {
   struct timeval end;
   gettimeofday(&end, nullptr);
   double qps = s.permutation_position() /
@@ -40,46 +41,23 @@ static void DumpProfiling(const strict timeval& start) {
 #endif
 
 Solution Solver::Solve() {
+  std::vector<Solution> ret = AllSolutions(1);
+  if (ret.empty()) {
+    return Solution();
+  }
+  return std::move(ret[0]);
+}
+
+std::vector<Solution> Solver::AllSolutions(int limit) {
   if (FLAGS_brute_force) {
-    return SolveImpl<BruteSolutionPermuter>();
+    return AllSolutionsImpl<BruteSolutionPermuter>(limit);
   } else {
-    return SolveImpl<CroppedSolutionPermuter>();
+    return AllSolutionsImpl<CroppedSolutionPermuter>(limit);
   }
 }
 
 template <class Permuter>
-Solution Solver::SolveImpl() {
-  Permuter permuter(&entry_descriptor_, on_solution_with_class_);
-#ifdef PROFILING
-  struct timeval start;
-  gettimeofday(&start, nullptr);
-#endif
-  Solution ret;
-  for (auto it = permuter.begin(); it != permuter.end(); ++it) {
-    if (TestSolution(*it)) {
-      ret = it->Clone();
-      break;
-    }
-  }
-
-#ifdef PROFILING
-  DumpProfiling(start);
-  std::cout << "\033[1K\r" << std::flush;
-#endif
-
-  return ret;
-}
-
-std::vector<Solution> Solver::AllSolutions() {
-  if (FLAGS_brute_force) {
-    return AllSolutionsImpl<BruteSolutionPermuter>();
-  } else {
-    return AllSolutionsImpl<CroppedSolutionPermuter>();
-  }
-}
-
-template <class Permuter>
-std::vector<Solution> Solver::AllSolutionsImpl() {
+std::vector<Solution> Solver::AllSolutionsImpl(int limit) {
   Permuter permuter(&entry_descriptor_, on_solution_with_class_);
 #ifdef PROFILING
   struct timeval start;
@@ -87,12 +65,19 @@ std::vector<Solution> Solver::AllSolutionsImpl() {
 #endif
   std::vector<Solution> ret;
   for (auto it = permuter.begin(); it != permuter.end(); ++it) {
+#ifdef PROFILING
+    if (test_calls_ % 777777 == 1) {
+      DumpProfiling(start, *it);
+    }
+#endif
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
+      if (limit != -1 && ret.size() >= limit) {
+        break;
+      }
     }
   }
 #ifdef PROFILING
-  DumpProfiling(start);
   std::cout << "\033[1K\r" << std::flush;
 #endif
   return ret;

@@ -138,8 +138,8 @@ void CroppedSolutionPermuter::iterator::Advance() {
   }
 }
 
-long long CroppedSolutionPermuter::iterator::position() const {
-  long long position = 0;
+double CroppedSolutionPermuter::iterator::position() const {
+  double position = 0;
 
   for (int class_int : class_types_) {
     position *= permuter_->class_permuters_[class_int].permutation_count();
@@ -150,7 +150,7 @@ long long CroppedSolutionPermuter::iterator::position() const {
 }
 
 double CroppedSolutionPermuter::iterator::completion() const {
-  return static_cast<double>(position()) / permuter_->permutation_count();
+  return position() / permuter_->permutation_count();
 }
 
 CroppedSolutionPermuter::CroppedSolutionPermuter(
@@ -190,8 +190,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   }
 }
 
-long long CroppedSolutionPermuter::permutation_count() const {
-  long long count = 1;
+double CroppedSolutionPermuter::permutation_count() const {
+  double count = 1;
   for (auto permuter: class_permuters_) {
     count *= permuter.permutation_count();
   }

@@ -11,7 +11,7 @@ class Solver {
   ~Solver() {}
 
   Solution Solve();
-  std::vector<Solution> AllSolutions();
+  std::vector<Solution> AllSolutions(int limit = -1);
 
   void SetIdentifiers(const Descriptor* id_descriptor) {
     entry_descriptor_.SetIds(id_descriptor);
@@ -71,10 +71,7 @@ class Solver {
   
  private:
   template <class Permuter>
-  Solution SolveImpl();
-
-  template <class Permuter>
-  std::vector<Solution> AllSolutionsImpl();
+  std::vector<Solution> AllSolutionsImpl(int limit);
 
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;

@@ -234,16 +234,16 @@ class Solution {
     return *entries_ == *other.entries_;
   }
 
-  long long permutation_position() const { return permutation_position_; }
-  void set_permutation_position(long long position) {
+  double permutation_position() const { return permutation_position_; }
+  void set_permutation_position(double position) {
     permutation_position_ = position;
   }
 
-  long long permutation_count() const { return permutation_count_; }
-  void set_permutation_count(long long count) { permutation_count_ = count; }
+  double permutation_count() const { return permutation_count_; }
+  void set_permutation_count(double count) { permutation_count_ = count; }
 
   double completion() const {
-    return static_cast<double>(permutation_position_) / permutation_count_;
+    return permutation_position_ / permutation_count_;
   }
 
   bool IsValid() const { return entries_ != nullptr; }
@@ -272,8 +272,8 @@ class Solution {
  private:
   const std::vector<Entry>* entries_ = nullptr;
   bool own_entries_ = false;
-  long long permutation_position_;
-  long long permutation_count_;
+  double permutation_position_;
+  double permutation_count_;
 };
 
 }  // namespace Puzzle

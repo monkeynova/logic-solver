@@ -64,8 +64,8 @@ void BruteSolutionPermuter::iterator::Advance() {
   }
 }
 
-long long BruteSolutionPermuter::iterator::position() const {
-  long long position = 0;
+double BruteSolutionPermuter::iterator::position() const {
+  double position = 0;
 
   for (int class_int : class_types_) {
     position *= permuter_->class_permuters_[class_int].permutation_count();
@@ -76,7 +76,7 @@ long long BruteSolutionPermuter::iterator::position() const {
 }
 
 double BruteSolutionPermuter::iterator::completion() const {
-  return static_cast<double>(position()) / permuter_->permutation_count();
+  return position() / permuter_->permutation_count();
 }
 
 BruteSolutionPermuter::BruteSolutionPermuter(
@@ -95,8 +95,8 @@ BruteSolutionPermuter::BruteSolutionPermuter(
   }
 }
 
-long long BruteSolutionPermuter::permutation_count() const {
-  long long count = 1;
+double BruteSolutionPermuter::permutation_count() const {
+  double count = 1;
   for (auto permuter: class_permuters_) {
     count *= permuter.permutation_count();
   }

@@ -42,7 +42,7 @@ class BruteSolutionPermuter {
       return *this;
     }
 
-    long long position() const;
+    double position() const;
     double completion() const;
 
    private:
@@ -63,7 +63,7 @@ class BruteSolutionPermuter {
   iterator begin() const { return iterator(this, entry_descriptor_); }
   iterator end() const { return iterator(this, nullptr); }
 
-  long long permutation_count() const;
+  double permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
 
  private:

@@ -55,16 +55,16 @@ class ClassPermuter {
       BuildCurrent();
       return *this;
     }
-
-    long long position() const { return position_; }
-    double completion() const { return static_cast<double>(position_) / max_; }
+    
+    double position() const { return position_; }
+    double completion() const { return position_ / max_; }
 
    private:
     void BuildCurrent();
 
     std::vector<int> values_;
     std::vector<int> current_;
-    int position_;
+    double position_;
     int max_;
   };
 
@@ -74,7 +74,7 @@ class ClassPermuter {
   iterator begin() const { return iterator(descriptor_); }
   iterator end() const { return iterator(); }
 
-  long long permutation_count() const;
+  double permutation_count() const;
 
  private:
   const Descriptor* descriptor_;
