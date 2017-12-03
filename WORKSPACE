@@ -34,3 +34,11 @@ http_archive(
     strip_prefix = "protobuf-b4b0e304be5a68de3d0ee1af9b286f958750f5e4",
     sha256 = "ff771a662fb6bd4d3cc209bcccedef3e93980a49f71df1e987f6afa3bcdcba3a",
 )
+
+new_git_repository(
+    name = "com_google_benchmark",
+    remote = "https://github.com/google/benchmark.git",
+    # Latest on 2017.12.03
+    commit = "0bbaeeaf7a557469c1f672ee3b7ca926e1a13e88",
+    build_file = "BUILD.benchmark",
+)

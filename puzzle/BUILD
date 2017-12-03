@@ -64,8 +64,18 @@ cc_test(
     srcs = ["class_permuter_test.cc"],
     deps = [
         ":class_permuter",
+        "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
         "@com_google_googletest//:gtest_main",
+    ]
+)
+
+cc_binary(
+    name = "class_permuter_benchmark",
+    srcs = ["class_permuter_benchmark.cc"],
+    deps = [
+        ":class_permuter",
+        "@com_google_benchmark//:benchmark",
     ]
 )
 
