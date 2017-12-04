@@ -68,10 +68,14 @@ class Solver {
   int test_calls() const { return test_calls_; }
 
   std::string DebugStatistics() const;
+
+  const EntryDescriptor* entry_descriptor() const {
+    return &entry_descriptor_;
+  }
   
  private:
   template <class Permuter>
-  std::vector<Solution> AllSolutionsImpl(int limit);
+  std::vector<Solution> AllSolutionsImpl(int limit, Permuter* permuter);
 
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;

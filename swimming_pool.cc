@@ -144,3 +144,32 @@ void AddRulePredicates(Puzzle::Solver* s) {
                     },
                     LANE);
 }
+
+Puzzle::Solution ProblemSolution(const Puzzle::Solver& s) {
+  std::vector<Puzzle::Entry> entries_;
+  // Betty: style=Dolphin country=US lane=2
+  entries_.emplace_back(
+      BETTY,
+      std::vector<int>{2, USA, DOLPHIN},
+      s.entry_descriptor());
+
+  // Carol: style=Butterfly country=CA lane=1
+  entries_.emplace_back(
+      CAROL,
+      std::vector<int>{1, CANADA, BUTTERFLY},
+      s.entry_descriptor());
+
+  // Daisy: style=Backstroke country=AU lane=4
+  entries_.emplace_back(
+      DAISY,
+      std::vector<int>{4, AUSTRALIA, BACKSTROKE},
+      s.entry_descriptor());
+
+  // Emily: style=Freestyle country=UK lane=3
+  entries_.emplace_back(
+      EMILY,
+      std::vector<int>{3, UK, FREESTYLE},
+      s.entry_descriptor());
+  
+  return Puzzle::Solution(&entries_).Clone();
+}

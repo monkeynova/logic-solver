@@ -18,7 +18,7 @@ TEST(BruteSolutionPermuterTest, Simple) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  Puzzle::BruteSolutionPermuter p(&ed, /*ignored=*/{});
+  Puzzle::BruteSolutionPermuter p(&ed);
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<Puzzle::Solution> solutions;

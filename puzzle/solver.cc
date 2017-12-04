@@ -35,19 +35,21 @@ Solution Solver::Solve() {
 
 std::vector<Solution> Solver::AllSolutions(int limit) {
   if (FLAGS_brute_force) {
-    return AllSolutionsImpl<BruteSolutionPermuter>(limit);
+    BruteSolutionPermuter permuter(&entry_descriptor_);
+    return AllSolutionsImpl(limit, &permuter);
   } else {
-    return AllSolutionsImpl<CroppedSolutionPermuter>(limit);
+    CroppedSolutionPermuter permuter(&entry_descriptor_,
+                                     on_solution_with_class_);
+    return AllSolutionsImpl(limit, &permuter);
   }
 }
 
 template <class Permuter>
-std::vector<Solution> Solver::AllSolutionsImpl(int limit) {
-  Permuter permuter(&entry_descriptor_, on_solution_with_class_);
+std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
   auto profiler = Profiler::Create();
 
   std::vector<Solution> ret;
-  for (auto it = permuter.begin(); it != permuter.end(); ++it) {
+  for (auto it = permuter->begin(); it != permuter->end(); ++it) {
     profiler->NotePosition(it->permutation_position(),
                            it->permutation_count());
     if (TestSolution(*it)) {

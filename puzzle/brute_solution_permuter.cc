@@ -79,9 +79,7 @@ double BruteSolutionPermuter::iterator::completion() const {
   return position() / permuter_->permutation_count();
 }
 
-BruteSolutionPermuter::BruteSolutionPermuter(
-    const EntryDescriptor* e,
-    const std::vector<Solution::Cropper>& /*ignored*/)
+BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
   : entry_descriptor_(e) {
   
   const std::vector<int>& class_types =
