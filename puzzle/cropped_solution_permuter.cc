@@ -100,6 +100,9 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
                              })
             << "): " << position() << std::endl;
 #endif
+  if (permuter_->profiler_ != nullptr) {
+    permuter_->profiler_->NotePosition(position(), permuter_->permutation_count());
+  }
   const std::vector<int>& class_values = *(iterators_[class_int]);
   for (unsigned int j = 0; j < class_values.size(); ++j ) {
     entries_[j].SetClass(class_int, class_values[j]);
@@ -155,8 +158,9 @@ double CroppedSolutionPermuter::iterator::completion() const {
 
 CroppedSolutionPermuter::CroppedSolutionPermuter(
     const EntryDescriptor* e, 
-    const std::vector<Solution::Cropper>& croppers_with_class)
-   : entry_descriptor_(e) { 
+    const std::vector<Solution::Cropper>& croppers_with_class,
+    Profiler* profiler)
+    : entry_descriptor_(e), profiler_(profiler) { 
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();
   

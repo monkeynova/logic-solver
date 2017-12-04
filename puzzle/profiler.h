@@ -1,4 +1,5 @@
 #ifndef PUZZLE_PROFILER_H
+#define PUZZLE_PROFILER_H
 
 #include <memory>
 

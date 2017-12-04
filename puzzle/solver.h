@@ -1,6 +1,10 @@
 #ifndef __PUZZLE_SOLVER_H
 #define __PUZZLE_SOLVER_H
 
+#include <memory>
+#include <vector>
+
+#include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 
 namespace Puzzle {
@@ -84,6 +88,8 @@ class Solver {
   
   std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
+
+  std::unique_ptr<Profiler> profiler_;
 };
 
 }  // namespace Puzzle

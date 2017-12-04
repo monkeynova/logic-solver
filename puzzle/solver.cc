@@ -5,7 +5,6 @@
 #include "gflags/gflags.h"
 #include "puzzle/brute_solution_permuter.h"
 #include "puzzle/cropped_solution_permuter.h"
-#include "puzzle/profiler.h"
 
 DEFINE_bool(brute_force, false, "Brute force all possible solutions");
 
@@ -34,24 +33,26 @@ Solution Solver::Solve() {
 }
 
 std::vector<Solution> Solver::AllSolutions(int limit) {
+  profiler_ = Profiler::Create();
+  
   if (FLAGS_brute_force) {
     BruteSolutionPermuter permuter(&entry_descriptor_);
     return AllSolutionsImpl(limit, &permuter);
   } else {
     CroppedSolutionPermuter permuter(&entry_descriptor_,
-                                     on_solution_with_class_);
+                                     on_solution_with_class_,
+                                     profiler_.get());
     return AllSolutionsImpl(limit, &permuter);
   }
 }
 
 template <class Permuter>
 std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
-  auto profiler = Profiler::Create();
 
   std::vector<Solution> ret;
   for (auto it = permuter->begin(); it != permuter->end(); ++it) {
-    profiler->NotePosition(it->permutation_position(),
-                           it->permutation_count());
+    profiler_->NotePosition(it->permutation_position(),
+                            it->permutation_count());
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
       if (limit != -1 && ret.size() >= limit) {

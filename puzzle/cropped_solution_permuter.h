@@ -2,6 +2,7 @@
 #define __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
 
 #include "puzzle/class_permuter.h"
+#include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 
 namespace Puzzle {
@@ -50,8 +51,8 @@ class CroppedSolutionPermuter {
     bool FindNextValid(int class_position);
     void UpdateEntries(int class_int);
 
-    const CroppedSolutionPermuter* permuter_;
-    const EntryDescriptor* entry_descriptor_;
+    const CroppedSolutionPermuter* const permuter_;
+    const EntryDescriptor* const entry_descriptor_;
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
@@ -59,7 +60,8 @@ class CroppedSolutionPermuter {
   };
 
   CroppedSolutionPermuter(const EntryDescriptor* e,
-                          const std::vector<Solution::Cropper>& croppers_with_class);
+                          const std::vector<Solution::Cropper>& croppers_with_class,
+                          Profiler* profiler);
   ~CroppedSolutionPermuter() {}
 
   iterator begin() const { return iterator(this, entry_descriptor_); }
@@ -69,10 +71,12 @@ class CroppedSolutionPermuter {
   const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
 
  private:
-  const EntryDescriptor* entry_descriptor_;
+  const EntryDescriptor* const entry_descriptor_;
   std::vector<ClassPermuter> class_permuters_;
   std::vector<std::vector<Solution::Cropper>> class_crop_predicates_;
 
+  Profiler* const profiler_;
+  
   friend iterator;
 };
 

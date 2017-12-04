@@ -29,6 +29,7 @@ cc_library(
     srcs=["cropped_solution_permuter.cc"],
     deps = [
         ":class_permuter",
+        ":profiler",
     ],
 )
 
