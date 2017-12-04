@@ -10,7 +10,7 @@ void ClassPermuter::iterator::BuildCurrent() {
     for (unsigned int i = 0; i < current_.size(); ++i) {
       current_[i] = values_[i];
     }
-    for (unsigned int i = 0; i < current_.size(); ++i) {
+    for (unsigned int i = 0; tmp && i < current_.size(); ++i) {
       int next = tmp % (current_.size() - i);
       tmp /= (current_.size() - i);
       std::swap(current_[i], current_[i + next]);
