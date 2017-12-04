@@ -1,5 +1,6 @@
 #include "puzzle/profiler.h"
 
+#include <iomanip>
 #include <iostream>
 #include <sys/time.h>
 
@@ -25,12 +26,18 @@ class StructTimevalProfiler : public Profiler {
     struct timeval now;
     gettimeofday(&now, nullptr);
     double delta =
-        (now.tv_sec - last_.tv_sec + 1e-6 * (now.tv_usec - last_.tv_usec));
-   if (delta < 0.1) return;
+         (now.tv_sec - last_.tv_sec + 1e-6 * (now.tv_usec - last_.tv_usec));
+    if (delta < 0.1) return;
     
+    double full_delta =
+        (now.tv_sec - start_.tv_sec + 1e-6 * (now.tv_usec - start_.tv_usec));
+
     double qps = (position - last_position_) / delta;
-    std::cout << "\033[1K\rTrying " << (100 * position / count) << "%, "
-              << qps/1000 << "Kqps" << std::flush;
+    std::cout << std::setprecision(3)
+              <<"\033[1K\rTrying " << (100 * position / count)
+              << "%, effective=" << qps/1000 << "Kqps true="
+              << (test_calls_ / full_delta / 1000) << "Kqps"
+              << std::flush;
     last_ = now;
     last_position_ = position;
   }
