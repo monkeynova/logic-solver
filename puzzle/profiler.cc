@@ -21,7 +21,7 @@ class StructTimevalProfiler : public Profiler {
  private:
   void NotePosition(double position, double count) override {
     if (++test_calls_ % 77 != 1) return;
-    
+
     struct timeval now;
     gettimeofday(&now, nullptr);
     double delta =
@@ -30,7 +30,7 @@ class StructTimevalProfiler : public Profiler {
     
     double qps = (position - last_position_) / delta;
     std::cout << "\033[1K\rTrying " << (100 * position / count) << "%, "
-	    << qps/1000 << "Kqps" << std::flush;
+              << qps/1000 << "Kqps" << std::flush;
     last_ = now;
     last_position_ = position;
   }
