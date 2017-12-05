@@ -56,6 +56,15 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "six_fearsome_heroes_test",
+    srcs = ["six_fearsome_heroes.cc"],
+    deps = [
+        ":puzzle_test",
+        "@com_google_googletest//:gtest_main",	
+    ],
+)
+
 cc_library(
     name = "puzzle_test",
     srcs = ["puzzle_test.cc"],

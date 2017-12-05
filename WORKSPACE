@@ -40,5 +40,13 @@ new_git_repository(
     remote = "https://github.com/google/benchmark.git",
     # Latest on 2017.12.03
     commit = "0bbaeeaf7a557469c1f672ee3b7ca926e1a13e88",
-    build_file = "BUILD.benchmark",
+    build_file = "external/BUILD.benchmark",
+)
+
+new_git_repository(
+    name = "com_google_gperftools",
+    remote = "https://github.com/gperftools/gperftools.git",
+    # Latest on 2017.12.04
+    commit = "6a4b0799975576c2722daa75b35f6f65220d22b6",
+    build_file = "external/BUILD.gperftools",
 )
