@@ -23,7 +23,7 @@ cc_binary(
     deps = [
         ":puzzle_main",
         "//puzzle:solver",
-    ]
+    ],
 )
 
 cc_proto_library(

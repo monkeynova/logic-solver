@@ -5,6 +5,11 @@
 #include <sys/time.h>
 
 #include "absl/memory/memory.h"
+#include "gflags/gflags.h"
+
+DEFINE_int32(puzzle_max_profile_calls, std::numeric_limits<int>::max(),
+	     "Maximum number of iterations before giving up in profiler. "
+	     "Default value is max_int.");
 
 namespace Puzzle {
 
@@ -20,6 +25,10 @@ class StructTimevalProfiler : public Profiler {
   }
   
  private:
+  bool Done() override {
+    return test_calls_ > FLAGS_puzzle_max_profile_calls;
+  }
+  
   void NotePosition(double position, double count) override {
     if (++test_calls_ % 77 != 1) return;
 
@@ -34,7 +43,7 @@ class StructTimevalProfiler : public Profiler {
 
     double qps = (position - last_position_) / delta;
     std::cout << std::setprecision(3)
-              <<"\033[1K\rTrying " << (100 * position / count)
+              << "\033[1K\rTrying " << (100 * position / count)
               << "%, effective=" << qps/1000 << "Kqps true="
               << (test_calls_ / full_delta / 1000) << "Kqps"
               << std::flush;

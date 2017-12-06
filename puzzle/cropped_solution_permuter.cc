@@ -57,6 +57,9 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 #endif
 
   while (iterators_[class_int] != class_permuter.end()) {
+    if (permuter_->profiler_ != nullptr && permuter_->profiler_->Done()) {
+      return false;
+    }
     while(!std::all_of(solution_cropper.begin(),
 		       solution_cropper.end(),
 		       [this](const Solution::Cropper& c) {
@@ -92,13 +95,13 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 
 void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
 #ifndef NDEBUG
-  std::cout << "UpdateEntries(" << class_int << ") ("
+  std::cout << "\033[1K\rUpdateEntries(" << class_int << ") ("
             << absl::StrJoin(iterators_, ", ",
                              [](std::string* out,
                                 const ClassPermuter::iterator& it) {
-                                 absl::StrAppend(out, it.position());
+			       absl::StrAppend(out, it.completion());
                              })
-            << "): " << position() << std::endl;
+            << "): " << position() << std::flush;
 #endif
   if (permuter_->profiler_ != nullptr) {
     permuter_->profiler_->NotePosition(position(), permuter_->permutation_count());

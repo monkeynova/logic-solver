@@ -56,6 +56,7 @@ cc_library(
     hdrs=["profiler.h"],
     srcs=["profiler.cc"],
     deps = [ 
+	"@com_github_gflags_gflags//:gflags",
         "@com_google_absl//absl/memory",
    ],
 )

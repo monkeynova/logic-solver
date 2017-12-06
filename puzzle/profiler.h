@@ -11,6 +11,9 @@ class Profiler {
 
   virtual ~Profiler() {}
   virtual void NotePosition(double position, double count) = 0;
+  virtual bool Done() {
+    return false;
+  }
   
  protected:
   Profiler() {}

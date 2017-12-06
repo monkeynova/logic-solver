@@ -68,16 +68,22 @@ class ClassPermuter {
     int max_;
   };
 
-  ClassPermuter(const Descriptor* d) : descriptor_(d) {}
+  ClassPermuter(const Descriptor* d)
+    : descriptor_(d),
+      permutation_count_(PermutationCount(d)) {}
   ~ClassPermuter() {}
 
   iterator begin() const { return iterator(descriptor_); }
   iterator end() const { return iterator(); }
 
-  double permutation_count() const;
+  double permutation_count() const {
+    return permutation_count_;
+  }
 
  private:
+  static double PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
+  double permutation_count_;
 };
 
 }  // namespace Puzzle
