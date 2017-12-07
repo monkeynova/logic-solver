@@ -4,9 +4,9 @@ namespace Puzzle {
 
 ClassPermuter::iterator::iterator(const Descriptor* descriptor) {
   if (descriptor != nullptr) {
-    values_ = descriptor->Values();
+    current_ = descriptor->Values();
   }
-  int entries = values_.size();
+  int entries = current_.size();
   if (entries > 0) {
     max_ = 1;
     for (int i = 2; i <= entries; i++ ) {
@@ -14,18 +14,15 @@ ClassPermuter::iterator::iterator(const Descriptor* descriptor) {
     }
   }
   position_ = 0;
-  current_.resize(values_.size());
-  index_.resize(values_.size());
-  direction_.resize(values_.size());
+  index_.resize(current_.size());
+  direction_.resize(current_.size());
   for (unsigned int i = 0; i < current_.size(); ++i) {
-    current_[i] = values_[i];
     index_[i] = i;
     direction_[i] = i == 0 ? 0 : -1;
   }
   next_from_ = current_.size() - 1;
 }
 
-#if 1
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 void ClassPermuter::iterator::Advance() {
   ++position_;
@@ -66,24 +63,6 @@ void ClassPermuter::iterator::Advance() {
     }
   }
 }
-#else
-void ClassPermuter::iterator::Advance() {
-  ++position_;
-  if (position_ >= max_) {
-    current_.resize(0);
-  } else {
-    int tmp = position_;
-    for (unsigned int i = 0; i < current_.size(); ++i) {
-      current_[i] = values_[i];
-    }
-    for (unsigned int i = 0; tmp && i < current_.size(); ++i) {
-      int next = tmp % (current_.size() - i);
-      tmp /= (current_.size() - i);
-      std::swap(current_[i], current_[i + next]);
-    }
-  }
-}
-#endif
 
 // static
 double ClassPermuter::PermutationCount(const Descriptor* d) {

@@ -47,7 +47,6 @@ class ClassPermuter {
    private:
     void Advance();
 
-    std::vector<int> values_;
     std::vector<int> current_;
     std::vector<int> index_;
     std::vector<int> direction_;
