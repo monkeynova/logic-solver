@@ -12,6 +12,7 @@ class ClassPermuter {
   public:
     constexpr static int kInlineSize = 10;
     using StorageVector = std::vector<int>;
+    // InlinedVector is about half as fast...
     //absl::InlinedVector<int, kInlineSize>;
 
     typedef std::forward_iterator_tag iterator_category;
