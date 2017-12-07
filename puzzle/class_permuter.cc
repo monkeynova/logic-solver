@@ -2,7 +2,69 @@
 
 namespace Puzzle {
 
-void ClassPermuter::iterator::BuildCurrent() {
+ClassPermuter::iterator::iterator(const Descriptor* descriptor) {
+  if (descriptor != nullptr) {
+    values_ = descriptor->Values();
+  }
+  int entries = values_.size();
+  if (entries > 0) {
+    max_ = 1;
+    for (int i = 2; i <= entries; i++ ) {
+      max_ *= i;
+    }
+  }
+  position_ = 0;
+  current_.resize(values_.size());
+  index_.resize(values_.size());
+  direction_.resize(values_.size());
+  for (unsigned int i = 0; i < current_.size(); ++i) {
+    current_[i] = values_[i];
+    index_[i] = i;
+    direction_[i] = i == 0 ? 0 : -1;
+  }
+}
+
+#if 1
+// https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
+// TODO(keith@monkeynova.com): Try caching from for next go.
+
+void ClassPermuter::iterator::Advance() {
+  ++position_;
+  if (position_ >= max_) {
+    current_.resize(0);
+  } else {
+    int max = -1;
+    int from = -1;
+    for (int i = 0; i < current_.size(); ++i) {
+      if (direction_[i] != 0 && index_[i] > max) {
+	from = i;
+	max = index_[i];
+      }
+    }
+    int to = from + direction_[from];
+    std::swap(current_[from], current_[to]);
+    std::swap(direction_[from], direction_[to]);
+    std::swap(index_[from], index_[to]);
+    if (to == 0 || to == current_.size() - 1 ||
+	index_[to + direction_[to]] > index_[to]) {
+      direction_[to] = 0;
+    }
+    if (max < current_.size() - 1) {
+      for (int i = 0; i < current_.size(); ++i) {
+        if (index_[i] > max) {
+	  if (i < to) {
+	    direction_[i] = 1;
+	  } else {
+	    direction_[i] = -1;
+	  }
+	}
+      }
+    }
+  }
+}
+#else
+void ClassPermuter::iterator::Advance() {
+  ++position_;
   if (position_ >= max_) {
     current_.resize(0);
   } else {
@@ -17,6 +79,7 @@ void ClassPermuter::iterator::BuildCurrent() {
     }
   }
 }
+#endif
 
 // static
 double ClassPermuter::PermutationCount(const Descriptor* d) {

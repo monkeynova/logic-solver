@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "absl/strings/str_join.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -16,7 +17,8 @@ TEST(ClassPermuter, ThreeElements) {
   int position = 0;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position);
-    EXPECT_TRUE(history.insert(*it).second);
+    EXPECT_TRUE(history.insert(*it).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     position++;
   }
@@ -32,7 +34,8 @@ TEST(ClassPermuter, FiveElements) {
   int position = 0;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position);
-    EXPECT_TRUE(history.insert(*it).second);
+    EXPECT_TRUE(history.insert(*it).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5, 6, 7));
     position++;
   }

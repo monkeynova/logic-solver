@@ -16,21 +16,7 @@ class ClassPermuter {
     typedef ClassPermuter* pointer;
 
     iterator() : iterator(nullptr) {}
-    iterator(const Descriptor* descriptor) {
-      if (descriptor != nullptr) {
-        values_ = descriptor->Values();
-      }
-      int entries = values_.size();
-      if (entries > 0) {
-        max_ = 1;
-        for (int i = 2; i <= entries; i++ ) {
-          max_ *= i;
-        }
-      }
-      position_ = 0;
-      current_.resize(values_.size());
-      BuildCurrent();
-    }
+    iterator(const Descriptor* descriptor);
 
     iterator(const iterator&) = delete;
     iterator& operator=(const iterator&) = delete;
@@ -51,8 +37,7 @@ class ClassPermuter {
       return &current_;
     }
     iterator& operator++() {
-      ++position_;
-      BuildCurrent();
+      Advance();
       return *this;
     }
     
@@ -60,10 +45,12 @@ class ClassPermuter {
     double completion() const { return position_ / max_; }
 
    private:
-    void BuildCurrent();
+    void Advance();
 
     std::vector<int> values_;
     std::vector<int> current_;
+    std::vector<int> index_;
+    std::vector<int> direction_;
     double position_;
     int max_;
   };
