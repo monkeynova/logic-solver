@@ -39,6 +39,7 @@ cc_library(
     srcs=["class_permuter.cc"],
     deps = [
         ":solution",
+	"@com_google_absl//absl/container:inlined_vector",
     ],
 )
 

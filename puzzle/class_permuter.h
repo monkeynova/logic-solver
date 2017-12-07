@@ -1,6 +1,7 @@
 #ifndef __PUZZLE_CLASS_PERMUTER_H
 #define __PUZZLE_CLASS_PERMUTER_H
 
+#include "absl/container/inlined_vector.h"
 #include "puzzle/solution.h"
 
 namespace Puzzle {
@@ -9,6 +10,10 @@ class ClassPermuter {
  public:
   class iterator {
   public:
+    constexpr static int kInlineSize = 10;
+    using StorageVector = std::vector<int>;
+    //absl::InlinedVector<int, kInlineSize>;
+
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
     typedef ClassPermuter value_type;
@@ -30,10 +35,10 @@ class ClassPermuter {
     bool operator==(const iterator& other) {
       return current_ == other.current_;
     }
-    const std::vector<int>& operator*() {
+    const StorageVector& operator*() {
       return current_;
     }
-    const std::vector<int>* operator->() {
+    const StorageVector* operator->() {
       return &current_;
     }
     iterator& operator++() {
@@ -47,9 +52,9 @@ class ClassPermuter {
    private:
     void Advance();
 
-    std::vector<int> current_;
-    std::vector<int> index_;
-    std::vector<int> direction_;
+    StorageVector current_;
+    StorageVector index_;
+    StorageVector direction_;
     int next_from_;
     double position_;
     int max_;
