@@ -51,6 +51,7 @@ class ClassPermuter {
     std::vector<int> current_;
     std::vector<int> index_;
     std::vector<int> direction_;
+    int next_from_;
     double position_;
     int max_;
   };

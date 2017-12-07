@@ -22,25 +22,17 @@ ClassPermuter::iterator::iterator(const Descriptor* descriptor) {
     index_[i] = i;
     direction_[i] = i == 0 ? 0 : -1;
   }
+  next_from_ = current_.size() - 1;
 }
 
 #if 1
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
-// TODO(keith@monkeynova.com): Try caching from for next go.
-
 void ClassPermuter::iterator::Advance() {
   ++position_;
   if (position_ >= max_) {
     current_.resize(0);
   } else {
-    int max = -1;
-    int from = -1;
-    for (int i = 0; i < current_.size(); ++i) {
-      if (direction_[i] != 0 && index_[i] > max) {
-	from = i;
-	max = index_[i];
-      }
-    }
+    int from = next_from_;
     int to = from + direction_[from];
     std::swap(current_[from], current_[to]);
     std::swap(direction_[from], direction_[to]);
@@ -48,15 +40,27 @@ void ClassPermuter::iterator::Advance() {
     if (to == 0 || to == current_.size() - 1 ||
 	index_[to + direction_[to]] > index_[to]) {
       direction_[to] = 0;
-    }
-    if (max < current_.size() - 1) {
+      int max = -1;
       for (int i = 0; i < current_.size(); ++i) {
-        if (index_[i] > max) {
+	if (direction_[i] != 0 && index_[i] > max) {
+	  next_from_ = i;
+	  max = index_[i];
+	}
+      }
+    } else {
+      next_from_ = to;
+    }
+    if (index_[to] < current_.size() - 1) {
+      for (int i = 0; i < current_.size(); ++i) {
+        if (index_[i] > index_[to]) {
 	  if (i < to) {
 	    direction_[i] = 1;
 	  } else {
 	    direction_[i] = -1;
 	  }
+	}
+	if (index_[i] == current_.size() - 1) {
+	  next_from_ = i;
 	}
       }
     }
