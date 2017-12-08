@@ -9,7 +9,6 @@ ClassPermuter::iterator::iterator(const Descriptor* descriptor) {
     for (int i : descriptor->Values()) {
       current_.push_back(i);
     }
-    //    current_ = descriptor->Values();
   }
   int entries = current_.size();
   if (entries > 0) {

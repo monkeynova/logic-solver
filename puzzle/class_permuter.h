@@ -1,7 +1,6 @@
 #ifndef __PUZZLE_CLASS_PERMUTER_H
 #define __PUZZLE_CLASS_PERMUTER_H
 
-#include "absl/container/inlined_vector.h"
 #include "puzzle/solution.h"
 
 namespace Puzzle {
@@ -12,8 +11,6 @@ class ClassPermuter {
   public:
     constexpr static int kInlineSize = 10;
     using StorageVector = std::vector<int>;
-    // InlinedVector is about half as fast...
-    //absl::InlinedVector<int, kInlineSize>;
 
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;

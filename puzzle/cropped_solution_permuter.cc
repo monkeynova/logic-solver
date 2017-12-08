@@ -3,7 +3,7 @@
 namespace Puzzle {
 
 CroppedSolutionPermuter::iterator::iterator(
-    const CroppedSolutionPermuter* permuter, 
+    const CroppedSolutionPermuter* permuter,
     const EntryDescriptor* entry_descriptor)
    : permuter_(permuter), entry_descriptor_(entry_descriptor) {
   if (entry_descriptor_ == nullptr) {
@@ -177,17 +177,26 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   class_crop_predicates_.resize(class_types.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
-    for (auto it = class_types.rbegin(); it != class_types.rend(); ++it) {
-      int class_int = *it;
+    if (cropper.classes.size() == 1) {
+      int class_int = cropper.classes[0];
+      // TODO(keith@monkeynova.com): Run through permutations with just this
+      // column. If selective enough, replace permutaiton generator with
+      // materialized form.
+      class_crop_predicates_[class_int].push_back(cropper);
+      added = true;
+    } else {
+      for (auto it = class_types.rbegin(); it != class_types.rend(); ++it) {
+	int class_int = *it;
 
-      auto it2 = std::find(cropper.classes.begin(),
-                           cropper.classes.end(),
-                           class_int);
+	auto it2 = std::find(cropper.classes.begin(),
+			     cropper.classes.end(),
+			     class_int);
 
-      if (it2 != cropper.classes.end()) {
-	class_crop_predicates_[class_int].push_back(cropper);
-        added = true;
-	break;  // class_int
+	if (it2 != cropper.classes.end()) {
+	  class_crop_predicates_[class_int].push_back(cropper);
+	  added = true;
+	  break;  // class_int
+	}
       }
     }
     if (!added) {

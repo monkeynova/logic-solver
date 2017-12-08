@@ -23,21 +23,26 @@ void SetupProblem(
 }
 
 void AddProblemPredicates(Puzzle::Solver* s) {
-  for (int i = 0; i < 9; ++i) {
+  std::vector<int> cols = {0};
+  for (int i = 1; i < 9; ++i) {
+    cols.push_back(i);
     s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
                     [i](const Puzzle::Entry& e) {
                       for (int j = 0; j < i; ++j) {
-                        if (e.Class(i) == e.Class(j))
-                          return false;
+                        if (e.Class(i) == e.Class(j)) return false;
                       }
                       return true;
                     },
-                    i);
+                    cols);
   }
 
   for (int i = 0; i < 9; ++i) {
-    if (i % 3 == 0) continue;
-     
+    if (i % 3 == 0) {
+      cols = {0};
+      continue;
+    }
+
+    cols.push_back(i);
     s->AddPredicate(
         absl::StrCat("No box dupes ", i + 1),
         [i](const Puzzle::Solution& s) {
@@ -54,7 +59,7 @@ void AddProblemPredicates(Puzzle::Solver* s) {
           }
           return true;
         },
-        i);
+        cols);
   }
 }
 
