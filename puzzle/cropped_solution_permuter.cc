@@ -181,7 +181,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
       int class_int = cropper.classes[0];
       // TODO(keith@monkeynova.com): Run through permutations with just this
       // column. If selective enough, replace permutaiton generator with
-      // materialized form.
+      // materialized form. Actually, collect all filters on a single column
+      // and run them together.
       class_crop_predicates_[class_int].push_back(cropper);
       added = true;
     } else {
