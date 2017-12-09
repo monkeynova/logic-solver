@@ -44,6 +44,17 @@ cc_library(
 )
 
 cc_library(
+    name="instance",
+    hdrs=["instance.h"],
+    deps=[
+        ":solver",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
+)
+
+cc_library(
     name="solution",
     hdrs=["solution.h"],
     deps = [ 

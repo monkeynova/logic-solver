@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "gflags/gflags.h"
-#include "puzzle/solver.h"
+#include "puzzle/instance.h"
 
 DEFINE_bool(all, false, "Show all solutions");
 

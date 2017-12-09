@@ -40,6 +40,7 @@ cc_library(
     name = "puzzle_main",
     srcs = ["puzzle_main.cc"],
     deps = [
+        "//puzzle:instance",
         "//puzzle:solver",
 	"@com_github_gflags_gflags//:gflags",
         "@com_google_absl//absl/memory",
