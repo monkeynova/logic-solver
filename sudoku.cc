@@ -5,7 +5,12 @@ Logic solver repurposed for sudoku
 #include <memory>
 
 #include "absl/memory/memory.h"
+#include "gflags/gflags.h"
 #include "puzzle/solver.h"
+
+DEFINE_bool(sudoku_problem_setup_a, true, "...");
+DEFINE_bool(sudoku_setup_only, false, "...");
+
 
 void SetupProblem(
     Puzzle::Solver* s,
@@ -22,7 +27,7 @@ void SetupProblem(
   descriptors->push_back(std::move(val_descriptor));
 }
 
-void AddProblemPredicates(Puzzle::Solver* s) {
+static void AddProblemPredicatesSetupA(Puzzle::Solver* s) {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
@@ -63,6 +68,48 @@ void AddProblemPredicates(Puzzle::Solver* s) {
   }
 }
 
+static void AddProblemPredicatesSetupB(Puzzle::Solver* s) {
+  for (int i = 0; i < 9; ++i) {
+    for (int j = 0; j < 9; ++j) {
+      if (i != j) {
+	s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
+			[i, j](const Puzzle::Entry& e) {
+			  return e.Class(i) != e.Class(j);
+			},
+			{i, j});
+      }
+    }
+  }
+
+  for (int box_base_x = 0; box_base_x < 9; box_base_x += 3) {
+    for (int box_base_y = 0; box_base_y < 9; box_base_y += 3) {
+      s->AddPredicate(
+          absl::StrCat("No box dupes (", box_base_x + 1, ",", box_base_y + 1,
+		       ")"),
+	  [box_base_x, box_base_y](const Puzzle::Solution& s) {
+	    int hist = 0;
+	    for (int i = 0; i < 3; ++i) {
+	      for (int j = 0; j < 3; ++j) {
+		int bit = s.Id(box_base_x + i).Class(box_base_y + j);
+		if (hist & (1<<bit)) return false;
+		hist |= 1<<bit;
+	      }
+	    }
+	    return true;
+	  },
+	  {box_base_y, box_base_y + 1, box_base_y + 2});
+    }
+  }
+}
+
+void AddProblemPredicates(Puzzle::Solver* s) {
+  if (FLAGS_sudoku_problem_setup_a) {
+    AddProblemPredicatesSetupA(s);
+  } else {
+    AddProblemPredicatesSetupB(s);
+  }
+}
+
 static void AddValuePredicate(int row, int col, int value, Puzzle::Solver* s) {
   s->AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
                   [row, col, value](const Puzzle::Solution& s) {
@@ -72,6 +119,9 @@ static void AddValuePredicate(int row, int col, int value, Puzzle::Solver* s) {
 }
 
 void AddRulePredicates(Puzzle::Solver* s) {
+  if (FLAGS_sudoku_setup_only) {
+    return;
+  }
   /*
     8 ? 5 | ? ? ? | ? 3 9
     ? ? ? | ? ? ? | ? ? ?
