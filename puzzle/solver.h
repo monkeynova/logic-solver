@@ -26,6 +26,10 @@ class Solver {
     entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
   }
 
+  // TODO(keith@monkeynova.com): Entry::Predicate rules have the structure
+  // required to crop results in a single ClassPermuter if implemented a
+  // skip function. That would be a significant speed up.
+  
   void AddPredicate(std::string name, Entry::Predicate predicate) {
     AddPredicate(name, [predicate](const Solution& s) {
         return all_of(s.entries().begin(),
