@@ -8,8 +8,6 @@
 DEFINE_bool(all, false, "Show all solutions");
 
 extern void SetupProblem(Puzzle::Solver* s);
-extern void AddProblemPredicates(Puzzle::Solver* s);
-extern void AddRulePredicates(Puzzle::Solver* s);
 
 std::string PositionHeader(const Puzzle::Solution& s) {
   return absl::StrCat("[position=", s.permutation_position(), "/",
@@ -21,8 +19,6 @@ int main(int argc, char** argv) {
   Puzzle::Solver solver;
   
   SetupProblem(&solver);
-  AddProblemPredicates(&solver);
-  AddRulePredicates(&solver);
   
   int exit_code = 1;
   

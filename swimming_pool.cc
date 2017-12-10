@@ -30,24 +30,6 @@ Emily: style=Freestyle country=UK lane=3
 
 using namespace SwimmingPool;
 
-void SetupProblem(Puzzle::Solver* s) {
-  s->SetIdentifiers(s->AddDescriptor(
-      new Puzzle::ProtoEnumDescriptor(Who_descriptor())));
-  s->AddClass(LANE, "lane",
-	      s->AddDescriptor(
-		  new Puzzle::IntRangeDescriptor(1, 4)));
-  s->AddClass(COUNTRY, "country",
-	      s->AddDescriptor(
-		  new Puzzle::ProtoEnumDescriptor(Country_descriptor())));
-  s->AddClass(STYLE, "style",
-	      s->AddDescriptor(
-		  new Puzzle::ProtoEnumDescriptor(Style_descriptor())));
-}
-
-void AddProblemPredicates(Puzzle::Solver* s) {
-    // No rules here.
-}
-
 bool IsNextTo(const Puzzle::Entry& a, const Puzzle::Entry& b) {
   return fabs(a.Class(LANE) - b.Class(LANE)) == 1;
 };
@@ -160,4 +142,20 @@ Puzzle::Solution ProblemSolution(const Puzzle::Solver& s) {
       s.entry_descriptor());
   
   return Puzzle::Solution(&entries_).Clone();
+}
+
+void SetupProblem(Puzzle::Solver* s) {
+  s->SetIdentifiers(s->AddDescriptor(
+      new Puzzle::ProtoEnumDescriptor(Who_descriptor())));
+  s->AddClass(LANE, "lane",
+	      s->AddDescriptor(
+		  new Puzzle::IntRangeDescriptor(1, 4)));
+  s->AddClass(COUNTRY, "country",
+	      s->AddDescriptor(
+		  new Puzzle::ProtoEnumDescriptor(Country_descriptor())));
+  s->AddClass(STYLE, "style",
+	      s->AddDescriptor(
+		  new Puzzle::ProtoEnumDescriptor(Style_descriptor())));
+
+  AddRulePredicates(s);
 }

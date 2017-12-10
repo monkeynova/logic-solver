@@ -58,28 +58,6 @@ enum Classes {
     FIZZBIN = 3
 };
 
-void SetupProblem(Puzzle::Solver* s) {
-  Puzzle::StringDescriptor *who_descriptor = s->AddDescriptor(
-      new Puzzle::StringDescriptor());
-
-  who_descriptor->SetDescription(PICARD, "Picard");
-  who_descriptor->SetDescription(RIKER, "Riker");
-  who_descriptor->SetDescription(TROI, "Troi");
-  who_descriptor->SetDescription(GEORDI, "Geordi");
-  who_descriptor->SetDescription(DATA, "Data");
-  who_descriptor->SetDescription(WORF, "Worf");
-  
-  s->SetIdentifiers(who_descriptor);
-  s->AddClass(HERO, "hero", who_descriptor);
-  s->AddClass(FEAR, "fear", who_descriptor);
-  
-  Puzzle::IntRangeDescriptor *ranking_descriptor = s->AddDescriptor(
-      new Puzzle::IntRangeDescriptor(1, 6));
-  
-  s->AddClass(TRID, "trid", ranking_descriptor);
-  s->AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
-}
-
 void AddProblemPredicates(Puzzle::Solver* s) {
     s->AddPredicate("Nobody either fears him/herself ...",
                     [](const Puzzle::Entry& e) {
@@ -231,4 +209,29 @@ Puzzle::Solution ProblemSolution(const Puzzle::Solver& s) {
       s.entry_descriptor());
   
   return Puzzle::Solution(&entries_).Clone();
+}
+
+void SetupProblem(Puzzle::Solver* s) {
+  Puzzle::StringDescriptor *who_descriptor = s->AddDescriptor(
+      new Puzzle::StringDescriptor());
+
+  who_descriptor->SetDescription(PICARD, "Picard");
+  who_descriptor->SetDescription(RIKER, "Riker");
+  who_descriptor->SetDescription(TROI, "Troi");
+  who_descriptor->SetDescription(GEORDI, "Geordi");
+  who_descriptor->SetDescription(DATA, "Data");
+  who_descriptor->SetDescription(WORF, "Worf");
+  
+  s->SetIdentifiers(who_descriptor);
+  s->AddClass(HERO, "hero", who_descriptor);
+  s->AddClass(FEAR, "fear", who_descriptor);
+  
+  Puzzle::IntRangeDescriptor *ranking_descriptor = s->AddDescriptor(
+      new Puzzle::IntRangeDescriptor(1, 6));
+  
+  s->AddClass(TRID, "trid", ranking_descriptor);
+  s->AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
+
+  AddProblemPredicates(s);
+  AddRulePredicates(s);
 }

@@ -8,20 +8,13 @@ Logic solver repurposed for sudoku
 #include "gflags/gflags.h"
 #include "puzzle/solver.h"
 
-DEFINE_bool(sudoku_problem_setup_a, true, "...");
-DEFINE_bool(sudoku_setup_only, false, "...");
-
-
-void SetupProblem(Puzzle::Solver* s) {
-  Puzzle::Descriptor* val_descriptor = s->AddDescriptor(
-      new Puzzle::IntRangeDescriptor(1, 9));
-
-  s->SetIdentifiers(s->AddDescriptor(
-      new Puzzle::IntRangeDescriptor(0, 8)));
-  for (int i = 0; i < 9; ++i) {
-    s->AddClass(i, absl::StrCat(i + 1), val_descriptor);
-  }
-}
+DEFINE_bool(sudoku_problem_setup_a, true,
+	    "Is-valid-sudoku-board predicates have two forms which may have "
+	    "different performance characteristics based on the details "
+	    "of CroppedSolutionPermuter. This switches betweeen (a) and (b).");
+DEFINE_bool(sudoku_setup_only, false,
+	    "If true, only set up predicates for valid sudoku board "
+	    "configuration rather than solving a specific board.");
 
 static void AddProblemPredicatesSetupA(Puzzle::Solver* s) {
   std::vector<int> cols = {0};
@@ -98,14 +91,6 @@ static void AddProblemPredicatesSetupB(Puzzle::Solver* s) {
   }
 }
 
-void AddProblemPredicates(Puzzle::Solver* s) {
-  if (FLAGS_sudoku_problem_setup_a) {
-    AddProblemPredicatesSetupA(s);
-  } else {
-    AddProblemPredicatesSetupB(s);
-  }
-}
-
 static void AddValuePredicate(int row, int col, int value, Puzzle::Solver* s) {
   s->AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
                   [row, col, value](const Puzzle::Solution& s) {
@@ -115,9 +100,6 @@ static void AddValuePredicate(int row, int col, int value, Puzzle::Solver* s) {
 }
 
 void AddRulePredicates(Puzzle::Solver* s) {
-  if (FLAGS_sudoku_setup_only) {
-    return;
-  }
   /*
     8 ? 5 | ? ? ? | ? 3 9
     ? ? ? | ? ? ? | ? ? ?
@@ -155,4 +137,27 @@ void AddRulePredicates(Puzzle::Solver* s) {
   AddValuePredicate(9, 3, 2, s);
   AddValuePredicate(9, 4, 9, s);
   AddValuePredicate(9, 5, 1, s);
+}
+
+void SetupProblem(Puzzle::Solver* s) {
+  Puzzle::Descriptor* val_descriptor = s->AddDescriptor(
+      new Puzzle::IntRangeDescriptor(1, 9));
+
+  s->SetIdentifiers(s->AddDescriptor(
+      new Puzzle::IntRangeDescriptor(0, 8)));
+  for (int i = 0; i < 9; ++i) {
+    s->AddClass(i, absl::StrCat(i + 1), val_descriptor);
+  }
+
+  if (FLAGS_sudoku_problem_setup_a) {
+    AddProblemPredicatesSetupA(s);
+  } else {
+    AddProblemPredicatesSetupB(s);
+  }
+  
+  if (FLAGS_sudoku_setup_only) {
+    return;
+  }
+
+  AddRulePredicates(s);
 }
