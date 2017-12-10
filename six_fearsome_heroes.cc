@@ -58,29 +58,26 @@ enum Classes {
     FIZZBIN = 3
 };
 
-void SetupProblem(Puzzle::Solver* s,
-		  std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
-    Puzzle::StringDescriptor *who_descriptor = new Puzzle::StringDescriptor();
-    descriptors->push_back(std::unique_ptr<Puzzle::Descriptor>(who_descriptor));
+void SetupProblem(Puzzle::Solver* s) {
+  Puzzle::StringDescriptor *who_descriptor = s->AddDescriptor(
+      new Puzzle::StringDescriptor());
 
-    who_descriptor->SetDescription(PICARD, "Picard");
-    who_descriptor->SetDescription(RIKER, "Riker");
-    who_descriptor->SetDescription(TROI, "Troi");
-    who_descriptor->SetDescription(GEORDI, "Geordi");
-    who_descriptor->SetDescription(DATA, "Data");
-    who_descriptor->SetDescription(WORF, "Worf");
-    
-    s->SetIdentifiers(who_descriptor);
-    s->AddClass(HERO, "hero", who_descriptor);
-    s->AddClass(FEAR, "fear", who_descriptor);
-
-    Puzzle::IntRangeDescriptor *ranking_descriptor =
-      new Puzzle::IntRangeDescriptor(1, 6);
-    descriptors->push_back(
-        std::unique_ptr<Puzzle::Descriptor>(ranking_descriptor));
-
-    s->AddClass(TRID, "trid", ranking_descriptor);
-    s->AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
+  who_descriptor->SetDescription(PICARD, "Picard");
+  who_descriptor->SetDescription(RIKER, "Riker");
+  who_descriptor->SetDescription(TROI, "Troi");
+  who_descriptor->SetDescription(GEORDI, "Geordi");
+  who_descriptor->SetDescription(DATA, "Data");
+  who_descriptor->SetDescription(WORF, "Worf");
+  
+  s->SetIdentifiers(who_descriptor);
+  s->AddClass(HERO, "hero", who_descriptor);
+  s->AddClass(FEAR, "fear", who_descriptor);
+  
+  Puzzle::IntRangeDescriptor *ranking_descriptor = s->AddDescriptor(
+      new Puzzle::IntRangeDescriptor(1, 6));
+  
+  s->AddClass(TRID, "trid", ranking_descriptor);
+  s->AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
 }
 
 void AddProblemPredicates(Puzzle::Solver* s) {

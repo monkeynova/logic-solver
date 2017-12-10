@@ -10,9 +10,12 @@ class PuzzleInstance {
     : solver_(solver) {}
   
   virtual ~PuzzleInstance() {};
+
+  // Create the
   virtual void Setup() = 0;
   virtual void AddProblemPredicates() = 0;
   virtual void AddRulePredicates() = 0;
+  
  protected:
   Puzzle::Solver* solver() { return solver_; }
 

@@ -6,9 +6,7 @@
 #include "gtest/gtest.h"
 #include "puzzle/solver.h"
 
-extern void SetupProblem(
-    Puzzle::Solver* s,
-    std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors);
+extern void SetupProblem(Puzzle::Solver* s);
 extern void AddProblemPredicates(Puzzle::Solver* s);
 extern void AddRulePredicates(Puzzle::Solver* s);
 
@@ -16,9 +14,8 @@ extern Puzzle::Solution ProblemSolution(const Puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
   Puzzle::Solver solver;
-  std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors;
   
-  SetupProblem(&solver, &descriptors);
+  SetupProblem(&solver);
   AddProblemPredicates(&solver);
   AddRulePredicates(&solver);
 

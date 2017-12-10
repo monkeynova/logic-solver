@@ -12,19 +12,15 @@ DEFINE_bool(sudoku_problem_setup_a, true, "...");
 DEFINE_bool(sudoku_setup_only, false, "...");
 
 
-void SetupProblem(
-    Puzzle::Solver* s,
-    std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors) {
-  auto row_descriptor = absl::make_unique<Puzzle::IntRangeDescriptor>(0, 8);
-  auto val_descriptor = absl::make_unique<Puzzle::IntRangeDescriptor>(1, 9);
+void SetupProblem(Puzzle::Solver* s) {
+  Puzzle::Descriptor* val_descriptor = s->AddDescriptor(
+      new Puzzle::IntRangeDescriptor(1, 9));
 
-  s->SetIdentifiers(row_descriptor.get());
+  s->SetIdentifiers(s->AddDescriptor(
+      new Puzzle::IntRangeDescriptor(0, 8)));
   for (int i = 0; i < 9; ++i) {
-    s->AddClass(i, absl::StrCat(i + 1), val_descriptor.get());
+    s->AddClass(i, absl::StrCat(i + 1), val_descriptor);
   }
-
-  descriptors->push_back(std::move(row_descriptor));
-  descriptors->push_back(std::move(val_descriptor));
 }
 
 static void AddProblemPredicatesSetupA(Puzzle::Solver* s) {

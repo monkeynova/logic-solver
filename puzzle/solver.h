@@ -76,7 +76,14 @@ class Solver {
   const EntryDescriptor* entry_descriptor() const {
     return &entry_descriptor_;
   }
-  
+
+  // Takes ownership of 'descriptor' and ensures that it outlives 'solver'.
+  template <class SpecificDescriptor>
+  SpecificDescriptor* AddDescriptor(SpecificDescriptor* descriptor) {
+    descriptors_.emplace_back(descriptor);
+    return descriptor;
+  }
+
  private:
   template <class Permuter>
   std::vector<Solution> AllSolutionsImpl(int limit, Permuter* permuter);
@@ -90,6 +97,8 @@ class Solver {
   std::vector<Solution::Predicate> on_solution_;
 
   std::unique_ptr<Profiler> profiler_;
+
+  std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors_;
 };
 
 }  // namespace Puzzle

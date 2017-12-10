@@ -7,9 +7,7 @@
 
 DEFINE_bool(all, false, "Show all solutions");
 
-extern void SetupProblem(
-    Puzzle::Solver* s,
-    std::vector<std::unique_ptr<Puzzle::Descriptor>> *descriptors);
+extern void SetupProblem(Puzzle::Solver* s);
 extern void AddProblemPredicates(Puzzle::Solver* s);
 extern void AddRulePredicates(Puzzle::Solver* s);
 
@@ -21,9 +19,8 @@ std::string PositionHeader(const Puzzle::Solution& s) {
 int main(int argc, char** argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
   Puzzle::Solver solver;
-  std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors;
   
-  SetupProblem(&solver, &descriptors);
+  SetupProblem(&solver);
   AddProblemPredicates(&solver);
   AddRulePredicates(&solver);
   
