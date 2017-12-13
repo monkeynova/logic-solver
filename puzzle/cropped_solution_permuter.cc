@@ -49,7 +49,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
   const std::vector<Solution::Cropper>& solution_cropper =
-      permuter_->class_crop_predicates_[class_int];
+      permuter_->multi_column_predicates_[class_int];
 
 #ifndef NDEBUG
   std::cout << "FindNextValid(" << class_position << ", "
@@ -167,14 +167,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();
   
-  class_permuters_.resize(class_types.size(), nullptr);
-  for (int class_int: class_types) {
-    const Descriptor* class_descriptor =
-        entry_descriptor_->AllClassValues(class_int);
-    class_permuters_[class_int] = ClassPermuter(class_descriptor);
-  }
-  
-  class_crop_predicates_.resize(class_types.size());
+  single_column_predicates_.resize(class_types.size());
+  multi_column_predicates_.resize(class_types.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
     if (cropper.classes.size() == 1) {
@@ -183,7 +177,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
       // column. If selective enough, replace permutaiton generator with
       // materialized form. Actually, collect all filters on a single column
       // and run them together.
-      class_crop_predicates_[class_int].push_back(cropper);
+      single_column_predicates_[class_int].push_back(cropper);
+      
       added = true;
     } else {
       for (auto it = class_types.rbegin(); it != class_types.rend(); ++it) {
@@ -194,7 +189,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 			     class_int);
 
 	if (it2 != cropper.classes.end()) {
-	  class_crop_predicates_[class_int].push_back(cropper);
+	  multi_column_predicates_[class_int].push_back(cropper);
 	  added = true;
 	  break;  // class_int
 	}
@@ -205,6 +200,20 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
                 << absl::StrJoin(cropper.classes, ",") << "]" << std::endl;
     }
   }
+
+  for (int i = 0; i < single_column_predicates_.size(); ++i) {
+    for (auto p : single_column_predicates_[i]) {
+      multi_column_predicates_[i].emplace_back(p);
+    }
+  }
+
+  class_permuters_.resize(class_types.size(), nullptr);
+  for (int class_int: class_types) {
+    const Descriptor* class_descriptor =
+        entry_descriptor_->AllClassValues(class_int);
+    class_permuters_[class_int] = ClassPermuter(class_descriptor);
+  }
+
 }
 
 double CroppedSolutionPermuter::permutation_count() const {

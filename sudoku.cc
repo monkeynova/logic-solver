@@ -12,6 +12,7 @@ DEFINE_bool(sudoku_problem_setup_a, true,
 	    "Is-valid-sudoku-board predicates have two forms which may have "
 	    "different performance characteristics based on the details "
 	    "of CroppedSolutionPermuter. This switches betweeen (a) and (b).");
+
 DEFINE_bool(sudoku_setup_only, false,
 	    "If true, only set up predicates for valid sudoku board "
 	    "configuration rather than solving a specific board.");

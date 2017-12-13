@@ -73,7 +73,10 @@ class CroppedSolutionPermuter {
  private:
   const EntryDescriptor* const entry_descriptor_;
   std::vector<ClassPermuter> class_permuters_;
-  std::vector<std::vector<Solution::Cropper>> class_crop_predicates_;
+
+  std::vector<std::vector<Solution::Cropper>> single_column_predicates_;
+  // Index is larges (i.e. last) column needed to evaluate.
+  std::vector<std::vector<Solution::Cropper>> multi_column_predicates_;
 
   Profiler* const profiler_;
   
