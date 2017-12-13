@@ -8,7 +8,7 @@ namespace Puzzle {
 class ClassPermuter {
  public:
   class iterator {
-  public:
+   public:
     constexpr static int kInlineSize = 10;
     using StorageVector = std::vector<int>;
 
@@ -18,8 +18,8 @@ class ClassPermuter {
     typedef ClassPermuter& reference;
     typedef ClassPermuter* pointer;
 
-    iterator() : iterator(nullptr) {}
-    iterator(const Descriptor* descriptor);
+    iterator() : iterator(nullptr, {}) {}
+    iterator(const Descriptor* descriptor, std::vector<int> skips);
 
     iterator(const iterator&) = delete;
     iterator& operator=(const iterator&) = delete;
@@ -56,6 +56,7 @@ class ClassPermuter {
     int next_from_;
     double position_;
     int max_;
+    std::vector<int> skips_;
   };
 
   ClassPermuter(const Descriptor* d)
@@ -63,7 +64,9 @@ class ClassPermuter {
       permutation_count_(PermutationCount(d)) {}
   ~ClassPermuter() {}
 
-  iterator begin() const { return iterator(descriptor_); }
+  iterator begin(std::vector<int> skips = {}) const {
+    return iterator(descriptor_, std::move(skips));
+  }
   iterator end() const { return iterator(); }
 
   double permutation_count() const {

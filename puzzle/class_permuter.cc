@@ -4,7 +4,9 @@ namespace Puzzle {
 
 constexpr int ClassPermuter::iterator::kInlineSize;
 
-ClassPermuter::iterator::iterator(const Descriptor* descriptor) {
+ ClassPermuter::iterator::iterator(const Descriptor* descriptor,
+				   std::vector<int> skips)
+   : skips_(std::move(skips)) {
   if (descriptor != nullptr) {
     for (int i : descriptor->Values()) {
       current_.push_back(i);
