@@ -48,9 +48,18 @@ class ClassPermuter {
     double completion() const { return position_ / max_; }
 
    private:
+    // Advances permutation until the the result should be allowed considering
+    // 'skips_'.
     void AdvanceWithSkip();
+
+    // Advances permutation exactly once independent of skipping behavior.
     void Advance();
+
+    // Advances until the current record should allowed considering 'skips_'.
     void SkipUntilMatch();
+
+    // Returns whether or not to skip the current record and advances index
+    // structures through skips_.
     bool ConsumeNextSkip();
 
     StorageVector current_;
@@ -60,6 +69,12 @@ class ClassPermuter {
     double position_;
     int max_;
 
+    // Thar be dragons here.
+    // 'skips_' is a vector of ints represneting runs of boolean conditions.
+    // The first element corresponds to a run of "true" (i.e. should return)
+    // permutations and each subsequent element negates the logic of the
+    // previous run.
+    // To start a run with "false", insert a 0 record at the first position.
     std::vector<int> skips_;
     bool skip_match_ = true;
     int skips_position_ = 0;
