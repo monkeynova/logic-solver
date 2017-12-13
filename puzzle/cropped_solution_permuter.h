@@ -47,6 +47,8 @@ class CroppedSolutionPermuter {
     double completion() const;
 
   private:
+    void PruneClass(int class_int,
+		    const std::vector<Solution::Cropper>& predicates);
     void Advance();
     bool FindNextValid(int class_position);
     void UpdateEntries(int class_int);
@@ -74,9 +76,9 @@ class CroppedSolutionPermuter {
   const EntryDescriptor* const entry_descriptor_;
   std::vector<ClassPermuter> class_permuters_;
 
-  std::vector<std::vector<Solution::Cropper>> single_column_predicates_;
-  // Index is larges (i.e. last) column needed to evaluate.
-  std::vector<std::vector<Solution::Cropper>> multi_column_predicates_;
+  std::vector<std::vector<Solution::Cropper>> single_class_predicates_;
+  // Index is larges (i.e. last) class needed to evaluate.
+  std::vector<std::vector<Solution::Cropper>> multi_class_predicates_;
 
   Profiler* const profiler_;
   
