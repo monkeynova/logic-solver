@@ -68,3 +68,30 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
   }
   EXPECT_THAT(position, 3);
 }
+
+TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
+  Puzzle::IntRangeDescriptor d(3, 5);
+  Puzzle::ClassPermuter p(&d);
+  EXPECT_THAT(p.permutation_count(), 6);
+
+  std::set<std::vector<int>> history;
+  int position = 0;
+  for (auto it = p.begin({1,1,1,1,1,1}); it != p.end(); ++it) {
+    EXPECT_THAT(it.position(), 2 * position);
+    EXPECT_TRUE(history.insert(*it).second)
+      << absl::StrJoin(*it, ", ");
+    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    position++;
+  }
+  EXPECT_THAT(position, 3);
+
+  position = 0;
+  for (auto it = p.begin({0,1,1,1,1,1,1}); it != p.end(); ++it) {
+    EXPECT_THAT(it.position(), 2 * position + 1);
+    EXPECT_TRUE(history.insert(*it).second)
+      << absl::StrJoin(*it, ", ");
+    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    position++;
+  }
+  EXPECT_THAT(position, 3);
+}
