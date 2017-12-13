@@ -54,7 +54,6 @@ void ClassPermuter::iterator::SkipUntilMatch() {
   while (position_ < max_ && !ConsumeNextSkip()) {
     Advance();
   }
-  std::cout << "called " << calls << std::endl;
 }
   
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
