@@ -27,8 +27,36 @@ constexpr int ClassPermuter::iterator::kInlineSize;
     direction_[i] = i == 0 ? 0 : -1;
   }
   next_from_ = current_.size() - 1;
+
+  SkipUntilMatch();
 }
 
+bool ClassPermuter::iterator::ConsumeNextSkip() {
+  if (skips_.empty()) return true;
+
+  if (skips_[skips_position_] == 0) {
+    skip_match_ = !skip_match_;
+    ++skips_position_;
+  }
+  --skips_[skips_position_];
+  return skip_match_;
+}
+
+void ClassPermuter::iterator::AdvanceWithSkip() {
+  Advance();
+  SkipUntilMatch();
+}
+
+void ClassPermuter::iterator::SkipUntilMatch() {
+  if (skips_.empty())  return;
+
+  int calls = 0;
+  while (position_ < max_ && !ConsumeNextSkip()) {
+    Advance();
+  }
+  std::cout << "called " << calls << std::endl;
+}
+  
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 void ClassPermuter::iterator::Advance() {
   ++position_;

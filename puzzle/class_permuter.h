@@ -40,7 +40,7 @@ class ClassPermuter {
       return &current_;
     }
     iterator& operator++() {
-      Advance();
+      AdvanceWithSkip();
       return *this;
     }
     
@@ -48,7 +48,10 @@ class ClassPermuter {
     double completion() const { return position_ / max_; }
 
    private:
+    void AdvanceWithSkip();
     void Advance();
+    void SkipUntilMatch();
+    bool ConsumeNextSkip();
 
     StorageVector current_;
     StorageVector index_;
@@ -56,7 +59,10 @@ class ClassPermuter {
     int next_from_;
     double position_;
     int max_;
+
     std::vector<int> skips_;
+    bool skip_match_ = true;
+    int skips_position_ = 0;
   };
 
   ClassPermuter(const Descriptor* d)
