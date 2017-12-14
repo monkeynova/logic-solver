@@ -10,7 +10,7 @@ class Profiler {
   static std::unique_ptr<Profiler> Create();
 
   virtual ~Profiler() {}
-  virtual void NotePosition(double position, double count) = 0;
+  virtual bool NotePosition(double position, double count) = 0;
   virtual bool Done() {
     return false;
   }

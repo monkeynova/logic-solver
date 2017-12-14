@@ -32,6 +32,7 @@ CroppedSolutionPermuter::iterator::iterator(
 
   current_ = Solution(&entries_);
 
+  class_skips_.resize(class_types_.size());
   if (FLAGS_puzzle_prune_class_iterator) {
     for (int class_int: class_types_) {
       PruneClass(class_int, permuter_->single_class_predicates_[class_int]);
@@ -72,16 +73,13 @@ void CroppedSolutionPermuter::iterator::PruneClass(
     }
   }
   runs.push_back(current_run_length);
-  iterators_[class_int] = class_permuter.begin();
   UpdateEntries(class_int);
-  std::cout << class_int << ":{" << absl::StrJoin(runs, ", ") << "}" << std::endl;
+  class_skips_[class_int] = std::move(runs);
+  iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   if ((unsigned int)class_position >= class_types_.size()) {
-#ifndef NDEBUG
-    std::cout << "FindNextValid(" << class_position << ") Terminate." << std::endl;
-#endif
     return true;
   }
   
@@ -90,11 +88,6 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
   const std::vector<Solution::Cropper>& solution_cropper =
       permuter_->multi_class_predicates_[class_int];
-
-#ifndef NDEBUG
-  std::cout << "FindNextValid(" << class_position << ", "
-            << solution_cropper.size() << ")" << std::endl;
-#endif
 
   while (iterators_[class_int] != class_permuter.end()) {
     if (permuter_->profiler_ != nullptr && permuter_->profiler_->Done()) {
@@ -107,19 +100,13 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 		       })) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
-	iterators_[class_int] = class_permuter.begin();
+	iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
         UpdateEntries(class_int);
-#ifndef NDEBUG
-        std::cout << "  Missing(" << class_position << ")" << std::endl;
-#endif
         return false;
       }
       UpdateEntries(class_int);
     }
     if (FindNextValid(class_position+1)) {
-#ifndef NDEBUG
-      std::cout << "  Found(" << class_position << ")" << std::endl;
-#endif
       return true;
     } else {
       ++iterators_[class_int];
@@ -128,23 +115,23 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   }
 
   // Didn't find an entry in iteration. Reset iterator and return "no match".
-  iterators_[class_int] = class_permuter.begin();
+  iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
   UpdateEntries(class_int);
   return false;
 }
 
 void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
-#ifndef NDEBUG
-  std::cout << "\033[1K\rUpdateEntries(" << class_int << ") ("
-            << absl::StrJoin(iterators_, ", ",
-                             [](std::string* out,
-                                const ClassPermuter::iterator& it) {
-			       absl::StrAppend(out, it.completion());
-                             })
-            << "): " << position() << std::flush;
-#endif
   if (permuter_->profiler_ != nullptr) {
-    permuter_->profiler_->NotePosition(position(), permuter_->permutation_count());
+    if (permuter_->profiler_->NotePosition(
+	    position(), permuter_->permutation_count())) {
+      std::cout << "\033[1K\rUpdateEntries(" << class_int << ") ("
+		<< absl::StrJoin(iterators_, ", ",
+				 [](std::string* out,
+				    const ClassPermuter::iterator& it) {
+				   absl::StrAppend(out, it.completion());
+				 })
+		<< "): " << position() << std::flush;
+    }
   }
   const std::vector<int>& class_values = *(iterators_[class_int]);
   for (unsigned int j = 0; j < class_values.size(); ++j ) {
@@ -153,9 +140,6 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
 }
 
 void CroppedSolutionPermuter::iterator::Advance() {
-#ifndef NDEBUG
-  std::cout << "Advance" << std::endl;
-#endif
   bool at_end = true;
   for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
     int class_int = *it;
@@ -163,7 +147,8 @@ void CroppedSolutionPermuter::iterator::Advance() {
     
     bool carry = false;
     if (iterators_[class_int] == permuter_->class_permuters_[class_int].end()) {
-      iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
+      iterators_[class_int] =
+	  permuter_->class_permuters_[class_int].begin(class_skips_[class_int]);
       carry = true;
     }
     
@@ -213,12 +198,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     bool added = false;
     if (cropper.classes.size() == 1) {
       int class_int = cropper.classes[0];
-      // TODO(keith@monkeynova.com): Run through permutations with just this
-      // class. If selective enough, replace permutaiton generator with
-      // materialized form. Actually, collect all filters on a single class
-      // and run them together.
-      single_class_predicates_[class_int].push_back(cropper);
-      
+      single_class_predicates_[class_int].push_back(cropper);      
       added = true;
     } else {
       for (auto it = class_types.rbegin(); it != class_types.rend(); ++it) {
@@ -241,7 +221,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     }
   }
 
-  if (true || !FLAGS_puzzle_prune_class_iterator) {
+  if (!FLAGS_puzzle_prune_class_iterator) {
     for (int i = 0; i < single_class_predicates_.size(); ++i) {
       for (auto p : single_class_predicates_[i]) {
 	multi_class_predicates_[i].emplace_back(p);

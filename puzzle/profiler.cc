@@ -19,6 +19,7 @@ class StructTimevalProfiler : public Profiler {
  public:
   StructTimevalProfiler() : Profiler() {
     gettimeofday(&start_, nullptr);
+    last_ = start_;
   }
   ~StructTimevalProfiler() override {
     std::cout << "\033[1K\r" << std::flush;
@@ -29,14 +30,14 @@ class StructTimevalProfiler : public Profiler {
     return test_calls_ > FLAGS_puzzle_max_profile_calls;
   }
   
-  void NotePosition(double position, double count) override {
-    if (++test_calls_ % 77 != 1) return;
+  bool NotePosition(double position, double count) override {
+    if (++test_calls_ % 777 != 1) return false;
 
     struct timeval now;
     gettimeofday(&now, nullptr);
     double delta =
          (now.tv_sec - last_.tv_sec + 1e-6 * (now.tv_usec - last_.tv_usec));
-    if (delta < 0.1) return;
+    if (delta < 0.1) return false;
     
     double full_delta =
         (now.tv_sec - start_.tv_sec + 1e-6 * (now.tv_usec - start_.tv_usec));
@@ -49,6 +50,7 @@ class StructTimevalProfiler : public Profiler {
               << std::flush;
     last_ = now;
     last_position_ = position;
+    return true;
   }
   
   struct timeval start_;
@@ -62,7 +64,9 @@ class NoopProfiler : public Profiler {
   NoopProfiler() : Profiler() {}
 
  private:
-  void NotePosition(double position, double count) override {}
+  bool NotePosition(double position, double count) override {
+    return false;
+  }
 };
 
 }  // namespace

@@ -58,6 +58,7 @@ class CroppedSolutionPermuter {
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
+    std::vector<std::vector<int>> class_skips_;
     Solution current_;
   };
 
@@ -70,7 +71,9 @@ class CroppedSolutionPermuter {
   iterator end() const { return iterator(this, nullptr); }
 
   double permutation_count() const;
-  const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
+  const ClassPermuter& class_permuter(int class_int) const {
+    return class_permuters_[class_int];
+  }
 
  private:
   const EntryDescriptor* const entry_descriptor_;
