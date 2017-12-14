@@ -29,6 +29,11 @@ class Solver {
   // TODO(keith@monkeynova.com): Entry::Predicate rules have the structure
   // required to crop results in a single ClassPermuter if implemented a
   // skip function. That would be a significant speed up.
+  // TODO(keith@monkeynova.com): Also add a model where a Entry::Predicate
+  // can be combined with a specific id rather than having to hunt it down
+  // in the Soluition.
+  // TODO(keith@monkeynova.com): Check class_int_restrict_list with a dummy
+  // Solution that looks for class requests on other values.
   
   void AddPredicate(std::string name, Entry::Predicate predicate) {
     AddPredicate(name, [predicate](const Solution& s) {
