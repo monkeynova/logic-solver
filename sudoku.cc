@@ -17,12 +17,12 @@ DEFINE_bool(sudoku_setup_only, false,
 	    "If true, only set up predicates for valid sudoku board "
 	    "configuration rather than solving a specific board.");
 
-static void AddProblemPredicatesSetupA(Puzzle::Solver* s) {
+static void AddProblemPredicatesSetupA(puzzle::Solver* s) {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
     s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
-                    [i](const Puzzle::Entry& e) {
+                    [i](const puzzle::Entry& e) {
                       for (int j = 0; j < i; ++j) {
                         if (e.Class(i) == e.Class(j)) return false;
                       }
@@ -40,7 +40,7 @@ static void AddProblemPredicatesSetupA(Puzzle::Solver* s) {
     cols.push_back(i);
     s->AddPredicate(
         absl::StrCat("No box dupes ", i + 1),
-        [i](const Puzzle::Solution& s) {
+        [i](const puzzle::Solution& s) {
           for (int row = 0; row < 9; ++row) {
             int to_match = s.Id(row).Class(i);
 
@@ -58,12 +58,12 @@ static void AddProblemPredicatesSetupA(Puzzle::Solver* s) {
   }
 }
 
-static void AddProblemPredicatesSetupB(Puzzle::Solver* s) {
+static void AddProblemPredicatesSetupB(puzzle::Solver* s) {
   for (int i = 0; i < 9; ++i) {
     for (int j = 0; j < 9; ++j) {
       if (i != j) {
 	s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
-			[i, j](const Puzzle::Entry& e) {
+			[i, j](const puzzle::Entry& e) {
 			  return e.Class(i) != e.Class(j);
 			},
 			{i, j});
@@ -76,7 +76,7 @@ static void AddProblemPredicatesSetupB(Puzzle::Solver* s) {
       s->AddPredicate(
           absl::StrCat("No box dupes (", box_base_x + 1, ",", box_base_y + 1,
 		       ")"),
-	  [box_base_x, box_base_y](const Puzzle::Solution& s) {
+	  [box_base_x, box_base_y](const puzzle::Solution& s) {
 	    int hist = 0;
 	    for (int i = 0; i < 3; ++i) {
 	      for (int j = 0; j < 3; ++j) {
@@ -92,15 +92,15 @@ static void AddProblemPredicatesSetupB(Puzzle::Solver* s) {
   }
 }
 
-static void AddValuePredicate(int row, int col, int value, Puzzle::Solver* s) {
+static void AddValuePredicate(int row, int col, int value, puzzle::Solver* s) {
   s->AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
-                  [row, col, value](const Puzzle::Solution& s) {
+                  [row, col, value](const puzzle::Solution& s) {
                     return s.Id(row - 1).Class(col - 1) == value;
                   },
                   col - 1);
 }
 
-void AddRulePredicates(Puzzle::Solver* s) {
+void AddRulePredicates(puzzle::Solver* s) {
   /*
     8 ? 5 | ? ? ? | ? 3 9
     ? ? ? | ? ? ? | ? ? ?
@@ -140,12 +140,12 @@ void AddRulePredicates(Puzzle::Solver* s) {
   AddValuePredicate(9, 5, 1, s);
 }
 
-void SetupProblem(Puzzle::Solver* s) {
-  Puzzle::Descriptor* val_descriptor = s->AddDescriptor(
-      new Puzzle::IntRangeDescriptor(1, 9));
+void SetupProblem(puzzle::Solver* s) {
+  puzzle::Descriptor* val_descriptor = s->AddDescriptor(
+      new puzzle::IntRangeDescriptor(1, 9));
 
   s->SetIdentifiers(s->AddDescriptor(
-      new Puzzle::IntRangeDescriptor(0, 8)));
+      new puzzle::IntRangeDescriptor(0, 8)));
   for (int i = 0; i < 9; ++i) {
     s->AddClass(i, absl::StrCat(i + 1), val_descriptor);
   }

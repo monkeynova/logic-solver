@@ -7,7 +7,7 @@
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 class Solver {
  public:
@@ -102,9 +102,9 @@ class Solver {
 
   std::unique_ptr<Profiler> profiler_;
 
-  std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors_;
+  std::vector<std::unique_ptr<puzzle::Descriptor>> descriptors_;
 };
 
-}  // namespace Puzzle
+}  // namespace puzzle
 
 #endif  // __PUZZLE_SOLVER_H

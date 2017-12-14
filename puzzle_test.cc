@@ -6,16 +6,16 @@
 #include "gtest/gtest.h"
 #include "puzzle/solver.h"
 
-extern void SetupProblem(Puzzle::Solver* s);
-extern Puzzle::Solution ProblemSolution(const Puzzle::Solver& s);
+extern void SetupProblem(puzzle::Solver* s);
+extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
-  Puzzle::Solver solver;
+  puzzle::Solver solver;
   
   SetupProblem(&solver);
 
-  Puzzle::Solution got = solver.Solve();
-  Puzzle::Solution expect = ProblemSolution(solver);
+  puzzle::Solution got = solver.Solve();
+  puzzle::Solution expect = ProblemSolution(solver);
   
   EXPECT_EQ(got, expect) 
       << got.ToStr() << std::endl << expect.ToStr();

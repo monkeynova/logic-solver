@@ -5,7 +5,7 @@
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 class CroppedSolutionPermuter {
  public:
@@ -85,6 +85,6 @@ class CroppedSolutionPermuter {
   friend iterator;
 };
 
-}  // namespace Puzzle
+}  // namespace puzzle
 
 #endif  // __PUZZLE_CROPPED_SOLUTION_PERMUTER_H

@@ -1,6 +1,6 @@
 #include "puzzle/brute_solution_permuter.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 BruteSolutionPermuter::iterator::iterator(
    const BruteSolutionPermuter* permuter, 
@@ -101,4 +101,4 @@ double BruteSolutionPermuter::permutation_count() const {
   return count;
 }
 
-}  // namespace Puzzle
+}  // namespace puzzle

@@ -8,7 +8,7 @@
 
 DEFINE_bool(puzzle_brute_force, false, "Brute force all possible solutions");
 
-namespace Puzzle {
+namespace puzzle {
 
 using std::placeholders::_1;
 
@@ -67,4 +67,4 @@ std::string Solver::DebugStatistics() const {
   return absl::StrCat("[", test_calls_, " solutions tested]");
 }
 
-}  // namespace Puzzle
+}  // namespace puzzle

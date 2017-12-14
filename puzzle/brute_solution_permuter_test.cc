@@ -9,19 +9,19 @@
 #include "gtest/gtest.h"
 
 TEST(BruteSolutionPermuterTest, Simple) {
-  Puzzle::EntryDescriptor ed;
-  Puzzle::IntRangeDescriptor id(3, 5);
-  Puzzle::IntRangeDescriptor cd1(6, 8);
-  Puzzle::IntRangeDescriptor cd2(11, 13);
+  puzzle::EntryDescriptor ed;
+  puzzle::IntRangeDescriptor id(3, 5);
+  puzzle::IntRangeDescriptor cd1(6, 8);
+  puzzle::IntRangeDescriptor cd2(11, 13);
   
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  Puzzle::BruteSolutionPermuter p(&ed);
+  puzzle::BruteSolutionPermuter p(&ed);
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
-  std::vector<Puzzle::Solution> solutions;
+  std::vector<puzzle::Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), solutions.size());
     EXPECT_THAT(history.insert(it->ToStr()).second, true)

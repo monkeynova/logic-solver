@@ -11,7 +11,7 @@ DEFINE_int32(puzzle_max_profile_calls, std::numeric_limits<int>::max(),
 	     "Maximum number of iterations before giving up in profiler. "
 	     "Default value is max_int.");
 
-namespace Puzzle {
+namespace puzzle {
 
 namespace {
 
@@ -71,4 +71,4 @@ std::unique_ptr<Profiler> Profiler::Create() {
   return absl::make_unique<StructTimevalProfiler>();
 }
 
-}  // namespace Puzzle
+}  // namespace puzzle

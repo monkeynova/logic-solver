@@ -3,10 +3,10 @@
 
 #include "puzzle/solver.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 class PuzzleInstance {
-  PuzzleInstance(Puzzle::Solver* solver)
+  PuzzleInstance(puzzle::Solver* solver)
     : solver_(solver) {}
   
   virtual ~PuzzleInstance() {};
@@ -17,17 +17,17 @@ class PuzzleInstance {
   virtual void AddRulePredicates() = 0;
   
  protected:
-  Puzzle::Solver* solver() { return solver_; }
+  puzzle::Solver* solver() { return solver_; }
 
   // Takes ownership of 'descriptor' and ensures that it outlives 'solver'.
-  Puzzle::Descriptor* AddDescriptor(Puzzle::Descriptor* descriptor) {
+  puzzle::Descriptor* AddDescriptor(puzzle::Descriptor* descriptor) {
     descriptors_.emplace_back(descriptor);
     return descriptor;
   }
 
  private:
-  std::vector<std::unique_ptr<Puzzle::Descriptor>> descriptors_;
-  Puzzle::Solver* const solver_;
+  std::vector<std::unique_ptr<puzzle::Descriptor>> descriptors_;
+  puzzle::Solver* const solver_;
 };
 
 }

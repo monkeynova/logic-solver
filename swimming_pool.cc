@@ -30,18 +30,18 @@ Emily: style=Freestyle country=UK lane=3
 
 using namespace SwimmingPool;
 
-bool IsNextTo(const Puzzle::Entry& a, const Puzzle::Entry& b) {
+bool IsNextTo(const puzzle::Entry& a, const puzzle::Entry& b) {
   return fabs(a.Class(LANE) - b.Class(LANE)) == 1;
 };
 
-void AddRulePredicates(Puzzle::Solver* s) {
+void AddRulePredicates(puzzle::Solver* s) {
 
   s->AddPredicate("1. Betty is swimming next to the athlete from the UK. "
 		  "Neither of them is swimming Butterfly.",
-		  [](const Puzzle::Solution& s) {
-		    const Puzzle::Entry& betty = s.Id(BETTY);
-		    const Puzzle::Entry& from_uk =
-		      s.Find([](const Puzzle::Entry& e) {
+		  [](const puzzle::Solution& s) {
+		    const puzzle::Entry& betty = s.Id(BETTY);
+		    const puzzle::Entry& from_uk =
+		      s.Find([](const puzzle::Entry& e) {
 			  return e.Class(COUNTRY) == UK; 
 			});
 		    // TODO(petersk): Split this into 3 separate predicates.
@@ -53,11 +53,11 @@ void AddRulePredicates(Puzzle::Solver* s) {
   
   s->AddPredicate("2. Among Emily and the Backstroker, one is from the UK "
 		  "and the other is in the fourth lane.",
-		  [](const Puzzle::Solution& s) {
-		    const Puzzle::Entry& emily = s.Id(EMILY);
+		  [](const puzzle::Solution& s) {
+		    const puzzle::Entry& emily = s.Id(EMILY);
 		    if (emily.Class(STYLE) == BACKSTROKE) return false;
-		    const Puzzle::Entry& backstroker = 
-		      s.Find([](const Puzzle::Entry& e) {
+		    const puzzle::Entry& backstroker = 
+		      s.Find([](const puzzle::Entry& e) {
 			  return e.Class(STYLE) == BACKSTROKE;
 			});
 		    if (emily.Class(COUNTRY) == UK && 
@@ -73,7 +73,7 @@ void AddRulePredicates(Puzzle::Solver* s) {
 		  {COUNTRY, STYLE, LANE});
   s->AddPredicate("3. Carol is not swimming Backstroke nor Dolphin. She is "
 		  "not Australian, and is not swiming in lates #2 nor #4.",
-		  [](const Puzzle::Solution& s) {
+		  [](const puzzle::Solution& s) {
 		    return 
 		      s.Id(CAROL).Class(STYLE) != BACKSTROKE &&
 		      s.Id(CAROL).Class(STYLE) != DOLPHIN &&
@@ -84,39 +84,39 @@ void AddRulePredicates(Puzzle::Solver* s) {
 		  {STYLE, COUNTRY, LANE});
   s->AddPredicate("4. The Freestyler is next to both Daisy and the American "
 		  "swimmer.",
-		  [](const Puzzle::Solution& s) {
+		  [](const puzzle::Solution& s) {
 		    // TODO(petersk): Split into 2 rules, and add disjoint
 		    // conditions on entries.
 		    return 
 		      IsNextTo(s.Id(DAISY),
-			       s.Find([](const Puzzle::Entry& e){
+			       s.Find([](const puzzle::Entry& e){
 				   return e.Class(STYLE) == FREESTYLE;
 				 })) &&
-		      IsNextTo(s.Find([](const Puzzle::Entry& e){
+		      IsNextTo(s.Find([](const puzzle::Entry& e){
 			         return e.Class(COUNTRY) == USA;
 			       }),
-   			       s.Find([](const Puzzle::Entry& e){
+   			       s.Find([](const puzzle::Entry& e){
 				 return e.Class(STYLE) == FREESTYLE;
 			       }));
 		  },
 		  {STYLE, COUNTRY, LANE});
   s->AddPredicate("5. The American swimmer is next to Carol.",
-		  [](const Puzzle::Solution& s) {
+		  [](const puzzle::Solution& s) {
 		    return IsNextTo(s.Id(CAROL),
-				    s.Find([](const Puzzle::Entry& e){
+				    s.Find([](const puzzle::Entry& e){
 					return e.Class(COUNTRY) == USA;
 				      }));
 		  },
 		  {COUNTRY, LANE});
   s->AddPredicate("6. Daisy is not swimming in lane #2.",
-		  [](const Puzzle::Solution& s) {
+		  [](const puzzle::Solution& s) {
 		    return s.Id(DAISY).Class(LANE) != 2;
 		  },
 		  LANE);
 }
 
-Puzzle::Solution ProblemSolution(const Puzzle::Solver& s) {
-  std::vector<Puzzle::Entry> entries_;
+puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
+  std::vector<puzzle::Entry> entries_;
   // Betty: style=Dolphin country=US lane=2
   entries_.emplace_back(
       BETTY,
@@ -141,21 +141,21 @@ Puzzle::Solution ProblemSolution(const Puzzle::Solver& s) {
       std::vector<int>{3, UK, FREESTYLE},
       s.entry_descriptor());
   
-  return Puzzle::Solution(&entries_).Clone();
+  return puzzle::Solution(&entries_).Clone();
 }
 
-void SetupProblem(Puzzle::Solver* s) {
+void SetupProblem(puzzle::Solver* s) {
   s->SetIdentifiers(s->AddDescriptor(
-      new Puzzle::ProtoEnumDescriptor(Who_descriptor())));
+      new puzzle::ProtoEnumDescriptor(Who_descriptor())));
   s->AddClass(LANE, "lane",
 	      s->AddDescriptor(
-		  new Puzzle::IntRangeDescriptor(1, 4)));
+		  new puzzle::IntRangeDescriptor(1, 4)));
   s->AddClass(COUNTRY, "country",
 	      s->AddDescriptor(
-		  new Puzzle::ProtoEnumDescriptor(Country_descriptor())));
+		  new puzzle::ProtoEnumDescriptor(Country_descriptor())));
   s->AddClass(STYLE, "style",
 	      s->AddDescriptor(
-		  new Puzzle::ProtoEnumDescriptor(Style_descriptor())));
+		  new puzzle::ProtoEnumDescriptor(Style_descriptor())));
 
   AddRulePredicates(s);
 }

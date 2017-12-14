@@ -1,6 +1,6 @@
 #include "puzzle/class_permuter.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 constexpr int ClassPermuter::iterator::kInlineSize;
 
@@ -108,4 +108,4 @@ double ClassPermuter::PermutationCount(const Descriptor* d) {
   return ret;
 }
 
-}  // namespace Puzzle
+}  // namespace puzzle

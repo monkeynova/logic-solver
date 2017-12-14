@@ -9,8 +9,8 @@
 using ::testing::UnorderedElementsAre;
 
 TEST(ClassPermuter, ThreeElements) {
-  Puzzle::IntRangeDescriptor d(3, 5);
-  Puzzle::ClassPermuter p(&d);
+  puzzle::IntRangeDescriptor d(3, 5);
+  puzzle::ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   std::set<std::vector<int>> history;
@@ -26,8 +26,8 @@ TEST(ClassPermuter, ThreeElements) {
 }
 
 TEST(ClassPermuter, FiveElements) {
-  Puzzle::IntRangeDescriptor d(3, 7);
-  Puzzle::ClassPermuter p(&d);
+  puzzle::IntRangeDescriptor d(3, 7);
+  puzzle::ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 120);
 
   std::set<std::vector<int>> history;
@@ -43,8 +43,8 @@ TEST(ClassPermuter, FiveElements) {
 }
 
 TEST(ClassPermuter, ThreeElementsWithSkips) {
-  Puzzle::IntRangeDescriptor d(3, 5);
-  Puzzle::ClassPermuter p(&d);
+  puzzle::IntRangeDescriptor d(3, 5);
+  puzzle::ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   std::set<std::vector<int>> history;
@@ -70,8 +70,8 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
 }
 
 TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
-  Puzzle::IntRangeDescriptor d(3, 5);
-  Puzzle::ClassPermuter p(&d);
+  puzzle::IntRangeDescriptor d(3, 5);
+  puzzle::ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   std::set<std::vector<int>> history;

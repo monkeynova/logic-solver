@@ -4,7 +4,7 @@
 #include "puzzle/class_permuter.h"
 #include "puzzle/solution.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 class BruteSolutionPermuter {
  public:
@@ -72,6 +72,6 @@ class BruteSolutionPermuter {
   friend iterator;
 };
 
-}  // namespace Puzzle
+}  // namespace puzzle
 
 #endif  // __PUZZLE_BRUTE_SOLUTION_PERMUTER_H

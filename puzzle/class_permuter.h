@@ -3,7 +3,7 @@
 
 #include "puzzle/solution.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 class ClassPermuter {
  public:
@@ -100,6 +100,6 @@ class ClassPermuter {
   double permutation_count_;
 };
 
-}  // namespace Puzzle
+}  // namespace puzzle
 
 #endif  // __PUZZLE_CLASS_PERMUTER_H

@@ -3,7 +3,7 @@
 
 #include <memory>
 
-namespace Puzzle {
+namespace puzzle {
 
 class Profiler {
  public:
@@ -19,6 +19,6 @@ class Profiler {
   Profiler() {}
 };
 
-}  // namespace Puzzle
+}  // namespace puzzle
 
 #endif

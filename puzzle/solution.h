@@ -13,7 +13,7 @@
 #include "absl/strings/str_join.h"
 #include "google/protobuf/descriptor.h"
 
-namespace Puzzle {
+namespace puzzle {
 
 class Descriptor {
  public:
@@ -276,6 +276,6 @@ class Solution {
   double permutation_count_;
 };
 
-}  // namespace Puzzle
+}  // namespace puzzle
 
 #endif  // __PUZZLE_SOLUTION_H

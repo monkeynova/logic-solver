@@ -8,8 +8,8 @@ BENCHMARK_MAIN();
 
 static void BM_Permuter(benchmark::State& state) {
   for (auto _ : state) {
-    Puzzle::IntRangeDescriptor d(0, state.range(0));
-    Puzzle::ClassPermuter p(&d);
+    puzzle::IntRangeDescriptor d(0, state.range(0));
+    puzzle::ClassPermuter p(&d);
     for (auto it = p.begin(); it != p.end(); ++it) {
       /* no-op */
     }

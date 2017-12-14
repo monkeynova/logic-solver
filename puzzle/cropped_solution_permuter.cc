@@ -6,7 +6,7 @@ DEFINE_bool(puzzle_prune_class_iterator, false,
 	    "If specfied, class iterators will be pruned based on single "
 	    "class predicates that are present.");
 
-namespace Puzzle {
+namespace puzzle {
 
 CroppedSolutionPermuter::iterator::iterator(
     const CroppedSolutionPermuter* permuter,
@@ -265,4 +265,4 @@ double CroppedSolutionPermuter::permutation_count() const {
   return count;
 }
 
-}  // namespace Puzzle
+}  // namespace puzzle
