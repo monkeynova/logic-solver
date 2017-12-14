@@ -53,7 +53,7 @@ cc_test(
     deps = [
         ":puzzle_test",
         ":swimming_pool_cc_proto",
-        "@com_google_googletest//:gtest_main",	
+        "@com_google_googletest//:gtest",	
     ],
 )
 
@@ -64,7 +64,7 @@ cc_test(
     deps = [
         ":puzzle_test",
         ":swimming_pool_cc_proto",
-        "@com_google_googletest//:gtest_main",	
+        "@com_google_googletest//:gtest",	
     ],
 )
 
@@ -73,7 +73,7 @@ cc_test(
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
         ":puzzle_test",
-        "@com_google_googletest//:gtest_main",	
+        "@com_google_googletest//:gtest",	
     ],
 )
 
@@ -83,7 +83,7 @@ cc_test(
     args = ["--puzzle_prune_class_iterator=true"],
     deps = [
         ":puzzle_test",
-        "@com_google_googletest//:gtest_main",	
+        "@com_google_googletest//:gtest",	
     ],
 )
 
