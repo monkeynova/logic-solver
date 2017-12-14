@@ -6,7 +6,7 @@
 #include "puzzle/brute_solution_permuter.h"
 #include "puzzle/cropped_solution_permuter.h"
 
-DEFINE_bool(brute_force, false, "Brute force all possible solutions");
+DEFINE_bool(puzzle_brute_force, false, "Brute force all possible solutions");
 
 namespace Puzzle {
 
@@ -35,7 +35,7 @@ Solution Solver::Solve() {
 std::vector<Solution> Solver::AllSolutions(int limit) {
   profiler_ = Profiler::Create();
   
-  if (FLAGS_brute_force) {
+  if (FLAGS_puzzle_brute_force) {
     BruteSolutionPermuter permuter(&entry_descriptor_);
     return AllSolutionsImpl(limit, &permuter);
   } else {

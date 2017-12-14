@@ -50,7 +50,6 @@ void ClassPermuter::iterator::AdvanceWithSkip() {
 void ClassPermuter::iterator::SkipUntilMatch() {
   if (skips_.empty()) return;
 
-  int calls = 0;
   while (position_ < max_ && !ConsumeNextSkip()) {
     Advance();
   }
