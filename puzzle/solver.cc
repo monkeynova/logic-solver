@@ -34,16 +34,21 @@ Solution Solver::Solve() {
 
 std::vector<Solution> Solver::AllSolutions(int limit) {
   profiler_ = Profiler::Create();
-  
+
+  std::vector<Solution> ret;
   if (FLAGS_puzzle_brute_force) {
     BruteSolutionPermuter permuter(&entry_descriptor_);
-    return AllSolutionsImpl(limit, &permuter);
+    ret = AllSolutionsImpl(limit, &permuter);
   } else {
     CroppedSolutionPermuter permuter(&entry_descriptor_,
                                      on_solution_with_class_,
                                      profiler_.get());
-    return AllSolutionsImpl(limit, &permuter);
+    ret = AllSolutionsImpl(limit, &permuter);
   }
+
+  profiler_->NoteFinish();
+  
+  return ret;
 }
 
 template <class Permuter>
@@ -64,7 +69,8 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
 }
 
 std::string Solver::DebugStatistics() const {
-  return absl::StrCat("[", test_calls_, " solutions tested]");
+  return absl::StrCat("[", test_calls_, " solutions tested in ",
+		      (profiler_ == nullptr ? -1 : profiler_->Seconds()), "]");
 }
 
 }  // namespace puzzle

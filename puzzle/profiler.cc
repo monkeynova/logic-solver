@@ -52,21 +52,20 @@ class StructTimevalProfiler : public Profiler {
     last_position_ = position;
     return true;
   }
+
+  void NoteFinish() override {
+    gettimeofday(&last_, nullptr);
+  }
+
+  double Seconds() override {
+    return
+      last_.tv_sec - start_.tv_sec + 1e-6 * (last_.tv_usec - start_.tv_usec);
+  }
   
   struct timeval start_;
   struct timeval last_;
   double last_position_;
   int test_calls_ = 0;
-};
-
-class NoopProfiler : public Profiler {
- public:
-  NoopProfiler() : Profiler() {}
-
- private:
-  bool NotePosition(double position, double count) override {
-    return false;
-  }
 };
 
 }  // namespace
