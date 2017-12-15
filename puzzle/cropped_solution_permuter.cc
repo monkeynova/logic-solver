@@ -73,11 +73,9 @@ void CroppedSolutionPermuter::iterator::PruneClass(
     }
   }
   runs.push_back(current_run_length);
-  UpdateEntries(class_int);
-  std::cout << permuter_->entry_descriptor_->AllClasses()->ToStr(class_int)
-	    << ": " << absl::StrJoin(runs, ",") << std::endl;
   class_skips_[class_int] = std::move(runs);
   iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
+  UpdateEntries(class_int);
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
