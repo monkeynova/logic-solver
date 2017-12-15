@@ -165,7 +165,10 @@ class Entry {
     return ret.str();
   }
   static const Entry& Invalid() { return invalid_; }
-
+  const EntryDescriptor* descriptor() const {
+    return entry_descriptor_;
+  }
+  
  private:
   Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
   int id_;
@@ -275,6 +278,10 @@ class Solution {
   double permutation_position_;
   double permutation_count_;
 };
+
+void PrintTo(const Solution& solution, ::std::ostream* os) {
+  *os << solution.ToStr();
+}
 
 }  // namespace puzzle
 

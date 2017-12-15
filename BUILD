@@ -92,7 +92,8 @@ cc_library(
     srcs = ["puzzle_test.cc"],
     deps = [
         "//puzzle:solver",
-        "@com_google_googletest//:gtest",
         "@com_google_absl//absl/memory",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
     ],
 )
