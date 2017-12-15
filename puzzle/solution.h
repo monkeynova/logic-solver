@@ -279,7 +279,7 @@ class Solution {
   double permutation_count_;
 };
 
-void PrintTo(const Solution& solution, ::std::ostream* os) {
+inline void PrintTo(const Solution& solution, ::std::ostream* os) {
   *os << solution.ToStr();
 }
 
