@@ -11,7 +11,7 @@ extern void SetupProblem(puzzle::Solver* s);
 
 std::string PositionHeader(const puzzle::Solution& s) {
   return absl::StrCat("[position=", s.permutation_position(), "/",
-                      s.permutation_count(), " (", s.completion(), ")]");
+                      s.permutation_count(), " (", s.Completion(), ")]");
 }
 
 int main(int argc, char** argv) {

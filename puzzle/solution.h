@@ -193,7 +193,10 @@ class Solution {
   };
 
   Solution() {}
-  Solution(const std::vector<Entry>* entries) : entries_(entries) {}
+  Solution(const EntryDescriptor* entry_descriptor,
+	   const std::vector<Entry>* entries)
+    : entry_descriptor_(entry_descriptor),
+      entries_(entries) {}
 
   ~Solution() {
     if (own_entries_ && entries_ != nullptr) {
@@ -208,6 +211,7 @@ class Solution {
     *this = std::move(other);
   }
   Solution& operator=(Solution&& other) {
+    entry_descriptor_ = other.entry_descriptor_;
     entries_ = other.entries_;
     other.entries_ = nullptr;
     own_entries_ = other.own_entries_;
@@ -220,7 +224,7 @@ class Solution {
     const std::vector<Entry>* new_entries =
         entries_ == nullptr
         ? nullptr : new std::vector<Entry>(*entries_);
-    Solution ret(new_entries);
+    Solution ret(entry_descriptor_, new_entries);
     ret.own_entries_ = true;
     ret.permutation_position_ = permutation_position_;
     ret.permutation_count_ = permutation_count_;
@@ -237,6 +241,10 @@ class Solution {
     return *entries_ == *other.entries_;
   }
 
+  const EntryDescriptor* descriptor() const {
+    return entry_descriptor_;
+  }
+  
   double permutation_position() const { return permutation_position_; }
   void set_permutation_position(double position) {
     permutation_position_ = position;
@@ -245,7 +253,7 @@ class Solution {
   double permutation_count() const { return permutation_count_; }
   void set_permutation_count(double count) { permutation_count_ = count; }
 
-  double completion() const {
+  double Completion() const {
     return permutation_position_ / permutation_count_;
   }
 
@@ -273,10 +281,20 @@ class Solution {
   }
 
  private:
+  const EntryDescriptor* entry_descriptor_ = nullptr;  // Not owned
+
   const std::vector<Entry>* entries_ = nullptr;
+
+  // If true, 'this' owns 'entries_'.
   bool own_entries_ = false;
-  double permutation_position_;
-  double permutation_count_;
+
+  // The position of in iterating through all permutations of solutions which
+  // this represents.
+  double permutation_position_ = 0;
+
+  // The total number of all permutations that can be generated from
+  // 'entry_descriptor_'.
+  double permutation_count_ = 0;
 };
 
 inline void PrintTo(const Solution& solution, ::std::ostream* os) {

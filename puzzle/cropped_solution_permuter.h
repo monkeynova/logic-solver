@@ -13,12 +13,11 @@ class CroppedSolutionPermuter {
    public:
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
-    typedef CroppedSolutionPermuter value_type;
-    typedef CroppedSolutionPermuter& reference;
-    typedef CroppedSolutionPermuter* pointer;
+    typedef Solution value_type;
+    typedef Solution& reference;
+    typedef Solution* pointer;
 
-    iterator(const CroppedSolutionPermuter* permuter,
-             const EntryDescriptor* entry_descriptor);
+    iterator(const CroppedSolutionPermuter* permuter);
 
     iterator(const iterator& other) = delete;
     iterator& operator=(const iterator& other) = delete;
@@ -53,8 +52,7 @@ class CroppedSolutionPermuter {
     bool FindNextValid(int class_position);
     void UpdateEntries(int class_int);
 
-    const CroppedSolutionPermuter* const permuter_;
-    const EntryDescriptor* const entry_descriptor_;
+    const CroppedSolutionPermuter* const permuter_ = nullptr;
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
@@ -67,8 +65,8 @@ class CroppedSolutionPermuter {
                           Profiler* profiler);
   ~CroppedSolutionPermuter() {}
 
-  iterator begin() const { return iterator(this, entry_descriptor_); }
-  iterator end() const { return iterator(this, nullptr); }
+  iterator begin() const { return iterator(this); }
+  iterator end() const { return iterator(nullptr); }
 
   double permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const {
@@ -76,7 +74,9 @@ class CroppedSolutionPermuter {
   }
 
  private:
-  const EntryDescriptor* const entry_descriptor_;
+  Solution BuildSolution(std::vector<Entry>* enries) const;
+  
+  const EntryDescriptor* const entry_descriptor_ = nullptr;
   std::vector<ClassPermuter> class_permuters_;
 
   std::vector<std::vector<Solution::Cropper>> single_class_predicates_;

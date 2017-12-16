@@ -141,7 +141,7 @@ puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
       std::vector<int>{3, UK, FREESTYLE},
       s.entry_descriptor());
   
-  return puzzle::Solution(&entries_).Clone();
+  return puzzle::Solution(s.entry_descriptor(), &entries_).Clone();
 }
 
 void SetupProblem(puzzle::Solver* s) {

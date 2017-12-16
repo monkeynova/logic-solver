@@ -208,7 +208,7 @@ puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
       std::vector<int>{GEORDI, DATA, 6, 6},
       s.entry_descriptor());
   
-  return puzzle::Solution(&entries_).Clone();
+  return puzzle::Solution(s.entry_descriptor(), &entries_).Clone();
 }
 
 void SetupProblem(puzzle::Solver* s) {

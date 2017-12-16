@@ -10,28 +10,19 @@ DEFINE_bool(puzzle_prune_class_iterator, false,
 namespace puzzle {
 
 CroppedSolutionPermuter::iterator::iterator(
-    const CroppedSolutionPermuter* permuter,
-    const EntryDescriptor* entry_descriptor)
-   : permuter_(permuter), entry_descriptor_(entry_descriptor) {
-  if (entry_descriptor_ == nullptr) {
-    return;
-  }
+    const CroppedSolutionPermuter* permuter)
+   : permuter_(permuter) {
+  if (permuter_ == nullptr) return;
   
-  class_types_ = entry_descriptor->AllClasses()->Values();
-    
-  std::vector<int> bad_classes(class_types_.size(), -1);
-  
-  for (auto id: entry_descriptor_->AllIds()->Values()) {
-    entries_.push_back(Entry(id,bad_classes,entry_descriptor_));
-  }
-  
+  current_ = permuter_->BuildSolution(&entries_);
+
+  class_types_ = current_.descriptor()->AllClasses()->Values();
+
   iterators_.resize(class_types_.size());
   for (int class_int: class_types_) {
     iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
     UpdateEntries(class_int);
   }
-
-  current_ = Solution(&entries_);
 
   active_sets_.resize(class_types_.size());
   if (FLAGS_puzzle_prune_class_iterator) {
@@ -39,7 +30,7 @@ CroppedSolutionPermuter::iterator::iterator(
       PruneClass(class_int, permuter_->single_class_predicates_[class_int]);
     }
   }
-  
+
   if (FindNextValid(0)) {
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(position());
@@ -236,6 +227,19 @@ double CroppedSolutionPermuter::permutation_count() const {
     count *= permuter.permutation_count();
   }
   return count;
+}
+
+Solution CroppedSolutionPermuter::BuildSolution(
+    std::vector<Entry>* entries) const {
+  const int num_classes = entry_descriptor_->AllClasses()->Values().size();
+  
+  std::vector<int> invalid_classes(num_classes, -1);
+    
+  for (auto id: entry_descriptor_->AllIds()->Values()) {
+    entries->push_back(Entry(id, invalid_classes, entry_descriptor_));
+  }
+
+  return Solution(entry_descriptor_, entries);
 }
 
 }  // namespace puzzle

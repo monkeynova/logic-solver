@@ -12,9 +12,9 @@ class BruteSolutionPermuter {
    public:
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
-    typedef BruteSolutionPermuter value_type;
-    typedef BruteSolutionPermuter& reference;
-    typedef BruteSolutionPermuter* pointer;
+    typedef Solution value_type;
+    typedef Solution& reference;
+    typedef Solution* pointer;
 
     iterator(const BruteSolutionPermuter* permuter,
              const EntryDescriptor* entry_descriptor);

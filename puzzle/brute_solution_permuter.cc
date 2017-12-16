@@ -28,7 +28,7 @@ BruteSolutionPermuter::iterator::iterator(
     }
   }
   
-  current_ = Solution(&entries_);
+  current_ = Solution(entry_descriptor_, &entries_);
   current_.set_permutation_count(permuter_->permutation_count());
   current_.set_permutation_position(0);
 }
