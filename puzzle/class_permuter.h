@@ -1,10 +1,11 @@
 #ifndef __PUZZLE_CLASS_PERMUTER_H
 #define __PUZZLE_CLASS_PERMUTER_H
 
+#include "puzzle/active_set.h"
 #include "puzzle/solution.h"
 
 namespace puzzle {
-
+  
 class ClassPermuter {
  public:
   class iterator {
@@ -19,7 +20,7 @@ class ClassPermuter {
     typedef ClassPermuter* pointer;
 
     iterator() : iterator(nullptr, {}) {}
-    iterator(const Descriptor* descriptor, std::vector<int> skips);
+    iterator(const Descriptor* descriptor, ActiveSet active_set);
 
     iterator(const iterator&) = delete;
     iterator& operator=(const iterator&) = delete;
@@ -49,18 +50,14 @@ class ClassPermuter {
 
    private:
     // Advances permutation until the the result should be allowed considering
-    // 'skips_'.
+    // 'active_set_'.
     void AdvanceWithSkip();
 
     // Advances permutation exactly once independent of skipping behavior.
     void Advance();
 
-    // Advances until the current record should allowed considering 'skips_'.
+    // Advances until the current record should allowed considering 'active_set_'.
     void SkipUntilMatch();
-
-    // Returns whether or not to skip the current record and advances index
-    // structures through skips_.
-    bool ConsumeNextSkip();
 
     StorageVector current_;
     StorageVector index_;
@@ -69,15 +66,7 @@ class ClassPermuter {
     double position_;
     int max_;
 
-    // Thar be dragons here.
-    // 'skips_' is a vector of ints represneting runs of boolean conditions.
-    // The first element corresponds to a run of "true" (i.e. should return)
-    // permutations and each subsequent element negates the logic of the
-    // previous run.
-    // To start a run with "false", insert a 0 record at the first position.
-    std::vector<int> skips_;
-    bool skip_match_ = true;
-    int skips_position_ = 0;
+    ActiveSet active_set_;
   };
 
   ClassPermuter(const Descriptor* d)
@@ -85,8 +74,8 @@ class ClassPermuter {
       permutation_count_(PermutationCount(d)) {}
   ~ClassPermuter() {}
 
-  iterator begin(std::vector<int> skips = {}) const {
-    return iterator(descriptor_, std::move(skips));
+  iterator begin(ActiveSet active_set = {}) const {
+    return iterator(descriptor_, std::move(active_set));
   }
   iterator end() const { return iterator(); }
 

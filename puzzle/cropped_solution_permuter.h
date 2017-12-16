@@ -58,7 +58,7 @@ class CroppedSolutionPermuter {
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
-    std::vector<std::vector<int>> class_skips_;
+    std::vector<ActiveSet> active_sets_;
     Solution current_;
   };
 

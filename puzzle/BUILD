@@ -1,7 +1,7 @@
 cc_library(
-    name="solver",
-    hdrs=["solver.h"],
-    srcs=["solver.cc"],
+    name = "solver",
+    hdrs = ["solver.h"],
+    srcs = ["solver.cc"],
     deps = [
         ":brute_solution_permuter",
         ":cropped_solution_permuter",
@@ -9,24 +9,30 @@ cc_library(
         ":solution",
 	"@com_github_gflags_gflags//:gflags",
     ],
-    visibility=[
+    visibility = [
         "//visibility:public"
     ],
 )
 
 cc_library(
-    name="brute_solution_permuter",
-    hdrs=["brute_solution_permuter.h"],
-    srcs=["brute_solution_permuter.cc"],
+    name = "active_set",
+    hdrs = ["active_set.h"],
+    srcs = ["active_set.cc"],
+)
+
+cc_library(
+    name = "brute_solution_permuter",
+    hdrs = ["brute_solution_permuter.h"],
+    srcs = ["brute_solution_permuter.cc"],
     deps = [
         ":class_permuter",
     ],
 )
 
 cc_library(
-    name="cropped_solution_permuter",
-    hdrs=["cropped_solution_permuter.h"],
-    srcs=["cropped_solution_permuter.cc"],
+    name = "cropped_solution_permuter",
+    hdrs = ["cropped_solution_permuter.h"],
+    srcs = ["cropped_solution_permuter.cc"],
     deps = [
         ":class_permuter",
         ":profiler",
@@ -34,19 +40,20 @@ cc_library(
 )
 
 cc_library(
-    name="class_permuter",
-    hdrs=["class_permuter.h"],
-    srcs=["class_permuter.cc"],
+    name = "class_permuter",
+    hdrs = ["class_permuter.h"],
+    srcs = ["class_permuter.cc"],
     deps = [
+        ":active_set",
         ":solution",
 	"@com_google_absl//absl/container:inlined_vector",
     ],
 )
 
 cc_library(
-    name="instance",
-    hdrs=["instance.h"],
-    deps=[
+    name = "instance",
+    hdrs = ["instance.h"],
+    deps = [
         ":solver",
     ],
     visibility = [
@@ -55,8 +62,8 @@ cc_library(
 )
 
 cc_library(
-    name="solution",
-    hdrs=["solution.h"],
+    name = "solution",
+    hdrs = ["solution.h"],
     deps = [ 
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
@@ -64,9 +71,9 @@ cc_library(
 )
 
 cc_library(
-    name="profiler",
-    hdrs=["profiler.h"],
-    srcs=["profiler.cc"],
+    name = "profiler",
+    hdrs = ["profiler.h"],
+    srcs = ["profiler.cc"],
     deps = [ 
 	"@com_github_gflags_gflags//:gflags",
         "@com_google_absl//absl/memory",

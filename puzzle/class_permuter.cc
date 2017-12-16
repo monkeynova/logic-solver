@@ -5,8 +5,8 @@ namespace puzzle {
 constexpr int ClassPermuter::iterator::kInlineSize;
 
 ClassPermuter::iterator::iterator(const Descriptor* descriptor,
-				  std::vector<int> skips)
-   : skips_(std::move(skips)) {
+				  ActiveSet active_set)
+   : active_set_(std::move(active_set)) {
   if (descriptor != nullptr) {
     for (int i : descriptor->Values()) {
       current_.push_back(i);
@@ -31,26 +31,15 @@ ClassPermuter::iterator::iterator(const Descriptor* descriptor,
   SkipUntilMatch();
 }
 
-bool ClassPermuter::iterator::ConsumeNextSkip() {
-  if (skips_.empty()) return true;
-
-  if (skips_[skips_position_] == 0) {
-    skip_match_ = !skip_match_;
-    ++skips_position_;
-  }
-  --skips_[skips_position_];
-  return skip_match_;
-}
-
 void ClassPermuter::iterator::AdvanceWithSkip() {
   Advance();
   SkipUntilMatch();
 }
 
 void ClassPermuter::iterator::SkipUntilMatch() {
-  if (skips_.empty()) return;
+  if (active_set_.is_trivial()) return;
 
-  while (position_ < max_ && !ConsumeNextSkip()) {
+  while (position_ < max_ && !active_set_.ConsumeNextSkip()) {
     Advance();
   }
 }

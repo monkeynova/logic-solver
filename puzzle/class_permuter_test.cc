@@ -5,12 +5,15 @@
 #include "absl/strings/str_join.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "puzzle/active_set.h"
 
 using ::testing::UnorderedElementsAre;
 
+namespace puzzle {
+
 TEST(ClassPermuter, ThreeElements) {
-  puzzle::IntRangeDescriptor d(3, 5);
-  puzzle::ClassPermuter p(&d);
+  IntRangeDescriptor d(3, 5);
+  ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   std::set<std::vector<int>> history;
@@ -26,8 +29,8 @@ TEST(ClassPermuter, ThreeElements) {
 }
 
 TEST(ClassPermuter, FiveElements) {
-  puzzle::IntRangeDescriptor d(3, 7);
-  puzzle::ClassPermuter p(&d);
+  IntRangeDescriptor d(3, 7);
+  ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 120);
 
   std::set<std::vector<int>> history;
@@ -43,13 +46,22 @@ TEST(ClassPermuter, FiveElements) {
 }
 
 TEST(ClassPermuter, ThreeElementsWithSkips) {
-  puzzle::IntRangeDescriptor d(3, 5);
-  puzzle::ClassPermuter p(&d);
+  IntRangeDescriptor d(3, 5);
+  ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
+  ActiveSet active_set_first;
+  ActiveSet active_set_last;
+  for (int i = 0; i < 6; ++i) {
+    active_set_first.AddSkip(i < 3);
+    active_set_last.AddSkip(i >= 3);
+  }
+  active_set_first.DoneAdding();
+  active_set_last.DoneAdding();
+  
   std::set<std::vector<int>> history;
   int position = 0;
-  for (auto it = p.begin({3,3}); it != p.end(); ++it) {
+  for (auto it = p.begin(active_set_first); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
@@ -59,7 +71,7 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
   EXPECT_THAT(position, 3);
 
   position = 0;
-  for (auto it = p.begin({0,3,3}); it != p.end(); ++it) {
+  for (auto it = p.begin(active_set_last); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position + 3);
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
@@ -70,13 +82,22 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
 }
 
 TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
-  puzzle::IntRangeDescriptor d(3, 5);
-  puzzle::ClassPermuter p(&d);
+  IntRangeDescriptor d(3, 5);
+  ClassPermuter p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
+
+  ActiveSet active_set_odd;
+  ActiveSet active_set_even;
+  for (int i = 0; i < 6; ++i) {
+    active_set_odd.AddSkip(i & 1);
+    active_set_even.AddSkip(!(i & 1));
+  }
+  active_set_odd.DoneAdding();
+  active_set_even.DoneAdding();
 
   std::set<std::vector<int>> history;
   int position = 0;
-  for (auto it = p.begin({1,1,1,1,1,1}); it != p.end(); ++it) {
+  for (auto it = p.begin(active_set_even); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
@@ -86,7 +107,7 @@ TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
   EXPECT_THAT(position, 3);
 
   position = 0;
-  for (auto it = p.begin({0,1,1,1,1,1,1}); it != p.end(); ++it) {
+  for (auto it = p.begin(active_set_odd); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
@@ -95,3 +116,5 @@ TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
   }
   EXPECT_THAT(position, 3);
 }
+
+}  // namespace puzzle

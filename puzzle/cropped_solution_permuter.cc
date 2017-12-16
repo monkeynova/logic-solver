@@ -1,6 +1,7 @@
 #include "puzzle/cropped_solution_permuter.h"
 
 #include "gflags/gflags.h"
+#include "puzzle/active_set.h"
 
 DEFINE_bool(puzzle_prune_class_iterator, false,
 	    "If specfied, class iterators will be pruned based on single "
@@ -32,7 +33,7 @@ CroppedSolutionPermuter::iterator::iterator(
 
   current_ = Solution(&entries_);
 
-  class_skips_.resize(class_types_.size());
+  active_sets_.resize(class_types_.size());
   if (FLAGS_puzzle_prune_class_iterator) {
     for (int class_int: class_types_) {
       PruneClass(class_int, permuter_->single_class_predicates_[class_int]);
@@ -51,30 +52,22 @@ CroppedSolutionPermuter::iterator::iterator(
 
 void CroppedSolutionPermuter::iterator::PruneClass(
     int class_int, const std::vector<Solution::Cropper>& predicates) {
-  std::vector<int> runs;
-  bool current_run_match = true;
-  int current_run_length = 0;
+  ActiveSet active_set;
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
   for (iterators_[class_int] = class_permuter.begin();
        iterators_[class_int] != class_permuter.end();
        ++iterators_[class_int]) {
     UpdateEntries(class_int);
-    bool this_match = std::all_of(predicates.begin(),
-				  predicates.end(),
-				  [this](const Solution::Cropper& c) {
-				    return c.p(current_);
-				  });
-    if (this_match == current_run_match) {
-      ++current_run_length;
-    } else {
-      runs.push_back(current_run_length);
-      current_run_match = this_match;
-      current_run_length = 1;
-    }
+    active_set.AddSkip(std::all_of(predicates.begin(),
+				   predicates.end(),
+				   [this](const Solution::Cropper& c) {
+				     return c.p(current_);
+				   }));
   }
-  runs.push_back(current_run_length);
-  class_skips_[class_int] = std::move(runs);
-  iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
+  active_set.DoneAdding();
+  std::cout << class_int << " => " << active_set.Selectivity() << std::endl;
+  active_sets_[class_int] = std::move(active_set);
+  iterators_[class_int] = class_permuter.begin(active_sets_[class_int]);
   UpdateEntries(class_int);
 }
 
@@ -100,7 +93,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 		       })) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
-	iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
+	iterators_[class_int] = class_permuter.begin(active_sets_[class_int]);
         UpdateEntries(class_int);
         return false;
       }
@@ -115,7 +108,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   }
 
   // Didn't find an entry in iteration. Reset iterator and return "no match".
-  iterators_[class_int] = class_permuter.begin(class_skips_[class_int]);
+  iterators_[class_int] = class_permuter.begin(active_sets_[class_int]);
   UpdateEntries(class_int);
   return false;
 }
@@ -148,7 +141,7 @@ void CroppedSolutionPermuter::iterator::Advance() {
     bool carry = false;
     if (iterators_[class_int] == permuter_->class_permuters_[class_int].end()) {
       iterators_[class_int] =
-	  permuter_->class_permuters_[class_int].begin(class_skips_[class_int]);
+	  permuter_->class_permuters_[class_int].begin(active_sets_[class_int]);
       carry = true;
     }
     
