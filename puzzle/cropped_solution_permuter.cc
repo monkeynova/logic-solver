@@ -17,6 +17,27 @@ static void SetClassFromPermutation(
   }
 }
 
+static ActiveSet BuildActiveSet(
+    const ClassPermuter& class_permuter,
+    const std::vector<Solution::Cropper>& predicates,
+    const EntryDescriptor* entry_descriptor,
+    std::vector<Entry>* entries) {
+  Solution s(entry_descriptor, entries);
+  ActiveSet active_set;
+  for (auto it = class_permuter.begin();
+       it != class_permuter.end();
+       ++it) {
+    SetClassFromPermutation(it, entries);
+    active_set.AddSkip(std::all_of(predicates.begin(),
+				   predicates.end(),
+				   [&s](const Solution::Cropper& c) {
+				     return c.p(s);
+				   }));
+  }
+  active_set.DoneAdding();
+  return active_set;
+}
+
 
 CroppedSolutionPermuter::iterator::iterator(
     const CroppedSolutionPermuter* permuter)
@@ -50,23 +71,14 @@ CroppedSolutionPermuter::iterator::iterator(
 
 void CroppedSolutionPermuter::iterator::PruneClass(
     int class_int, const std::vector<Solution::Cropper>& predicates) {
-  ActiveSet active_set;
-  const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
-  for (iterators_[class_int] = class_permuter.begin();
-       iterators_[class_int] != class_permuter.end();
-       ++iterators_[class_int]) {
-    UpdateEntries(class_int);
-    active_set.AddSkip(std::all_of(predicates.begin(),
-				   predicates.end(),
-				   [this](const Solution::Cropper& c) {
-				     return c.p(current_);
-				   }));
-  }
-  active_set.DoneAdding();
+  ActiveSet active_set = BuildActiveSet(
+      permuter_->class_permuters_[class_int], predicates,
+      permuter_->entry_descriptor_, &entries_);
   std::cout << class_int << " => " << active_set.Selectivity() << std::endl;
   active_sets_[class_int] = std::move(active_set);
-  iterators_[class_int] = class_permuter.begin(active_sets_[class_int]);
-  UpdateEntries(class_int);
+  iterators_[class_int] = permuter_->class_permuters_[class_int].begin(
+      active_sets_[class_int]);
+  SetClassFromPermutation(iterators_[class_int], &entries_);
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
