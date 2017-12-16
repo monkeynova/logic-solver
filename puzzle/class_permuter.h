@@ -78,8 +78,8 @@ class ClassPermuter {
       class_int_(class_int) {}
   ~ClassPermuter() {}
 
-  iterator begin(ActiveSet active_set = {}) const {
-    return iterator(this, std::move(active_set));
+  iterator begin() const {
+    return iterator(this, active_set_);
   }
   iterator end() const { return iterator(); }
 
@@ -93,11 +93,16 @@ class ClassPermuter {
     return class_int_;
   }
 
+  void set_active_set(ActiveSet active_set) {
+    active_set_ = std::move(active_set);
+  }
+  
  private:
   static double PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
   double permutation_count_;
   int class_int_;
+  ActiveSet active_set_;
 };
 
 }  // namespace puzzle

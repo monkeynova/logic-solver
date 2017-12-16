@@ -56,7 +56,6 @@ class CroppedSolutionPermuter {
     std::vector<Entry> entries_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
-    std::vector<ActiveSet> active_sets_;
     Solution current_;
   };
 
@@ -86,6 +85,7 @@ class CroppedSolutionPermuter {
   std::vector<int> class_order_;
   
   std::vector<std::vector<Solution::Cropper>> single_class_predicates_;
+
   // Index is larges (i.e. last) class needed to evaluate.
   std::vector<std::vector<Solution::Cropper>> multi_class_predicates_;
 

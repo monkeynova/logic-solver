@@ -35,6 +35,8 @@ static ActiveSet BuildActiveSet(
 				   }));
   }
   active_set.DoneAdding();
+  std::cout << class_permuter.class_int() << " => "
+	    << active_set.Selectivity() << std::endl;
   return active_set;
 }
 
@@ -49,16 +51,12 @@ CroppedSolutionPermuter::iterator::iterator(
   iterators_.resize(permuter_->class_order().size());
   for (int class_int : permuter_->class_order()) {
     iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
+  }
+  // UpdateEntries requires all iterators to be constructed.
+  for (int class_int : permuter_->class_order()) {
     UpdateEntries(class_int);
   }
-
-  active_sets_.resize(permuter_->class_order().size());
-  if (FLAGS_puzzle_prune_class_iterator) {
-    for (int class_int : permuter_->class_order()) {
-      PruneClass(class_int, permuter_->single_class_predicates_[class_int]);
-    }
-  }
-
+  
   if (FindNextValid(0)) {
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(position());
@@ -67,18 +65,6 @@ CroppedSolutionPermuter::iterator::iterator(
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(permuter_->permutation_count());
   }
-}
-
-void CroppedSolutionPermuter::iterator::PruneClass(
-    int class_int, const std::vector<Solution::Cropper>& predicates) {
-  ActiveSet active_set = BuildActiveSet(
-      permuter_->class_permuters_[class_int], predicates,
-      permuter_->entry_descriptor_, &entries_);
-  std::cout << class_int << " => " << active_set.Selectivity() << std::endl;
-  active_sets_[class_int] = std::move(active_set);
-  iterators_[class_int] = permuter_->class_permuters_[class_int].begin(
-      active_sets_[class_int]);
-  SetClassFromPermutation(iterators_[class_int], &entries_);
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
@@ -103,7 +89,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 		       })) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
-	iterators_[class_int] = class_permuter.begin(active_sets_[class_int]);
+	iterators_[class_int] = class_permuter.begin();
         UpdateEntries(class_int);
         return false;
       }
@@ -118,7 +104,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   }
 
   // Didn't find an entry in iteration. Reset iterator and return "no match".
-  iterators_[class_int] = class_permuter.begin(active_sets_[class_int]);
+  iterators_[class_int] = class_permuter.begin();
   UpdateEntries(class_int);
   return false;
 }
@@ -150,7 +136,7 @@ void CroppedSolutionPermuter::iterator::Advance() {
     bool carry = false;
     if (iterators_[class_int] == permuter_->class_permuters_[class_int].end()) {
       iterators_[class_int] =
-	  permuter_->class_permuters_[class_int].begin(active_sets_[class_int]);
+  	  permuter_->class_permuters_[class_int].begin();
       carry = true;
     }
     
@@ -222,19 +208,29 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     }
   }
 
-  if (!FLAGS_puzzle_prune_class_iterator) {
-    for (int i = 0; i < single_class_predicates_.size(); ++i) {
-      for (auto p : single_class_predicates_[i]) {
-	multi_class_predicates_[i].emplace_back(p);
-      }
-    }
-  }
-
   class_permuters_.resize(class_order_.size());
   for (int class_int: class_order_) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
     class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);
+  }
+
+  if (FLAGS_puzzle_prune_class_iterator) {
+    // Build ActiveSet for each ClassPermuter if flag enabled.
+    std::vector<Entry> entries;
+    Solution s = BuildSolution(&entries);
+    for (int class_int : class_order_) {
+      class_permuters_[class_int].set_active_set(BuildActiveSet(
+	  class_permuters_[class_int], single_class_predicates_[class_int],
+	  entry_descriptor_, &entries));
+    }
+  } else {
+    // Otherwise add single class filters to the rest of the filters.
+    for (int i = 0; i < single_class_predicates_.size(); ++i) {
+      for (auto p : single_class_predicates_[i]) {
+	multi_class_predicates_[i].emplace_back(p);
+      }
+    }
   }
 }
 

@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -22,9 +21,7 @@ class Descriptor {
   virtual std::vector<int> Values() const = 0;
 
   virtual std::string ToStr(int i) const {
-    std::stringstream ss;
-    ss << i;
-    return ss.str();
+    return absl::StrCat(i);
   }
 };
 
@@ -146,24 +143,8 @@ class Entry {
   void SetClass(int classname, int value) {
     classes_[classname] = value;
   }
-  std::string ToStr() const {
-    std::stringstream ret;
-    if (entry_descriptor_ != nullptr) {
-      ret << entry_descriptor_->Id(id_);
-    } else {
-      ret << id_;
-    }
-    ret << ":";
-    for (unsigned int i = 0; i < classes_.size(); ++i) {
-      if (entry_descriptor_) {
-        ret << " " << entry_descriptor_->Class(i) << "="
-            << entry_descriptor_->Name(i, classes_[i]);
-      } else {
-        ret << " " << classes_[i];
-      }
-    }
-    return ret.str();
-  }
+  std::string ToStr() const;
+
   static const Entry& Invalid() { return invalid_; }
   const EntryDescriptor* descriptor() const {
     return entry_descriptor_;
@@ -210,36 +191,10 @@ class Solution {
   Solution(Solution&& other) {
     *this = std::move(other);
   }
-  Solution& operator=(Solution&& other) {
-    entry_descriptor_ = other.entry_descriptor_;
-    entries_ = other.entries_;
-    other.entries_ = nullptr;
-    own_entries_ = other.own_entries_;
-    permutation_position_ = other.permutation_position_;
-    permutation_count_ = other.permutation_count_;
-    return *this;
-  }
-
-  Solution Clone() const {
-    const std::vector<Entry>* new_entries =
-        entries_ == nullptr
-        ? nullptr : new std::vector<Entry>(*entries_);
-    Solution ret(entry_descriptor_, new_entries);
-    ret.own_entries_ = true;
-    ret.permutation_position_ = permutation_position_;
-    ret.permutation_count_ = permutation_count_;
-    return ret;
-  }
-
-  bool operator==(const Solution& other) const {
-    if (this == &other) {
-      return true;
-    }
-    if (entries_ == nullptr || other.entries_ == nullptr) {
-      return entries_ == other.entries_;
-    }
-    return *entries_ == *other.entries_;
-  }
+  Solution& operator=(Solution&& other);
+  
+  Solution Clone() const;
+  bool operator==(const Solution& other) const;
 
   const EntryDescriptor* descriptor() const {
     return entry_descriptor_;
@@ -269,16 +224,7 @@ class Solution {
     std::cerr << "Cannot find an entry for the given predicate" << std::endl;
     return Entry::Invalid();
   }
-  std::string ToStr() const {
-    return entries_ == nullptr
-        ? "<invalid>"
-        : entries_->size() == 0
-          ? "<empty>"
-          : absl::StrJoin(*entries_, "\n",
-                          [](std::string* out, const Entry& e) {
-                              absl::StrAppend(out, e.ToStr());
-                          });
-  }
+  std::string ToStr() const;
 
  private:
   const EntryDescriptor* entry_descriptor_ = nullptr;  // Not owned

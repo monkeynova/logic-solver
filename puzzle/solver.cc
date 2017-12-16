@@ -70,7 +70,7 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
 
 std::string Solver::DebugStatistics() const {
   return absl::StrCat("[", test_calls_, " solutions tested in ",
-		      (profiler_ == nullptr ? -1 : profiler_->Seconds()), "]");
+		      (profiler_ == nullptr ? -1 : profiler_->Seconds()), "s]");
 }
 
 }  // namespace puzzle

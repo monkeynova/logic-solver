@@ -64,6 +64,7 @@ cc_library(
 cc_library(
     name = "solution",
     hdrs = ["solution.h"],
+    srcs = ["solution.cc"],
     deps = [ 
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
