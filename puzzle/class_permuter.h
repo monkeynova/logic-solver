@@ -20,7 +20,7 @@ class ClassPermuter {
     typedef ClassPermuter* pointer;
 
     iterator() : iterator(nullptr, {}) {}
-    iterator(const Descriptor* descriptor, ActiveSet active_set);
+    iterator(const ClassPermuter* permuter, ActiveSet active_set);
 
     iterator(const iterator&) = delete;
     iterator& operator=(const iterator&) = delete;
@@ -28,16 +28,16 @@ class ClassPermuter {
     iterator(iterator&&) = default;
     iterator& operator=(iterator&&) = default;
 
-    bool operator!=(const iterator& other) {
+    bool operator!=(const iterator& other) const {
       return !(*this == other);
     }
-    bool operator==(const iterator& other) {
+    bool operator==(const iterator& other) const {
       return current_ == other.current_;
     }
-    const StorageVector& operator*() {
+    const StorageVector& operator*() const {
       return current_;
     }
-    const StorageVector* operator->() {
+    const StorageVector* operator->() const {
       return &current_;
     }
     iterator& operator++() {
@@ -46,8 +46,11 @@ class ClassPermuter {
     }
     
     double position() const { return position_; }
-    double completion() const { return position_ / max_; }
-
+    double Completion() const {
+      return position_ / permuter_->permutation_count();
+    }
+    int class_int() const { return permuter_->class_int(); }
+    
    private:
     // Advances permutation until the the result should be allowed considering
     // 'active_set_'.
@@ -59,23 +62,24 @@ class ClassPermuter {
     // Advances until the current record should allowed considering 'active_set_'.
     void SkipUntilMatch();
 
+    const ClassPermuter* permuter_;
     StorageVector current_;
     StorageVector index_;
     StorageVector direction_;
     int next_from_;
     double position_;
-    int max_;
 
     ActiveSet active_set_;
   };
 
-  ClassPermuter(const Descriptor* d)
+ explicit ClassPermuter(const Descriptor* d = nullptr, const int class_int = 0)
     : descriptor_(d),
-      permutation_count_(PermutationCount(d)) {}
+      permutation_count_(PermutationCount(d)),
+      class_int_(class_int) {}
   ~ClassPermuter() {}
 
   iterator begin(ActiveSet active_set = {}) const {
-    return iterator(descriptor_, std::move(active_set));
+    return iterator(this, std::move(active_set));
   }
   iterator end() const { return iterator(); }
 
@@ -83,10 +87,17 @@ class ClassPermuter {
     return permutation_count_;
   }
 
+  const Descriptor* descriptor() const { return descriptor_; }
+  
+  int class_int() const {
+    return class_int_;
+  }
+
  private:
   static double PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
   double permutation_count_;
+  int class_int_;
 };
 
 }  // namespace puzzle

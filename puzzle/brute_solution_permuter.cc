@@ -85,11 +85,11 @@ BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();
   
-  class_permuters_.resize(class_types.size(),nullptr);
+  class_permuters_.resize(class_types.size());
   for (auto class_int: class_types) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
-    class_permuters_[class_int] = ClassPermuter(class_descriptor);
+    class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);
   }
 }
 

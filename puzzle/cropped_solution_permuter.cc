@@ -9,6 +9,15 @@ DEFINE_bool(puzzle_prune_class_iterator, false,
 
 namespace puzzle {
 
+static void SetClassFromPermutation(
+    const ClassPermuter::iterator& it,
+    std::vector<Entry>* entries) {
+  for (unsigned int j = 0; j < it->size(); ++j ) {
+    (*entries)[j].SetClass(it.class_int(), (*it)[j]);
+  }
+}
+
+
 CroppedSolutionPermuter::iterator::iterator(
     const CroppedSolutionPermuter* permuter)
    : permuter_(permuter) {
@@ -16,17 +25,15 @@ CroppedSolutionPermuter::iterator::iterator(
   
   current_ = permuter_->BuildSolution(&entries_);
 
-  class_types_ = current_.descriptor()->AllClasses()->Values();
-
-  iterators_.resize(class_types_.size());
-  for (int class_int: class_types_) {
+  iterators_.resize(permuter_->class_order().size());
+  for (int class_int : permuter_->class_order()) {
     iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
     UpdateEntries(class_int);
   }
 
-  active_sets_.resize(class_types_.size());
+  active_sets_.resize(permuter_->class_order().size());
   if (FLAGS_puzzle_prune_class_iterator) {
-    for (int class_int: class_types_) {
+    for (int class_int : permuter_->class_order()) {
       PruneClass(class_int, permuter_->single_class_predicates_[class_int]);
     }
   }
@@ -63,11 +70,11 @@ void CroppedSolutionPermuter::iterator::PruneClass(
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
-  if ((unsigned int)class_position >= class_types_.size()) {
+  if ((unsigned int)class_position >= permuter_->class_order().size()) {
     return true;
   }
   
-  int class_int = class_types_[class_position];
+  int class_int = permuter_->class_order()[class_position];
 
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
   const std::vector<Solution::Cropper>& solution_cropper =
@@ -112,20 +119,19 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
 		<< absl::StrJoin(iterators_, ", ",
 				 [](std::string* out,
 				    const ClassPermuter::iterator& it) {
-				   absl::StrAppend(out, it.completion());
+				   absl::StrAppend(out, it.Completion());
 				 })
 		<< "): " << position() << std::flush;
     }
   }
-  const std::vector<int>& class_values = *(iterators_[class_int]);
-  for (unsigned int j = 0; j < class_values.size(); ++j ) {
-    entries_[j].SetClass(class_int, class_values[j]);
-  }
+  SetClassFromPermutation(iterators_[class_int], &entries_);
 }
 
 void CroppedSolutionPermuter::iterator::Advance() {
   bool at_end = true;
-  for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
+  for (auto it = permuter_->class_order().rbegin();
+       it != permuter_->class_order().rend();
+       ++it) {
     int class_int = *it;
     ++iterators_[class_int];
     
@@ -156,7 +162,7 @@ void CroppedSolutionPermuter::iterator::Advance() {
 double CroppedSolutionPermuter::iterator::position() const {
   double position = 0;
 
-  for (int class_int : class_types_) {
+  for (int class_int : permuter_->class_order()) {
     position *= permuter_->class_permuters_[class_int].permutation_count();
     position += iterators_[class_int].position();
   }
@@ -173,11 +179,10 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     const std::vector<Solution::Cropper>& croppers_with_class,
     Profiler* profiler)
     : entry_descriptor_(e), profiler_(profiler) { 
-  const std::vector<int>& class_types =
-      entry_descriptor_->AllClasses()->Values();
+  class_order_ = entry_descriptor_->AllClasses()->Values();
   
-  single_class_predicates_.resize(class_types.size());
-  multi_class_predicates_.resize(class_types.size());
+  single_class_predicates_.resize(class_order_.size());
+  multi_class_predicates_.resize(class_order_.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
     if (cropper.classes.size() == 1) {
@@ -185,7 +190,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
       single_class_predicates_[class_int].push_back(cropper);      
       added = true;
     } else {
-      for (auto it = class_types.rbegin(); it != class_types.rend(); ++it) {
+      for (auto it = class_order_.rbegin(); it != class_order_.rend(); ++it) {
 	int class_int = *it;
 
 	auto it2 = std::find(cropper.classes.begin(),
@@ -213,11 +218,11 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     }
   }
 
-  class_permuters_.resize(class_types.size(), nullptr);
-  for (int class_int: class_types) {
+  class_permuters_.resize(class_order_.size());
+  for (int class_int: class_order_) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
-    class_permuters_[class_int] = ClassPermuter(class_descriptor);
+    class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);
   }
 }
 

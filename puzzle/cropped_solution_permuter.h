@@ -73,12 +73,18 @@ class CroppedSolutionPermuter {
     return class_permuters_[class_int];
   }
 
+  const std::vector<int>& class_order() const {
+    return class_order_;
+  }
+
  private:
   Solution BuildSolution(std::vector<Entry>* enries) const;
   
   const EntryDescriptor* const entry_descriptor_ = nullptr;
   std::vector<ClassPermuter> class_permuters_;
 
+  std::vector<int> class_order_;
+  
   std::vector<std::vector<Solution::Cropper>> single_class_predicates_;
   // Index is larges (i.e. last) class needed to evaluate.
   std::vector<std::vector<Solution::Cropper>> multi_class_predicates_;

@@ -4,19 +4,13 @@ namespace puzzle {
 
 constexpr int ClassPermuter::iterator::kInlineSize;
 
-ClassPermuter::iterator::iterator(const Descriptor* descriptor,
+ClassPermuter::iterator::iterator(const ClassPermuter* permuter,
 				  ActiveSet active_set)
-   : active_set_(std::move(active_set)) {
-  if (descriptor != nullptr) {
-    for (int i : descriptor->Values()) {
+  : permuter_(permuter),
+    active_set_(std::move(active_set)) {
+  if (permuter_ != nullptr) {
+    for (int i : permuter_->descriptor()->Values()) {
       current_.push_back(i);
-    }
-  }
-  int entries = current_.size();
-  if (entries > 0) {
-    max_ = 1;
-    for (int i = 2; i <= entries; i++ ) {
-      max_ *= i;
     }
   }
   position_ = 0;
@@ -39,7 +33,8 @@ void ClassPermuter::iterator::AdvanceWithSkip() {
 void ClassPermuter::iterator::SkipUntilMatch() {
   if (active_set_.is_trivial()) return;
 
-  while (position_ < max_ && !active_set_.ConsumeNextSkip()) {
+  while (position_ < permuter_->permutation_count() &&
+	 !active_set_.ConsumeNextSkip()) {
     Advance();
   }
 }
@@ -47,7 +42,7 @@ void ClassPermuter::iterator::SkipUntilMatch() {
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 void ClassPermuter::iterator::Advance() {
   ++position_;
-  if (position_ >= max_) {
+  if (position_ >= permuter_->permutation_count()) {
     current_.resize(0);
   } else {
     int from = next_from_;
