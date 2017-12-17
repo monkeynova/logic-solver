@@ -52,3 +52,11 @@ new_git_repository(
     commit = "6a4b0799975576c2722daa75b35f6f65220d22b6",
     build_file = "external/BUILD.gperftools",
 )
+
+new_git_repository(
+    name = "com_google_glog",
+    remote = "https://github.com/google/glog.git",
+    # Latest on 2017.12.04
+    commit = "2063b387080c1e7adffd33ca07adff0eb346ff1a",
+    build_file = "external/BUILD.glog",
+)

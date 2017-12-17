@@ -1,0 +1,5 @@
+# TODO(keith@monkeynova.com): Fill me in.
+
+cc_library(
+    name = "glog"
+)
