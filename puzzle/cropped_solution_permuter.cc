@@ -7,6 +7,10 @@ DEFINE_bool(puzzle_prune_class_iterator, false,
             "If specfied, class iterators will be pruned based on single "
             "class predicates that are present.");
 
+DEFINE_bool(puzzle_prune_reorder_classes, false,
+	    "If true, class iteration will be re-ordered from the default "
+	    "based on effective scan rate.");
+
 namespace puzzle {
 
 static void SetClassFromPermutation(
@@ -57,7 +61,7 @@ CroppedSolutionPermuter::iterator::iterator(
     UpdateEntries(class_int);
   }
   
-  if (FindNextValid(0)) {
+  if (FindNextValid(/*class_position=*/0)) {
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(position());
   } else {
@@ -71,7 +75,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   if ((unsigned int)class_position >= permuter_->class_order().size()) {
     return true;
   }
-  
+
   int class_int = permuter_->class_order()[class_position];
 
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
@@ -95,7 +99,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
       }
       UpdateEntries(class_int);
     }
-    if (FindNextValid(class_position+1)) {
+    if (FindNextValid(class_position + 1)) {
       return true;
     } else {
       ++iterators_[class_int];
@@ -178,6 +182,10 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     Profiler* profiler)
     : entry_descriptor_(e), profiler_(profiler) { 
   class_order_ = entry_descriptor_->AllClasses()->Values();
+  if (FLAGS_puzzle_prune_reorder_classes) {
+    std::reverse(class_order_.begin(), class_order_.end());
+    std::cout << absl::StrJoin(class_order_, ", ") << std::endl;
+  }
   
   single_class_predicates_.resize(class_order_.size());
   multi_class_predicates_.resize(class_order_.size());
