@@ -26,14 +26,14 @@ TEST(CroppedSolutionPermuterTest, Simple) {
   std::vector<puzzle::Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), solutions.size());
-    EXPECT_THAT(history.insert(it->ToStr()).second, true)
-        << it->ToStr();
+    EXPECT_THAT(history.insert(it->DebugString()).second, true)
+        << it->DebugString();
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 6 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.ToStr()).second, false)
-        << solution.ToStr();
+    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
+        << solution.DebugString();
   }
 }
 
@@ -60,16 +60,16 @@ TEST(CroppedSolutionPermuterTest, CropFirstClass) {
   std::vector<puzzle::Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), Ge(solutions.size()));
-    EXPECT_THAT(history.insert(it->ToStr()).second, true)
-        << it->ToStr();
+    EXPECT_THAT(history.insert(it->DebugString()).second, true)
+        << it->DebugString();
 
     EXPECT_THAT(it->Id(1).Class(0), 7);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.ToStr()).second, false)
-        << solution.ToStr();
+    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
+        << solution.DebugString();
   }
 }
 
@@ -103,16 +103,16 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
     std::cout << "Got Next" << std::endl;
 #endif
     EXPECT_THAT(it.position(), Ge(solutions.size()));
-    EXPECT_THAT(history.insert(it->ToStr()).second, true)
-        << it->ToStr();
+    EXPECT_THAT(history.insert(it->DebugString()).second, true)
+        << it->DebugString();
 
     EXPECT_THAT(it->Id(1).Class(1), 12);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.ToStr()).second, false)
-        << solution.ToStr();
+    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
+        << solution.DebugString();
   }
 }
 
@@ -155,8 +155,8 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
     std::cout << "Got Next" << std::endl;
 #endif
     EXPECT_THAT(it.position(), Ge(solutions.size()));
-    EXPECT_THAT(history.insert(it->ToStr()).second, true)
-        << it->ToStr();
+    EXPECT_THAT(history.insert(it->DebugString()).second, true)
+        << it->DebugString();
 
     EXPECT_THAT(it->Id(0).Class(0), 7);
     EXPECT_THAT(it->Id(1).Class(1), 12);
@@ -164,7 +164,7 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   }
   EXPECT_THAT(solutions.size(), 2 * 2);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.ToStr()).second, false)
-        << solution.ToStr();
+    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
+        << solution.DebugString();
   }
 }

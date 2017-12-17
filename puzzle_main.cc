@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
       << absl::StrJoin(
              all_solutions, "\n",
              [](std::string* out, const puzzle::Solution& s) {
-               absl::StrAppend(out, PositionHeader(s), "\n", s.ToStr());
+               absl::StrAppend(out, PositionHeader(s), "\n", s.DebugString());
              })
       << std::endl;
   } else {
@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     if (answer.IsValid()) {
       std::cout << PositionHeader(answer) << std::endl;
     }
-    std::cout << answer.ToStr() << std::endl;
+    std::cout << answer.DebugString() << std::endl;
     exit_code = answer.IsValid() ? 0 : 1;
   }
 

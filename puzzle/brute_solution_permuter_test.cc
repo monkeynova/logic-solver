@@ -24,13 +24,13 @@ TEST(BruteSolutionPermuterTest, Simple) {
   std::vector<puzzle::Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), solutions.size());
-    EXPECT_THAT(history.insert(it->ToStr()).second, true)
-        << it->ToStr();
+    EXPECT_THAT(history.insert(it->DebugString()).second, true)
+        << it->DebugString();
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 6 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.ToStr()).second, false)
-        << solution.ToStr();
+    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
+        << solution.DebugString();
   }
 }

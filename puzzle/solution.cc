@@ -4,7 +4,7 @@
 
 namespace puzzle {
 
-std::string Entry::ToStr() const {
+std::string Entry::DebugString() const {
   std::stringstream ret;
   if (entry_descriptor_ != nullptr) {
     ret << entry_descriptor_->Id(id_);
@@ -54,14 +54,14 @@ bool Solution::operator==(const Solution& other) const {
   return *entries_ == *other.entries_;
 }
 
-std::string Solution::ToStr() const {
+std::string Solution::DebugString() const {
   return entries_ == nullptr
     ? "<invalid>"
     : entries_->size() == 0
     ? "<empty>"
     : absl::StrJoin(*entries_, "\n",
                     [](std::string* out, const Entry& e) {
-                      absl::StrAppend(out, e.ToStr());
+                      absl::StrAppend(out, e.DebugString());
                     });
 }
   

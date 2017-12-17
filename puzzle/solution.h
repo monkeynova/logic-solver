@@ -20,7 +20,7 @@ class Descriptor {
 
   virtual std::vector<int> Values() const = 0;
 
-  virtual std::string ToStr(int i) const {
+  virtual std::string DebugString(int i) const {
     return absl::StrCat(i);
   }
 };
@@ -49,7 +49,7 @@ class StringDescriptor : public Descriptor {
   ~StringDescriptor() override {}
 
   void SetDescription(int i, const std::string& d) { names_[i] = d; }
-  std::string ToStr(int i) const override {
+  std::string DebugString(int i) const override {
     auto it = names_.find(i);
     if (it != names_.end()) return it->second;
     return "";
@@ -99,13 +99,13 @@ class EntryDescriptor {
     return name_descriptors_[class_int];
   }
 
-  std::string Id(int id_int) const { return id_descriptor_->ToStr(id_int); }
+  std::string Id(int id_int) const { return id_descriptor_->DebugString(id_int); }
   std::string Class(int class_int) const {
-    return class_descriptor_.ToStr(class_int);
+    return class_descriptor_.DebugString(class_int);
   }
   std::string Name(int class_int, int name_int) const {
     return name_descriptors_[class_int]
-      ? name_descriptors_[class_int]->ToStr(name_int) : "";
+      ? name_descriptors_[class_int]->DebugString(name_int) : "";
   }
 
  private:
@@ -143,7 +143,7 @@ class Entry {
   void SetClass(int classname, int value) {
     classes_[classname] = value;
   }
-  std::string ToStr() const;
+  std::string DebugString() const;
 
   static const Entry& Invalid() { return invalid_; }
   const EntryDescriptor* descriptor() const {
@@ -224,7 +224,7 @@ class Solution {
     std::cerr << "Cannot find an entry for the given predicate" << std::endl;
     return Entry::Invalid();
   }
-  std::string ToStr() const;
+  std::string DebugString() const;
 
  private:
   const EntryDescriptor* entry_descriptor_ = nullptr;  // Not owned
@@ -244,7 +244,7 @@ class Solution {
 };
 
 inline void PrintTo(const Solution& solution, ::std::ostream* os) {
-  *os << solution.ToStr();
+  *os << solution.DebugString();
 }
 
 }  // namespace puzzle
