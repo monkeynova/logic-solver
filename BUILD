@@ -98,6 +98,19 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "six_fearsome_heroes_reorder_test",
+    srcs = ["six_fearsome_heroes.cc"],
+    args = [
+        "--puzzle_prune_class_iterator=true",
+        "--puzzle_prune_reorder_classes=true",
+    ],
+    deps = [
+        ":puzzle_test",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
 cc_library(
     name = "puzzle_test",
     srcs = ["puzzle_test.cc"],

@@ -186,14 +186,17 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     std::reverse(class_order_.begin(), class_order_.end());
     std::cout << absl::StrJoin(class_order_, ", ") << std::endl;
   }
+
+  std::vector<std::vector<Solution::Cropper>> single_class_predicates;
+  single_class_predicates.resize(class_order_.size());
+
   
-  single_class_predicates_.resize(class_order_.size());
   multi_class_predicates_.resize(class_order_.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
     if (cropper.classes.size() == 1) {
       int class_int = cropper.classes[0];
-      single_class_predicates_[class_int].push_back(cropper);      
+      single_class_predicates[class_int].push_back(cropper);
       added = true;
     } else {
       for (auto it = class_order_.rbegin(); it != class_order_.rend(); ++it) {
@@ -229,13 +232,13 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     Solution s = BuildSolution(&entries);
     for (int class_int : class_order_) {
       class_permuters_[class_int].set_active_set(BuildActiveSet(
-          class_permuters_[class_int], single_class_predicates_[class_int],
+          class_permuters_[class_int], single_class_predicates[class_int],
           entry_descriptor_, &entries));
     }
   } else {
     // Otherwise add single class filters to the rest of the filters.
-    for (int i = 0; i < single_class_predicates_.size(); ++i) {
-      for (auto p : single_class_predicates_[i]) {
+    for (int i = 0; i < single_class_predicates.size(); ++i) {
+      for (auto p : single_class_predicates[i]) {
         multi_class_predicates_[i].emplace_back(p);
       }
     }
