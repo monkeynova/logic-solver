@@ -92,6 +92,8 @@ class CroppedSolutionPermuter {
   std::vector<int> class_order_;
   
   // Index is larges (i.e. last) class needed to evaluate.
+  // TODO(keith@monkeynova.com): Move this to a single Cropper capturing the
+  // relevant predicates.
   std::vector<std::vector<Solution::Cropper>> multi_class_predicates_;
 
   Profiler* const profiler_;

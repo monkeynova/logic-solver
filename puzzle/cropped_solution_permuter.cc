@@ -112,6 +112,8 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 }
 
 void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
+  // TODO(keith@monkeynova.com): Allow a Solution to bind to class permuters
+  // and pull values from them directly avoiding this push model.
   if (permuter_->profiler_ != nullptr) {
     if (permuter_->profiler_->NotePosition(
             position(), permuter_->permutation_count())) {
@@ -184,10 +186,17 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     std::cout << absl::StrJoin(class_order_, ", ") << std::endl;
   }
 
-  std::vector<std::vector<Solution::Cropper>> single_class_predicates;
-  single_class_predicates.resize(class_order_.size());
+  class_permuters_.resize(class_order_.size());
+  for (int class_int: class_order_) {
+    const Descriptor* class_descriptor =
+        entry_descriptor_->AllClassValues(class_int);
+    class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);
+  }
 
-  multi_class_predicates_.resize(class_order_.size());
+  std::vector<std::vector<Solution::Cropper>> single_class_predicates;
+  single_class_predicates.resize(class_permuters_.size());
+
+  multi_class_predicates_.resize(class_permuters_.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
     if (cropper.classes.size() == 1) {
@@ -215,18 +224,12 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     }
   }
 
-  class_permuters_.resize(class_order_.size());
-  for (int class_int: class_order_) {
-    const Descriptor* class_descriptor =
-        entry_descriptor_->AllClassValues(class_int);
-    class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);
-  }
-
   if (FLAGS_puzzle_prune_class_iterator) {
     // Build ActiveSet for each ClassPermuter if flag enabled.
     std::vector<Entry> entries;
     Solution s = BuildSolution(&entries);
-    for (int class_int : class_order_) {
+    for (auto& class_permuter : class_permuters_) {
+      int class_int = class_permuter.class_int();
       class_permuters_[class_int].set_active_set(BuildActiveSet(
           class_permuters_[class_int], single_class_predicates[class_int],
           entry_descriptor_, &entries));
