@@ -59,6 +59,12 @@ class BruteSolutionPermuter {
   BruteSolutionPermuter(const EntryDescriptor* e);
   ~BruteSolutionPermuter() {}
 
+  // Movable, but not copyable.
+  BruteSolutionPermuter(const BruteSolutionPermuter&) = delete;
+  BruteSolutionPermuter& operator=(const BruteSolutionPermuter&) = delete;
+  BruteSolutionPermuter(BruteSolutionPermuter&&) = default;
+  BruteSolutionPermuter& operator=(BruteSolutionPermuter&&) = default;
+
   iterator begin() const { return iterator(this, entry_descriptor_); }
   iterator end() const { return iterator(this, nullptr); }
 

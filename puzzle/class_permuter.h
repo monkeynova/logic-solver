@@ -79,6 +79,12 @@ class ClassPermuter {
       class_int_(class_int) {}
   ~ClassPermuter() {}
 
+  // Moveable but not copyable.
+  ClassPermuter(const ClassPermuter&) = delete;
+  ClassPermuter& operator=(const ClassPermuter&) = delete;
+  ClassPermuter(ClassPermuter&&) = default;
+  ClassPermuter& operator=(ClassPermuter&&) = default;
+
   iterator begin() const {
     return iterator(this, active_set_);
   }

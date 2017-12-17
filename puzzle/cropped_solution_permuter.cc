@@ -44,21 +44,21 @@ static ActiveSet BuildActiveSet(
   return active_set;
 }
 
-
 CroppedSolutionPermuter::iterator::iterator(
     const CroppedSolutionPermuter* permuter)
    : permuter_(permuter) {
   if (permuter_ == nullptr) return;
   
   current_ = permuter_->BuildSolution(&entries_);
-
-  iterators_.resize(permuter_->class_order().size());
-  for (int class_int : permuter_->class_order()) {
-    iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
+  iterators_.resize(permuter_->class_permuters_.size());
+  for (auto& class_permuter : permuter_->class_permuters_) {
+    std::cout << "petersk: " << class_permuter.class_int() << std::endl;
+    iterators_[class_permuter.class_int()] = class_permuter.begin();
   }
   // UpdateEntries requires all iterators to be constructed.
-  for (int class_int : permuter_->class_order()) {
-    UpdateEntries(class_int);
+  for (auto& class_permuter : permuter_->class_permuters_) {
+    std::cout << "petersk: " << class_permuter.class_int() << std::endl;
+    UpdateEntries(class_permuter.class_int());
   }
   
   if (FindNextValid(/*class_position=*/0)) {
@@ -190,7 +190,6 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   std::vector<std::vector<Solution::Cropper>> single_class_predicates;
   single_class_predicates.resize(class_order_.size());
 
-  
   multi_class_predicates_.resize(class_order_.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
@@ -247,7 +246,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 
 double CroppedSolutionPermuter::permutation_count() const {
   double count = 1;
-  for (auto permuter: class_permuters_) {
+  for (auto& permuter: class_permuters_) {
     count *= permuter.permutation_count();
   }
   return count;

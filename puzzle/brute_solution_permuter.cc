@@ -95,7 +95,7 @@ BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
 
 double BruteSolutionPermuter::permutation_count() const {
   double count = 1;
-  for (auto permuter: class_permuters_) {
+  for (auto& permuter : class_permuters_) {
     count *= permuter.permutation_count();
   }
   return count;

@@ -65,6 +65,12 @@ class CroppedSolutionPermuter {
       Profiler* profiler);
   ~CroppedSolutionPermuter() {}
 
+  // Movable, but not copyable.
+  CroppedSolutionPermuter(const CroppedSolutionPermuter&) = delete;
+  CroppedSolutionPermuter& operator=(const CroppedSolutionPermuter&) = delete;
+  CroppedSolutionPermuter(CroppedSolutionPermuter&&) = default;
+  CroppedSolutionPermuter& operator=(CroppedSolutionPermuter&&) = default;
+
   iterator begin() const { return iterator(this); }
   iterator end() const { return iterator(nullptr); }
 
