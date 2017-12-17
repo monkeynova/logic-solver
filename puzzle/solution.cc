@@ -34,14 +34,13 @@ Solution& Solution::operator=(Solution&& other) {
 }
 
 Solution Solution::Clone() const {
-    const std::vector<Entry>* new_entries =
-        entries_ == nullptr
-        ? nullptr : new std::vector<Entry>(*entries_);
-    Solution ret(entry_descriptor_, new_entries);
-    ret.own_entries_ = true;
-    ret.permutation_position_ = permutation_position_;
-    ret.permutation_count_ = permutation_count_;
-    return ret;
+  const std::vector<Entry>* new_entries =
+    (entries_ == nullptr) ? nullptr : new std::vector<Entry>(*entries_);
+  Solution ret(entry_descriptor_, new_entries);
+  ret.own_entries_ = true;
+  ret.permutation_position_ = permutation_position_;
+  ret.permutation_count_ = permutation_count_;
+  return ret;
 }
 
 bool Solution::operator==(const Solution& other) const {
@@ -55,14 +54,13 @@ bool Solution::operator==(const Solution& other) const {
 }
 
 std::string Solution::DebugString() const {
-  return entries_ == nullptr
-    ? "<invalid>"
-    : entries_->size() == 0
-    ? "<empty>"
-    : absl::StrJoin(*entries_, "\n",
-                    [](std::string* out, const Entry& e) {
-                      absl::StrAppend(out, e.DebugString());
-                    });
+  if (entries_ == nullptr) return "<invalid>";
+  if (entries_->size() == 0) return "<empty>";
+
+  return absl::StrJoin(*entries_, "\n",
+		       [](std::string* out, const Entry& e) {
+			 absl::StrAppend(out, e.DebugString());
+		       });
 }
   
 }  // namespace puzzle
