@@ -52,12 +52,10 @@ CroppedSolutionPermuter::iterator::iterator(
   current_ = permuter_->BuildSolution(&entries_);
   iterators_.resize(permuter_->class_permuters_.size());
   for (auto& class_permuter : permuter_->class_permuters_) {
-    std::cout << "petersk: " << class_permuter.class_int() << std::endl;
     iterators_[class_permuter.class_int()] = class_permuter.begin();
   }
   // UpdateEntries requires all iterators to be constructed.
   for (auto& class_permuter : permuter_->class_permuters_) {
-    std::cout << "petersk: " << class_permuter.class_int() << std::endl;
     UpdateEntries(class_permuter.class_int());
   }
   
