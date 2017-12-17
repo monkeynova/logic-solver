@@ -47,7 +47,7 @@ class CroppedSolutionPermuter {
 
   private:
     void PruneClass(int class_int,
-		    const std::vector<Solution::Cropper>& predicates);
+                    const std::vector<Solution::Cropper>& predicates);
     void Advance();
     bool FindNextValid(int class_position);
     void UpdateEntries(int class_int);

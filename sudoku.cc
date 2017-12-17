@@ -9,13 +9,13 @@ Logic solver repurposed for sudoku
 #include "puzzle/solver.h"
 
 DEFINE_bool(sudoku_problem_setup_a, true,
-	    "Is-valid-sudoku-board predicates have two forms which may have "
-	    "different performance characteristics based on the details "
-	    "of CroppedSolutionPermuter. This switches betweeen (a) and (b).");
+            "Is-valid-sudoku-board predicates have two forms which may have "
+            "different performance characteristics based on the details "
+            "of CroppedSolutionPermuter. This switches betweeen (a) and (b).");
 
 DEFINE_bool(sudoku_setup_only, false,
-	    "If true, only set up predicates for valid sudoku board "
-	    "configuration rather than solving a specific board.");
+            "If true, only set up predicates for valid sudoku board "
+            "configuration rather than solving a specific board.");
 
 static void AddProblemPredicatesSetupA(puzzle::Solver* s) {
   std::vector<int> cols = {0};
@@ -62,11 +62,11 @@ static void AddProblemPredicatesSetupB(puzzle::Solver* s) {
   for (int i = 0; i < 9; ++i) {
     for (int j = 0; j < 9; ++j) {
       if (i != j) {
-	s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
-			[i, j](const puzzle::Entry& e) {
-			  return e.Class(i) != e.Class(j);
-			},
-			{i, j});
+        s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
+                        [i, j](const puzzle::Entry& e) {
+                          return e.Class(i) != e.Class(j);
+                        },
+                        {i, j});
       }
     }
   }
@@ -75,19 +75,19 @@ static void AddProblemPredicatesSetupB(puzzle::Solver* s) {
     for (int box_base_y = 0; box_base_y < 9; box_base_y += 3) {
       s->AddPredicate(
           absl::StrCat("No box dupes (", box_base_x + 1, ",", box_base_y + 1,
-		       ")"),
-	  [box_base_x, box_base_y](const puzzle::Solution& s) {
-	    int hist = 0;
-	    for (int i = 0; i < 3; ++i) {
-	      for (int j = 0; j < 3; ++j) {
-		int bit = s.Id(box_base_x + i).Class(box_base_y + j);
-		if (hist & (1<<bit)) return false;
-		hist |= 1<<bit;
-	      }
-	    }
-	    return true;
-	  },
-	  {box_base_y, box_base_y + 1, box_base_y + 2});
+                       ")"),
+          [box_base_x, box_base_y](const puzzle::Solution& s) {
+            int hist = 0;
+            for (int i = 0; i < 3; ++i) {
+              for (int j = 0; j < 3; ++j) {
+                int bit = s.Id(box_base_x + i).Class(box_base_y + j);
+                if (hist & (1<<bit)) return false;
+                hist |= 1<<bit;
+              }
+            }
+            return true;
+          },
+          {box_base_y, box_base_y + 1, box_base_y + 2});
     }
   }
 }

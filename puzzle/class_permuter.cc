@@ -5,7 +5,7 @@ namespace puzzle {
 constexpr int ClassPermuter::iterator::kInlineSize;
 
 ClassPermuter::iterator::iterator(const ClassPermuter* permuter,
-				  ActiveSet active_set)
+                                  ActiveSet active_set)
   : permuter_(permuter),
     active_set_(std::move(active_set)) {
   if (permuter_ != nullptr) {
@@ -34,7 +34,7 @@ void ClassPermuter::iterator::SkipUntilMatch() {
   if (active_set_.is_trivial()) return;
 
   while (position_ < permuter_->permutation_count() &&
-	 !active_set_.ConsumeNextSkip()) {
+         !active_set_.ConsumeNextSkip()) {
     Advance();
   }
 }
@@ -51,14 +51,14 @@ void ClassPermuter::iterator::Advance() {
     std::swap(direction_[from], direction_[to]);
     std::swap(index_[from], index_[to]);
     if (to == 0 || to == current_.size() - 1 ||
-	index_[to + direction_[to]] > index_[to]) {
+        index_[to + direction_[to]] > index_[to]) {
       direction_[to] = 0;
       int max = -1;
       for (int i = 0; i < current_.size(); ++i) {
-	if (direction_[i] != 0 && index_[i] > max) {
-	  next_from_ = i;
-	  max = index_[i];
-	}
+        if (direction_[i] != 0 && index_[i] > max) {
+          next_from_ = i;
+          max = index_[i];
+        }
       }
     } else {
       next_from_ = to;
@@ -66,15 +66,15 @@ void ClassPermuter::iterator::Advance() {
     if (index_[to] < current_.size() - 1) {
       for (int i = 0; i < current_.size(); ++i) {
         if (index_[i] > index_[to]) {
-	  if (i < to) {
-	    direction_[i] = 1;
-	  } else {
-	    direction_[i] = -1;
-	  }
-	}
-	if (index_[i] == current_.size() - 1) {
-	  next_from_ = i;
-	}
+          if (i < to) {
+            direction_[i] = 1;
+          } else {
+            direction_[i] = -1;
+          }
+        }
+        if (index_[i] == current_.size() - 1) {
+          next_from_ = i;
+        }
       }
     }
   }

@@ -4,8 +4,8 @@
 #include "puzzle/active_set.h"
 
 DEFINE_bool(puzzle_prune_class_iterator, false,
-	    "If specfied, class iterators will be pruned based on single "
-	    "class predicates that are present.");
+            "If specfied, class iterators will be pruned based on single "
+            "class predicates that are present.");
 
 namespace puzzle {
 
@@ -29,14 +29,14 @@ static ActiveSet BuildActiveSet(
        ++it) {
     SetClassFromPermutation(it, entries);
     active_set.AddSkip(std::all_of(predicates.begin(),
-				   predicates.end(),
-				   [&s](const Solution::Cropper& c) {
-				     return c.p(s);
-				   }));
+                                   predicates.end(),
+                                   [&s](const Solution::Cropper& c) {
+                                     return c.p(s);
+                                   }));
   }
   active_set.DoneAdding();
   std::cout << class_permuter.class_int() << " => "
-	    << active_set.Selectivity() << std::endl;
+            << active_set.Selectivity() << std::endl;
   return active_set;
 }
 
@@ -83,13 +83,13 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
       return false;
     }
     while(!std::all_of(solution_cropper.begin(),
-		       solution_cropper.end(),
-		       [this](const Solution::Cropper& c) {
-			 return c.p(current_);
-		       })) {
+                       solution_cropper.end(),
+                       [this](const Solution::Cropper& c) {
+                         return c.p(current_);
+                       })) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
-	iterators_[class_int] = class_permuter.begin();
+        iterators_[class_int] = class_permuter.begin();
         UpdateEntries(class_int);
         return false;
       }
@@ -112,14 +112,14 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
   if (permuter_->profiler_ != nullptr) {
     if (permuter_->profiler_->NotePosition(
-	    position(), permuter_->permutation_count())) {
+            position(), permuter_->permutation_count())) {
       std::cout << "\033[1K\rUpdateEntries(" << class_int << ") ("
-		<< absl::StrJoin(iterators_, ", ",
-				 [](std::string* out,
-				    const ClassPermuter::iterator& it) {
-				   absl::StrAppend(out, it.Completion());
-				 })
-		<< "): " << position() << std::flush;
+                << absl::StrJoin(iterators_, ", ",
+                                 [](std::string* out,
+                                    const ClassPermuter::iterator& it) {
+                                   absl::StrAppend(out, it.Completion());
+                                 })
+                << "): " << position() << std::flush;
     }
   }
   SetClassFromPermutation(iterators_[class_int], &entries_);
@@ -136,7 +136,7 @@ void CroppedSolutionPermuter::iterator::Advance() {
     bool carry = false;
     if (iterators_[class_int] == permuter_->class_permuters_[class_int].end()) {
       iterators_[class_int] =
-  	  permuter_->class_permuters_[class_int].begin();
+            permuter_->class_permuters_[class_int].begin();
       carry = true;
     }
     
@@ -189,17 +189,17 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
       added = true;
     } else {
       for (auto it = class_order_.rbegin(); it != class_order_.rend(); ++it) {
-	int class_int = *it;
+        int class_int = *it;
 
-	auto it2 = std::find(cropper.classes.begin(),
-			     cropper.classes.end(),
-			     class_int);
+        auto it2 = std::find(cropper.classes.begin(),
+                             cropper.classes.end(),
+                             class_int);
 
-	if (it2 != cropper.classes.end()) {
-	  multi_class_predicates_[class_int].push_back(cropper);
-	  added = true;
-	  break;  // class_int
-	}
+        if (it2 != cropper.classes.end()) {
+          multi_class_predicates_[class_int].push_back(cropper);
+          added = true;
+          break;  // class_int
+        }
       }
     }
     if (!added) {
@@ -221,14 +221,14 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     Solution s = BuildSolution(&entries);
     for (int class_int : class_order_) {
       class_permuters_[class_int].set_active_set(BuildActiveSet(
-	  class_permuters_[class_int], single_class_predicates_[class_int],
-	  entry_descriptor_, &entries));
+          class_permuters_[class_int], single_class_predicates_[class_int],
+          entry_descriptor_, &entries));
     }
   } else {
     // Otherwise add single class filters to the rest of the filters.
     for (int i = 0; i < single_class_predicates_.size(); ++i) {
       for (auto p : single_class_predicates_[i]) {
-	multi_class_predicates_[i].emplace_back(p);
+        multi_class_predicates_[i].emplace_back(p);
       }
     }
   }

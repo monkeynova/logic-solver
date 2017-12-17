@@ -15,7 +15,7 @@ std::string Entry::ToStr() const {
   for (unsigned int i = 0; i < classes_.size(); ++i) {
     if (entry_descriptor_) {
       ret << " " << entry_descriptor_->Class(i) << "="
-	  << entry_descriptor_->Name(i, classes_[i]);
+          << entry_descriptor_->Name(i, classes_[i]);
     } else {
       ret << " " << classes_[i];
     }
@@ -60,9 +60,9 @@ std::string Solution::ToStr() const {
     : entries_->size() == 0
     ? "<empty>"
     : absl::StrJoin(*entries_, "\n",
-		    [](std::string* out, const Entry& e) {
-		      absl::StrAppend(out, e.ToStr());
-		    });
+                    [](std::string* out, const Entry& e) {
+                      absl::StrAppend(out, e.ToStr());
+                    });
 }
   
 }  // namespace puzzle

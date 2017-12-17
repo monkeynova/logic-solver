@@ -17,10 +17,10 @@ Entry Entry::invalid_(-1);
 bool Solver::TestSolution(const Solution& s) {
   ++test_calls_;
   bool ret = std::all_of(on_solution_.begin(),
-		     on_solution_.end(),
-		     [&s](const Solution::Predicate& p) {
-		       return p(s);
-		     });
+                     on_solution_.end(),
+                     [&s](const Solution::Predicate& p) {
+                       return p(s);
+                     });
   return ret;
 }
 
@@ -70,7 +70,7 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
 
 std::string Solver::DebugStatistics() const {
   return absl::StrCat("[", test_calls_, " solutions tested in ",
-		      (profiler_ == nullptr ? -1 : profiler_->Seconds()), "s]");
+                      (profiler_ == nullptr ? -1 : profiler_->Seconds()), "s]");
 }
 
 }  // namespace puzzle

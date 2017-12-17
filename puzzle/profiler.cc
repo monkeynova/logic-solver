@@ -8,8 +8,8 @@
 #include "gflags/gflags.h"
 
 DEFINE_int32(puzzle_max_profile_calls, std::numeric_limits<int>::max(),
-	     "Maximum number of iterations before giving up in profiler. "
-	     "Default value is max_int.");
+             "Maximum number of iterations before giving up in profiler. "
+             "Default value is max_int.");
 
 namespace puzzle {
 

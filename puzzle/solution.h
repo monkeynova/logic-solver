@@ -175,7 +175,7 @@ class Solution {
 
   Solution() {}
   Solution(const EntryDescriptor* entry_descriptor,
-	   const std::vector<Entry>* entries)
+           const std::vector<Entry>* entries)
     : entry_descriptor_(entry_descriptor),
       entries_(entries) {}
 

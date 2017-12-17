@@ -27,13 +27,13 @@ int main(int argc, char** argv) {
     std::vector<puzzle::Solution> all_solutions = solver.AllSolutions();
     exit_code = all_solutions.size() > 0 ? 0 : 1;
     std::cout << "[" << all_solutions.size() << " solutions]"
-	      << std::endl;
+              << std::endl;
     std::cout
       << absl::StrJoin(
-	     all_solutions, "\n",
-	     [](std::string* out, const puzzle::Solution& s) {
-	       absl::StrAppend(out, PositionHeader(s), "\n", s.ToStr());
-	     })
+             all_solutions, "\n",
+             [](std::string* out, const puzzle::Solution& s) {
+               absl::StrAppend(out, PositionHeader(s), "\n", s.ToStr());
+             })
       << std::endl;
   } else {
     puzzle::Solution answer = solver.Solve();

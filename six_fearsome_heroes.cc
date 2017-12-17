@@ -61,113 +61,113 @@ enum Classes {
 void AddProblemPredicates(puzzle::Solver* s) {
     s->AddPredicate("Nobody either fears him/herself ...",
                     [](const puzzle::Entry& e) {
-		      return e.Class(FEAR) != e.id();
-		    }, 
-		    FEAR);
+                      return e.Class(FEAR) != e.id();
+                    }, 
+                    FEAR);
     s->AddPredicate("... nor counts him/herself as a hero.",
-		    [](const puzzle::Entry& e) {
-		      return e.Class(HERO) != e.id();
-		    },
-		    HERO);
+                    [](const puzzle::Entry& e) {
+                      return e.Class(HERO) != e.id();
+                    },
+                    HERO);
 
     s->AddPredicate("Nobody fears his/her own hero",
-		    [](const puzzle::Entry& e) {
-		      return e.Class(HERO) != e.Class(FEAR);
-		    },
-		    {HERO, FEAR});
+                    [](const puzzle::Entry& e) {
+                      return e.Class(HERO) != e.Class(FEAR);
+                    },
+                    {HERO, FEAR});
 }
 
 void AddRulePredicates(puzzle::Solver* s) {
     s->AddPredicate("1. Geordi ranks 2 at Tri-D Chess",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(GEORDI).Class(TRID) == 2;
-		    },
-		    TRID);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(GEORDI).Class(TRID) == 2;
+                    },
+                    TRID);
     
     s->AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(PICARD).Class(FIZZBIN) == 
-			s.Id(TROI).Class(FIZZBIN) - 2;
-		    },
-		    FIZZBIN);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(PICARD).Class(FIZZBIN) == 
+                        s.Id(TROI).Class(FIZZBIN) - 2;
+                    },
+                    FIZZBIN);
 
     s->AddPredicate("3. Troi is feared by the person Geordi fears.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(s.Id(GEORDI).Class(FEAR)).Class(FEAR) == TROI;
-		    },
-		    FEAR);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(s.Id(GEORDI).Class(FEAR)).Class(FEAR) == TROI;
+                    },
+                    FEAR);
 
     s->AddPredicate("4. Worf's hero ranks 3 times lower at Tri-D Chess than "
-		    "the crew member who is best at Fizzbin.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(s.Id(WORF).Class(HERO)).Class(TRID) * 3 == 
-			s.Find([](const puzzle::Entry& e) {
-			    return e.Class(FIZZBIN) == 6;
-			  }).Class(TRID);
-		    },
-		    {HERO, TRID, FIZZBIN});
+                    "the crew member who is best at Fizzbin.",
+                    [](const puzzle::Solution& s) {
+                      return s.Id(s.Id(WORF).Class(HERO)).Class(TRID) * 3 == 
+                        s.Find([](const puzzle::Entry& e) {
+                            return e.Class(FIZZBIN) == 6;
+                          }).Class(TRID);
+                    },
+                    {HERO, TRID, FIZZBIN});
 
     s->AddPredicate("5. Picard's hero fears Geordi.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(s.Id(PICARD).Class(HERO)).Class(FEAR) == 
-			GEORDI;
-		    },
-		    {HERO, FEAR});
+                    [](const puzzle::Solution& s) {
+                      return s.Id(s.Id(PICARD).Class(HERO)).Class(FEAR) == 
+                        GEORDI;
+                    },
+                    {HERO, FEAR});
 
     s->AddPredicate("6. Data's hero is not Geordi.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(DATA).Class(HERO) != GEORDI;
-		    },
-		    HERO);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(DATA).Class(HERO) != GEORDI;
+                    },
+                    HERO);
 
     s->AddPredicate("7. Data is the hero of Riker's hero.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(s.Id(RIKER).Class(HERO)).Class(HERO) == DATA;
-		    },
-		    HERO);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(s.Id(RIKER).Class(HERO)).Class(HERO) == DATA;
+                    },
+                    HERO);
 
     s->AddPredicate("8. The person who is worst at Fizzbin is better than Troi "
-		    "at Tri-D Chess.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(TROI).Class(TRID) < 
-			s.Find([](const puzzle::Entry& e) {
-			    return e.Class(FIZZBIN) == 1;
-			  }).Class(TRID);
-		    },
-		    {TRID, FIZZBIN});
+                    "at Tri-D Chess.",
+                    [](const puzzle::Solution& s) {
+                      return s.Id(TROI).Class(TRID) < 
+                        s.Find([](const puzzle::Entry& e) {
+                            return e.Class(FIZZBIN) == 1;
+                          }).Class(TRID);
+                    },
+                    {TRID, FIZZBIN});
 
     s->AddPredicate("9. The person ranked number 3 at Tri-D Chess is ranked 4 "
-		    "positions higher than Data at Fizzbin.",
-		    [](const puzzle::Solution& s) {
-		      return s.Find([](const puzzle::Entry& e) {
-			  return e.Class(TRID) == 3;
-			}).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
-		    },
-		    {TRID, FIZZBIN});
+                    "positions higher than Data at Fizzbin.",
+                    [](const puzzle::Solution& s) {
+                      return s.Find([](const puzzle::Entry& e) {
+                          return e.Class(TRID) == 3;
+                        }).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
+                    },
+                    {TRID, FIZZBIN});
 
     s->AddPredicate("10. Riker is feared by the person Picard fears...",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(s.Id(PICARD).Class(FEAR)).Class(FEAR) == 
-			RIKER;
-		    },
-		    FEAR);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(s.Id(PICARD).Class(FEAR)).Class(FEAR) == 
+                        RIKER;
+                    },
+                    FEAR);
 
     s->AddPredicate("10(cont). ... and is the hero of Worf's hero.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(s.Id(WORF).Class(HERO)).Class(HERO) ==
-			RIKER;
-		    },
-		    HERO);
+                    [](const puzzle::Solution& s) {
+                      return s.Id(s.Id(WORF).Class(HERO)).Class(HERO) ==
+                        RIKER;
+                    },
+                    HERO);
 
     s->AddPredicate("11. Riker is ranked 2 lower at Tri-D Chess than the crew "
-		    "member ranked 2 at Fizzbin.",
-		    [](const puzzle::Solution& s) {
-		      return s.Id(RIKER).Class(TRID) + 2 ==
-			s.Find([](const puzzle::Entry& e) {
-			    return e.Class(FIZZBIN) == 2;
-			  }).Class(TRID);
-		    },
-		    {TRID, FIZZBIN});
+                    "member ranked 2 at Fizzbin.",
+                    [](const puzzle::Solution& s) {
+                      return s.Id(RIKER).Class(TRID) + 2 ==
+                        s.Find([](const puzzle::Entry& e) {
+                            return e.Class(FIZZBIN) == 2;
+                          }).Class(TRID);
+                    },
+                    {TRID, FIZZBIN});
 }
 
 puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
