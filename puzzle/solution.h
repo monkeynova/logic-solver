@@ -99,7 +99,9 @@ class EntryDescriptor {
     return name_descriptors_[class_int];
   }
 
-  std::string Id(int id_int) const { return id_descriptor_->DebugString(id_int); }
+  std::string Id(int id_int) const {
+    return id_descriptor_->DebugString(id_int);
+  }
   std::string Class(int class_int) const {
     return class_descriptor_.DebugString(class_int);
   }

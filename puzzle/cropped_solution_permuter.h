@@ -59,9 +59,10 @@ class CroppedSolutionPermuter {
     Solution current_;
   };
 
-  CroppedSolutionPermuter(const EntryDescriptor* e,
-                          const std::vector<Solution::Cropper>& croppers_with_class,
-                          Profiler* profiler);
+  CroppedSolutionPermuter(
+      const EntryDescriptor* e,
+      const std::vector<Solution::Cropper>& croppers_with_class,
+      Profiler* profiler);
   ~CroppedSolutionPermuter() {}
 
   iterator begin() const { return iterator(this); }

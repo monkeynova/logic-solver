@@ -59,7 +59,8 @@ class ClassPermuter {
     // Advances permutation exactly once independent of skipping behavior.
     void Advance();
 
-    // Advances until the current record should allowed considering 'active_set_'.
+    // Advances until the current record should allowed considering
+    // 'active_set_'.
     void SkipUntilMatch();
 
     const ClassPermuter* permuter_;

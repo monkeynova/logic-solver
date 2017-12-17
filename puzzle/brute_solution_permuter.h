@@ -63,7 +63,9 @@ class BruteSolutionPermuter {
   iterator end() const { return iterator(this, nullptr); }
 
   double permutation_count() const;
-  const ClassPermuter& class_permuter(int class_int) const { return class_permuters_[class_int]; }
+  const ClassPermuter& class_permuter(int class_int) const {
+    return class_permuters_[class_int];
+  }
 
  private:
   const EntryDescriptor* entry_descriptor_;
