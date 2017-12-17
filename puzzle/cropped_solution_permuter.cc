@@ -70,11 +70,11 @@ CroppedSolutionPermuter::iterator::iterator(
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
-  if ((unsigned int)class_position >= permuter_->class_order().size()) {
+  if ((unsigned int)class_position >= permuter_->class_order_.size()) {
     return true;
   }
 
-  int class_int = permuter_->class_order()[class_position];
+  int class_int = permuter_->class_order_[class_position];
 
   const ClassPermuter& class_permuter = permuter_->class_permuters_[class_int];
   const std::vector<Solution::Cropper>& solution_cropper =

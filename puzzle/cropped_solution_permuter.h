@@ -79,10 +79,6 @@ class CroppedSolutionPermuter {
     return class_permuters_[class_int];
   }
 
-  const std::vector<int>& class_order() const {
-    return class_order_;
-  }
-
  private:
   Solution BuildSolution(std::vector<Entry>* enries) const;
   
