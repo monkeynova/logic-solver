@@ -129,16 +129,15 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
 
 void CroppedSolutionPermuter::iterator::Advance() {
   bool at_end = true;
-  for (auto it = permuter_->class_order().rbegin();
-       it != permuter_->class_order().rend();
+  for (auto it = permuter_->class_permuters_.rbegin();
+       it != permuter_->class_permuters_.rend();
        ++it) {
-    int class_int = *it;
+    int class_int = it->class_int();
     ++iterators_[class_int];
     
     bool carry = false;
-    if (iterators_[class_int] == permuter_->class_permuters_[class_int].end()) {
-      iterators_[class_int] =
-            permuter_->class_permuters_[class_int].begin();
+    if (iterators_[class_int] == it->end()) {
+      iterators_[class_int] = it->begin();
       carry = true;
     }
     
@@ -162,9 +161,9 @@ void CroppedSolutionPermuter::iterator::Advance() {
 double CroppedSolutionPermuter::iterator::position() const {
   double position = 0;
 
-  for (int class_int : permuter_->class_order()) {
-    position *= permuter_->class_permuters_[class_int].permutation_count();
-    position += iterators_[class_int].position();
+  for (auto& class_permuter : permuter_->class_permuters_) {
+    position *= class_permuter.permutation_count();
+    position += iterators_[class_permuter.class_int()].position();
   }
   
   return position;
