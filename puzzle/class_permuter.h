@@ -100,8 +100,14 @@ class ClassPermuter {
     return class_int_;
   }
 
+  // TODO(keith@monkeynova.com): Materialize full permutation if ActiveSet is
+  // selective enough.
   void set_active_set(ActiveSet active_set) {
     active_set_ = std::move(active_set);
+  }
+
+  double Selectivity() const {
+    return active_set_.Selectivity();
   }
   
  private:
