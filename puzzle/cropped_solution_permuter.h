@@ -91,9 +91,7 @@ class CroppedSolutionPermuter {
   std::vector<ClassPermuter> class_permuters_;
 
   // Index is class_int at which evaluation should be performed.
-  // TODO(keith@monkeynova.com): Move this to a single Cropper capturing the
-  // relevant predicates.
-  std::vector<std::vector<Solution::Cropper>> multi_class_predicates_;
+  std::vector<Solution::Cropper> class_predicates_;
 
   Profiler* const profiler_;
   

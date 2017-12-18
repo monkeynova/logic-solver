@@ -76,20 +76,16 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 
   const ClassPermuter& class_permuter =
     permuter_->class_permuters_[class_position];
-  int class_int = class_permuter.class_int();;
+  int class_int = class_permuter.class_int();
 
-  const std::vector<Solution::Cropper>& solution_cropper =
-      permuter_->multi_class_predicates_[class_int];
+  const Solution::Cropper& solution_cropper =
+    permuter_->class_predicates_[class_int];
 
   while (iterators_[class_int] != class_permuter.end()) {
     if (permuter_->profiler_ != nullptr && permuter_->profiler_->Done()) {
       return false;
     }
-    while(!std::all_of(solution_cropper.begin(),
-                       solution_cropper.end(),
-                       [this](const Solution::Cropper& c) {
-                         return c.p(current_);
-                       })) {
+    while(!solution_cropper.p(current_)) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
         iterators_[class_int] = class_permuter.begin();
@@ -196,7 +192,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   std::vector<std::vector<Solution::Cropper>> single_class_predicates;
   single_class_predicates.resize(class_permuters_.size());
 
-  multi_class_predicates_.resize(class_permuters_.size());
+  std::vector<std::vector<Solution::Cropper>> multi_class_predicates;
+  multi_class_predicates.resize(class_permuters_.size());
   for (auto cropper: croppers_with_class) {
     bool added = false;
     if (cropper.classes.size() == 1) {
@@ -214,7 +211,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
                              class_int);
 
         if (it2 != cropper.classes.end()) {
-          multi_class_predicates_[class_int].push_back(cropper);
+          multi_class_predicates[class_int].push_back(cropper);
           added = true;
           break;  // class_int
         }
@@ -240,9 +237,24 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     // Otherwise add single class filters to the rest of the filters.
     for (int i = 0; i < single_class_predicates.size(); ++i) {
       for (auto p : single_class_predicates[i]) {
-        multi_class_predicates_[i].emplace_back(p);
+        multi_class_predicates[i].emplace_back(p);
       }
     }
+  }
+
+  for (int i = 0; i < multi_class_predicates.size(); ++i) {
+    class_predicates_.push_back(Solution::Cropper(
+	absl::StrJoin(multi_class_predicates[i], ", ",
+		      [](std::string* out, const Solution::Cropper& c) {
+			absl::StrAppend(out, c.name);
+		      }),
+	[multi_class_predicates, i](const Solution& s) {
+	  for (auto p : multi_class_predicates[i]) {
+	    if (!p.p(s)) return false;
+	  }
+	  return true;
+	},
+	{}));
   }
 }
 
