@@ -61,8 +61,8 @@ static void AddProblemPredicatesSetupA(puzzle::Solver* s) {
 static void AddProblemPredicatesSetupB(puzzle::Solver* s) {
   for (int i = 0; i < 9; ++i) {
     for (int j = 0; j < 9; ++j) {
-      if (i != j) {
-        s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
+      if (i < j) {
+        s->AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
                         [i, j](const puzzle::Entry& e) {
                           return e.Class(i) != e.Class(j);
                         },
