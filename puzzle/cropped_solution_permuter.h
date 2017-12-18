@@ -83,11 +83,14 @@ class CroppedSolutionPermuter {
   Solution BuildSolution(std::vector<Entry>* enries) const;
   
   const EntryDescriptor* const entry_descriptor_ = nullptr;
+
+  // Ordered by the evaluation order that is configured for
+  // 'multi_class_predicates_'. That is, if the first N permuters have been
+  // updated then permuting entries N+1 and further should only be performed
+  // if 'multi_class_predicates_[class_permuter_[N-1].class_int()]' is true.
   std::vector<ClassPermuter> class_permuters_;
 
-  std::vector<int> class_order_;
-  
-  // Index is larges (i.e. last) class needed to evaluate.
+  // Index is class_int at which evaluation should be performed.
   // TODO(keith@monkeynova.com): Move this to a single Cropper capturing the
   // relevant predicates.
   std::vector<std::vector<Solution::Cropper>> multi_class_predicates_;
