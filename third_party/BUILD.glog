@@ -1,0 +1,234 @@
+load("@//:cmake.bzl", "cmake_config", "cmake_header")
+
+cc_library(
+    name = "glog",
+    deps = [
+        ":public_headers",
+        ":logging",
+        ":raw_logging",
+        ":signalhandler",
+        ":vlog_is_on",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
+)
+
+cmake_config("config_h", "src/config.h");
+cmake_header("logging_h", "src/glog/logging.h")
+cmake_header("raw_logging_h", "src/glog/raw_logging.h")
+cmake_header("vlog_is_on_h", "src/glog/vlog_is_on.h")
+
+cc_library(
+    name = "public_headers",
+    hdrs = [
+        "src/glog/logging.h",
+        "src/glog/log_severity.h",
+        "src/glog/raw_logging.h",
+        "src/glog/vlog_is_on.h",
+    ],
+    strip_include_prefix = "src",
+    deps = [
+        "@com_github_gflags_gflags//:gflags",
+    ],
+)
+
+cc_library(
+    name = "base_commandlineflags",
+    hdrs = ["src/base/commandlineflags.h"],
+    strip_include_prefix = "src",
+    deps = [
+    ]
+)
+
+cc_library(
+    name = "base_googleinit",
+    hdrs = ["src/base/googleinit.h"],
+    strip_include_prefix = "src",
+    deps = [
+    ]
+)
+
+cc_library(
+    name = "base_mutex",
+    hdrs = ["src/base/mutex.h"],
+    strip_include_prefix = "src",
+    deps = [
+        ":config",
+    ]
+)
+
+cc_library(
+    name = "config",
+    hdrs = ["src/config.h"],
+    strip_include_prefix = "src",
+)
+
+cc_library(
+    name = "config_for_unittests",
+    hdrs = ["src/config_for_unittests.h"],
+    strip_include_prefix = "src",
+)
+
+cc_library(
+    name = "googletest",
+    hdrs = ["src/googletest.h"],
+    strip_include_prefix = "src",
+    deps = [
+        ":base_commandlineflags",
+        "@com_github_gflags_gflags//:gflags",
+        "@com_google_googletest//:gtest",
+    ]
+)
+
+cc_library(
+    name = "logging",
+    srcs = ["src/logging.cc"],
+    deps = [
+        ":base_commandlineflags",
+        ":public_headers",
+        ":utilities",
+    ]
+)
+
+cc_test(
+    name = "logging_unittest",
+    srcs = ["src/logging_unittest.cc"],
+    #data = ["src/logging_unittest.err"],
+    #args = ["--test_srcdir=$(TEST_SRCDIR)"],
+    deps = [
+        ":config_for_unittests",
+        ":glog",
+        ":googletest",
+        ":logging",
+        ":mock-log",
+        "@com_google_googletest//:gtest",
+    ]
+)
+
+cc_library(
+    name = "mock-log",
+    hdrs = ["src/mock-log.h"],
+    strip_include_prefix = "src",
+    deps = [
+        ":utilities",
+        "@com_google_googletest//:gtest",
+    ]
+)
+
+cc_test(
+    name = "mock-log_test",
+    srcs = ["src/mock-log_test.cc"],
+    deps = [
+        ":glog",
+        ":mock-log",
+    ]
+)
+
+cc_library(
+    name = "raw_logging",
+    srcs = ["src/raw_logging.cc"],
+    deps = [
+        ":base_commandlineflags",
+        ":public_headers",
+        ":stacktrace",
+        ":utilities",
+    ]
+)
+
+cc_library(
+    name = "signalhandler",
+    srcs = ["src/signalhandler.cc"],
+    deps = [
+        ":utilities",
+        ":stacktrace",
+    ]
+)
+
+cc_test(
+    name = "signalhandler_unittest",
+    srcs = ["src/signalhandler_unittest.cc"],
+    deps = [
+        ":glog",
+        ":signalhandler",
+    ],
+)
+
+cc_library(
+    name = "stacktrace",
+    hdrs = [
+        "src/stacktrace.h",
+        "src/stacktrace_generic-inl.h",
+        "src/stacktrace_libunwind-inl.h",
+        "src/stacktrace_powerpc-inl.h",
+        "src/stacktrace_windows-inl.h",
+        "src/stacktrace_x86-inl.h",
+        "src/stacktrace_x86_64-inl.h",
+    ],
+    strip_include_prefix = "src",
+    deps = [
+    ],
+)
+
+cc_test(
+    name = "stacktrace_unittest",
+    srcs = ["src/stacktrace_unittest.cc"],
+    deps = [
+        ":base_commandlineflags",
+        ":stacktrace",
+        ":utilities",
+    ],
+)
+
+cc_test(
+    name = "symbolize_unittest",
+    srcs = ["src/symbolize_unittest.cc"],
+    deps = [
+        ":glog",
+        ":googletest",
+        ":utilities",
+    ]
+)
+
+cc_library(
+    name = "utilities",
+    srcs = [
+        "src/demangle.cc",
+        "src/symbolize.cc",
+        "src/utilities.cc",
+    ],
+    hdrs = [
+        "src/demangle.h",
+        "src/symbolize.h",
+        "src/utilities.h",
+    ],
+    strip_include_prefix = "src",
+    deps = [
+        ":base_commandlineflags",
+        ":base_mutex",
+        ":base_googleinit",
+        ":public_headers",
+        ":stacktrace",
+    ]
+)
+
+cc_test(
+    name = "utilities_unittest",
+    srcs = ["src/utilities_unittest.cc"],
+    deps = [
+        ":googletest",
+        ":glog",
+    ],
+)
+    
+cc_library(
+    name = "vlog_is_on",
+    srcs = ["src/vlog_is_on.cc"],
+    strip_include_prefix = "src",
+    deps = [
+        ":base_commandlineflags",
+        ":public_headers",
+        ":utilities",
+    ]
+)
+

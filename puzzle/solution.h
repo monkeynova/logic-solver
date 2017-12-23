@@ -11,6 +11,7 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "google/protobuf/descriptor.h"
+#include "glog/logging.h"
 
 namespace puzzle {
 
@@ -223,7 +224,7 @@ class Solution {
         return e;
       }
     }
-    std::cerr << "Cannot find an entry for the given predicate" << std::endl;
+    LOG(ERROR) << "Cannot find an entry for the given predicate";
     return Entry::Invalid();
   }
   std::string DebugString() const;

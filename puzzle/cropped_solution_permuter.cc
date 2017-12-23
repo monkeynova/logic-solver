@@ -1,6 +1,7 @@
 #include "puzzle/cropped_solution_permuter.h"
 
 #include "gflags/gflags.h"
+#include "glog/logging.h"
 #include "puzzle/active_set.h"
 
 DEFINE_bool(puzzle_prune_class_iterator, false,
@@ -211,13 +212,12 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 		[](const ClassPermuter& a, const ClassPermuter& b) {
 		  return a.Selectivity() < b.Selectivity();
 		});
-      std::cout << "Reordered to: "
-		<< absl::StrJoin(class_permuters_, ", ",
-				 [](std::string* out, const ClassPermuter& a) {
-				   absl::StrAppend(out, "(", a.class_int(), ",",
-						   a.Selectivity(), ")");
-				 })
-		<< std::endl;
+      VLOG(1) << "Reordered to: "
+	      << absl::StrJoin(class_permuters_, ", ",
+			       [](std::string* out, const ClassPermuter& a) {
+				 absl::StrAppend(out, "(", a.class_int(), ",",
+						 a.Selectivity(), ")");
+			       });
     }
   } else {
     for (const auto& cropper: croppers_with_class) {
@@ -263,10 +263,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 	  return true;
 	},
 	{}));
-#ifndef NDEBUG
-    std::cout << "Predicates at " << i << ": " << multi_class_predicates[i].size()
-	      << ": " << class_predicates_[i].name << std::endl;
-#endif
+    VLOG(1) << "Predicates at " << i << ": " << multi_class_predicates[i].size()
+	    << ": " << class_predicates_[i].name;
   }
 }
 
@@ -281,7 +279,7 @@ double CroppedSolutionPermuter::permutation_count() const {
 Solution CroppedSolutionPermuter::BuildSolution(
     std::vector<Entry>* entries) const {
   const int num_classes = entry_descriptor_->AllClasses()->Values().size();
-  
+
   std::vector<int> invalid_classes(num_classes, -1);
     
   for (auto id: entry_descriptor_->AllIds()->Values()) {

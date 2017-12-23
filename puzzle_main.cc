@@ -15,6 +15,7 @@ std::string PositionHeader(const puzzle::Solution& s) {
 }
 
 int main(int argc, char** argv) {
+  google::InstallFailureSignalHandler();
   gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
   puzzle::Solver solver;
   
@@ -23,28 +24,26 @@ int main(int argc, char** argv) {
   int exit_code = 1;
   
   if (FLAGS_all) {
-    std::cout << "[AllSolutions]" << std::endl;
+    LOG(INFO) << "[AllSolutions]";
     std::vector<puzzle::Solution> all_solutions = solver.AllSolutions();
     exit_code = all_solutions.size() > 0 ? 0 : 1;
-    std::cout << "[" << all_solutions.size() << " solutions]"
-              << std::endl;
-    std::cout
+    LOG(INFO) << "[" << all_solutions.size() << " solutions]";
+    LOG(INFO)
       << absl::StrJoin(
              all_solutions, "\n",
              [](std::string* out, const puzzle::Solution& s) {
                absl::StrAppend(out, PositionHeader(s), "\n", s.DebugString());
-             })
-      << std::endl;
+             });
   } else {
     puzzle::Solution answer = solver.Solve();
     if (answer.IsValid()) {
-      std::cout << PositionHeader(answer) << std::endl;
+      LOG(INFO) << PositionHeader(answer);
     }
-    std::cout << answer.DebugString() << std::endl;
+    LOG(INFO) << answer.DebugString();
     exit_code = answer.IsValid() ? 0 : 1;
   }
 
-  std::cout << solver.DebugStatistics() << std::endl;
+  LOG(INFO) << solver.DebugStatistics();
   
   return exit_code;
 }

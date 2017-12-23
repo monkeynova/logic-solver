@@ -86,10 +86,8 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   std::vector<puzzle::Solution::Cropper> croppers;
   croppers.emplace_back("test", 
                         [](const puzzle::Solution& s) {
-#ifndef NDEBUG
-                          std::cout << "(1,1) => " << s.Id(0).Class(1)
-                                    << std::endl;
-#endif
+                          LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
+				    << std::endl;
                           return s.Id(1).Class(1) == 12;
                         },
                         std::vector<int>{1});
@@ -99,9 +97,7 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
-#ifndef NDEBUG
-    std::cout << "Got Next" << std::endl;
-#endif
+    LOG(INFO) << "Got Next" << std::endl;
     EXPECT_THAT(it.position(), Ge(solutions.size()));
     EXPECT_THAT(history.insert(it->DebugString()).second, true)
         << it->DebugString();
@@ -129,19 +125,13 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   std::vector<puzzle::Solution::Cropper> croppers;
   croppers.emplace_back("test", 
                         [](const puzzle::Solution& s) {
-#ifndef NDEBUG
-                          std::cout << "(0,0) => " << s.Id(0).Class(0)
-                                    << std::endl;
-#endif
+                          LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
                           return s.Id(0).Class(0) == 7;
                         },
                         std::vector<int>{0});
   croppers.emplace_back("test", 
                         [](const puzzle::Solution& s) {
-#ifndef NDEBUG
-                          std::cout << "(1,1) => " << s.Id(0).Class(1)
-                                    << std::endl;
-#endif
+                          LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
                           return s.Id(1).Class(1) == 12;
                         },
                         std::vector<int>{1});
@@ -151,9 +141,7 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
-#ifndef NDEBUG
-    std::cout << "Got Next" << std::endl;
-#endif
+    LOG(INFO) << "Got Next";
     EXPECT_THAT(it.position(), Ge(solutions.size()));
     EXPECT_THAT(history.insert(it->DebugString()).second, true)
         << it->DebugString();

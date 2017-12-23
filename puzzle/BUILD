@@ -18,6 +18,9 @@ cc_library(
     name = "active_set",
     hdrs = ["active_set.h"],
     srcs = ["active_set.cc"],
+    deps = [
+	"@com_google_glog//:glog",
+    ],    
 )
 
 cc_library(
@@ -36,6 +39,7 @@ cc_library(
     deps = [
         ":class_permuter",
         ":profiler",
+	"@com_google_glog//:glog",
     ],
 )
 
@@ -68,6 +72,7 @@ cc_library(
     deps = [ 
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
+        "@com_google_glog//:glog",
    ],
 )
 

@@ -2,11 +2,13 @@
 
 #include <iostream>
 
+#include "glog/logging.h"
+
 namespace puzzle {
 
 void ActiveSet::AddSkip(bool skip) {
   if (!building_) {
-    std::cerr << "AddSkip called after building" << std::endl;
+    LOG(ERROR) << "AddSkip called after building";
     return;
   }
 
@@ -33,7 +35,7 @@ void ActiveSet::DoneAdding() {
 
 bool ActiveSet::ConsumeNextSkip() {
   if (building_) {
-    std::cerr << "ConsumeNextSkip called while still building" << std::endl;
+    LOG(ERROR) << "ConsumeNextSkip called while still building";
     return true;
   }
   if (skips_.empty()) return true;
