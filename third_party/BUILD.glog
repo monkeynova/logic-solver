@@ -175,6 +175,7 @@ cc_test(
     srcs = ["src/stacktrace_unittest.cc"],
     deps = [
         ":base_commandlineflags",
+        ":glog",
         ":stacktrace",
         ":utilities",
     ],
