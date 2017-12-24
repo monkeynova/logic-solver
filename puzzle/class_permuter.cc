@@ -22,21 +22,19 @@ ClassPermuter::iterator::iterator(const ClassPermuter* permuter,
   }
   next_from_ = current_.size() - 1;
 
-  SkipUntilMatch();
+  if (!active_set.is_trivial()) {
+    while (position_ < permuter_->permutation_count() &&
+	   !active_set_.ConsumeNextSkip()) {
+      Advance();
+    }
+  }
 }
 
 void ClassPermuter::iterator::AdvanceWithSkip() {
-  Advance();
-  SkipUntilMatch();
-}
-
-void ClassPermuter::iterator::SkipUntilMatch() {
-  if (active_set_.is_trivial()) return;
-
-  while (position_ < permuter_->permutation_count() &&
-         !active_set_.ConsumeNextSkip()) {
+  do {
     Advance();
-  }
+  } while (position_ < permuter_->permutation_count() &&
+	   !active_set_.ConsumeNextSkip());
 }
   
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm

@@ -113,7 +113,7 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
   if (permuter_->profiler_ != nullptr) {
     if (permuter_->profiler_->NotePosition(
             position(), permuter_->permutation_count())) {
-      std::cout << "\033[1K\rUpdateEntries(" << class_int << ") ("
+      std::cout << "; UpdateEntries(" << class_int << ") ("
                 << absl::StrJoin(iterators_, ", ",
                                  [](std::string* out,
                                     const ClassPermuter::iterator& it) {
@@ -263,7 +263,8 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 	  return true;
 	},
 	{}));
-    VLOG(1) << "Predicates at " << i << ": " << multi_class_predicates[i].size()
+    VLOG(1) << "Predicates at " << i << " (" << class_permuters_[i].Selectivity()
+	    << "): " << multi_class_predicates[i].size()
 	    << ": " << class_predicates_[i].name;
   }
 }

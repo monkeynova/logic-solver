@@ -37,7 +37,7 @@ class StructTimevalProfiler : public Profiler {
     gettimeofday(&now, nullptr);
     double delta =
          (now.tv_sec - last_.tv_sec + 1e-6 * (now.tv_usec - last_.tv_usec));
-    if (delta < 0.1) return false;
+    if (delta < 0.2) return false;
     
     double full_delta =
         (now.tv_sec - start_.tv_sec + 1e-6 * (now.tv_usec - start_.tv_usec));

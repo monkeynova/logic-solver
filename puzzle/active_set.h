@@ -33,6 +33,7 @@ class ActiveSet {
   int matches() const { return matches_; }
   int total() const { return total_; }
   double Selectivity() const {
+    if (is_trivial()) return 1.0;
     return static_cast<double>(matches()) / total();
   }
   

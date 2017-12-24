@@ -41,7 +41,11 @@ class ClassPermuter {
       return &current_;
     }
     iterator& operator++() {
-      AdvanceWithSkip();
+      if (active_set_.is_trivial()) {
+	Advance();
+      } else {
+	AdvanceWithSkip();
+      }
       return *this;
     }
     
@@ -58,10 +62,6 @@ class ClassPermuter {
 
     // Advances permutation exactly once independent of skipping behavior.
     void Advance();
-
-    // Advances until the current record should allowed considering
-    // 'active_set_'.
-    void SkipUntilMatch();
 
     const ClassPermuter* permuter_;
     StorageVector current_;
