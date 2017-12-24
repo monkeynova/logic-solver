@@ -3,6 +3,10 @@ cmake_defines_osx = {
     "HAVE_DLADDR" : "1",
 }
 
+cmake_defines_linux = {
+    "HAVE_LIB_UNWIND" : "1",
+}
+
 cmake_defines_generic = {
     "_START_GOOGLE_NAMESPACE_" : "namespace google {",
     "_END_GOOGLE_NAMESPACE_" : "}  // namespace google",
@@ -12,7 +16,6 @@ cmake_defines_generic = {
     "HAVE_LIB_GFLAGS" : "1",
     "HAVE_LIB_GMOCK" : "1",
     "HAVE_LIB_GTEST" : "1",
-    "HAVE_LIB_UNWIND" : "1",
     "HAVE_PREAD" : "1",
     "HAVE_PWRITE" : "1",
     "HAVE_PTHREAD" : "1",
