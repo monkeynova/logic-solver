@@ -101,6 +101,7 @@ cc_binary(
     srcs = ["class_permuter_benchmark.cc"],
     deps = [
         ":class_permuter",
+	"@com_google_absl//absl/strings",
         "@com_google_benchmark//:benchmark",
     ]
 )
