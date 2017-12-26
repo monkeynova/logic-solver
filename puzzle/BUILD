@@ -23,6 +23,15 @@ cc_library(
     ],    
 )
 
+cc_test(
+    name = "active_set_test",
+    srcs = ["active_set_test.cc"],
+    deps = [
+        ":active_set",
+        ":test_main",
+    ]
+)   
+
 cc_library(
     name = "brute_solution_permuter",
     hdrs = ["brute_solution_permuter.h"],
@@ -91,8 +100,8 @@ cc_test(
     srcs = ["class_permuter_test.cc"],
     deps = [
         ":class_permuter",
+        ":test_main",
         "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
     ]
 )
 
@@ -111,8 +120,8 @@ cc_test(
     srcs = ["brute_solution_permuter_test.cc"],
     deps = [
         ":brute_solution_permuter",
+        ":test_main",
         "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
     ]
 )
 
@@ -121,7 +130,18 @@ cc_test(
     srcs = ["cropped_solution_permuter_test.cc"],
     deps = [
         ":cropped_solution_permuter",
+        ":test_main",
         "@com_google_googletest//:gtest",
-        "@com_google_googletest//:gtest_main",
     ]
+)
+
+cc_library(
+    name = "test_main",
+    srcs = ["test_main.cc"],
+    deps = [
+	"@com_github_gflags_gflags//:gflags",
+        "@com_google_benchmark//:benchmark",
+	"@com_google_glog//:glog",
+        "@com_google_googletest//:gtest",
+    ],
 )

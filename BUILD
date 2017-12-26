@@ -42,7 +42,6 @@ cc_library(
     deps = [
         "//puzzle:instance",
         "//puzzle:solver",
-	"@com_github_gflags_gflags//:gflags",
         "@com_google_absl//absl/memory",
     ],
 )
@@ -116,6 +115,7 @@ cc_library(
     srcs = ["puzzle_test.cc"],
     deps = [
         "//puzzle:solver",
+        "//puzzle:test_main",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
