@@ -144,4 +144,7 @@ cc_library(
 	"@com_google_glog//:glog",
         "@com_google_googletest//:gtest",
     ],
+    visibility = [
+        "//visibility:public",
+    ]
 )
