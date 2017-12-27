@@ -5,8 +5,17 @@
 #include "puzzle/solution.h"
 
 namespace puzzle {
-  
-class ClassPermuter {
+namespace internal {
+
+enum class ClassPermuterType {
+  kUnknown = 0,
+    // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
+  kSteinhausJohnsonTrotter = 1,
+  kFactorialRadix = 2,
+};
+
+template <enum ClassPermuterType T>
+class ClassPermuterImpl {
  public:
   class iterator {
    public:
@@ -15,12 +24,13 @@ class ClassPermuter {
 
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
-    typedef ClassPermuter value_type;
-    typedef ClassPermuter& reference;
-    typedef ClassPermuter* pointer;
+    typedef StorageVector value_type;
+    typedef StorageVector& reference;
+    typedef StorageVector* pointer;
 
     iterator() : iterator(nullptr, {}) {}
-    iterator(const ClassPermuter* permuter, ActiveSet active_set);
+    iterator(const ClassPermuterImpl<T>* permuter,
+	     ActiveSet active_set);
 
     iterator(const iterator&) = delete;
     iterator& operator=(const iterator&) = delete;
@@ -66,7 +76,7 @@ class ClassPermuter {
     // Equivalent to Advance(1).
     void Advance();
 
-    const ClassPermuter* permuter_;
+    const ClassPermuterImpl<T>* permuter_;
     StorageVector current_;
     StorageVector index_;
     StorageVector direction_;
@@ -76,17 +86,18 @@ class ClassPermuter {
     ActiveSet active_set_;
   };
 
- explicit ClassPermuter(const Descriptor* d = nullptr, const int class_int = 0)
+ explicit ClassPermuterImpl(const Descriptor* d = nullptr,
+			    const int class_int = 0)
     : descriptor_(d),
       permutation_count_(PermutationCount(d)),
       class_int_(class_int) {}
-  ~ClassPermuter() {}
+  ~ClassPermuterImpl() {}
 
   // Moveable but not copyable.
-  ClassPermuter(const ClassPermuter&) = delete;
-  ClassPermuter& operator=(const ClassPermuter&) = delete;
-  ClassPermuter(ClassPermuter&&) = default;
-  ClassPermuter& operator=(ClassPermuter&&) = default;
+  ClassPermuterImpl(const ClassPermuterImpl&) = delete;
+  ClassPermuterImpl& operator=(const ClassPermuterImpl&) = delete;
+  ClassPermuterImpl(ClassPermuterImpl&&) = default;
+  ClassPermuterImpl& operator=(ClassPermuterImpl&&) = default;
 
   iterator begin() const {
     return iterator(this, active_set_);
@@ -121,6 +132,11 @@ class ClassPermuter {
   ActiveSet active_set_;
 };
 
+}  // namespace internal
+
+using ClassPermuter = internal::ClassPermuterImpl<
+    internal::ClassPermuterType::kSteinhausJohnsonTrotter>;
+ 
 }  // namespace puzzle
 
 #endif  // __PUZZLE_CLASS_PERMUTER_H

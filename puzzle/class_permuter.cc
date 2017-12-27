@@ -1,11 +1,12 @@
 #include "puzzle/class_permuter.h"
 
 namespace puzzle {
-
-constexpr int ClassPermuter::iterator::kInlineSize;
-
-ClassPermuter::iterator::iterator(const ClassPermuter* permuter,
-                                  ActiveSet active_set)
+namespace internal {
+  
+template <enum ClassPermuterType T>
+ClassPermuterImpl<T>::iterator::iterator(
+    const ClassPermuterImpl<T>* permuter,
+    ActiveSet active_set)
   : permuter_(permuter),
     active_set_(std::move(active_set)) {
   if (permuter_ != nullptr) {
@@ -29,18 +30,21 @@ ClassPermuter::iterator::iterator(const ClassPermuter* permuter,
   }
 }
 
-void ClassPermuter::iterator::AdvanceWithSkip() {
+template <enum ClassPermuterType T>
+void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
   Advance(active_set_.ConsumeFalseBlock() + 1);
   CHECK(active_set_.ConsumeNext())
     << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
-void ClassPermuter::iterator::Advance(int dist) {
+template <enum ClassPermuterType T>
+void ClassPermuterImpl<T>::iterator::Advance(int dist) {
   for (; dist > 0; --dist) Advance();
 }
   
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
-void ClassPermuter::iterator::Advance() {
+template <enum ClassPermuterType T>
+void ClassPermuterImpl<T>::iterator::Advance() {
   ++position_;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -82,7 +86,8 @@ void ClassPermuter::iterator::Advance() {
 }
 
 // static
-double ClassPermuter::PermutationCount(const Descriptor* d) {
+template <enum ClassPermuterType T>
+double ClassPermuterImpl<T>::PermutationCount(const Descriptor* d) {
   if (d == nullptr) return 0;
   
   double ret = 1;
@@ -93,4 +98,8 @@ double ClassPermuter::PermutationCount(const Descriptor* d) {
   return ret;
 }
 
+template class ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>;
+template class ClassPermuterImpl<ClassPermuterType::kFactorialRadix>;
+
+}  // namespace internal
 }  // namespace puzzle
