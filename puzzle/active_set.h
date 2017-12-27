@@ -53,6 +53,10 @@ class ActiveSet {
   // previous run.
   // To start a run with "false", insert a 0 record at the first position.
   std::vector<int> skips_;
+
+  // Internal state to verify that Add*, DoneAdding, Consume* are called in
+  // that order. True means Add* calls are allowed while Consume* calls are
+  // not.
   bool building_ = true;
 
   // Indicates the current matching value. During the add phases indicates

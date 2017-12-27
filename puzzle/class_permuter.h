@@ -60,7 +60,10 @@ class ClassPermuter {
     // 'active_set_'.
     void AdvanceWithSkip();
 
-    // Advances permutation exactly once independent of skipping behavior.
+    // Advances permutation 'dist' positions  independent of skipping behavior.
+    void Advance(int dist);
+
+    // Equivalent to Advance(1).
     void Advance();
 
     const ClassPermuter* permuter_;

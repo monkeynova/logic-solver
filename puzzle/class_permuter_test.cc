@@ -23,7 +23,7 @@ TEST(ClassPermuter, ThreeElements) {
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
-    position++;
+    ++position;
   }
   EXPECT_THAT(position, 6);
 }
@@ -40,7 +40,7 @@ TEST(ClassPermuter, FiveElements) {
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5, 6, 7));
-    position++;
+    ++position;
   }
   EXPECT_THAT(position, 120);
 }
@@ -67,7 +67,7 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
-    position++;
+    ++position;
   }
   EXPECT_THAT(position, 3);
 
@@ -78,7 +78,7 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
-    position++;
+    ++position;
   }
   EXPECT_THAT(position, 3);
 }
@@ -105,7 +105,7 @@ TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
-    position++;
+    ++position;
   }
   EXPECT_THAT(position, 3);
 
@@ -116,7 +116,7 @@ TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
     EXPECT_TRUE(history.insert(*it).second)
       << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
-    position++;
+    ++position;
   }
   EXPECT_THAT(position, 3);
 }
