@@ -11,9 +11,19 @@ using ::testing::UnorderedElementsAre;
 
 namespace puzzle {
 
-TEST(ClassPermuter, ThreeElements) {
+template <typename T>
+class ClassPermuterTest : public ::testing::Test {};
+
+typedef ::testing::Types<
+  internal::ClassPermuterImpl<
+      internal::ClassPermuterType::kSteinhausJohnsonTrotter>,
+  internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>
+> MyTypes;
+TYPED_TEST_CASE(ClassPermuterTest, MyTypes);
+
+TYPED_TEST(ClassPermuterTest, ThreeElements) {
   IntRangeDescriptor d(3, 5);
-  ClassPermuter p(&d);
+  TypeParam p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   std::set<std::vector<int>> history;
@@ -28,9 +38,9 @@ TEST(ClassPermuter, ThreeElements) {
   EXPECT_THAT(position, 6);
 }
 
-TEST(ClassPermuter, FiveElements) {
+TYPED_TEST(ClassPermuterTest, FiveElements) {
   IntRangeDescriptor d(3, 7);
-  ClassPermuter p(&d);
+  TypeParam p(&d);
   EXPECT_THAT(p.permutation_count(), 120);
 
   std::set<std::vector<int>> history;
@@ -45,9 +55,9 @@ TEST(ClassPermuter, FiveElements) {
   EXPECT_THAT(position, 120);
 }
 
-TEST(ClassPermuter, ThreeElementsWithSkips) {
+TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   IntRangeDescriptor d(3, 5);
-  ClassPermuter p(&d);
+  TypeParam p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   ActiveSet active_set_first;
@@ -83,9 +93,9 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
   EXPECT_THAT(position, 3);
 }
 
-TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
+TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   IntRangeDescriptor d(3, 5);
-  ClassPermuter p(&d);
+  TypeParam p(&d);
   EXPECT_THAT(p.permutation_count(), 6);
 
   ActiveSet active_set_odd;

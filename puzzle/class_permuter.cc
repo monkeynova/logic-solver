@@ -43,8 +43,10 @@ void ClassPermuterImpl<T>::iterator::Advance(int dist) {
 }
   
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
-template <enum ClassPermuterType T>
-void ClassPermuterImpl<T>::iterator::Advance() {
+template <>
+void
+ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
+    ::iterator::Advance() {
   ++position_;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -81,6 +83,27 @@ void ClassPermuterImpl<T>::iterator::Advance() {
           next_from_ = i;
         }
       }
+    }
+  }
+}
+
+template <>
+void
+ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance() {
+  ++position_;
+  if (position_ >= permuter_->permutation_count()) {
+    position_ = permuter_->permutation_count();
+    current_.resize(0);
+  } else {
+    int tmp = position_;
+    const std::vector<int>& values = permuter_->descriptor()->Values();
+    for (unsigned int i = 0; i < current_.size(); ++i) {
+      current_[i] = values[i];
+    }
+    for (unsigned int i = 0; tmp && i < current_.size(); ++i) {
+      int next = tmp % (current_.size() - i);
+      tmp /= (current_.size() - i);
+      std::swap(current_[i], current_[i + next]);
     }
   }
 }
