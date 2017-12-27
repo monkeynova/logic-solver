@@ -16,8 +16,12 @@ class ActiveSet {
   ActiveSet(ActiveSet&& other) = default;
   ActiveSet& operator=(ActiveSet&& other) = default;
 
+  std::string DebugString() const;
+  
   // Adds a new boolean value to the current ActiveSet. Must not be called
   // after DoneAdding is called.
+  // TODO(keith): This should just be add. Also skips_ is probably not the
+  // right term throughout given it's actually an active indicator.
   void AddSkip(bool skip);
 
   // Called to indicate that the add phase is over and the consume phase
@@ -29,6 +33,10 @@ class ActiveSet {
   // Must be called after DoneAdding is called.
   bool ConsumeNextSkip();
 
+  // ...
+  // Must be called after DoneAdding is called.
+  int ConsumeFalseBlock();
+  
   bool is_trivial() const { return skips_.empty(); }
   int matches() const { return matches_; }
   int total() const { return total_; }

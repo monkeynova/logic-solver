@@ -19,6 +19,7 @@ cc_library(
     hdrs = ["active_set.h"],
     srcs = ["active_set.cc"],
     deps = [
+        "@com_google_absl//absl/strings",
 	"@com_google_glog//:glog",
     ],    
 )

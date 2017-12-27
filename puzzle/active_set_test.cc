@@ -2,10 +2,12 @@
 
 #include <iostream>
 
+#include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-using testing::Eq;
+using ::testing::AnyOf;
+using ::testing::Eq;
 
 namespace puzzle {
 
@@ -70,5 +72,95 @@ TEST(ActiveSet, ConsumeNextSkipStreaks) {
     EXPECT_THAT(set.ConsumeNextSkip(), Eq(!!(i & 4)));
   } 
 }
+
+TEST(ActiveSet, ConsumeFalseBlockFalse) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.AddSkip(false);
+  }
+  set.DoneAdding();
+  EXPECT_THAT(set.ConsumeFalseBlock(), 40)
+    << set.DebugString();
+  EXPECT_THAT(set.ConsumeFalseBlock(), 0)
+    << set.DebugString();
+}
+
+TEST(ActiveSet, ConsumeFalseBlockTrue) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.AddSkip(true);
+  }
+  set.DoneAdding();
+  EXPECT_THAT(set.ConsumeFalseBlock(), 0);
+}
+
+TEST(ActiveSet, ConsumeFalseBlockStreaks) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.AddSkip(i & 4);
+  }
+  set.DoneAdding();
+  for (int i = 0; i < 40; ++i) {
+    const int delta = set.ConsumeFalseBlock();
+    ASSERT_THAT(delta, AnyOf(0, 4));
+    i += delta;
+    if (i >= 40) break;
+    EXPECT_THAT(!!(i & 4), true);
+    EXPECT_THAT(set.ConsumeNextSkip(), true)
+      << set.DebugString();
+  } 
+}
+
+TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.AddSkip(!(i & 4));
+  }
+  set.DoneAdding();
+  for (int i = 0; i < 40; ++i) {
+    const int delta = set.ConsumeFalseBlock();
+    ASSERT_THAT(delta, AnyOf(0, 4));
+    i += delta;
+    if (i >= 40) break;
+    EXPECT_THAT(!(i & 4), true);
+    EXPECT_THAT(set.ConsumeNextSkip(), true)
+      << set.DebugString();
+  } 
+}
+
+TEST(ActiveSet, ConsumeFalseBlockAlternating) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.AddSkip(i & 1);
+  }
+  set.DoneAdding();
+  for (int i = 0; i < 40; ++i) {
+    const int delta = set.ConsumeFalseBlock();
+    EXPECT_THAT(delta, AnyOf(0, 1));
+    i += delta;
+    if (i >= 40) break;
+    EXPECT_THAT(!!(i & 1), true);
+    EXPECT_THAT(set.ConsumeNextSkip(), true);
+  } 
+}
+
+TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.AddSkip(!(i & 1));
+  }
+  set.DoneAdding();
+  LOG(INFO) << set.DebugString();
+  for (int i = 0; i < 40; ++i) {
+    const int delta = set.ConsumeFalseBlock();
+    EXPECT_THAT(delta, AnyOf(0, 1));
+    i += delta;
+    if (i >= 40) break;
+    EXPECT_THAT(!(i & 1), true);
+    EXPECT_THAT(set.ConsumeNextSkip(), true)
+      << i << ": " << set.DebugString();
+  } 
+}
+
 
 }  // namespace puzzle
