@@ -29,7 +29,7 @@ static void BM_PermuterActiveSet(benchmark::State& state) {
   puzzle::IntRangeDescriptor d(1, depth);
   puzzle::ClassPermuter p(&d);
   for (auto it = p.begin(); it != p.end(); ++it) {
-    set.AddSkip((*it)[crop_column] == crop_value);
+    set.Add((*it)[crop_column] == crop_value);
   }
   set.DoneAdding();
   p.set_active_set(std::move(set));

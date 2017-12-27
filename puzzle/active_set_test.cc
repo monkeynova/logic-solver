@@ -17,66 +17,66 @@ TEST(ActiveSet, EmptyIsTrivial) {
 
 TEST(ActiveSet, SingleFalseIsNotTrivial) {
   ActiveSet single_false;
-  single_false.AddSkip(false);
+  single_false.Add(false);
   EXPECT_FALSE(single_false.is_trivial());
 }
 
 TEST(ActiveSet, SingleTrueIsNotTrivial) {
   ActiveSet single_true;
-  single_true.AddSkip(true);
+  single_true.Add(true);
   EXPECT_TRUE(single_true.is_trivial());
   single_true.DoneAdding();
   EXPECT_TRUE(single_true.is_trivial());
 }
 
-TEST(ActiveSet, ConsumeNextSkipAllTrue) {
+TEST(ActiveSet, ConsumeNextAllTrue) {
   ActiveSet set;
   for (int i = 0; i < 3; ++i) {
-    set.AddSkip(true);
+    set.Add(true);
   }
   set.DoneAdding();
   for (int i = 0; i < 3; ++i) {
-    EXPECT_TRUE(set.ConsumeNextSkip());
+    EXPECT_TRUE(set.ConsumeNext());
   } 
 }
 
-TEST(ActiveSet, ConsumeNextSkipAllFalse) {
+TEST(ActiveSet, ConsumeNextAllFalse) {
   ActiveSet set;
   for (int i = 0; i < 3; ++i) {
-    set.AddSkip(false);
+    set.Add(false);
   }
   set.DoneAdding();
   for (int i = 0; i < 3; ++i) {
-    EXPECT_FALSE(set.ConsumeNextSkip());
+    EXPECT_FALSE(set.ConsumeNext());
   } 
 }
 
-TEST(ActiveSet, ConsumeNextSkipAlternating) {
+TEST(ActiveSet, ConsumeNextAlternating) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(i & 1);
+    set.Add(i & 1);
   }
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNextSkip(), Eq(i & 1));
+    EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
   } 
 }
 
-TEST(ActiveSet, ConsumeNextSkipStreaks) {
+TEST(ActiveSet, ConsumeNextStreaks) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(i & 4);
+    set.Add(i & 4);
   }
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNextSkip(), Eq(!!(i & 4)));
+    EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
   } 
 }
 
 TEST(ActiveSet, ConsumeFalseBlockFalse) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(false);
+    set.Add(false);
   }
   set.DoneAdding();
   EXPECT_THAT(set.ConsumeFalseBlock(), 40)
@@ -88,7 +88,7 @@ TEST(ActiveSet, ConsumeFalseBlockFalse) {
 TEST(ActiveSet, ConsumeFalseBlockTrue) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(true);
+    set.Add(true);
   }
   set.DoneAdding();
   EXPECT_THAT(set.ConsumeFalseBlock(), 0);
@@ -97,7 +97,7 @@ TEST(ActiveSet, ConsumeFalseBlockTrue) {
 TEST(ActiveSet, ConsumeFalseBlockStreaks) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(i & 4);
+    set.Add(i & 4);
   }
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
@@ -106,7 +106,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaks) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!!(i & 4), true);
-    EXPECT_THAT(set.ConsumeNextSkip(), true)
+    EXPECT_THAT(set.ConsumeNext(), true)
       << set.DebugString();
   } 
 }
@@ -114,7 +114,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaks) {
 TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(!(i & 4));
+    set.Add(!(i & 4));
   }
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
@@ -123,7 +123,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!(i & 4), true);
-    EXPECT_THAT(set.ConsumeNextSkip(), true)
+    EXPECT_THAT(set.ConsumeNext(), true)
       << set.DebugString();
   } 
 }
@@ -131,7 +131,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
 TEST(ActiveSet, ConsumeFalseBlockAlternating) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(i & 1);
+    set.Add(i & 1);
   }
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
@@ -140,14 +140,14 @@ TEST(ActiveSet, ConsumeFalseBlockAlternating) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!!(i & 1), true);
-    EXPECT_THAT(set.ConsumeNextSkip(), true);
+    EXPECT_THAT(set.ConsumeNext(), true);
   } 
 }
 
 TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
-    set.AddSkip(!(i & 1));
+    set.Add(!(i & 1));
   }
   set.DoneAdding();
   LOG(INFO) << set.DebugString();
@@ -157,7 +157,7 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!(i & 1), true);
-    EXPECT_THAT(set.ConsumeNextSkip(), true)
+    EXPECT_THAT(set.ConsumeNext(), true)
       << i << ": " << set.DebugString();
   } 
 }

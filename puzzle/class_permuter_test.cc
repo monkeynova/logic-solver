@@ -53,8 +53,8 @@ TEST(ClassPermuter, ThreeElementsWithSkips) {
   ActiveSet active_set_first;
   ActiveSet active_set_last;
   for (int i = 0; i < 6; ++i) {
-    active_set_first.AddSkip(i < 3);
-    active_set_last.AddSkip(i >= 3);
+    active_set_first.Add(i < 3);
+    active_set_last.Add(i >= 3);
   }
   active_set_first.DoneAdding();
   active_set_last.DoneAdding();
@@ -91,8 +91,8 @@ TEST(ClassPermuter, ThreeElementsWithSkipsShredded) {
   ActiveSet active_set_odd;
   ActiveSet active_set_even;
   for (int i = 0; i < 6; ++i) {
-    active_set_odd.AddSkip(i & 1);
-    active_set_even.AddSkip(!(i & 1));
+    active_set_odd.Add(i & 1);
+    active_set_even.Add(!(i & 1));
   }
   active_set_odd.DoneAdding();
   active_set_even.DoneAdding();

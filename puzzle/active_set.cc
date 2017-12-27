@@ -10,71 +10,71 @@ namespace puzzle {
 
 std::string ActiveSet::DebugString() const {
   return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
-		      " ", (skip_match_ ? "match" : "skip"),
-		      " ", skips_position_, " {", absl::StrJoin(skips_, ", "),
-		      "}}");
+		      " ", (current_value_ ? "match" : "skip"),
+		      " ", matches_position_, " {",
+		      absl::StrJoin(matches_, ", "), "}}");
 }
   
-void ActiveSet::AddSkip(bool skip) {
-  CHECK(building_) << "AddSkip called after building";
+void ActiveSet::Add(bool match) {
+  CHECK(building_) << "Add called after building";
 
   ++total_;
-  if (skip) {
-    ++matches_;
+  if (match) {
+    ++matches_count_;
   }
   
-  if (skip == skip_match_) {
-    ++skips_position_;
+  if (match == current_value_) {
+    ++matches_position_;
   } else {
-    skips_.push_back(skips_position_);
-    skip_match_ = skip;
-    skips_position_ = 1;
+    matches_.push_back(matches_position_);
+    current_value_ = match;
+    matches_position_ = 1;
   }
 }
 
 void ActiveSet::DoneAdding() {
   building_ = false;
-  if (skips_.empty()) {
-    CHECK(skip_match_) << "skip_match shouldn't be false if skips is empty";
-    // As a special case, if all entries are "true", we don't make skips_ so
+  if (matches_.empty()) {
+    CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
+    // As a special case, if all entries are "true", we don't make matches_ so
     // the ActiveSet remains 'trivial'.
-    skips_position_ = 0;
+    matches_position_ = 0;
     return;
   }
-  skips_.push_back(skips_position_);
-  skip_match_ = true;
-  skips_position_ = 0;
+  matches_.push_back(matches_position_);
+  current_value_ = true;
+  matches_position_ = 0;
 }
 
-bool ActiveSet::ConsumeNextSkip() {
-  CHECK(!building_) << "ConsumeNextSkip called while still building";
+bool ActiveSet::ConsumeNext() {
+  CHECK(!building_) << "ConsumeNext called while still building";
 
-  if (skips_.empty()) return true;
-  if (skips_position_ >= skips_.size()) return true;
+  if (matches_.empty()) return true;
+  if (matches_position_ >= matches_.size()) return true;
 
-  if (skips_[skips_position_] == 0) {
-    skip_match_ = !skip_match_;
-    ++skips_position_;
+  if (matches_[matches_position_] == 0) {
+    current_value_ = !current_value_;
+    ++matches_position_;
   }
-  --skips_[skips_position_];
-  return skip_match_;
+  --matches_[matches_position_];
+  return current_value_;
 }
 
 int ActiveSet::ConsumeFalseBlock() {
   CHECK(!building_) << "ConsumeFalseBlock called while still building";
 
-  if (skips_.empty()) return 0;
-  if (skips_position_ >= skips_.size()) return 0;
+  if (matches_.empty()) return 0;
+  if (matches_position_ >= matches_.size()) return 0;
   
-  if (skips_[skips_position_] == 0) {
-    skip_match_ = !skip_match_;
-    ++skips_position_;
+  if (matches_[matches_position_] == 0) {
+    current_value_ = !current_value_;
+    ++matches_position_;
   }
-  if (skip_match_) return 0;
+  if (current_value_) return 0;
   
-  int ret = skips_[skips_position_];
-  ++skips_position_;
-  skip_match_ = true;
+  int ret = matches_[matches_position_];
+  ++matches_position_;
+  current_value_ = true;
   return ret;
 }
   

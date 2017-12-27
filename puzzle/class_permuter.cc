@@ -24,15 +24,15 @@ ClassPermuter::iterator::iterator(const ClassPermuter* permuter,
 
   if (!active_set_.is_trivial()) {
     Advance(active_set_.ConsumeFalseBlock());
-    CHECK(active_set_.ConsumeNextSkip())
-      << "ConsumeNextSkip returned false after ConsumeFalseBlock";
+    CHECK(active_set_.ConsumeNext())
+      << "ConsumeNext returned false after ConsumeFalseBlock";
   }
 }
 
 void ClassPermuter::iterator::AdvanceWithSkip() {
   Advance(active_set_.ConsumeFalseBlock() + 1);
-  CHECK(active_set_.ConsumeNextSkip())
-    << "ConsumeNextSkip returned false after ConsumeFalseBlock";
+  CHECK(active_set_.ConsumeNext())
+    << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
 void ClassPermuter::iterator::Advance(int dist) {

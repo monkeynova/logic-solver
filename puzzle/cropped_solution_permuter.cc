@@ -33,11 +33,11 @@ static ActiveSet BuildActiveSet(
        it != class_permuter.end();
        ++it) {
     SetClassFromPermutation(it, entries);
-    active_set.AddSkip(std::all_of(predicates.begin(),
-                                   predicates.end(),
-                                   [&s](const Solution::Cropper& c) {
-                                     return c.p(s);
-                                   }));
+    active_set.Add(std::all_of(predicates.begin(),
+			       predicates.end(),
+			       [&s](const Solution::Cropper& c) {
+				 return c.p(s);
+			       }));
   }
   active_set.DoneAdding();
   return active_set;
