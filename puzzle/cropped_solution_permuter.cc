@@ -251,21 +251,27 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   }
 
   for (int i = 0; i < multi_class_predicates.size(); ++i) {
+    std::vector<Solution::Cropper> predicates = multi_class_predicates[i];
     class_predicates_.push_back(Solution::Cropper(
 	absl::StrJoin(multi_class_predicates[i], ", ",
 		      [](std::string* out, const Solution::Cropper& c) {
 			absl::StrAppend(out, c.name);
 		      }),
-	[multi_class_predicates, i](const Solution& s) {
-	  for (auto p : multi_class_predicates[i]) {
+	[predicates](const Solution& s) {
+	  for (auto p : predicates) {
 	    if (!p.p(s)) return false;
 	  }
 	  return true;
 	},
 	{}));
-    VLOG(1) << "Predicates at " << i << " (" << class_permuters_[i].Selectivity()
-	    << "): " << multi_class_predicates[i].size()
-	    << ": " << class_predicates_[i].name;
+  }
+  if (VLOG_IS_ON(1)) {
+    for (const auto& permuter : class_permuters_) {
+      VLOG(1) << "Predicates at " << permuter.class_int()
+	      << " (" << permuter.Selectivity()
+	      << "): " << multi_class_predicates[permuter.class_int()].size()
+	      << ": " << class_predicates_[permuter.class_int()].name;
+    }
   }
 }
 
