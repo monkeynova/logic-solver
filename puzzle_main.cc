@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "gflags/gflags.h"
+#include "glog/logging.h"
 #include "puzzle/instance.h"
 
 DEFINE_bool(all, false, "Show all solutions");
@@ -15,8 +16,8 @@ std::string PositionHeader(const puzzle::Solution& s) {
 }
 
 int main(int argc, char** argv) {
-  google::InstallFailureSignalHandler();
-  gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
+  ::google::InitGoogleLogging(argv[0]);
+  ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
   puzzle::Solver solver;
   
   SetupProblem(&solver);
