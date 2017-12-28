@@ -100,7 +100,7 @@ class Solver {
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
 
-  int test_calls_;
+  int test_calls_ = 0;
   
   std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
