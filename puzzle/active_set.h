@@ -1,6 +1,7 @@
 #ifndef __PUZZLE_ACTIVE_SET_H
 #define __PUZZLE_ACTIVE_SET_H
 
+#include <string>
 #include <vector>
 
 namespace puzzle {

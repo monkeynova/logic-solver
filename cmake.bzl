@@ -74,6 +74,7 @@ def cmake_header(name, hdr):
                 ["gsub(/@" + t[0] + "@/, \"" +
                  (cmake_defines.get(t[1], default=t[1])) + "\"); "
                  for t in cmake_vars.items()]) +
+            "gsub(/@[A-Za-z0-9_]+@/, \"0\"); " +
             "print; }' $(<) > $(@)"
         ),
     )
