@@ -147,7 +147,7 @@ class ClassPermuterImpl {
 }  // namespace internal
 
 using ClassPermuter = internal::ClassPermuterImpl<
-    internal::ClassPermuterType::kSteinhausJohnsonTrotter>;
+    internal::ClassPermuterType::kFactorialRadix>;
  
 }  // namespace puzzle
 
