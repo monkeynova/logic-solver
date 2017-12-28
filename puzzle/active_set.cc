@@ -69,6 +69,7 @@ int ActiveSet::ConsumeFalseBlock() {
   if (matches_[matches_position_] == 0) {
     current_value_ = !current_value_;
     ++matches_position_;
+    if (matches_position_ >= matches_.size()) return 0;
   }
   if (current_value_) return 0;
   

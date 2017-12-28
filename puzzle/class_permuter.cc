@@ -2,7 +2,29 @@
 
 namespace puzzle {
 namespace internal {
-  
+
+template <>
+void
+ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
+    ::iterator::InitIndex() {
+  index_.resize(current_.size());
+  direction_.resize(current_.size());
+  for (unsigned int i = 0; i < current_.size(); ++i) {
+    index_[i] = i;
+    direction_[i] = i == 0 ? 0 : -1;
+  }
+  next_from_ = current_.size() - 1;
+}
+
+template <>
+void
+ClassPermuterImpl<ClassPermuterType::kFactorialRadix>
+    ::iterator::InitIndex() {
+  if (permuter_ != nullptr) {
+    index_ = permuter_->descriptor()->Values();
+  }
+}
+
 template <enum ClassPermuterType T>
 ClassPermuterImpl<T>::iterator::iterator(
     const ClassPermuterImpl<T>* permuter,
@@ -15,13 +37,7 @@ ClassPermuterImpl<T>::iterator::iterator(
     }
   }
   position_ = 0;
-  index_.resize(current_.size());
-  direction_.resize(current_.size());
-  for (unsigned int i = 0; i < current_.size(); ++i) {
-    index_[i] = i;
-    direction_[i] = i == 0 ? 0 : -1;
-  }
-  next_from_ = current_.size() - 1;
+  InitIndex();
 
   if (!active_set_.is_trivial()) {
     Advance(active_set_.ConsumeFalseBlock());
@@ -37,11 +53,6 @@ void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
     << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
-template <enum ClassPermuterType T>
-void ClassPermuterImpl<T>::iterator::Advance(int dist) {
-  for (; dist > 0; --dist) Advance();
-}
-  
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 template <>
 void
@@ -89,16 +100,23 @@ ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
 
 template <>
 void
-ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance() {
-  ++position_;
+ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
+    ::iterator::Advance(int dist) {
+  for (; dist > 0; --dist) Advance();
+}
+
+template <>
+void
+ClassPermuterImpl<ClassPermuterType::kFactorialRadix>
+    ::iterator::Advance(int dist) {
+  position_ += dist;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
     current_.resize(0);
   } else {
     int tmp = position_;
-    const std::vector<int>& values = permuter_->descriptor()->Values();
     for (unsigned int i = 0; i < current_.size(); ++i) {
-      current_[i] = values[i];
+      current_[i] = index_[i];
     }
     for (unsigned int i = 0; tmp && i < current_.size(); ++i) {
       int next = tmp % (current_.size() - i);
@@ -106,6 +124,12 @@ ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance() {
       std::swap(current_[i], current_[i + next]);
     }
   }
+}
+
+template <>
+void
+ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance() {
+  Advance(/*dist=*/1);
 }
 
 // static

@@ -76,13 +76,25 @@ class ClassPermuterImpl {
     // Equivalent to Advance(1).
     void Advance();
 
+    // Initializes Algorithm depend information during construction.
+    void InitIndex();
+
+    // Permuter iteration is being performed on.
     const ClassPermuterImpl<T>* permuter_;
+
+    // The cached current value of iteration.
     StorageVector current_;
+
+    // Algorithm dependent information for iteration.
     StorageVector index_;
     StorageVector direction_;
     int next_from_;
+
+    // Position in the iteration. Integer from 1 to number of permutations.
+    // Represents the position independent of skipped values from 'active_set'.
     double position_;
 
+    // Representation of the subset of the permutations to return.
     ActiveSet active_set_;
   };
 
