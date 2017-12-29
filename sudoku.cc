@@ -8,16 +8,19 @@ Logic solver repurposed for sudoku
 #include "gflags/gflags.h"
 #include "puzzle/solver.h"
 
-DEFINE_bool(sudoku_problem_setup_a, true,
-            "Is-valid-sudoku-board predicates have two forms which may have "
-            "different performance characteristics based on the details "
-            "of CroppedSolutionPermuter. This switches betweeen (a) and (b).");
+DEFINE_string(sudoku_problem_setup, "cumulative",
+	      "Sepecifies the form of the predicates passed to the puzzle "
+	      "solver to validate sudoku boards. Valid vaules are 'cumulative' "
+	      "and 'pairwise'. 'cumulative' is faster if predicate reordering "
+	      "is disabled, but 'pairwise' is better suited for predicate "
+	      "reordering and results in faster overall evaluation if "
+	      "reordering is enabled.");
 
 DEFINE_bool(sudoku_setup_only, false,
             "If true, only set up predicates for valid sudoku board "
             "configuration rather than solving a specific board.");
 
-static void AddProblemPredicatesSetupA(puzzle::Solver* s) {
+static void AddProblemPredicatesCumulative(puzzle::Solver* s) {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
@@ -58,7 +61,7 @@ static void AddProblemPredicatesSetupA(puzzle::Solver* s) {
   }
 }
 
-static void AddProblemPredicatesSetupB(puzzle::Solver* s) {
+static void AddProblemPredicatesPairwise(puzzle::Solver* s) {
   for (int i = 0; i < 9; ++i) {
     for (int j = 0; j < 9; ++j) {
       if (i < j) {
@@ -150,10 +153,14 @@ void SetupProblem(puzzle::Solver* s) {
     s->AddClass(i, absl::StrCat(i + 1), val_descriptor);
   }
 
-  if (FLAGS_sudoku_problem_setup_a) {
-    AddProblemPredicatesSetupA(s);
+  if (FLAGS_sudoku_problem_setup == "cumulative") {
+    AddProblemPredicatesCumulative(s);
+  } else if (FLAGS_sudoku_problem_setup == "pairwise") {
+    AddProblemPredicatesPairwise(s);
   } else {
-    AddProblemPredicatesSetupB(s);
+    LOG(FATAL) << "Unrecognized option for sudoku_problem_setup '"
+	       << FLAGS_sudoku_problem_setup << "'; valid values are "
+	       << "'cumulative' and 'pairwise'.";
   }
   
   if (FLAGS_sudoku_setup_only) {
