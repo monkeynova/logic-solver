@@ -2,6 +2,7 @@
 #define __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
 
 #include "puzzle/class_permuter.h"
+#include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 
@@ -53,7 +54,7 @@ class CroppedSolutionPermuter {
     void UpdateEntries(int class_int);
 
     const CroppedSolutionPermuter* const permuter_ = nullptr;
-    std::vector<Entry> entries_;
+    MutableSolution mutable_solution_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
     Solution current_;
@@ -80,8 +81,6 @@ class CroppedSolutionPermuter {
   }
 
  private:
-  Solution BuildSolution(std::vector<Entry>* enries) const;
-  
   const EntryDescriptor* const entry_descriptor_ = nullptr;
 
   // Ordered by the evaluation order that is configured for

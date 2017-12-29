@@ -3,6 +3,7 @@
 #include "gflags/gflags.h"
 #include "glog/logging.h"
 #include "puzzle/active_set.h"
+#include "puzzle/active_set_builder.h"
 
 DEFINE_bool(puzzle_prune_class_iterator, false,
             "If specfied, class iterators will be pruned based on single "
@@ -14,45 +15,14 @@ DEFINE_bool(puzzle_prune_reorder_classes, false,
 
 namespace puzzle {
 
-static void SetClassFromPermutation(
-    const ClassPermuter::iterator& it,
-    std::vector<Entry>* entries) {
-  for (unsigned int j = 0; j < it->size(); ++j ) {
-    (*entries)[j].SetClass(it.class_int(), (*it)[j]);
-  }
-}
-
-static ActiveSet BuildActiveSet(
-    const ClassPermuter& class_permuter,
-    const std::vector<Solution::Cropper>& predicates,
-    const EntryDescriptor* entry_descriptor,
-    std::vector<Entry>* entries) {
-  for (const auto& p : predicates) {
-    CHECK_EQ(p.classes.size(), 1);
-    CHECK_EQ(p.classes[0], class_permuter.class_int());
-  }
-  Solution s(entry_descriptor, entries);
-  ActiveSet active_set;
-  for (auto it = class_permuter.begin();
-       it != class_permuter.end();
-       ++it) {
-    SetClassFromPermutation(it, entries);
-    active_set.Add(std::all_of(predicates.begin(),
-			       predicates.end(),
-			       [&s](const Solution::Cropper& c) {
-				 return c.p(s);
-			       }));
-  }
-  active_set.DoneAdding();
-  return active_set;
-}
-
 CroppedSolutionPermuter::iterator::iterator(
     const CroppedSolutionPermuter* permuter)
-   : permuter_(permuter) {
+  : permuter_(permuter),
+    mutable_solution_(permuter == nullptr
+		      ? nullptr : permuter_->entry_descriptor_) {
   if (permuter_ == nullptr) return;
   
-  current_ = permuter_->BuildSolution(&entries_);
+  current_ = mutable_solution_.TestableSolution();
   iterators_.resize(permuter_->class_permuters_.size());
   for (auto& class_permuter : permuter_->class_permuters_) {
     iterators_[class_permuter.class_int()] = class_permuter.begin();
@@ -112,8 +82,6 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 }
 
 void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
-  // TODO(keith@monkeynova.com): Allow a Solution to bind to class permuters
-  // and pull values from them directly avoiding this push model.
   if (permuter_->profiler_ != nullptr) {
     if (permuter_->profiler_->NotePosition(
             position(), permuter_->permutation_count())) {
@@ -126,7 +94,7 @@ void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
                 << "): " << position() << std::flush;
     }
   }
-  SetClassFromPermutation(iterators_[class_int], &entries_);
+  mutable_solution_.SetClass(iterators_[class_int]);
 }
 
 void CroppedSolutionPermuter::iterator::Advance() {
@@ -201,15 +169,12 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
       }
     }
     // Build ActiveSet for each ClassPermuter if flag enabled.
-    std::vector<Entry> entries;
-    Solution s = BuildSolution(&entries);
+    ActiveSetBuilder active_set_builder_(entry_descriptor_);
     for (auto& class_permuter : class_permuters_) {
       int class_int = class_permuter.class_int();
-      class_permuter.set_active_set(BuildActiveSet(
-          class_permuter, single_class_predicates[class_int],
-          entry_descriptor_, &entries));
+      class_permuter.set_active_set(active_set_builder_.Build(
+	  class_permuter, single_class_predicates[class_int]));
     }
-
     
     if (FLAGS_puzzle_prune_reorder_classes) {
       std::sort(class_permuters_.begin(), class_permuters_.end(),
@@ -285,19 +250,6 @@ double CroppedSolutionPermuter::permutation_count() const {
     count *= permuter.permutation_count();
   }
   return count;
-}
-
-Solution CroppedSolutionPermuter::BuildSolution(
-    std::vector<Entry>* entries) const {
-  const int num_classes = entry_descriptor_->AllClasses()->Values().size();
-
-  std::vector<int> invalid_classes(num_classes, -1);
-    
-  for (auto id: entry_descriptor_->AllIds()->Values()) {
-    entries->push_back(Entry(id, invalid_classes, entry_descriptor_));
-  }
-
-  return Solution(entry_descriptor_, entries);
 }
 
 }  // namespace puzzle

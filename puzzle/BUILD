@@ -24,6 +24,18 @@ cc_library(
     ],    
 )
 
+cc_library(
+    name = "active_set_builder",
+    hdrs = ["active_set_builder.h"],
+    srcs = ["active_set_builder.cc"],
+    deps = [
+        ":active_set",
+        ":class_permuter",
+        ":mutable_solution",
+        ":solution",
+    ],
+)
+
 cc_test(
     name = "active_set_test",
     srcs = ["active_set_test.cc"],
@@ -47,7 +59,9 @@ cc_library(
     hdrs = ["cropped_solution_permuter.h"],
     srcs = ["cropped_solution_permuter.cc"],
     deps = [
+        ":active_set_builder",
         ":class_permuter",
+        ":mutable_solution",
         ":profiler",
 	"@com_google_glog//:glog",
     ],
@@ -73,6 +87,15 @@ cc_library(
     visibility = [
         "//visibility:public",
     ]
+)
+
+cc_library(
+    name = "mutable_solution",
+    hdrs = ["mutable_solution.h"],
+    deps = [
+        ":class_permuter",
+        ":solution",
+    ],
 )
 
 cc_library(
