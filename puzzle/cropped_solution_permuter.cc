@@ -27,6 +27,10 @@ static ActiveSet BuildActiveSet(
     const std::vector<Solution::Cropper>& predicates,
     const EntryDescriptor* entry_descriptor,
     std::vector<Entry>* entries) {
+  for (const auto& p : predicates) {
+    CHECK_EQ(p.classes.size(), 1);
+    CHECK_EQ(p.classes[0], class_permuter.class_int());
+  }
   Solution s(entry_descriptor, entries);
   ActiveSet active_set;
   for (auto it = class_permuter.begin();
