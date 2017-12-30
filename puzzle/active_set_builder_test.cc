@@ -10,7 +10,7 @@
 #include "puzzle/mutable_solution.h"
 
 using ::testing::Eq;
-using ::testing::Lt;
+using ::testing::Le;
 using ::testing::UnorderedElementsAre;
 
 namespace puzzle {
@@ -190,7 +190,7 @@ TEST(ActiveSetBuilderTest, MultiClass) {
   }
   LOG(INFO) << "Iteration change " << full_iteration_count << " => "
 	    << got_iteration_count;
-  EXPECT_THAT(got_iteration_count, Lt(0.5 * full_iteration_count));
+  EXPECT_THAT(got_iteration_count, Le(0.5 * full_iteration_count));
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 
@@ -269,7 +269,7 @@ TEST(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
   }
   LOG(INFO) << "Iteration change " << full_iteration_count << " => "
 	    << got_iteration_count;
-  EXPECT_THAT(got_iteration_count, Lt(0.5 * full_iteration_count));
+  EXPECT_THAT(got_iteration_count, Le(0.5 * full_iteration_count));
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 
@@ -348,7 +348,7 @@ TEST(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
   }
   LOG(INFO) << "Iteration change " << full_iteration_count << " => "
 	    << got_iteration_count;
-  EXPECT_THAT(got_iteration_count, Lt(0.5 * full_iteration_count));
+  EXPECT_THAT(got_iteration_count, Le(0.5 * full_iteration_count));
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 

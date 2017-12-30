@@ -46,12 +46,16 @@ void ActiveSetBuilder::Build(
   }
   *active_set_a = ActiveSet();
   *active_set_b = ActiveSet();
+  ActiveSet source_a = class_permuter_a.active_set();
+  ActiveSet source_b = class_permuter_b.active_set();
   std::set<int> b_match_positions;
   Solution s = mutable_solution_.TestableSolution();
   for (auto it_a = class_permuter_a.begin();
        it_a != class_permuter_a.end();
        ++it_a) {
     mutable_solution_.SetClass(it_a);
+    active_set_a->AddFalseBlock(source_a.ConsumeFalseBlock());
+    CHECK(source_a.ConsumeNext());
     bool any_of_a = false;
     for (auto it_b = class_permuter_b.begin();
 	 it_b != class_permuter_b.end();
@@ -74,6 +78,8 @@ void ActiveSetBuilder::Build(
     }
     active_set_a->Add(any_of_a);
   }
+  active_set_a->AddFalseBlock(source_a.ConsumeFalseBlock());
+  CHECK(source_a.ConsumeNext());
   active_set_a->DoneAdding();
 
   active_set_b->DoneAdding();
