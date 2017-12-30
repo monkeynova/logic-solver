@@ -11,6 +11,8 @@ class ActiveSet {
  public:
   ActiveSet() = default;
 
+  // Constructs an ActiveSet such that each value contained in 'positions'
+  // returns 'true' and every other value in [0, 'max_position') returns false.
   ActiveSet(const std::set<int>& positions, int max_position);
 
   // Copy and move constructors preserve the add/consume phase of the
