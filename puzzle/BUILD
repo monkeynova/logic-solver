@@ -24,6 +24,15 @@ cc_library(
     ],    
 )
 
+cc_test(
+    name = "active_set_test",
+    srcs = ["active_set_test.cc"],
+    deps = [
+        ":active_set",
+        ":test_main",
+    ]
+)   
+
 cc_library(
     name = "active_set_builder",
     hdrs = ["active_set_builder.h"],
@@ -37,10 +46,11 @@ cc_library(
 )
 
 cc_test(
-    name = "active_set_test",
-    srcs = ["active_set_test.cc"],
+    name = "active_set_builder_test",
+    srcs = ["active_set_builder_test.cc"],
     deps = [
-        ":active_set",
+        ":active_set_builder",
+        ":mutable_solution",
         ":test_main",
     ]
 )   

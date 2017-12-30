@@ -25,4 +25,53 @@ ActiveSet ActiveSetBuilder::Build(
   return active_set;
 }
 
+void ActiveSetBuilder::Build(
+    const ClassPermuter& class_permuter_a,
+    const ClassPermuter& class_permuter_b,
+    const std::vector<Solution::Cropper>& predicates,
+    ActiveSet* active_set_a,
+    ActiveSet* active_set_b) {
+  for (const auto& p : predicates) {
+    CHECK_EQ(p.classes.size(), 2);
+    CHECK(p.classes[0] == class_permuter_a.class_int() ||
+	  p.classes[0] == class_permuter_b.class_int());
+    CHECK(p.classes[1] == class_permuter_a.class_int() ||
+	  p.classes[1] == class_permuter_b.class_int());
+    CHECK_NE(p.classes[0], p.classes[1]);
+  }
+  *active_set_a = ActiveSet();
+  *active_set_b = ActiveSet();
+  std::set<int> b_match_positions;
+  Solution s = mutable_solution_.TestableSolution();
+  for (auto it_a = class_permuter_a.begin();
+       it_a != class_permuter_a.end();
+       ++it_a) {
+    mutable_solution_.SetClass(it_a);
+    bool any_of_a = false;
+    for (auto it_b = class_permuter_b.begin();
+	 it_b != class_permuter_b.end();
+	 ++it_b) {
+      if (any_of_a &&
+	  b_match_positions.find(it_b.position()) != b_match_positions.end()) {
+	// Already added both pieces.
+	continue;
+      }
+      mutable_solution_.SetClass(it_b);
+      const bool this_match = std::all_of(predicates.begin(),
+					  predicates.end(),
+					  [&s](const Solution::Cropper& c) {
+					    return c.p(s);
+					  });
+      if (this_match) {
+	any_of_a = true;
+	b_match_positions.insert(it_b.position());
+      }
+    }
+    active_set_a->Add(any_of_a);
+  }
+  active_set_a->DoneAdding();
+
+  active_set_b->DoneAdding();
+}
+
 }  // namespace puzzle
