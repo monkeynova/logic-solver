@@ -26,7 +26,9 @@ class ClassPermuterImpl {
     typedef int difference_type;
     typedef StorageVector value_type;
     typedef StorageVector& reference;
+    typedef const StorageVector& const_reference;
     typedef StorageVector* pointer;
+    typedef const StorageVector* const_pointer;
 
     iterator() : iterator(nullptr, {}) {}
     iterator(const ClassPermuterImpl<T>* permuter,
@@ -44,10 +46,10 @@ class ClassPermuterImpl {
     bool operator==(const iterator& other) const {
       return current_ == other.current_;
     }
-    const StorageVector& operator*() const {
+    const_reference operator*() const {
       return current_;
     }
-    const StorageVector* operator->() const {
+    const_pointer operator->() const {
       return &current_;
     }
     iterator& operator++() {
@@ -83,11 +85,11 @@ class ClassPermuterImpl {
     const ClassPermuterImpl<T>* permuter_;
 
     // The cached current value of iteration.
-    StorageVector current_;
+    value_type current_;
 
     // Algorithm dependent information for iteration.
-    StorageVector index_;
-    StorageVector direction_;
+    value_type index_;
+    value_type direction_;
     int next_from_;
 
     // Position in the iteration. Integer from 1 to number of permutations.
