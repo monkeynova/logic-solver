@@ -10,17 +10,30 @@ class Profiler {
   static std::unique_ptr<Profiler> Create();
 
   virtual ~Profiler() {}
-  virtual bool NotePosition(double position, double count) {
-    return false;
-  }
   virtual void NoteFinish() {}
   virtual bool Done() {
     return false;
   }
   virtual double Seconds() { return 0; }
+
+  bool NotePosition(double position, double count) {
+    if (++test_calls_ % 7777 != 1) return false;
+    return NotePositionImpl(position, count);
+  }
   
  protected:
   Profiler() {}
+
+  virtual bool NotePositionImpl(double position, double count) {
+    return false;
+  }
+
+  int test_calls() const {
+    return test_calls_;
+  }
+  
+ private:
+  int test_calls_ = 0;
 };
 
 }  // namespace puzzle

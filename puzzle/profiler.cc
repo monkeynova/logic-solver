@@ -27,12 +27,10 @@ class StructTimevalProfiler : public Profiler {
   
  private:
   bool Done() override {
-    return test_calls_ > FLAGS_puzzle_max_profile_calls;
+    return test_calls() > FLAGS_puzzle_max_profile_calls;
   }
   
-  bool NotePosition(double position, double count) override {
-    if (++test_calls_ % 777 != 1) return false;
-
+  bool NotePositionImpl(double position, double count) override {
     struct timeval now;
     gettimeofday(&now, nullptr);
     double delta =
@@ -46,7 +44,7 @@ class StructTimevalProfiler : public Profiler {
     std::cout << std::setprecision(3)
               << "\033[1K\rTrying " << (100 * position / count)
               << "%, effective=" << qps/1000 << "Kqps true="
-              << (test_calls_ / full_delta / 1000) << "Kqps"
+              << (test_calls() / full_delta / 1000) << "Kqps"
               << std::flush;
     last_ = now;
     last_position_ = position;
@@ -65,7 +63,6 @@ class StructTimevalProfiler : public Profiler {
   struct timeval start_;
   struct timeval last_;
   double last_position_;
-  int test_calls_ = 0;
 };
 
 }  // namespace
