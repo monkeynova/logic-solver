@@ -1,6 +1,7 @@
 #ifndef __PUZZLE_ACTIVE_SET_H
 #define __PUZZLE_ACTIVE_SET_H
 
+#include <set>
 #include <string>
 #include <vector>
 
@@ -9,6 +10,8 @@ namespace puzzle {
 class ActiveSet {
  public:
   ActiveSet() = default;
+
+  ActiveSet(const std::set<int>& positions, int max_position);
 
   // Copy and move constructors preserve the add/consume phase of the
   // ActiveSet.

@@ -8,6 +8,20 @@
 
 namespace puzzle {
 
+ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
+  int last_p = -1;
+  for (auto p : positions) {
+    CHECK_GE(p, 0);
+    AddFalseBlock(p - last_p - 1);
+    Add(true);
+    last_p = p;
+  }
+  if (last_p < max_position - 1) {
+    AddFalseBlock(max_position - last_p - 1);
+  }
+  DoneAdding();
+}
+
 std::string ActiveSet::DebugString() const {
   return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
 		      " ", (current_value_ ? "match" : "skip"),

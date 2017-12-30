@@ -45,9 +45,7 @@ void ActiveSetBuilder::Build(
     CHECK_NE(p.classes[0], p.classes[1]);
   }
   *active_set_a = ActiveSet();
-  *active_set_b = ActiveSet();
   ActiveSet source_a = class_permuter_a.active_set();
-  ActiveSet source_b = class_permuter_b.active_set();
   std::set<int> b_match_positions;
   Solution s = mutable_solution_.TestableSolution();
   for (auto it_a = class_permuter_a.begin();
@@ -82,7 +80,7 @@ void ActiveSetBuilder::Build(
   CHECK(source_a.ConsumeNext());
   active_set_a->DoneAdding();
 
-  active_set_b->DoneAdding();
+  *active_set_b = ActiveSet(b_match_positions, class_permuter_b.permutation_count());
 }
 
 }  // namespace puzzle

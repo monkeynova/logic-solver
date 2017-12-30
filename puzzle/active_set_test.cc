@@ -1,13 +1,16 @@
 #include "puzzle/active_set.h"
 
 #include <iostream>
+#include <set>
 
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 using ::testing::AnyOf;
+using ::testing::ElementsAre;
 using ::testing::Eq;
+using ::testing::UnorderedElementsAre;
 
 namespace puzzle {
 
@@ -160,6 +163,36 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
     EXPECT_THAT(set.ConsumeNext(), true)
       << i << ": " << set.DebugString();
   } 
+}
+
+std::set<int> Drain(ActiveSet s, int max_positions) {
+  std::set<int> ret;
+  for (int i = 0; i < max_positions; ++i) {
+    if (s.ConsumeNext()) {
+      ret.insert(i);
+    }
+  }
+  return ret;
+}
+
+TEST(ActiveSet, SetConstruction) {
+  EXPECT_THAT(Drain(ActiveSet({0}, 1), 1),
+	      ElementsAre(0));
+  EXPECT_THAT(Drain(ActiveSet({}, 1), 1),
+	      ElementsAre());
+  for (int i = 0; i < 4; ++i) {
+    EXPECT_THAT(Drain(ActiveSet({i}, 4), 4),
+		ElementsAre(i));
+  }
+  for (int i = 0; i < 9; ++i) {
+    if (i == 5) continue;
+    EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9),
+		UnorderedElementsAre(i, 5));
+  }
+  EXPECT_THAT(Drain(ActiveSet({1,3,5,7}, 9), 9),
+	      ElementsAre(1,3,5,7));
+  EXPECT_THAT(Drain(ActiveSet({0,2,4,6,8}, 9), 9),
+	      ElementsAre(0,2,4,6,8));
 }
 
 
