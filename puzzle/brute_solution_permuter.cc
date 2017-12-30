@@ -5,30 +5,20 @@ namespace puzzle {
 BruteSolutionPermuter::iterator::iterator(
    const BruteSolutionPermuter* permuter, 
    const EntryDescriptor* entry_descriptor)
-   : permuter_(permuter), entry_descriptor_(entry_descriptor) {
-  if (entry_descriptor_ == nullptr) {
+   : permuter_(permuter), mutable_solution_(entry_descriptor) {
+  if (entry_descriptor == nullptr) {
     return;
   }
   
   class_types_ = entry_descriptor->AllClasses()->Values();
-  
-  std::vector<int> bad_classes(class_types_.size(), -1);
-  
-  for (auto id: entry_descriptor_->AllIds()->Values()) {
-    entries_.push_back(Entry(id,bad_classes,entry_descriptor_));
-  }
-  
+
   iterators_.resize(class_types_.size());
   for (auto class_int: class_types_) {
     iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
-    
-    const std::vector<int>& class_values = *(iterators_[class_int]);
-    for (unsigned int j = 0; j < class_values.size(); j++ ) {
-      entries_[j].SetClass(class_int, class_values[j]);
-    }
+    mutable_solution_.SetClass(iterators_[class_int]);
   }
   
-  current_ = Solution(entry_descriptor_, &entries_);
+  current_ = mutable_solution_.TestableSolution();
   current_.set_permutation_count(permuter_->permutation_count());
   current_.set_permutation_position(0);
 }
@@ -44,11 +34,8 @@ void BruteSolutionPermuter::iterator::Advance() {
       iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
       carry = true;
     }
-    
-    const std::vector<int>& class_values = *(iterators_[class_int]);
-    for (unsigned int j = 0; j < class_values.size(); ++j ) {
-      entries_[j].SetClass(class_int, class_values[j]);
-    }
+
+    mutable_solution_.SetClass(iterators_[class_int]);
     
     if (!carry) {
       at_end = false;

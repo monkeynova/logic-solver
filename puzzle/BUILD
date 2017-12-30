@@ -61,6 +61,7 @@ cc_library(
     srcs = ["brute_solution_permuter.cc"],
     deps = [
         ":class_permuter",
+        ":mutable_solution",
     ],
 )
 

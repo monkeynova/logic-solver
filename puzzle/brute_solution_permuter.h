@@ -2,6 +2,7 @@
 #define __PUZZLE_BRUTE_SOLUTION_PERMUTER_H
 
 #include "puzzle/class_permuter.h"
+#include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
 
 namespace puzzle {
@@ -49,11 +50,10 @@ class BruteSolutionPermuter {
     void Advance();
 
     const BruteSolutionPermuter* permuter_;
-    const EntryDescriptor* entry_descriptor_;
-    std::vector<Entry> entries_;
+    MutableSolution mutable_solution_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
-    Solution current_;
+    Solution current_;  // Bound to mutable_solution_.
   };
 
   BruteSolutionPermuter(const EntryDescriptor* e);
