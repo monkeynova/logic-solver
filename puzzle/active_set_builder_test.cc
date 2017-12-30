@@ -88,6 +88,40 @@ TEST(ActiveSetBuilderTest, SingleClass) {
   EXPECT_THAT(vector_history.size(), Eq(6));
 }
 
+TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
+  IntRangeDescriptor id_descriptor(0, 2);
+  EntryDescriptor entry_descriptor;
+  const int kClassInt = 0;
+  entry_descriptor.SetIds(&id_descriptor);
+  IntRangeDescriptor class_descriptor(3, 5);
+  entry_descriptor.SetClass(kClassInt, "test class", &class_descriptor);
+
+  ActiveSetBuilder builder(&entry_descriptor);
+
+  ClassPermuter p(&class_descriptor, kClassInt);
+  ASSERT_THAT(p.permutation_count(), 6);
+
+  Solution::Cropper first_is_3("First entry is class 3",
+			       [](const Solution& s) {
+				 return s.Id(0).Class(kClassInt) == 3;
+			       },
+			       {kClassInt});
+
+  Solution::Cropper second_is_4("Second entry is class 4",
+				[](const Solution& s) {
+				  return s.Id(1).Class(kClassInt) == 4;
+				},
+				{kClassInt});
+
+  p.set_active_set(builder.Build(p, {first_is_3}));
+  p.set_active_set(builder.Build(p, {second_is_4}));
+
+  for (auto it = p.begin(); it != p.end(); ++it) {
+    EXPECT_THAT((*it)[0], Eq(3));
+    EXPECT_THAT((*it)[1], Eq(4));
+  }
+}
+
 TEST(ActiveSetBuilderTest, MultiClass) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
