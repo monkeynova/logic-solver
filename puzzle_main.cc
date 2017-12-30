@@ -17,6 +17,7 @@ std::string PositionHeader(const puzzle::Solution& s) {
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);
+  ::google::InstallFailureSignalHandler();
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
   puzzle::Solver solver;
   

@@ -8,6 +8,7 @@ DEFINE_string(benchmarks, "", "...");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);
+  ::google::InstallFailureSignalHandler();
   ::testing::InitGoogleTest(&argc, argv);
   ::benchmark::Initialize(&argc, argv);
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
