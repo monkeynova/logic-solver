@@ -9,18 +9,23 @@ ActiveSet ActiveSetBuilder::Build(
     CHECK_EQ(p.classes.size(), 1);
     CHECK_EQ(p.classes[0], class_permuter.class_int());
   }
+  ActiveSet source = class_permuter.active_set();
   ActiveSet active_set;
   Solution s = mutable_solution_.TestableSolution();
   for (auto it = class_permuter.begin();
        it != class_permuter.end();
        ++it) {
     mutable_solution_.SetClass(it);
+    active_set.AddFalseBlock(source.ConsumeFalseBlock());
+    CHECK(source.ConsumeNext());
     active_set.Add(std::all_of(predicates.begin(),
 			       predicates.end(),
 			       [&s](const Solution::Cropper& c) {
 				 return c.p(s);
 			       }));
   }
+  active_set.AddFalseBlock(source.ConsumeFalseBlock());
+  CHECK(source.ConsumeNext());
   active_set.DoneAdding();
   return active_set;
 }

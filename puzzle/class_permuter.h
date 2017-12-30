@@ -104,7 +104,9 @@ class ClassPermuterImpl {
 			    const int class_int = 0)
     : descriptor_(d),
       permutation_count_(PermutationCount(d)),
-      class_int_(class_int) {}
+      class_int_(class_int) {
+    active_set_.DoneAdding();
+  }
   ~ClassPermuterImpl() {}
 
   // Moveable but not copyable.
@@ -132,6 +134,10 @@ class ClassPermuterImpl {
   // selective enough.
   void set_active_set(ActiveSet active_set) {
     active_set_ = std::move(active_set);
+  }
+
+  const ActiveSet& active_set() const {
+    return active_set_;
   }
 
   double Selectivity() const {

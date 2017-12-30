@@ -113,8 +113,13 @@ TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
 				},
 				{kClassInt});
 
+  LOG(INFO) << "Start: " << p.active_set().DebugString();
   p.set_active_set(builder.Build(p, {first_is_3}));
+  LOG(INFO) << "Add " << first_is_3.name << ": "
+	    << p.active_set().DebugString();
   p.set_active_set(builder.Build(p, {second_is_4}));
+  LOG(INFO) << "Add " << second_is_4.name << ": "
+	    << p.active_set().DebugString();
 
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT((*it)[0], Eq(3));

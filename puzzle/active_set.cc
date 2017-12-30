@@ -32,6 +32,10 @@ void ActiveSet::Add(bool match) {
   }
 }
 
+void ActiveSet::AddFalseBlock(int size) {
+  for (int i = 0; i < size; ++i) Add(/*match=*/false);
+}
+
 void ActiveSet::DoneAdding() {
   building_ = false;
   if (matches_.empty()) {
