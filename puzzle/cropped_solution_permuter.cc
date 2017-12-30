@@ -213,10 +213,9 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 	break;  // class_int
       }
     }
-    if (!added) {
-      std::cerr << "Could not add cropper for " << cropper.name << " ["
-                << absl::StrJoin(cropper.classes, ",") << "]" << std::endl;
-    }
+    CHECK(added)
+      << "Could not add cropper for " << cropper.name << " ["
+      << absl::StrJoin(cropper.classes, ",") << "]";
   }
 
   for (int i = 0; i < multi_class_predicates.size(); ++i) {
