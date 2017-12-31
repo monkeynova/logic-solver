@@ -214,10 +214,6 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   }
 }
 
-static std::pair<int, int> OrderedPair(int a, int b) {
-  return a > b ? std::make_pair(b, a) : std::make_pair(a, b);
-}
-  
 void CroppedSolutionPermuter::BuildActiveSets(
     const std::vector<Solution::Cropper>& croppers,
     std::vector<Solution::Cropper>* residual) {
@@ -237,9 +233,12 @@ void CroppedSolutionPermuter::BuildActiveSets(
       single_class_predicates[class_int].push_back(cropper);
     } else {
       if (cropper.classes.size() == 2) {
-	std::pair<int, int> key = OrderedPair(
+	std::pair<int, int> key1 = std::make_pair(
             cropper.classes[0], cropper.classes[1]);
-	pair_class_predicates[key].push_back(cropper);
+	std::pair<int, int> key2 = std::make_pair(
+            cropper.classes[0], cropper.classes[1]);
+	pair_class_predicates[key1].push_back(cropper);
+	pair_class_predicates[key2].push_back(cropper);
       }
       residual->push_back(cropper);
     }
@@ -255,22 +254,44 @@ void CroppedSolutionPermuter::BuildActiveSets(
   if (!FLAGS_puzzle_prune_pair_class_iterators) {
     return;
   }
-  
-  for (const auto& key_and_croppers : pair_class_predicates) {
-    const auto& key = key_and_croppers.first;
-    const auto& croppers = key_and_croppers.second;
 
-    ActiveSet new_a;
-    ActiveSet new_b;
-    active_set_builder.Build(
-       class_permuters_[key.first], class_permuters_[key.second],
-       croppers, &new_a, &new_b);
-    LOG(INFO) << "Selectivity (" << key.first << ", " << key.second << "): ("
-	      << class_permuters_[key.first].Selectivity() << ", "
-	      << class_permuters_[key.second].Selectivity() << ") => ("
-	      << new_a.Selectivity() << ", " << new_b.Selectivity() << ")";
-    class_permuters_[key.first].set_active_set(std::move(new_a));
-    class_permuters_[key.second].set_active_set(std::move(new_b));
+  bool cardinality_reduced = true;
+  while (cardinality_reduced) {
+    cardinality_reduced = false;
+
+    /*
+    std::sort(class_permuters_.begin(), class_permuters_.end(),
+	      [](const ClassPermuter& a, const ClassPermuter& b) {
+		return a.Selectivity() < b.Selectivity();
+		});*/
+    for (auto it = class_permuters_.begin();
+	 it != class_permuters_.end();
+	 ++it) {
+      for (auto it2 = it + 1; it2 != class_permuters_.end(); ++it2) {
+	if (it->class_int() == it2->class_int()) continue;
+	
+	std::vector<Solution::Cropper>& croppers =
+	  pair_class_predicates[std::make_pair(it->class_int(),
+					       it2->class_int())];
+	if (croppers.empty()) continue;
+	
+	ActiveSet new_a;
+	ActiveSet new_b;
+	active_set_builder.Build(*it, *it2, croppers, &new_a, &new_b);
+	VLOG(2) << "Selectivity (" << it->class_int() << ", "
+		<< it2->class_int() << "): (" << it->Selectivity() << ", "
+		<< it2->Selectivity() << ") => (" << new_a.Selectivity()
+		<< ", " << new_b.Selectivity() << ")";
+	if (it->Selectivity() > new_a.Selectivity()) {
+	  cardinality_reduced = true;
+	}
+	if (it2->Selectivity() > new_b.Selectivity()) {
+	  cardinality_reduced = true;
+	}
+	it->set_active_set(std::move(new_a));
+	it2->set_active_set(std::move(new_b));
+      }
+    }
   }
 }
 
