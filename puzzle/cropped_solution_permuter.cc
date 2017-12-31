@@ -30,10 +30,7 @@ CroppedSolutionPermuter::iterator::iterator(
   iterators_.resize(permuter_->class_permuters_.size());
   for (auto& class_permuter : permuter_->class_permuters_) {
     iterators_[class_permuter.class_int()] = class_permuter.begin();
-  }
-  // UpdateEntries requires all iterators to be constructed.
-  for (auto& class_permuter : permuter_->class_permuters_) {
-    UpdateEntries(class_permuter.class_int());
+    mutable_solution_.SetClass(iterators_[class_permuter.class_int()]);
   }
   
   if (FindNextValid(/*class_position=*/0)) {
@@ -59,46 +56,42 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     permuter_->class_predicates_[class_int];
 
   while (iterators_[class_int] != class_permuter.end()) {
-    if (permuter_->profiler_ != nullptr && permuter_->profiler_->Done()) {
-      return false;
+    if (permuter_->profiler_ != nullptr) {
+      if (permuter_->profiler_->Done()) {
+	return false;
+      }
+      if (permuter_->profiler_->NotePosition(
+	      position(), permuter_->permutation_count())) {
+	std::cout << "; FindNextValid(" << class_position << ") ("
+		  << absl::StrJoin(iterators_, ", ",
+				   [](std::string* out,
+				      const ClassPermuter::iterator& it) {
+				     absl::StrAppend(out, it.Completion());
+				   })
+		  << "): " << position() << std::flush;
+      }
     }
     while(!solution_cropper.p(current_)) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
         iterators_[class_int] = class_permuter.begin();
-        UpdateEntries(class_int);
+	mutable_solution_.SetClass(iterators_[class_int]);
         return false;
       }
-      UpdateEntries(class_int);
+      mutable_solution_.SetClass(iterators_[class_int]);
     }
     if (FindNextValid(class_position + 1)) {
       return true;
     } else {
       ++iterators_[class_int];
-      UpdateEntries(class_int);
+      mutable_solution_.SetClass(iterators_[class_int]);
     }
   }
 
   // Didn't find an entry in iteration. Reset iterator and return "no match".
   iterators_[class_int] = class_permuter.begin();
-  UpdateEntries(class_int);
-  return false;
-}
-
-void CroppedSolutionPermuter::iterator::UpdateEntries(int class_int) {
-  if (permuter_->profiler_ != nullptr) {
-    if (permuter_->profiler_->NotePosition(
-            position(), permuter_->permutation_count())) {
-      std::cout << "; UpdateEntries(" << class_int << ") ("
-                << absl::StrJoin(iterators_, ", ",
-                                 [](std::string* out,
-                                    const ClassPermuter::iterator& it) {
-                                   absl::StrAppend(out, it.Completion());
-                                 })
-                << "): " << position() << std::flush;
-    }
-  }
   mutable_solution_.SetClass(iterators_[class_int]);
+  return false;
 }
 
 void CroppedSolutionPermuter::iterator::Advance() {
@@ -115,7 +108,7 @@ void CroppedSolutionPermuter::iterator::Advance() {
       carry = true;
     }
     
-    UpdateEntries(class_int);
+    mutable_solution_.SetClass(iterators_[class_int]);
     
     if (!carry) {
       at_end = false;

@@ -17,7 +17,7 @@ class Profiler {
   virtual double Seconds() { return 0; }
 
   bool NotePosition(double position, double count) {
-    if (++test_calls_ % 7777 != 1) return false;
+    if (++test_calls_ % 777 != 1) return false;
     return NotePositionImpl(position, count);
   }
   
