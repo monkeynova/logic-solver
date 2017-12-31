@@ -94,6 +94,8 @@ class EntryDescriptor {
     name_descriptors_[class_int] = name_descriptor;
   }
 
+  int num_classes() const { return class_descriptor_.Values().size(); }
+  
   const Descriptor* AllIds() const { return id_descriptor_; }
   const Descriptor* AllClasses() const { return &class_descriptor_; }
   const Descriptor* AllClassValues(int class_int) const {

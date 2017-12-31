@@ -28,30 +28,33 @@ TEST(ActiveSetBuilderTest, SingleClass) {
   ClassPermuter p(&class_descriptor, kClassInt);
   ASSERT_THAT(p.permutation_count(), 6);
   
-  ActiveSet active_set_first_is_3 = builder.Build(
+  builder.Build(
       p,
       {Solution::Cropper("First entry is class 3",
 			 [](const Solution& s) {
 			   return s.Id(0).Class(kClassInt) == 3;
 			 },
 			 {kClassInt})});
+  ActiveSet active_set_first_is_3 = builder.active_set(kClassInt);
 
-  ActiveSet active_set_first_is_4 = builder.Build(
+  builder.Build(
       p,
       {Solution::Cropper("First entry is class 4",
 			 [](const Solution& s) {
 			   return s.Id(0).Class(kClassInt) == 4;
 			 },
 			 {kClassInt})});
+  ActiveSet active_set_first_is_4 = builder.active_set(kClassInt);
 
-  ActiveSet active_set_first_is_5 = builder.Build(
+  builder.Build(
       p,
       {Solution::Cropper("First entry is class 5",
 			 [](const Solution& s) {
 			   return s.Id(0).Class(kClassInt) == 5;
 			 },
 			 {kClassInt})});
-  
+  ActiveSet active_set_first_is_5 = builder.active_set(kClassInt);
+    
   std::set<int> position_history;
   std::set<std::vector<int>> vector_history;
   p.set_active_set(std::move(active_set_first_is_3));
@@ -114,10 +117,12 @@ TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
 				{kClassInt});
 
   LOG(INFO) << "Start: " << p.active_set().DebugString();
-  p.set_active_set(builder.Build(p, {first_is_3}));
+  builder.Build(p, {first_is_3});
+  p.set_active_set(builder.active_set(kClassInt));
   LOG(INFO) << "Add " << first_is_3.name << ": "
 	    << p.active_set().DebugString();
-  p.set_active_set(builder.Build(p, {second_is_4}));
+  builder.Build(p, {second_is_4});
+  p.set_active_set(builder.active_set(kClassInt));
   LOG(INFO) << "Add " << second_is_4.name << ": "
 	    << p.active_set().DebugString();
 
@@ -145,9 +150,6 @@ TEST(ActiveSetBuilderTest, MultiClass) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  ActiveSet active_set_a;
-  ActiveSet active_set_b;
-
   Solution::Cropper c("a is 3 and b is 4 for id 0",
 		      [](const Solution& s) {
 			return s.Id(0).Class(kClassIntA) == 3 &&
@@ -155,7 +157,11 @@ TEST(ActiveSetBuilderTest, MultiClass) {
 		      },
 		      {kClassIntA, kClassIntB});
 
-  builder.Build(permuter_a, permuter_b, {c}, &active_set_a, &active_set_b);
+  builder.Build(permuter_a, permuter_b, {c});
+
+  ActiveSet active_set_a = builder.active_set(kClassIntA);
+  ActiveSet active_set_b = builder.active_set(kClassIntB);
+
 
   MutableSolution mutable_solution(&entry_descriptor);
   Solution test_solution = mutable_solution.TestableSolution();
@@ -218,12 +224,10 @@ TEST(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
 			      },
 			      {kClassIntA});
 
-  ActiveSet active_set_a_pre = builder.Build(permuter_a, {a_cropper});
+  builder.Build(permuter_a, {a_cropper});
+  ActiveSet active_set_a_pre = builder.active_set(kClassIntA);
   permuter_a.set_active_set(active_set_a_pre);
   
-  ActiveSet active_set_a_post;
-  ActiveSet active_set_b;
-
   Solution::Cropper pair_cropper("a is 3 and b is 4 for id 0",
 				 [](const Solution& s) {
 				   return s.Id(0).Class(kClassIntA) == 3 &&
@@ -231,8 +235,10 @@ TEST(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
 				 },
 				 {kClassIntA, kClassIntB});
   
-  builder.Build(permuter_a, permuter_b, {pair_cropper},
-		&active_set_a_post, &active_set_b);
+  builder.Build(permuter_a, permuter_b, {pair_cropper});
+
+  ActiveSet active_set_a_post = builder.active_set(kClassIntA);
+  ActiveSet active_set_b = builder.active_set(kClassIntB);
 
   MutableSolution mutable_solution(&entry_descriptor);
   Solution test_solution = mutable_solution.TestableSolution();
@@ -297,12 +303,10 @@ TEST(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
 			      },
 			      {kClassIntB});
 
-  ActiveSet active_set_b_pre = builder.Build(permuter_b, {b_cropper});
+  builder.Build(permuter_b, {b_cropper});
+  ActiveSet active_set_b_pre = builder.active_set(kClassIntB);
   permuter_b.set_active_set(active_set_b_pre);
   
-  ActiveSet active_set_a;
-  ActiveSet active_set_b_post;
-
   Solution::Cropper pair_cropper("a is 3 and b is 4 for id 0",
 				 [](const Solution& s) {
 				   return s.Id(0).Class(kClassIntA) == 3 &&
@@ -310,8 +314,11 @@ TEST(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
 				 },
 				 {kClassIntA, kClassIntB});
   
-  builder.Build(permuter_a, permuter_b, {pair_cropper},
-		&active_set_a, &active_set_b_post);
+  builder.Build(permuter_a, permuter_b, {pair_cropper});
+
+  ActiveSet active_set_a = builder.active_set(kClassIntA);
+  ActiveSet active_set_b_post = builder.active_set(kClassIntB);
+
 
   MutableSolution mutable_solution(&entry_descriptor);
   Solution test_solution = mutable_solution.TestableSolution();

@@ -240,8 +240,9 @@ void CroppedSolutionPermuter::BuildActiveSets(
   ActiveSetBuilder active_set_builder(entry_descriptor_);
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter.class_int();
-    class_permuter.set_active_set(active_set_builder.Build(
-	 class_permuter, single_class_predicates[class_int]));
+    active_set_builder.Build(class_permuter,
+			     single_class_predicates[class_int]);
+    class_permuter.set_active_set(active_set_builder.active_set(class_int));
   }
 
   if (!FLAGS_puzzle_prune_pair_class_iterators) {
@@ -268,9 +269,9 @@ void CroppedSolutionPermuter::BuildActiveSets(
 					       it2->class_int())];
 	if (croppers.empty()) continue;
 	
-	ActiveSet new_a;
-	ActiveSet new_b;
-	active_set_builder.Build(*it, *it2, croppers, &new_a, &new_b);
+	active_set_builder.Build(*it, *it2, croppers);
+	const ActiveSet& new_a = active_set_builder.active_set(it->class_int());
+	const ActiveSet& new_b = active_set_builder.active_set(it2->class_int());
 	VLOG(2) << "Selectivity (" << it->class_int() << ", "
 		<< it2->class_int() << "): (" << it->Selectivity() << ", "
 		<< it2->Selectivity() << ") => (" << new_a.Selectivity()
@@ -281,8 +282,8 @@ void CroppedSolutionPermuter::BuildActiveSets(
 	if (it2->Selectivity() > new_b.Selectivity()) {
 	  cardinality_reduced = true;
 	}
-	it->set_active_set(std::move(new_a));
-	it2->set_active_set(std::move(new_b));
+	it->set_active_set(new_a);
+	it2->set_active_set(new_b);
       }
     }
   }

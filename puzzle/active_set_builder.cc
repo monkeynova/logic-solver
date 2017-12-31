@@ -2,7 +2,7 @@
 
 namespace puzzle {
 
-ActiveSet ActiveSetBuilder::Build(
+void ActiveSetBuilder::Build(
     const ClassPermuter& class_permuter,
     const std::vector<Solution::Cropper>& predicates) {
   for (const auto& p : predicates) {
@@ -27,15 +27,13 @@ ActiveSet ActiveSetBuilder::Build(
   active_set.AddFalseBlock(source.ConsumeFalseBlock());
   CHECK(source.ConsumeNext());
   active_set.DoneAdding();
-  return active_set;
+  active_sets_[class_permuter.class_int()] = active_set;
 }
 
 void ActiveSetBuilder::Build(
     const ClassPermuter& class_permuter_a,
     const ClassPermuter& class_permuter_b,
-    const std::vector<Solution::Cropper>& predicates,
-    ActiveSet* active_set_a,
-    ActiveSet* active_set_b) {
+    const std::vector<Solution::Cropper>& predicates) {
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes.size(), 2);
     CHECK(p.classes[0] == class_permuter_a.class_int() ||
@@ -44,7 +42,7 @@ void ActiveSetBuilder::Build(
 	  p.classes[1] == class_permuter_b.class_int());
     CHECK_NE(p.classes[0], p.classes[1]);
   }
-  *active_set_a = ActiveSet();
+  ActiveSet active_set_a = ActiveSet();
   ActiveSet source_a = class_permuter_a.active_set();
   std::set<int> b_match_positions;
   Solution s = mutable_solution_.TestableSolution();
@@ -53,7 +51,7 @@ void ActiveSetBuilder::Build(
        it_a != class_permuter_a.end();
        ++it_a) {
     mutable_solution_.SetClass(it_a);
-    active_set_a->AddFalseBlock(source_a.ConsumeFalseBlock());
+    active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
     CHECK(source_a.ConsumeNext());
     bool any_of_a = false;
     for (auto it_b = class_permuter_b.begin();
@@ -76,21 +74,23 @@ void ActiveSetBuilder::Build(
 	b_match_positions.insert(it_b.position());
       }
     }
-    active_set_a->Add(any_of_a);
+    active_set_a.Add(any_of_a);
   }
-  active_set_a->AddFalseBlock(source_a.ConsumeFalseBlock());
+  active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
   CHECK(source_a.ConsumeNext());
-  active_set_a->DoneAdding();
-
-  *active_set_b = ActiveSet(b_match_positions,
-			    class_permuter_b.permutation_count());
+  active_set_a.DoneAdding();
+  const int a_match_count = active_set_a.matches();
+  const int b_match_count = b_match_positions.size();
+  
+  active_sets_[class_permuter_a.class_int()] = std::move(active_set_a);
+  active_sets_[class_permuter_b.class_int()] = ActiveSet(
+      b_match_positions, class_permuter_b.permutation_count());
 
   VLOG(1) << "Join selectivity (" << class_permuter_a.class_int() << ", "
 	  << class_permuter_b.class_int() << ")="
-	  << full_match_count / (active_set_a->matches() *
-				 active_set_b->matches())
+	  << full_match_count / (a_match_count * b_match_count)
 	  << ": " << full_match_count << " out of "
-	  << active_set_a->matches() * active_set_b->matches();
+	  << a_match_count * b_match_count;
 }
 
 }  // namespace puzzle

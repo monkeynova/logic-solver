@@ -13,7 +13,7 @@ class MutableSolution {
   explicit MutableSolution(const EntryDescriptor* descriptor)
     : descriptor_(descriptor) {
     if (descriptor != nullptr) {
-      const int num_classes = descriptor_->AllClasses()->Values().size();
+      const int num_classes = descriptor_->num_classes();
       
       std::vector<int> invalid_classes(num_classes, -1);
 
