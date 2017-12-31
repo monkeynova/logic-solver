@@ -157,43 +157,9 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
   }
 
   std::vector<Solution::Cropper> unhandled;
-  if (FLAGS_puzzle_prune_class_iterator) {
-    std::vector<std::vector<Solution::Cropper>> single_class_predicates;
-    single_class_predicates.resize(class_permuters_.size());
-    for (const auto& cropper: croppers_with_class) {
-      if (cropper.classes.size() == 1) {
-	int class_int = cropper.classes[0];
-	single_class_predicates[class_int].push_back(cropper);
-      } else {
-	unhandled.push_back(cropper);
-      }
-    }
-    // Build ActiveSet for each ClassPermuter if flag enabled.
-    ActiveSetBuilder active_set_builder_(entry_descriptor_);
-    for (auto& class_permuter : class_permuters_) {
-      int class_int = class_permuter.class_int();
-      class_permuter.set_active_set(active_set_builder_.Build(
-	  class_permuter, single_class_predicates[class_int]));
-    }
-    
-    if (FLAGS_puzzle_prune_reorder_classes) {
-      std::sort(class_permuters_.begin(), class_permuters_.end(),
-		[](const ClassPermuter& a, const ClassPermuter& b) {
-		  return a.Selectivity() < b.Selectivity();
-		});
-      VLOG(1) << "Reordered to: "
-	      << absl::StrJoin(class_permuters_, ", ",
-			       [](std::string* out, const ClassPermuter& a) {
-				 absl::StrAppend(out, "(", a.class_int(), ",",
-						 a.Selectivity(), ")");
-			       });
-    }
-  } else {
-    for (const auto& cropper: croppers_with_class) {
-      unhandled.push_back(cropper);
-    }
-  }
-
+  BuildActiveSets(croppers_with_class, &unhandled);
+  ReorderEvaluation();
+  
   std::vector<std::vector<Solution::Cropper>> multi_class_predicates;
   multi_class_predicates.resize(class_permuters_.size());
   for (const auto& cropper: unhandled) {
@@ -241,6 +207,52 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 	      << ": " << class_predicates_[permuter.class_int()].name;
     }
   }
+}
+
+void CroppedSolutionPermuter::BuildActiveSets(
+    const std::vector<Solution::Cropper>& croppers,
+    std::vector<Solution::Cropper>* residual) {
+  if (!FLAGS_puzzle_prune_class_iterator) {
+    for (const auto& cropper: croppers) {
+      residual->push_back(cropper);
+    }
+  }
+
+  std::vector<std::vector<Solution::Cropper>> single_class_predicates;
+  single_class_predicates.resize(class_permuters_.size());
+  for (const auto& cropper: croppers) {
+    if (cropper.classes.size() == 1) {
+      int class_int = cropper.classes[0];
+      single_class_predicates[class_int].push_back(cropper);
+    } else {
+      residual->push_back(cropper);
+    }
+  }
+
+  ActiveSetBuilder active_set_builder_(entry_descriptor_);
+  for (auto& class_permuter : class_permuters_) {
+    int class_int = class_permuter.class_int();
+    class_permuter.set_active_set(active_set_builder_.Build(
+	 class_permuter, single_class_predicates[class_int]));
+  }
+}
+
+void CroppedSolutionPermuter::ReorderEvaluation() {
+  if (!FLAGS_puzzle_prune_reorder_classes) {
+    return;
+  }
+  
+  std::sort(class_permuters_.begin(), class_permuters_.end(),
+	    [](const ClassPermuter& a, const ClassPermuter& b) {
+	      return a.Selectivity() < b.Selectivity();
+	    });
+
+  VLOG(1) << "Reordered to: "
+	  << absl::StrJoin(class_permuters_, ", ",
+			   [](std::string* out, const ClassPermuter& a) {
+			     absl::StrAppend(out, "(", a.class_int(), ",",
+					     a.Selectivity(), ")");
+			   });
 }
 
 double CroppedSolutionPermuter::permutation_count() const {

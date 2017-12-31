@@ -32,12 +32,8 @@ class CroppedSolutionPermuter {
     bool operator==(const iterator& other) {
       return current_ == other.current_;
     }
-    const Solution& operator*() {
-      return current_;
-    }
-    const Solution* operator->() {
-      return &current_;
-    }
+    const Solution& operator*() { return current_; }
+    const Solution* operator->() { return &current_; }
     iterator& operator++() {
       Advance();
       return *this;
@@ -81,6 +77,17 @@ class CroppedSolutionPermuter {
   }
 
  private:
+  // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
+  // Elements in 'croppers' that are not completely evaluated by these active
+  // sets are returned in 'residual'.
+  void BuildActiveSets(const std::vector<Solution::Cropper>& croppers,
+		       std::vector<Solution::Cropper>* residual);
+
+  // Reorders 'class_permuters_' by increasing selectivity. The effect of this
+  // is to mean that any filter evaluated on a partial set of 'class_permuters_'
+  // maximally prunes unnecessary iteration.
+  void ReorderEvaluation();
+
   const EntryDescriptor* const entry_descriptor_ = nullptr;
 
   // Ordered by the evaluation order that is configured for
