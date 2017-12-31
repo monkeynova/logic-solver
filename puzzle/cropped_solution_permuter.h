@@ -90,10 +90,10 @@ class CroppedSolutionPermuter {
 
   const EntryDescriptor* const entry_descriptor_ = nullptr;
 
-  // Ordered by the evaluation order that is configured for
-  // 'multi_class_predicates_'. That is, if the first N permuters have been
-  // updated then permuting entries N+1 and further should only be performed
-  // if 'multi_class_predicates_[class_permuter_[N-1].class_int()]' is true.
+  // Ordered by the evaluation order that is configured for 'class_predicates_'.
+  // That is, if the first N permuters have been updated then permuting entries
+  // N+1 and further should only be performed if
+  // 'class_predicates_[class_permuter_[N-1].class_int()]' is true.
   std::vector<ClassPermuter> class_permuters_;
 
   // Index is class_int at which evaluation should be performed.
