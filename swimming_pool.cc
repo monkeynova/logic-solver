@@ -21,10 +21,6 @@ Carol: style=Butterfly country=CA lane=1
 Daisy: style=Backstroke country=AU lane=4
 Emily: style=Freestyle country=UK lane=3
  */
-#include <iostream>
-#include <memory>
-
-#include "absl/memory/memory.h"
 #include "puzzle/solver.h"
 #include "swimming_pool.pb.h"
 
