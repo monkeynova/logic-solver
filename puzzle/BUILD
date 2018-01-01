@@ -45,6 +45,15 @@ cc_library(
     ],
 )
 
+cc_binary(
+    name = "active_set_builder_benchmark",
+    srcs = ["active_set_builder_benchmark.cc"],
+    deps = [
+        ":active_set_builder",
+        "@com_google_benchmark//:benchmark",
+    ]
+)
+
 cc_test(
     name = "active_set_builder_test",
     srcs = ["active_set_builder_test.cc"],
