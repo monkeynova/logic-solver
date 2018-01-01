@@ -26,7 +26,7 @@ TEST(Puzzle, RightAnswer) {
   EXPECT_EQ(got, expect);
 }
 
-template <bool brute, bool prune, bool reorder>
+template <bool brute, bool noprune, bool noreorder>
 static void BM_Solver(benchmark::State& state) {
   puzzle::Solver solver;
   SetupProblem(&solver);
@@ -36,13 +36,13 @@ static void BM_Solver(benchmark::State& state) {
     FLAGS_puzzle_brute_force = true;
     label.push_back("brute");
   }
-  if (prune) {
-    FLAGS_puzzle_prune_class_iterator = true;
-    label.push_back("prune");
+  if (noprune) {
+    FLAGS_puzzle_prune_class_iterator = false;
+    label.push_back("noprune");
   }
-  if (reorder) {
-    FLAGS_puzzle_prune_reorder_classes = true;
-    label.push_back("reorder");
+  if (noreorder) {
+    FLAGS_puzzle_prune_reorder_classes = false;
+    label.push_back("noreorder");
   }
   state.SetLabel(absl::StrJoin(label, " "));
 

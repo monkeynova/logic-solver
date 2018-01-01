@@ -68,9 +68,9 @@ cc_test(
 )
 
 cc_test(
-    name = "swimming_pool_pruned_test",
+    name = "swimming_pool_noprune_test",
     srcs = ["swimming_pool.cc"],
-    args = ["--puzzle_prune_class_iterator=true"],
+    args = ["--puzzle_prune_class_iterator=false"],
     deps = [
         ":puzzle_test",
         ":swimming_pool_cc_proto",
@@ -88,9 +88,9 @@ cc_test(
 )
 
 cc_test(
-    name = "six_fearsome_heroes_pruned_test",
+    name = "six_fearsome_heroes_noprune_test",
     srcs = ["six_fearsome_heroes.cc"],
-    args = ["--puzzle_prune_class_iterator=true"],
+    args = ["--puzzle_prune_class_iterator=false"],
     deps = [
         ":puzzle_test",
         "@com_google_googletest//:gtest",	
@@ -98,11 +98,10 @@ cc_test(
 )
 
 cc_test(
-    name = "six_fearsome_heroes_reorder_test",
+    name = "six_fearsome_heroes_noreorder_test",
     srcs = ["six_fearsome_heroes.cc"],
     args = [
-        "--puzzle_prune_class_iterator=true",
-        "--puzzle_prune_reorder_classes=true",
+        "--puzzle_prune_reorder_classes=false",
     ],
     deps = [
         ":puzzle_test",

@@ -5,7 +5,7 @@
 #include "puzzle/active_set.h"
 #include "puzzle/active_set_builder.h"
 
-DEFINE_bool(puzzle_prune_class_iterator, false,
+DEFINE_bool(puzzle_prune_class_iterator, true,
             "If specfied, class iterators will be pruned based on single "
             "class predicates that are present.");
 
@@ -13,7 +13,7 @@ DEFINE_bool(puzzle_prune_pair_class_iterators, false,
             "If specfied, class iterators will be pruned based on pair "
             "class predicates that are present.");
 
-DEFINE_bool(puzzle_prune_reorder_classes, false,
+DEFINE_bool(puzzle_prune_reorder_classes, true,
 	    "If true, class iteration will be re-ordered from the default "
 	    "based on effective scan rate.");
 
