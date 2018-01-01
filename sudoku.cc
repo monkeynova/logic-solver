@@ -7,7 +7,7 @@ Logic solver repurposed for sudoku
 
 #include "absl/memory/memory.h"
 #include "gflags/gflags.h"
-#include "puzzle/solver.h"
+#include "puzzle/problem.h"
 
 DEFINE_string(sudoku_problem_setup, "cumulative",
 	      "Sepecifies the form of the predicates passed to the puzzle "
@@ -21,18 +21,42 @@ DEFINE_bool(sudoku_setup_only, false,
             "If true, only set up predicates for valid sudoku board "
             "configuration rather than solving a specific board.");
 
-static void AddProblemPredicatesCumulative(puzzle::Solver* s) {
+class SudokuProblem : public puzzle::Problem {
+ protected:
+  void AddValuePredicate(int row, int col, int value);
+
+ private:
+  void Setup() override;
+  puzzle::Solution Solution() const override { return puzzle::Solution(); }
+
+  static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
+
+  void AddPredicates();
+  void AddPredicatesCumulative();
+  void AddPredicatesPairwise();
+  
+  virtual void AddInstancePredicates() = 0;
+};
+
+class SudokuInstance : public SudokuProblem {
+  puzzle::Solution Solution() const override;
+  void AddInstancePredicates() override;
+};
+
+REGISTER_PROBLEM(SudokuInstance);
+
+void SudokuProblem::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
-    s->AddPredicate(absl::StrCat("No row dupes ", i + 1),
-                    [i](const puzzle::Entry& e) {
-                      for (int j = 0; j < i; ++j) {
-                        if (e.Class(i) == e.Class(j)) return false;
-                      }
-                      return true;
-                    },
-                    cols);
+    AddPredicate(absl::StrCat("No row dupes ", i + 1),
+		 [i](const puzzle::Entry& e) {
+		   for (int j = 0; j < i; ++j) {
+		     if (e.Class(i) == e.Class(j)) return false;
+		   }
+		   return true;
+		 },
+		 cols);
   }
 
   for (int i = 0; i < 9; ++i) {
@@ -42,7 +66,7 @@ static void AddProblemPredicatesCumulative(puzzle::Solver* s) {
     }
 
     cols.push_back(i);
-    s->AddPredicate(
+    AddPredicate(
         absl::StrCat("No box dupes ", i + 1),
         [i](const puzzle::Solution& s) {
           for (int row = 0; row < 9; ++row) {
@@ -62,22 +86,22 @@ static void AddProblemPredicatesCumulative(puzzle::Solver* s) {
   }
 }
 
-static void AddProblemPredicatesPairwise(puzzle::Solver* s) {
+void SudokuProblem::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
     for (int j = 0; j < 9; ++j) {
       if (i < j) {
-        s->AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
-                        [i, j](const puzzle::Entry& e) {
-                          return e.Class(i) != e.Class(j);
-                        },
-                        {i, j});
+        AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
+		     [i, j](const puzzle::Entry& e) {
+		       return e.Class(i) != e.Class(j);
+		     },
+		     {i, j});
       }
     }
   }
 
   for (int box_base_x = 0; box_base_x < 9; box_base_x += 3) {
     for (int box_base_y = 0; box_base_y < 9; box_base_y += 3) {
-      s->AddPredicate(
+      AddPredicate(
           absl::StrCat("No box dupes (", box_base_x + 1, ",", box_base_y + 1,
                        ")"),
           [box_base_x, box_base_y](const puzzle::Solution& s) {
@@ -96,15 +120,15 @@ static void AddProblemPredicatesPairwise(puzzle::Solver* s) {
   }
 }
 
-static void AddValuePredicate(int row, int col, int value, puzzle::Solver* s) {
-  s->AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
-                  [row, col, value](const puzzle::Solution& s) {
-                    return s.Id(row - 1).Class(col - 1) == value;
-                  },
-                  col - 1);
+void SudokuProblem::AddValuePredicate(int row, int col, int value) {
+  AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
+	       [row, col, value](const puzzle::Solution& s) {
+		 return s.Id(row - 1).Class(col - 1) == value;
+	       },
+	       col - 1);
 }
 
-void AddRulePredicates(puzzle::Solver* s) {
+void SudokuInstance::AddInstancePredicates() {
   /*
     8 ? 5 | ? ? ? | ? 3 9
     ? ? ? | ? ? ? | ? ? ?
@@ -118,33 +142,33 @@ void AddRulePredicates(puzzle::Solver* s) {
     ? ? ? | ? ? 3 | 6 ? ?
     ? ? 2 | 9 1 ? | ? ? ?
   */
-  AddValuePredicate(1, 1, 8, s);
-  AddValuePredicate(1, 3, 5, s);
-  AddValuePredicate(1, 8, 3, s);
-  AddValuePredicate(1, 9, 9, s);
-  AddValuePredicate(3, 2, 3, s);
-  AddValuePredicate(3, 3, 9, s);
-  AddValuePredicate(3, 4, 5, s);
-  AddValuePredicate(3, 9, 4, s);
-  AddValuePredicate(4, 1, 2, s);
-  AddValuePredicate(4, 5, 7, s);
-  AddValuePredicate(4, 9, 8, s);
-  AddValuePredicate(5, 5, 2, s);
-  AddValuePredicate(5, 7, 9, s);
-  AddValuePredicate(5, 8, 5, s);
-  AddValuePredicate(6, 3, 4, s);
-  AddValuePredicate(6, 9, 1, s);
-  AddValuePredicate(7, 1, 9, s);
-  AddValuePredicate(7, 6, 8, s);
-  AddValuePredicate(7, 7, 7, s);
-  AddValuePredicate(8, 6, 3, s);
-  AddValuePredicate(8, 7, 6, s);
-  AddValuePredicate(9, 3, 2, s);
-  AddValuePredicate(9, 4, 9, s);
-  AddValuePredicate(9, 5, 1, s);
+  AddValuePredicate(1, 1, 8);
+  AddValuePredicate(1, 3, 5);
+  AddValuePredicate(1, 8, 3);
+  AddValuePredicate(1, 9, 9);
+  AddValuePredicate(3, 2, 3);
+  AddValuePredicate(3, 3, 9);
+  AddValuePredicate(3, 4, 5);
+  AddValuePredicate(3, 9, 4);
+  AddValuePredicate(4, 1, 2);
+  AddValuePredicate(4, 5, 7);
+  AddValuePredicate(4, 9, 8);
+  AddValuePredicate(5, 5, 2);
+  AddValuePredicate(5, 7, 9);
+  AddValuePredicate(5, 8, 5);
+  AddValuePredicate(6, 3, 4);
+  AddValuePredicate(6, 9, 1);
+  AddValuePredicate(7, 1, 9);
+  AddValuePredicate(7, 6, 8);
+  AddValuePredicate(7, 7, 7);
+  AddValuePredicate(8, 6, 3);
+  AddValuePredicate(8, 7, 6);
+  AddValuePredicate(9, 3, 2);
+  AddValuePredicate(9, 4, 9);
+  AddValuePredicate(9, 5, 1);
 }
 
-puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
+puzzle::Solution SudokuInstance::Solution() const {
   /*
 I1231 16:52:05.938428 2819318592 puzzle_main.cc:44] 0: 1=8 2=1 3=5 4=7 5=6 6=4 7=2 8=3 9=9
 1: 1=4 2=2 3=7 4=1 5=3 6=9 7=5 8=8 9=6
@@ -171,41 +195,40 @@ I1231 16:52:05.938474 2819318592 puzzle_main.cc:48] [1 solutions tested in 551.5
   */
   std::vector<puzzle::Entry> entries;
   entries.emplace_back(0, std::vector<int>{8, 1, 5, 7, 6, 4 , 2, 3, 9},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(1, std::vector<int>{4, 2, 7, 1, 3, 9 , 5, 8, 6},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(2, std::vector<int>{6, 3, 9, 5, 8, 2 , 1, 7, 4},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(3, std::vector<int>{2, 9, 1, 3, 7, 5 , 4, 6, 8},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(4, std::vector<int>{3, 8, 6, 4, 2, 1 , 9, 5, 7},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(5, std::vector<int>{7, 5, 4, 8, 9, 6 , 3, 2, 1},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(6, std::vector<int>{9, 4, 3, 6, 5, 8 , 7, 1, 2},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(7, std::vector<int>{1, 7, 8, 2, 4, 3 , 6, 9, 5},
-		       s.entry_descriptor());
+		       entry_descriptor());
   entries.emplace_back(8, std::vector<int>{5, 6, 2, 9, 1, 7 , 8, 4, 3},
-		       s.entry_descriptor());
+		       entry_descriptor());
 
-  return puzzle::Solution(s.entry_descriptor(), &entries).Clone();
+  return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
 
-void SetupProblem(puzzle::Solver* s) {
-  puzzle::Descriptor* val_descriptor = s->AddDescriptor(
+void SudokuProblem::Setup() {
+  puzzle::Descriptor* val_descriptor = AddDescriptor(
       new puzzle::IntRangeDescriptor(1, 9));
 
-  s->SetIdentifiers(s->AddDescriptor(
-      new puzzle::IntRangeDescriptor(0, 8)));
+  SetIdentifiers(AddDescriptor(new puzzle::IntRangeDescriptor(0, 8)));
   for (int i = 0; i < 9; ++i) {
-    s->AddClass(i, absl::StrCat(i + 1), val_descriptor);
+    AddClass(i, absl::StrCat(i + 1), val_descriptor);
   }
 
   if (FLAGS_sudoku_problem_setup == "cumulative") {
-    AddProblemPredicatesCumulative(s);
+    AddPredicatesCumulative();
   } else if (FLAGS_sudoku_problem_setup == "pairwise") {
-    AddProblemPredicatesPairwise(s);
+    AddPredicatesPairwise();
   } else {
     LOG(FATAL) << "Unrecognized option for sudoku_problem_setup '"
 	       << FLAGS_sudoku_problem_setup << "'; valid values are "
@@ -216,5 +239,5 @@ void SetupProblem(puzzle::Solver* s) {
     return;
   }
 
-  AddRulePredicates(s);
+  AddInstancePredicates();
 }

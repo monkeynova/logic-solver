@@ -119,6 +119,17 @@ cc_library(
 )
 
 cc_library(
+    name = "problem",
+    hdrs = ["problem.h"],
+    deps = [
+        ":solver",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
+)
+
+cc_library(
     name = "solution",
     hdrs = ["solution.h"],
     srcs = ["solution.cc"],

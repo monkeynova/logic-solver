@@ -6,7 +6,7 @@
 #include "benchmark/benchmark.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "puzzle/solver.h"
+#include "puzzle/problem.h"
 
 DECLARE_bool(puzzle_brute_force);
 DECLARE_bool(puzzle_prune_class_iterator);
@@ -16,20 +16,19 @@ extern void SetupProblem(puzzle::Solver* s);
 extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
-  puzzle::Solver solver;
-  
-  SetupProblem(&solver);
+  puzzle::Problem* problem = puzzle::Problem::GetInstance();
+   problem->Setup();
 
-  puzzle::Solution got = solver.Solve();
-  puzzle::Solution expect = ProblemSolution(solver);
+  puzzle::Solution got = problem->Solve();
+  puzzle::Solution expect = problem->Solution();
   
   EXPECT_EQ(got, expect);
 }
 
 template <bool brute, bool noprune, bool noreorder>
 static void BM_Solver(benchmark::State& state) {
-  puzzle::Solver solver;
-  SetupProblem(&solver);
+  puzzle::Problem* problem = puzzle::Problem::GetInstance();
+  problem->Setup();
 
   std::vector<std::string> label;
   if (brute) {
@@ -47,7 +46,7 @@ static void BM_Solver(benchmark::State& state) {
   state.SetLabel(absl::StrJoin(label, " "));
 
   for (auto _ : state) {
-    solver.Solve();
+    problem->Solve();
   }
 }
 

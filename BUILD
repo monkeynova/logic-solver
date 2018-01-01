@@ -32,8 +32,7 @@ cc_library(
     name = "puzzle_main",
     srcs = ["puzzle_main.cc"],
     deps = [
-        "//puzzle:instance",
-        "//puzzle:solver",
+        "//puzzle:problem",
         "@com_google_absl//absl/memory",
     ],
 )
@@ -143,7 +142,7 @@ cc_library(
     name = "puzzle_test",
     srcs = ["puzzle_test.cc"],
     deps = [
-        "//puzzle:solver",
+        "//puzzle:problem",
         "//puzzle:test_main",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
