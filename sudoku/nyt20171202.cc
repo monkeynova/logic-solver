@@ -1,13 +1,13 @@
-#include "sudoku.h"
+#include "sudoku/base.h"
 
-class SudokuNYT20171202 : public SudokuProblem {
+namespace sudoku {
+
+class NYT20171202 : public Base {
   puzzle::Solution Solution() const override;
   void AddInstancePredicates() override;
 };
 
-REGISTER_PROBLEM(SudokuNYT20171202);
-
-void SudokuNYT20171202::AddInstancePredicates() {
+void NYT20171202::AddInstancePredicates() {
   /*
     8 ? 5 | ? ? ? | ? 3 9
     ? ? ? | ? ? ? | ? ? ?
@@ -47,7 +47,7 @@ void SudokuNYT20171202::AddInstancePredicates() {
   AddValuePredicate(9, 5, 1);
 }
 
-puzzle::Solution SudokuNYT20171202::Solution() const {
+puzzle::Solution NYT20171202::Solution() const {
   /*
 I1231 16:52:05.938428 2819318592 puzzle_main.cc:44] 0: 1=8 2=1 3=5 4=7 5=6 6=4 7=2 8=3 9=9
 1: 1=4 2=2 3=7 4=1 5=3 6=9 7=5 8=8 9=6
@@ -94,3 +94,7 @@ I1231 16:52:05.938474 2819318592 puzzle_main.cc:48] [1 solutions tested in 551.5
 
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
+
+}  // namespace sudoku
+
+REGISTER_PROBLEM(sudoku::NYT20171202);

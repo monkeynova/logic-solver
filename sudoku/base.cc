@@ -1,4 +1,4 @@
-#include "sudoku.h"
+#include "sudoku/base.h"
 
 #include <iostream>
 #include <memory>
@@ -19,7 +19,9 @@ DEFINE_bool(sudoku_setup_only, false,
             "If true, only set up predicates for valid sudoku board "
             "configuration rather than solving a specific board.");
 
-void SudokuProblem::AddPredicatesCumulative() {
+namespace sudoku {
+
+void Base::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
@@ -60,7 +62,7 @@ void SudokuProblem::AddPredicatesCumulative() {
   }
 }
 
-void SudokuProblem::AddPredicatesPairwise() {
+void Base::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
     for (int j = 0; j < 9; ++j) {
       if (i < j) {
@@ -94,7 +96,7 @@ void SudokuProblem::AddPredicatesPairwise() {
   }
 }
 
-void SudokuProblem::AddValuePredicate(int row, int col, int value) {
+void Base::AddValuePredicate(int row, int col, int value) {
   AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
                [row, col, value](const puzzle::Solution& s) {
                  return s.Id(row - 1).Class(col - 1) == value;
@@ -102,7 +104,7 @@ void SudokuProblem::AddValuePredicate(int row, int col, int value) {
                col - 1);
 }
 
-void SudokuProblem::Setup() {
+void Base::Setup() {
   puzzle::Descriptor* val_descriptor = AddDescriptor(
       new puzzle::IntRangeDescriptor(1, 9));
 
@@ -126,4 +128,6 @@ void SudokuProblem::Setup() {
   }
 
   AddInstancePredicates();
+}
+
 }

@@ -180,6 +180,18 @@ cc_test(
 )
 
 cc_library(
+    name = "puzzle_main",
+    srcs = ["puzzle_main.cc"],
+    deps = [
+        ":problem",
+        "@com_google_absl//absl/memory",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]    
+)
+
+cc_library(
     name = "test_main",
     srcs = ["test_main.cc"],
     deps = [

@@ -2,7 +2,7 @@ cc_binary(
     name = "dracula_and_friends",
     srcs = ["dracula_and_friends.cc"],
     deps = [
-        ":puzzle_main",
+        "//puzzle:puzzle_main",
         ":dracula_and_friends_cc_proto",
         "//puzzle:solver",
     ]
@@ -28,47 +28,20 @@ cc_test(
     ],
 )
 
-cc_library(
-    name = "puzzle_main",
-    srcs = ["puzzle_main.cc"],
-    deps = [
-        "//puzzle:problem",
-        "@com_google_absl//absl/memory",
-    ],
-)
-
 cc_binary(
     name = "six_fearsome_heroes",
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
-        ":puzzle_main",
+        "//puzzle:puzzle_main",
         "//puzzle:solver",
     ]
-)
-
-cc_library(
-    name = "sudoku",
-    srcs = ["sudoku.cc"],
-    hdrs = ["sudoku.h"],
-    deps = [
-        "//puzzle:problem",
-    ],
-)
-
-cc_binary(
-    name = "sudoku_nyt20171202",
-    srcs = ["sudoku_nyt20171202.cc"],
-    deps = [
-        ":puzzle_main",
-        ":sudoku",
-    ],
 )
 
 cc_binary(
     name = "swimming_pool",
     srcs = ["swimming_pool.cc"],
     deps = [
-        ":puzzle_main",
+        "//puzzle:puzzle_main",
         ":swimming_pool_cc_proto",
         "//puzzle:solver",
     ]
