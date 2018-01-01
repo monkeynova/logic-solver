@@ -116,32 +116,32 @@ void AddRulePredicates(puzzle::Solver* s) {
 }
 
 puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
-  std::vector<puzzle::Entry> entries_;
+  std::vector<puzzle::Entry> entries;
   // Betty: style=Dolphin country=US lane=2
-  entries_.emplace_back(
+  entries.emplace_back(
       BETTY,
       std::vector<int>{2, USA, DOLPHIN},
       s.entry_descriptor());
 
   // Carol: style=Butterfly country=CA lane=1
-  entries_.emplace_back(
+  entries.emplace_back(
       CAROL,
       std::vector<int>{1, CANADA, BUTTERFLY},
       s.entry_descriptor());
 
   // Daisy: style=Backstroke country=AU lane=4
-  entries_.emplace_back(
+  entries.emplace_back(
       DAISY,
       std::vector<int>{4, AUSTRALIA, BACKSTROKE},
       s.entry_descriptor());
 
   // Emily: style=Freestyle country=UK lane=3
-  entries_.emplace_back(
+  entries.emplace_back(
       EMILY,
       std::vector<int>{3, UK, FREESTYLE},
       s.entry_descriptor());
   
-  return puzzle::Solution(s.entry_descriptor(), &entries_).Clone();
+  return puzzle::Solution(s.entry_descriptor(), &entries).Clone();
 }
 
 void SetupProblem(puzzle::Solver* s) {

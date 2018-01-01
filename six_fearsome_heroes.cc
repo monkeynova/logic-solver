@@ -171,44 +171,44 @@ void AddRulePredicates(puzzle::Solver* s) {
 }
 
 puzzle::Solution ProblemSolution(const puzzle::Solver& s) {
-  std::vector<puzzle::Entry> entries_;
+  std::vector<puzzle::Entry> entries;
   // Picard: hero=Data fear=Troi trid=5 fizzbin=2
-  entries_.emplace_back(
+  entries.emplace_back(
       PICARD,
       std::vector<int>{DATA, TROI, 5, 2},
       s.entry_descriptor());
   
   // Riker: hero=Picard fear=Worf trid=3 fizzbin=5
-  entries_.emplace_back(
+  entries.emplace_back(
       RIKER,
       std::vector<int>{PICARD, WORF, 3, 5},
       s.entry_descriptor());
 
   // Troi: hero=Worf fear=Riker trid=1 fizzbin=4
-  entries_.emplace_back(
+  entries.emplace_back(
       TROI,
       std::vector<int>{WORF, RIKER, 1, 4},
       s.entry_descriptor());
 
   // Geordi: hero=Riker fear=Picard trid=2 fizzbin=3
-  entries_.emplace_back(
+  entries.emplace_back(
       GEORDI,
       std::vector<int>{RIKER, PICARD, 2, 3},
       s.entry_descriptor());
   
   // Data: hero=Troi fear=Geordi trid=4 fizzbin=1
-  entries_.emplace_back(
+  entries.emplace_back(
       DATA,
       std::vector<int>{TROI, GEORDI, 4, 1},
       s.entry_descriptor());
   
   // Worf: hero=Geordi fear=Data trid=6 fizzbin=6
-  entries_.emplace_back(
+  entries.emplace_back(
       WORF,
       std::vector<int>{GEORDI, DATA, 6, 6},
       s.entry_descriptor());
   
-  return puzzle::Solution(s.entry_descriptor(), &entries_).Clone();
+  return puzzle::Solution(s.entry_descriptor(), &entries).Clone();
 }
 
 void SetupProblem(puzzle::Solver* s) {

@@ -242,6 +242,9 @@ void CroppedSolutionPermuter::BuildActiveSets(
     int class_int = class_permuter.class_int();
     active_set_builder.Build(class_permuter,
 			     single_class_predicates[class_int]);
+    VLOG(2) << "Selectivity (" << class_permuter.class_int() << "): "
+	    << class_permuter.Selectivity() << " => "
+	    << active_set_builder.active_set(class_int).Selectivity();
     class_permuter.set_active_set(active_set_builder.active_set(class_int));
   }
 

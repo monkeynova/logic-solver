@@ -42,55 +42,70 @@ void ActiveSetBuilder::Build(
 	  p.classes[1] == class_permuter_b.class_int());
     CHECK_NE(p.classes[0], p.classes[1]);
   }
-  ActiveSet active_set_a = ActiveSet();
-  ActiveSet source_a = class_permuter_a.active_set();
-  std::set<int> b_match_positions;
   Solution s = mutable_solution_.TestableSolution();
-  double full_match_count = 0;
-  for (auto it_a = class_permuter_a.begin();
-       it_a != class_permuter_a.end();
-       ++it_a) {
-    mutable_solution_.SetClass(it_a);
+  ActiveSet active_set_a = ActiveSet();
+  ActiveSet active_set_b = ActiveSet();
+  {
+    ActiveSet source_a = class_permuter_a.active_set();
+    for (auto it_a = class_permuter_a.begin();
+	 it_a != class_permuter_a.end();
+	 ++it_a) {
+      mutable_solution_.SetClass(it_a);
+      active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
+      CHECK(source_a.ConsumeNext());
+      bool any_of_a = false;
+      for (auto it_b = class_permuter_b.begin();
+	   it_b != class_permuter_b.end();
+	   ++it_b) {
+	mutable_solution_.SetClass(it_b);
+	const bool this_match = std::all_of(predicates.begin(),
+					    predicates.end(),
+					    [&s](const Solution::Cropper& c) {
+					      return c.p(s);
+					    });
+	if (this_match) {
+	  any_of_a = true;
+	  break;
+	}
+      }
+      active_set_a.Add(any_of_a);
+    }
     active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
     CHECK(source_a.ConsumeNext());
-    bool any_of_a = false;
+    active_set_a.DoneAdding();
+  }
+  {
+    ActiveSet source_b = class_permuter_b.active_set();
     for (auto it_b = class_permuter_b.begin();
 	 it_b != class_permuter_b.end();
 	 ++it_b) {
-      if (any_of_a &&
-	  b_match_positions.find(it_b.position()) != b_match_positions.end()) {
-	// Already added both pieces.
-	continue;
-      }
       mutable_solution_.SetClass(it_b);
-      const bool this_match = std::all_of(predicates.begin(),
-					  predicates.end(),
-					  [&s](const Solution::Cropper& c) {
-					    return c.p(s);
-					  });
-      if (this_match) {
-	++full_match_count;
-	any_of_a = true;
-	b_match_positions.insert(it_b.position());
+      active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
+      CHECK(source_b.ConsumeNext());
+      bool any_of_b = false;
+      for (auto it_a = class_permuter_a.begin();
+	   it_a != class_permuter_a.end();
+	   ++it_a) {
+	mutable_solution_.SetClass(it_a);
+	const bool this_match = std::all_of(predicates.begin(),
+					    predicates.end(),
+					    [&s](const Solution::Cropper& c) {
+					      return c.p(s);
+					    });
+	if (this_match) {
+	  any_of_b = true;
+	  break;
+	}
       }
+      active_set_b.Add(any_of_b);
     }
-    active_set_a.Add(any_of_a);
+    active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
+    CHECK(source_b.ConsumeNext());
+    active_set_b.DoneAdding();
   }
-  active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
-  CHECK(source_a.ConsumeNext());
-  active_set_a.DoneAdding();
-  const int a_match_count = active_set_a.matches();
-  const int b_match_count = b_match_positions.size();
   
   active_sets_[class_permuter_a.class_int()] = std::move(active_set_a);
-  active_sets_[class_permuter_b.class_int()] = ActiveSet(
-      b_match_positions, class_permuter_b.permutation_count());
-
-  VLOG(1) << "Join selectivity (" << class_permuter_a.class_int() << ", "
-	  << class_permuter_b.class_int() << ")="
-	  << full_match_count / (a_match_count * b_match_count)
-	  << ": " << full_match_count << " out of "
-	  << a_match_count * b_match_count;
+  active_sets_[class_permuter_b.class_int()] = std::move(active_set_b);
 }
 
 }  // namespace puzzle
