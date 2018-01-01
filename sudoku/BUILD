@@ -16,3 +16,12 @@ cc_binary(
     ],
 )
 
+cc_binary(
+    name = "nyt20180101easy",
+    srcs = ["nyt20180101easy.cc"],
+    deps = [
+        "//puzzle:puzzle_main",
+        ":base",
+    ],
+)
+
