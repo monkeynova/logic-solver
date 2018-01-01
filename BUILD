@@ -46,12 +46,21 @@ cc_binary(
     ]
 )
 
-cc_binary(
+cc_library(
     name = "sudoku",
     srcs = ["sudoku.cc"],
+    hdrs = ["sudoku.h"],
+    deps = [
+        "//puzzle:problem",
+    ],
+)
+
+cc_binary(
+    name = "sudoku_nyt20171202",
+    srcs = ["sudoku_nyt20171202.cc"],
     deps = [
         ":puzzle_main",
-        "//puzzle:solver",
+        ":sudoku",
     ],
 )
 
