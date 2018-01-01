@@ -19,11 +19,11 @@ int main(int argc, char** argv) {
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
 
   puzzle::Problem* problem = puzzle::Problem::GetInstance();
-  
+
   problem->Setup();
-  
+
   int exit_code = 1;
-  
+
   if (FLAGS_all) {
     LOG(INFO) << "[AllSolutions]";
     std::vector<puzzle::Solution> all_solutions = problem->AllSolutions();
@@ -45,6 +45,6 @@ int main(int argc, char** argv) {
   }
 
   LOG(INFO) << problem->DebugStatistics();
-  
+
   return exit_code;
 }

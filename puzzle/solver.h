@@ -34,7 +34,7 @@ class Solver {
   // in the Soluition.
   // TODO(keith@monkeynova.com): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
-  
+
   void AddPredicate(std::string name, Entry::Predicate predicate) {
     AddPredicate(name, [predicate](const Solution& s) {
         return all_of(s.entries().begin(),
@@ -101,7 +101,7 @@ class Solver {
   EntryDescriptor entry_descriptor_;
 
   int test_calls_ = 0;
-  
+
   std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
 

@@ -8,12 +8,12 @@
 #include "gflags/gflags.h"
 
 DEFINE_string(sudoku_problem_setup, "cumulative",
-	      "Sepecifies the form of the predicates passed to the puzzle "
-	      "solver to validate sudoku boards. Valid vaules are 'cumulative' "
-	      "and 'pairwise'. 'cumulative' is faster if predicate reordering "
-	      "is disabled, but 'pairwise' is better suited for predicate "
-	      "reordering and results in faster overall evaluation if "
-	      "reordering is enabled.");
+              "Sepecifies the form of the predicates passed to the puzzle "
+              "solver to validate sudoku boards. Valid vaules are 'cumulative' "
+              "and 'pairwise'. 'cumulative' is faster if predicate reordering "
+              "is disabled, but 'pairwise' is better suited for predicate "
+              "reordering and results in faster overall evaluation if "
+              "reordering is enabled.");
 
 DEFINE_bool(sudoku_setup_only, false,
             "If true, only set up predicates for valid sudoku board "
@@ -24,13 +24,13 @@ void SudokuProblem::AddPredicatesCumulative() {
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
     AddPredicate(absl::StrCat("No row dupes ", i + 1),
-		 [i](const puzzle::Entry& e) {
-		   for (int j = 0; j < i; ++j) {
-		     if (e.Class(i) == e.Class(j)) return false;
-		   }
-		   return true;
-		 },
-		 cols);
+                 [i](const puzzle::Entry& e) {
+                   for (int j = 0; j < i; ++j) {
+                     if (e.Class(i) == e.Class(j)) return false;
+                   }
+                   return true;
+                 },
+                 cols);
   }
 
   for (int i = 0; i < 9; ++i) {
@@ -65,10 +65,10 @@ void SudokuProblem::AddPredicatesPairwise() {
     for (int j = 0; j < 9; ++j) {
       if (i < j) {
         AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
-		     [i, j](const puzzle::Entry& e) {
-		       return e.Class(i) != e.Class(j);
-		     },
-		     {i, j});
+                     [i, j](const puzzle::Entry& e) {
+                       return e.Class(i) != e.Class(j);
+                     },
+                     {i, j});
       }
     }
   }
@@ -96,10 +96,10 @@ void SudokuProblem::AddPredicatesPairwise() {
 
 void SudokuProblem::AddValuePredicate(int row, int col, int value) {
   AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
-	       [row, col, value](const puzzle::Solution& s) {
-		 return s.Id(row - 1).Class(col - 1) == value;
-	       },
-	       col - 1);
+               [row, col, value](const puzzle::Solution& s) {
+                 return s.Id(row - 1).Class(col - 1) == value;
+               },
+               col - 1);
 }
 
 void SudokuProblem::Setup() {
@@ -117,10 +117,10 @@ void SudokuProblem::Setup() {
     AddPredicatesPairwise();
   } else {
     LOG(FATAL) << "Unrecognized option for sudoku_problem_setup '"
-	       << FLAGS_sudoku_problem_setup << "'; valid values are "
-	       << "'cumulative' and 'pairwise'.";
+               << FLAGS_sudoku_problem_setup << "'; valid values are "
+               << "'cumulative' and 'pairwise'.";
   }
-  
+
   if (FLAGS_sudoku_setup_only) {
     return;
   }

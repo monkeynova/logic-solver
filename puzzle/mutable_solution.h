@@ -14,12 +14,12 @@ class MutableSolution {
     : descriptor_(descriptor) {
     if (descriptor != nullptr) {
       const int num_classes = descriptor_->num_classes();
-      
+
       std::vector<int> invalid_classes(num_classes, -1);
 
       entries_.reserve(num_classes);
       for (auto id: descriptor_->AllIds()->Values()) {
-	entries_.push_back(Entry(id, invalid_classes, descriptor_));
+        entries_.push_back(Entry(id, invalid_classes, descriptor_));
       }
     }
   }
@@ -35,12 +35,12 @@ class MutableSolution {
       entries_[j].SetClass(it.class_int(), (*it)[j]);
     }
   }
-  
+
  private:
   const EntryDescriptor* descriptor_;
   std::vector<Entry> entries_;
 };
-  
+
 }  // namespace puzzle
 
 #endif  // PUZZLE_MUTABLE_SOLUTION_H_

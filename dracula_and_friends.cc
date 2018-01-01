@@ -43,89 +43,89 @@ REGISTER_PROBLEM(DraculaAndFriendsProblem);
 
 void DraculaAndFriendsProblem::AddRulePredicates() {
   AddPredicate("1. One, and only one, of the vampires had the same initials "
-	       "of his name and of his birthplace.",
-	       [](const puzzle::Solution& s) {
-		 return 1 == (
-		     (s.Id(BOGDAN).Class(REGION) == BUCOVINA ? 1 : 0) +
-		     (s.Id(DORIAN).Class(REGION) == DEBROGEA ? 1 : 0) +
-		     (s.Id(MATEI).Class(REGION) == MUNTENIA ? 1 : 0) +
-		     (s.Id(OCTAVIAN).Class(REGION) == OLTENIA ? 1 : 0));
-		 return true;
-	       },
-	       REGION);
+               "of his name and of his birthplace.",
+               [](const puzzle::Solution& s) {
+                 return 1 == (
+                     (s.Id(BOGDAN).Class(REGION) == BUCOVINA ? 1 : 0) +
+                     (s.Id(DORIAN).Class(REGION) == DEBROGEA ? 1 : 0) +
+                     (s.Id(MATEI).Class(REGION) == MUNTENIA ? 1 : 0) +
+                     (s.Id(OCTAVIAN).Class(REGION) == OLTENIA ? 1 : 0));
+                 return true;
+               },
+               REGION);
   AddPredicate("2. Matei wasn't from Debrogea. He hated onions or ivy.",
-	       // Edit "He hated" probably should be "He hated neither".
-	       [](const puzzle::Solution& s) {
-		 if (s.Id(MATEI).Class(REGION) == DEBROGEA) return false;
-		 return s.Id(MATEI).Class(PLANTS) == ONION ||
-		   s.Id(MATEI).Class(PLANTS) == IVY;
-	       },
-	       {REGION, PLANTS});
+               // Edit "He hated" probably should be "He hated neither".
+               [](const puzzle::Solution& s) {
+                 if (s.Id(MATEI).Class(REGION) == DEBROGEA) return false;
+                 return s.Id(MATEI).Class(PLANTS) == ONION ||
+                   s.Id(MATEI).Class(PLANTS) == IVY;
+               },
+               {REGION, PLANTS});
   AddPredicate("3. The vampire from Mutenia lived 100 years after the "
-	       "vampire who hated thornbrush.",
-	       [](const puzzle::Solution& s) {
-		 int from_mutenia_century = s.Find(
-		     [](const puzzle::Entry& e) {
-		       return e.Class(REGION) == MUNTENIA;
-		     }).Class(CENTURY);
-		 int hated_thornbrush_century = s.Find(
-		     [](const puzzle::Entry& e) {
-		       return e.Class(PLANTS) == THORNBRUSH;
-		     }).Class(CENTURY);
-		 return hated_thornbrush_century == from_mutenia_century - 1;
-	       },
-	       {REGION, PLANTS, CENTURY});
+               "vampire who hated thornbrush.",
+               [](const puzzle::Solution& s) {
+                 int from_mutenia_century = s.Find(
+                     [](const puzzle::Entry& e) {
+                       return e.Class(REGION) == MUNTENIA;
+                     }).Class(CENTURY);
+                 int hated_thornbrush_century = s.Find(
+                     [](const puzzle::Entry& e) {
+                       return e.Class(PLANTS) == THORNBRUSH;
+                     }).Class(CENTURY);
+                 return hated_thornbrush_century == from_mutenia_century - 1;
+               },
+               {REGION, PLANTS, CENTURY});
   AddPredicate("4. 100 years after Dorian's death, another vamipre rised "
-	       "in Bucovina, but this wasn't Bogdan.",
-	       [](const puzzle::Solution& s) {
-		 const puzzle::Entry& from_bucovina = s.Find(
-		     [](const puzzle::Entry& e) {
-		       return e.Class(REGION) == BUCOVINA;
-		     });
-		 return from_bucovina.id() != BOGDAN &&
-		   (from_bucovina.Class(CENTURY) ==
-		    s.Id(DORIAN).Class(CENTURY) + 1);
-	       },
-	       {REGION, PLANTS, CENTURY});
+               "in Bucovina, but this wasn't Bogdan.",
+               [](const puzzle::Solution& s) {
+                 const puzzle::Entry& from_bucovina = s.Find(
+                     [](const puzzle::Entry& e) {
+                       return e.Class(REGION) == BUCOVINA;
+                     });
+                 return from_bucovina.id() != BOGDAN &&
+                   (from_bucovina.Class(CENTURY) ==
+                    s.Id(DORIAN).Class(CENTURY) + 1);
+               },
+               {REGION, PLANTS, CENTURY});
   AddPredicate("5. Octavain either lived in the XVI century or hated "
-	       "thornbrush.",
-	       [](const puzzle::Solution& s) {
-		 const bool in_xvi = s.Id(OCTAVIAN).Class(CENTURY) == XVI;
-		 const bool hated_thornbrush =
-		   s.Id(OCTAVIAN).Class(PLANTS) == THORNBRUSH;
-		 return (in_xvi || hated_thornbrush) &&
-		   !(in_xvi && hated_thornbrush);
-	       },
-	       {PLANTS, CENTURY});
+               "thornbrush.",
+               [](const puzzle::Solution& s) {
+                 const bool in_xvi = s.Id(OCTAVIAN).Class(CENTURY) == XVI;
+                 const bool hated_thornbrush =
+                   s.Id(OCTAVIAN).Class(PLANTS) == THORNBRUSH;
+                 return (in_xvi || hated_thornbrush) &&
+                   !(in_xvi && hated_thornbrush);
+               },
+               {PLANTS, CENTURY});
   AddPredicate("6. If Bogdan hated wolfsbane, then Matei lived in Buchovia.",
-	       [](const puzzle::Solution& s) {
-		 if (s.Id(BOGDAN).Class(PLANTS) == WOLFSBANE) {
-		   return s.Id(MATEI).Class(REGION) == BUCOVINA;
-		 }
-		 return true;
-	       },
-	       {REGION, PLANTS});
+               [](const puzzle::Solution& s) {
+                 if (s.Id(BOGDAN).Class(PLANTS) == WOLFSBANE) {
+                   return s.Id(MATEI).Class(REGION) == BUCOVINA;
+                 }
+                 return true;
+               },
+               {REGION, PLANTS});
   AddPredicate("7. The vampire from XIV century wasn't Octavian nor Bogdan.",
-	       [](const puzzle::Solution& s) {
-		 return s.Id(OCTAVIAN).Class(CENTURY) != XIV &&
-		   s.Id(BOGDAN).Class(CENTURY) != XIV;
-	       },
-	       CENTURY);
+               [](const puzzle::Solution& s) {
+                 return s.Id(OCTAVIAN).Class(CENTURY) != XIV &&
+                   s.Id(BOGDAN).Class(CENTURY) != XIV;
+               },
+               CENTURY);
   AddPredicate("8. Villagers didn't grow thornbrush against Dorian.",
-	       [](const puzzle::Solution& s) {
-		 return s.Id(DORIAN).Class(PLANTS) != THORNBRUSH;
-	       },
-	       PLANTS);
+               [](const puzzle::Solution& s) {
+                 return s.Id(DORIAN).Class(PLANTS) != THORNBRUSH;
+               },
+               PLANTS);
   AddPredicate("9. Chronicles of XVII century claimed that ivy was "
-	       "ineffective and that Debrogea was free from vamipres.",
-	       [](const puzzle::Solution& s) {
-		 const puzzle::Entry& e = s.Find([](const puzzle::Entry& e) {
-		     return e.Class(CENTURY) == XVII;
-		   });
-		 return e.Class(PLANTS) != IVY &&
-		   e.Class(REGION) != DEBROGEA;
-	       },
-	       {REGION, PLANTS, CENTURY});
+               "ineffective and that Debrogea was free from vamipres.",
+               [](const puzzle::Solution& s) {
+                 const puzzle::Entry& e = s.Find([](const puzzle::Entry& e) {
+                     return e.Class(CENTURY) == XVII;
+                   });
+                 return e.Class(PLANTS) != IVY &&
+                   e.Class(REGION) != DEBROGEA;
+               },
+               {REGION, PLANTS, CENTURY});
 }
 
 puzzle::Solution DraculaAndFriendsProblem::Solution() const {
@@ -161,13 +161,13 @@ void DraculaAndFriendsProblem::Setup() {
   SetIdentifiers(AddDescriptor(
       new puzzle::ProtoEnumDescriptor(Who_descriptor())));
   AddClass(REGION, "region",
-	   AddDescriptor(
+           AddDescriptor(
                new puzzle::ProtoEnumDescriptor(Region_descriptor())));
   AddClass(PLANTS, "plants",
-	   AddDescriptor(
+           AddDescriptor(
                new puzzle::ProtoEnumDescriptor(Plants_descriptor())));
   AddClass(CENTURY, "century",
-	   AddDescriptor(
+           AddDescriptor(
                new puzzle::ProtoEnumDescriptor(Century_descriptor())));
 
   AddRulePredicates();

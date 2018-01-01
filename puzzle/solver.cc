@@ -47,7 +47,7 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
   }
 
   profiler_->NoteFinish();
-  
+
   return ret;
 }
 

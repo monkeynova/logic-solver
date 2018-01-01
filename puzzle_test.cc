@@ -21,7 +21,7 @@ TEST(Puzzle, RightAnswer) {
 
   puzzle::Solution got = problem->Solve();
   puzzle::Solution expect = problem->Solution();
-  
+
   EXPECT_EQ(got, expect);
 }
 
@@ -51,11 +51,11 @@ static void BM_Solver(benchmark::State& state) {
 }
 
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/false,
-		   /*reorder=*/false);
+                   /*reorder=*/false);
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/true, /*prune=*/false,
-		   /*reorder=*/false);
+                   /*reorder=*/false);
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-		   /*reorder=*/false);
+                   /*reorder=*/false);
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-		   /*reorder=*/true);
+                   /*reorder=*/true);
 

@@ -80,7 +80,7 @@ class CroppedSolutionPermuter {
   // Elements in 'croppers' that are not completely evaluated by these active
   // sets are returned in 'residual'.
   void BuildActiveSets(const std::vector<Solution::Cropper>& croppers,
-		       std::vector<Solution::Cropper>* residual);
+                       std::vector<Solution::Cropper>* residual);
 
   // Reorders 'class_permuters_' by increasing selectivity. The effect of this
   // is to mean that any filter evaluated on a partial set of 'class_permuters_'
@@ -99,7 +99,7 @@ class CroppedSolutionPermuter {
   std::vector<Solution::Cropper> class_predicates_;
 
   Profiler* const profiler_;
-  
+
   friend iterator;
 };
 

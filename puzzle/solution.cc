@@ -22,7 +22,7 @@ std::string Entry::DebugString() const {
   }
   return ret.str();
 }
-  
+
 Solution& Solution::operator=(Solution&& other) {
   entry_descriptor_ = other.entry_descriptor_;
   entries_ = other.entries_;
@@ -58,9 +58,9 @@ std::string Solution::DebugString() const {
   if (entries_->size() == 0) return "<empty>";
 
   return absl::StrJoin(*entries_, "\n",
-		       [](std::string* out, const Entry& e) {
-			 absl::StrAppend(out, e.DebugString());
-		       });
+                       [](std::string* out, const Entry& e) {
+                         absl::StrAppend(out, e.DebugString());
+                       });
 }
-  
+
 }  // namespace puzzle

@@ -95,7 +95,7 @@ class EntryDescriptor {
   }
 
   int num_classes() const { return class_descriptor_.Values().size(); }
-  
+
   const Descriptor* AllIds() const { return id_descriptor_; }
   const Descriptor* AllClasses() const { return &class_descriptor_; }
   const Descriptor* AllClassValues(int class_int) const {
@@ -154,7 +154,7 @@ class Entry {
   const EntryDescriptor* descriptor() const {
     return entry_descriptor_;
   }
-  
+
  private:
   Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
   int id_;
@@ -197,14 +197,14 @@ class Solution {
     *this = std::move(other);
   }
   Solution& operator=(Solution&& other);
-  
+
   Solution Clone() const;
   bool operator==(const Solution& other) const;
 
   const EntryDescriptor* descriptor() const {
     return entry_descriptor_;
   }
-  
+
   double permutation_position() const { return permutation_position_; }
   void set_permutation_position(double position) {
     permutation_position_ = position;

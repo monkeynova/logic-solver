@@ -13,7 +13,7 @@ TEST(BruteSolutionPermuterTest, Simple) {
   puzzle::IntRangeDescriptor id(3, 5);
   puzzle::IntRangeDescriptor cd1(6, 8);
   puzzle::IntRangeDescriptor cd2(11, 13);
-  
+
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);

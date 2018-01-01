@@ -24,19 +24,19 @@ class StructTimevalProfiler : public Profiler {
   ~StructTimevalProfiler() override {
     std::cout << "\033[1K\r" << std::flush;
   }
-  
+
  private:
   bool Done() override {
     return test_calls() > FLAGS_puzzle_max_profile_calls;
   }
-  
+
   bool NotePositionImpl(double position, double count) override {
     struct timeval now;
     gettimeofday(&now, nullptr);
     double delta =
          (now.tv_sec - last_.tv_sec + 1e-6 * (now.tv_usec - last_.tv_usec));
     if (delta < 0.2) return false;
-    
+
     double full_delta =
         (now.tv_sec - start_.tv_sec + 1e-6 * (now.tv_usec - start_.tv_usec));
 
@@ -59,7 +59,7 @@ class StructTimevalProfiler : public Profiler {
     return
       last_.tv_sec - start_.tv_sec + 1e-6 * (last_.tv_usec - start_.tv_usec);
   }
-  
+
   struct timeval start_;
   struct timeval last_;
   double last_position_;

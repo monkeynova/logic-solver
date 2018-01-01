@@ -17,10 +17,10 @@ class Problem : public Solver {
 
 }  // namespace puzzle
 
-#define REGISTER_PROBLEM(Class)				\
-  puzzle::Problem* puzzle::Problem::GetInstance() {	\
-      static Class instance;				\
-      return &instance;					\
+#define REGISTER_PROBLEM(Class)                                \
+  puzzle::Problem* puzzle::Problem::GetInstance() {        \
+      static Class instance;                                \
+      return &instance;                                        \
   }
 
 #endif  // PUZZLE_PROBLEM_H

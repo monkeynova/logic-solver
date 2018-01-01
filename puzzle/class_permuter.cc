@@ -136,7 +136,7 @@ ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance() {
 template <enum ClassPermuterType T>
 double ClassPermuterImpl<T>::PermutationCount(const Descriptor* d) {
   if (d == nullptr) return 0;
-  
+
   double ret = 1;
   int value_count = d->Values().size();
   for (int i = 2; i <= value_count; i++ ) {

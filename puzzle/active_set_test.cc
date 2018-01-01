@@ -40,7 +40,7 @@ TEST(ActiveSet, ConsumeNextAllTrue) {
   set.DoneAdding();
   for (int i = 0; i < 3; ++i) {
     EXPECT_TRUE(set.ConsumeNext());
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeNextAllFalse) {
@@ -51,7 +51,7 @@ TEST(ActiveSet, ConsumeNextAllFalse) {
   set.DoneAdding();
   for (int i = 0; i < 3; ++i) {
     EXPECT_FALSE(set.ConsumeNext());
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeNextAlternating) {
@@ -62,7 +62,7 @@ TEST(ActiveSet, ConsumeNextAlternating) {
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeNextStreaks) {
@@ -73,7 +73,7 @@ TEST(ActiveSet, ConsumeNextStreaks) {
   set.DoneAdding();
   for (int i = 0; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeFalseBlockFalse) {
@@ -111,7 +111,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaks) {
     EXPECT_THAT(!!(i & 4), true);
     EXPECT_THAT(set.ConsumeNext(), true)
       << set.DebugString();
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
@@ -128,7 +128,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
     EXPECT_THAT(!(i & 4), true);
     EXPECT_THAT(set.ConsumeNext(), true)
       << set.DebugString();
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeFalseBlockAlternating) {
@@ -144,7 +144,7 @@ TEST(ActiveSet, ConsumeFalseBlockAlternating) {
     if (i >= 40) break;
     EXPECT_THAT(!!(i & 1), true);
     EXPECT_THAT(set.ConsumeNext(), true);
-  } 
+  }
 }
 
 TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
@@ -162,7 +162,7 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
     EXPECT_THAT(!(i & 1), true);
     EXPECT_THAT(set.ConsumeNext(), true)
       << i << ": " << set.DebugString();
-  } 
+  }
 }
 
 std::set<int> Drain(ActiveSet s, int max_positions) {
@@ -177,22 +177,22 @@ std::set<int> Drain(ActiveSet s, int max_positions) {
 
 TEST(ActiveSet, SetConstruction) {
   EXPECT_THAT(Drain(ActiveSet({0}, 1), 1),
-	      ElementsAre(0));
+              ElementsAre(0));
   EXPECT_THAT(Drain(ActiveSet({}, 1), 1),
-	      ElementsAre());
+              ElementsAre());
   for (int i = 0; i < 4; ++i) {
     EXPECT_THAT(Drain(ActiveSet({i}, 4), 4),
-		ElementsAre(i));
+                ElementsAre(i));
   }
   for (int i = 0; i < 9; ++i) {
     if (i == 5) continue;
     EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9),
-		UnorderedElementsAre(i, 5));
+                UnorderedElementsAre(i, 5));
   }
   EXPECT_THAT(Drain(ActiveSet({1,3,5,7}, 9), 9),
-	      ElementsAre(1,3,5,7));
+              ElementsAre(1,3,5,7));
   EXPECT_THAT(Drain(ActiveSet({0,2,4,6,8}, 9), 9),
-	      ElementsAre(0,2,4,6,8));
+              ElementsAre(0,2,4,6,8));
 }
 
 

@@ -32,7 +32,7 @@ class ClassPermuterImpl {
 
     iterator() : iterator(nullptr, {}) {}
     iterator(const ClassPermuterImpl<T>* permuter,
-	     ActiveSet active_set);
+             ActiveSet active_set);
 
     iterator(const iterator&) = delete;
     iterator& operator=(const iterator&) = delete;
@@ -54,19 +54,19 @@ class ClassPermuterImpl {
     }
     iterator& operator++() {
       if (active_set_.is_trivial()) {
-	Advance();
+        Advance();
       } else {
-	AdvanceWithSkip();
+        AdvanceWithSkip();
       }
       return *this;
     }
-    
+
     double position() const { return position_; }
     double Completion() const {
       return position_ / permuter_->permutation_count();
     }
     int class_int() const { return permuter_->class_int(); }
-    
+
    private:
     // Advances permutation until the the result should be allowed considering
     // 'active_set_'.
@@ -101,7 +101,7 @@ class ClassPermuterImpl {
   };
 
  explicit ClassPermuterImpl(const Descriptor* d = nullptr,
-			    const int class_int = 0)
+                            const int class_int = 0)
     : descriptor_(d),
       permutation_count_(PermutationCount(d)),
       class_int_(class_int) {
@@ -128,7 +128,7 @@ class ClassPermuterImpl {
   }
 
   const Descriptor* descriptor() const { return descriptor_; }
-  
+
   int class_int() const {
     return class_int_;
   }
@@ -146,7 +146,7 @@ class ClassPermuterImpl {
   double Selectivity() const {
     return active_set_.Selectivity();
   }
-  
+
  private:
   static double PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
@@ -159,7 +159,7 @@ class ClassPermuterImpl {
 
 using ClassPermuter = internal::ClassPermuterImpl<
     internal::ClassPermuterType::kFactorialRadix>;
- 
+
 }  // namespace puzzle
 
 #endif  // __PUZZLE_CLASS_PERMUTER_H

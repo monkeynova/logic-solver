@@ -8,14 +8,14 @@ namespace puzzle {
 class PuzzleInstance {
   PuzzleInstance(puzzle::Solver* solver)
     : solver_(solver) {}
-  
+
   virtual ~PuzzleInstance() {};
 
   // Create the
   virtual void Setup() = 0;
   virtual void AddProblemPredicates() = 0;
   virtual void AddRulePredicates() = 0;
-  
+
  protected:
   puzzle::Solver* solver() { return solver_; }
 

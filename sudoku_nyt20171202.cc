@@ -74,23 +74,23 @@ I1231 16:52:05.938474 2819318592 puzzle_main.cc:48] [1 solutions tested in 551.5
   */
   std::vector<puzzle::Entry> entries;
   entries.emplace_back(0, std::vector<int>{8, 1, 5, 7, 6, 4 , 2, 3, 9},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(1, std::vector<int>{4, 2, 7, 1, 3, 9 , 5, 8, 6},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(2, std::vector<int>{6, 3, 9, 5, 8, 2 , 1, 7, 4},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(3, std::vector<int>{2, 9, 1, 3, 7, 5 , 4, 6, 8},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(4, std::vector<int>{3, 8, 6, 4, 2, 1 , 9, 5, 7},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(5, std::vector<int>{7, 5, 4, 8, 9, 6 , 3, 2, 1},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(6, std::vector<int>{9, 4, 3, 6, 5, 8 , 7, 1, 2},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(7, std::vector<int>{1, 7, 8, 2, 4, 3 , 6, 9, 5},
-		       entry_descriptor());
+                       entry_descriptor());
   entries.emplace_back(8, std::vector<int>{5, 6, 2, 9, 1, 7 , 8, 4, 3},
-		       entry_descriptor());
+                       entry_descriptor());
 
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }

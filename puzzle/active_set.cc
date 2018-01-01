@@ -24,11 +24,11 @@ ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
 
 std::string ActiveSet::DebugString() const {
   return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
-		      " ", (current_value_ ? "match" : "skip"),
-		      " ", matches_position_, " {",
-		      absl::StrJoin(matches_, ", "), "}}");
+                      " ", (current_value_ ? "match" : "skip"),
+                      " ", matches_position_, " {",
+                      absl::StrJoin(matches_, ", "), "}}");
 }
-  
+
 void ActiveSet::Add(bool match) {
   CHECK(building_) << "Add called after building";
 
@@ -36,7 +36,7 @@ void ActiveSet::Add(bool match) {
   if (match) {
     ++matches_count_;
   }
-  
+
   if (match == current_value_) {
     ++matches_position_;
   } else {
@@ -83,18 +83,18 @@ int ActiveSet::ConsumeFalseBlock() {
 
   if (matches_.empty()) return 0;
   if (matches_position_ >= matches_.size()) return 0;
-  
+
   if (matches_[matches_position_] == 0) {
     current_value_ = !current_value_;
     ++matches_position_;
     if (matches_position_ >= matches_.size()) return 0;
   }
   if (current_value_) return 0;
-  
+
   int ret = matches_[matches_position_];
   ++matches_position_;
   current_value_ = true;
   return ret;
 }
-  
+
 }

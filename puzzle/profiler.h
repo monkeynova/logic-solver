@@ -20,7 +20,7 @@ class Profiler {
     if (++test_calls_ % 777 != 1) return false;
     return NotePositionImpl(position, count);
   }
-  
+
  protected:
   Profiler() {}
 
@@ -31,7 +31,7 @@ class Profiler {
   int test_calls() const {
     return test_calls_;
   }
-  
+
  private:
   int test_calls_ = 0;
 };

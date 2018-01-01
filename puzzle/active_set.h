@@ -23,7 +23,7 @@ class ActiveSet {
   ActiveSet& operator=(ActiveSet&& other) = default;
 
   std::string DebugString() const;
-  
+
   // Adds a new boolean value to the current ActiveSet. Must not be called
   // after DoneAdding is called.
   void Add(bool match);
@@ -35,7 +35,7 @@ class ActiveSet {
   // Called to indicate that the add phase is over and the consume phase
   // may not begin. Must be called before ConsumeNext.
   void DoneAdding();
-  
+
   // Returns whether or not to skip the current record and advances index
   // structures through matches_.
   // Must be called after DoneAdding is called.
@@ -45,7 +45,7 @@ class ActiveSet {
   // consumed.
   // Must be called after DoneAdding is called.
   int ConsumeFalseBlock();
-  
+
   bool is_trivial() const { return matches_.empty(); }
   int matches() const { return matches_count_; }
   int total() const { return total_; }
@@ -53,7 +53,7 @@ class ActiveSet {
     if (is_trivial()) return 1.0;
     return static_cast<double>(matches()) / total();
   }
-  
+
  private:
   // Thar be dragons here.
   // 'matches_' is a vector of ints representing runs of boolean conditions.
@@ -86,7 +86,7 @@ class ActiveSet {
   // Immutable after DoneAdding is called.
   int total_ = 0;
 };
-  
+
 }  // namespace puzzle
 
 #endif  // __PUZZLE_ACTIVE_SET_H

@@ -19,7 +19,7 @@ class SudokuProblem : public puzzle::Problem {
   void AddPredicates();
   void AddPredicatesCumulative();
   void AddPredicatesPairwise();
-  
+
   virtual void AddInstancePredicates() = 0;
 };
 

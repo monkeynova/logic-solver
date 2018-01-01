@@ -15,11 +15,11 @@ TEST(CroppedSolutionPermuterTest, Simple) {
   puzzle::IntRangeDescriptor id(3, 5);
   puzzle::IntRangeDescriptor cd1(6, 8);
   puzzle::IntRangeDescriptor cd2(11, 13);
-  
+
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
-  
+
   puzzle::CroppedSolutionPermuter p(&ed, /*ignored=*/{}, /*profiler=*/nullptr);
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
@@ -42,13 +42,13 @@ TEST(CroppedSolutionPermuterTest, CropFirstClass) {
   puzzle::IntRangeDescriptor id(0, 2);
   puzzle::IntRangeDescriptor cd1(6, 8);
   puzzle::IntRangeDescriptor cd2(11, 13);
-  
+
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
   std::vector<puzzle::Solution::Cropper> croppers;
-  croppers.emplace_back("test", 
+  croppers.emplace_back("test",
                         [](const puzzle::Solution& s) {
                             return s.Id(1).Class(0) == 7;
                         },
@@ -78,16 +78,16 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   puzzle::IntRangeDescriptor id(0, 2);
   puzzle::IntRangeDescriptor cd1(6, 8);
   puzzle::IntRangeDescriptor cd2(11, 13);
-  
+
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
   std::vector<puzzle::Solution::Cropper> croppers;
-  croppers.emplace_back("test", 
+  croppers.emplace_back("test",
                         [](const puzzle::Solution& s) {
                           LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
-				    << std::endl;
+                                    << std::endl;
                           return s.Id(1).Class(1) == 12;
                         },
                         std::vector<int>{1});
@@ -117,19 +117,19 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   puzzle::IntRangeDescriptor id(0, 2);
   puzzle::IntRangeDescriptor cd1(6, 8);
   puzzle::IntRangeDescriptor cd2(11, 13);
-  
+
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
   std::vector<puzzle::Solution::Cropper> croppers;
-  croppers.emplace_back("test", 
+  croppers.emplace_back("test",
                         [](const puzzle::Solution& s) {
                           LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
                           return s.Id(0).Class(0) == 7;
                         },
                         std::vector<int>{0});
-  croppers.emplace_back("test", 
+  croppers.emplace_back("test",
                         [](const puzzle::Solution& s) {
                           LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
                           return s.Id(1).Class(1) == 12;

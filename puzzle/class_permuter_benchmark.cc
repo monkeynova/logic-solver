@@ -44,8 +44,8 @@ static void BM_PermuterActiveSet1InN(benchmark::State& state) {
   set.DoneAdding();
   p.set_active_set(std::move(set));
   state.SetLabel(absl::Substitute("{$0: C($1)=$2}: $3", depth, crop_column,
-				  crop_value, p.Selectivity()));
-  
+                                  crop_value, p.Selectivity()));
+
   // Now benchmark with 'set'.
   for (auto _ : state) {
     for (auto it = p.begin(); it != p.end(); ++it) /* no-op */;
@@ -85,8 +85,8 @@ static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   set.DoneAdding();
   p.set_active_set(std::move(set));
   state.SetLabel(absl::Substitute("{$0: S=$1}: $2", depth, every_n,
-				  p.Selectivity()));
-  
+                                  p.Selectivity()));
+
   // Now benchmark with 'set'.
   for (auto _ : state) {
     for (auto it = p.begin(); it != p.end(); ++it) /* no-op */;

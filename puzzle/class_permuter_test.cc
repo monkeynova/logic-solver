@@ -68,7 +68,7 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   }
   active_set_first.DoneAdding();
   active_set_last.DoneAdding();
-  
+
   std::set<std::vector<int>> history;
   int position = 0;
   p.set_active_set(std::move(active_set_first));

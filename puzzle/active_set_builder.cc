@@ -19,10 +19,10 @@ void ActiveSetBuilder::Build(
     active_set.AddFalseBlock(source.ConsumeFalseBlock());
     CHECK(source.ConsumeNext());
     active_set.Add(std::all_of(predicates.begin(),
-			       predicates.end(),
-			       [&s](const Solution::Cropper& c) {
-				 return c.p(s);
-			       }));
+                               predicates.end(),
+                               [&s](const Solution::Cropper& c) {
+                                 return c.p(s);
+                               }));
   }
   active_set.AddFalseBlock(source.ConsumeFalseBlock());
   CHECK(source.ConsumeNext());
@@ -37,9 +37,9 @@ void ActiveSetBuilder::Build(
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes.size(), 2);
     CHECK(p.classes[0] == class_permuter_a.class_int() ||
-	  p.classes[0] == class_permuter_b.class_int());
+          p.classes[0] == class_permuter_b.class_int());
     CHECK(p.classes[1] == class_permuter_a.class_int() ||
-	  p.classes[1] == class_permuter_b.class_int());
+          p.classes[1] == class_permuter_b.class_int());
     CHECK_NE(p.classes[0], p.classes[1]);
   }
   Solution s = mutable_solution_.TestableSolution();
@@ -48,25 +48,25 @@ void ActiveSetBuilder::Build(
   {
     ActiveSet source_a = class_permuter_a.active_set();
     for (auto it_a = class_permuter_a.begin();
-	 it_a != class_permuter_a.end();
-	 ++it_a) {
+         it_a != class_permuter_a.end();
+         ++it_a) {
       mutable_solution_.SetClass(it_a);
       active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
       CHECK(source_a.ConsumeNext());
       bool any_of_a = false;
       for (auto it_b = class_permuter_b.begin();
-	   it_b != class_permuter_b.end();
-	   ++it_b) {
-	mutable_solution_.SetClass(it_b);
-	const bool this_match = std::all_of(predicates.begin(),
-					    predicates.end(),
-					    [&s](const Solution::Cropper& c) {
-					      return c.p(s);
-					    });
-	if (this_match) {
-	  any_of_a = true;
-	  break;
-	}
+           it_b != class_permuter_b.end();
+           ++it_b) {
+        mutable_solution_.SetClass(it_b);
+        const bool this_match = std::all_of(predicates.begin(),
+                                            predicates.end(),
+                                            [&s](const Solution::Cropper& c) {
+                                              return c.p(s);
+                                            });
+        if (this_match) {
+          any_of_a = true;
+          break;
+        }
       }
       active_set_a.Add(any_of_a);
     }
@@ -77,25 +77,25 @@ void ActiveSetBuilder::Build(
   {
     ActiveSet source_b = class_permuter_b.active_set();
     for (auto it_b = class_permuter_b.begin();
-	 it_b != class_permuter_b.end();
-	 ++it_b) {
+         it_b != class_permuter_b.end();
+         ++it_b) {
       mutable_solution_.SetClass(it_b);
       active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
       CHECK(source_b.ConsumeNext());
       bool any_of_b = false;
       for (auto it_a = class_permuter_a.begin();
-	   it_a != class_permuter_a.end();
-	   ++it_a) {
-	mutable_solution_.SetClass(it_a);
-	const bool this_match = std::all_of(predicates.begin(),
-					    predicates.end(),
-					    [&s](const Solution::Cropper& c) {
-					      return c.p(s);
-					    });
-	if (this_match) {
-	  any_of_b = true;
-	  break;
-	}
+           it_a != class_permuter_a.end();
+           ++it_a) {
+        mutable_solution_.SetClass(it_a);
+        const bool this_match = std::all_of(predicates.begin(),
+                                            predicates.end(),
+                                            [&s](const Solution::Cropper& c) {
+                                              return c.p(s);
+                                            });
+        if (this_match) {
+          any_of_b = true;
+          break;
+        }
       }
       active_set_b.Add(any_of_b);
     }
@@ -103,7 +103,7 @@ void ActiveSetBuilder::Build(
     CHECK(source_b.ConsumeNext());
     active_set_b.DoneAdding();
   }
-  
+
   active_sets_[class_permuter_a.class_int()] = std::move(active_set_a);
   active_sets_[class_permuter_b.class_int()] = std::move(active_set_b);
 }
