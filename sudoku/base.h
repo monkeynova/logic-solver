@@ -1,6 +1,9 @@
 #ifndef SUDOKU_BASE_H
 #define SUDOKU_BASE_H
 
+#include <string>
+#include <vector>
+
 #include "puzzle/problem.h"
 
 namespace sudoku {
@@ -8,13 +11,19 @@ namespace sudoku {
 /*
 Logic solver repurposed for sudoku
  */
-class Base : public puzzle::Problem {
+class Base : public ::puzzle::Problem {
  protected:
+  using Board = std::vector<std::vector<int>>;
+
   void AddValuePredicate(int row, int col, int value);
+
+  static Board ParseBoard(const std::string& board);
+  void AddBoardPredicates(const Board& board);
+  ::puzzle::Solution MakeSolution(const Board& board) const;
 
  private:
   void Setup() override;
-  puzzle::Solution Solution() const override { return puzzle::Solution(); }
+  ::puzzle::Solution Solution() const override { return puzzle::Solution(); }
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 

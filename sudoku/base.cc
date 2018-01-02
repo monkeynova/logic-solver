@@ -1,10 +1,9 @@
 #include "sudoku/base.h"
 
 #include <iostream>
-#include <memory>
-#include <vector>
 
-#include "absl/memory/memory.h"
+#include "absl/strings/numbers.h"
+#include "absl/strings/str_split.h"
 #include "gflags/gflags.h"
 
 DEFINE_string(sudoku_problem_setup, "cumulative",
@@ -102,6 +101,52 @@ void Base::AddValuePredicate(int row, int col, int value) {
                  return s.Id(row - 1).Class(col - 1) == value;
                },
                col - 1);
+}
+
+void Base::AddBoardPredicates(const Board& board) {
+  CHECK_EQ(board.size(), 9);
+  for (int row = 1; row <= board.size(); ++row) {
+    CHECK_EQ(board[row - 1].size(), 9);
+    for (int col = 1; col <= board[row - 1].size(); ++col) {
+      if (board[row - 1][col - 1] > 0) {
+        AddValuePredicate(row, col, board[row - 1][col - 1]);
+      }
+    }
+  }
+}
+
+puzzle::Solution Base::MakeSolution(const Board& board) const {
+  std::vector<puzzle::Entry> entries;
+  CHECK_EQ(board.size(), 9);
+  for (int row = 0; row < board.size(); ++row) {
+    CHECK_EQ(board[row].size(), 9);
+    entries.emplace_back(row , board[row], entry_descriptor());
+  }
+  return puzzle::Solution(entry_descriptor(), &entries).Clone();
+}
+
+// static
+Base::Board Base::ParseBoard(const std::string& board) {
+  Board ret;
+  std::vector<std::string> rows = absl::StrSplit(board, "\n");
+  CHECK_EQ(rows.size(), /*data=*/9 + /*spacer=*/2);
+  for (const std::string& row : rows) {
+    if (row == "- - - + - - - + - - -") continue;
+
+    std::vector<std::string> cols = absl::StrSplit(row, " ");
+    CHECK_EQ(cols.size(), /*data=*/9 + /*spacer=*/2);
+    std::vector<int> cur_cols;
+    for (const std::string& col : cols) {
+      if (col == "|") continue;
+      int val = -1;
+      if (col != "?") {
+        CHECK(absl::SimpleAtoi(col, &val)) << "Not a number: " << col;
+      }
+      cur_cols.push_back(val);
+    }
+    ret.push_back(cur_cols);
+  }
+  return ret;
 }
 
 void Base::Setup() {
