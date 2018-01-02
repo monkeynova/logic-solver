@@ -43,3 +43,19 @@ cc_test(
         "//puzzle:puzzle_test",
     ],
 )
+
+cc_binary(
+    name = "nyt20180102medium",
+    deps = [
+        ":nyt20180102medium_lib",
+        "//puzzle:puzzle_main",
+    ],
+)
+
+cc_library(
+    name = "nyt20180102medium_lib",
+    srcs = ["nyt20180102medium.cc"],
+    deps = [
+        ":base",
+    ],
+)

@@ -1,0 +1,46 @@
+#include "sudoku/base.h"
+
+namespace sudoku {
+
+class NYT20180102Medium : public Base {
+  puzzle::Solution Solution() const override;
+  void AddInstancePredicates() override;
+};
+
+void NYT20180102Medium::AddInstancePredicates() {
+  AddBoardPredicates(ParseBoard(
+    "? 9 ? | ? ? 3 | ? 1 2\n"
+    "5 ? ? | ? ? ? | ? ? ?\n"
+    "? ? ? | ? ? ? | 3 9 ?\n"
+    "- - - + - - - + - - -\n"
+    "? ? ? | 3 ? ? | 9 ? 4\n"
+    "? 6 7 | ? ? ? | ? ? ?\n"
+    "2 ? ? | 6 ? 8 | ? 3 ?\n"
+    "- - - + - - - + - - -\n"
+    "? 1 ? | 2 ? 6 | ? ? ?\n"
+    "? ? 8 | ? ? ? | ? ? ?\n"
+    "? 3 ? | 4 5 ? | ? ? 6"));
+  
+  return;
+}
+
+puzzle::Solution NYT20180102Medium::Solution() const {
+  /*
+  */
+  return MakeSolution(ParseBoard(
+    "? 9 ? | ? ? 3 | ? 1 2\n"
+    "5 ? ? | ? ? ? | ? ? ?\n"
+    "? ? ? | ? ? ? | ? 3 9\n"
+    "- - - + - - - + - - -\n"
+    "? ? ? | 3 ? ? | ? 9 4\n"
+    "? 6 7 | ? ? ? | ? ? ?\n"
+    "2 ? ? | 6 ? 8 | ? 3 ?\n"
+    "- - - + - - - + - - -\n"
+    "? ? 1 | 2 ? 6 | ? ? ?\n"
+    "? ? 8 | ? ? ? | ? ? ?\n"
+    "? 3 ? | 4 5 ? | ? ? 6"));
+}
+
+}  // namespace sudoku
+
+REGISTER_PROBLEM(sudoku::NYT20180102Medium);
