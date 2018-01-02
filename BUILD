@@ -1,10 +1,17 @@
 cc_binary(
     name = "dracula_and_friends",
+    deps = [
+        ":dracula_and_friends_lib",
+        "//puzzle:puzzle_main",
+    ]
+)
+
+cc_library(
+    name = "dracula_and_friends_lib",
     srcs = ["dracula_and_friends.cc"],
     deps = [
-        "//puzzle:puzzle_main",
         ":dracula_and_friends_cc_proto",
-        "//puzzle:solver",
+        "//puzzle:problem",
     ]
 )
 
@@ -20,30 +27,42 @@ proto_library(
 
 cc_test(
     name = "dracula_and_friends_test",
-    srcs = ["dracula_and_friends.cc"],
     deps = [
+        ":dracula_and_friends_lib",
         "//puzzle:puzzle_test",
-        ":dracula_and_friends_cc_proto",
-        "@com_google_googletest//:gtest",	
     ],
 )
 
 cc_binary(
     name = "six_fearsome_heroes",
+    deps = [
+        ":six_fearsome_heroes_lib",
+        "//puzzle:puzzle_main",
+    ]
+)
+
+cc_library(
+    name = "six_fearsome_heroes_lib",
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
-        "//puzzle:puzzle_main",
-        "//puzzle:solver",
+        "//puzzle:problem",
     ]
 )
 
 cc_binary(
     name = "swimming_pool",
+    deps = [
+        ":swimming_pool_lib",
+        "//puzzle:puzzle_main",
+    ]
+)
+
+cc_library(
+    name = "swimming_pool_lib",
     srcs = ["swimming_pool.cc"],
     deps = [
-        "//puzzle:puzzle_main",
         ":swimming_pool_cc_proto",
-        "//puzzle:solver",
+        "//puzzle:problem",
     ]
 )
 
@@ -59,63 +78,54 @@ proto_library(
 
 cc_test(
     name = "swimming_pool_test",
-    srcs = ["swimming_pool.cc"],
     deps = [
+        ":swimming_pool_lib",
         "//puzzle:puzzle_test",
-        ":swimming_pool_cc_proto",
-        "@com_google_googletest//:gtest",	
     ],
 )
 
 cc_test(
     name = "swimming_pool_brute_test",
-    srcs = ["swimming_pool.cc"],
     args = ["--puzzle_brute_force=true"],
     deps = [
+        ":swimming_pool_lib",
         "//puzzle:puzzle_test",
-        ":swimming_pool_cc_proto",
-        "@com_google_googletest//:gtest",	
     ],
 )
 
 cc_test(
     name = "swimming_pool_noprune_test",
-    srcs = ["swimming_pool.cc"],
     args = ["--puzzle_prune_class_iterator=false"],
     deps = [
+        ":swimming_pool_lib",
         "//puzzle:puzzle_test",
-        ":swimming_pool_cc_proto",
-        "@com_google_googletest//:gtest",	
     ],
 )
 
 cc_test(
     name = "six_fearsome_heroes_test",
-    srcs = ["six_fearsome_heroes.cc"],
     deps = [
+        ":six_fearsome_heroes_lib",
         "//puzzle:puzzle_test",
-        "@com_google_googletest//:gtest",	
     ],
 )
 
 cc_test(
     name = "six_fearsome_heroes_noprune_test",
-    srcs = ["six_fearsome_heroes.cc"],
     args = ["--puzzle_prune_class_iterator=false"],
     deps = [
+        ":six_fearsome_heroes_lib",
         "//puzzle:puzzle_test",
-        "@com_google_googletest//:gtest",	
     ],
 )
 
 cc_test(
     name = "six_fearsome_heroes_noreorder_test",
-    srcs = ["six_fearsome_heroes.cc"],
     args = [
         "--puzzle_prune_reorder_classes=false",
     ],
     deps = [
+        ":six_fearsome_heroes_lib",
         "//puzzle:puzzle_test",
-        "@com_google_googletest//:gtest",
     ],
 )
