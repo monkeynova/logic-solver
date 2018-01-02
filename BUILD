@@ -22,7 +22,7 @@ cc_test(
     name = "dracula_and_friends_test",
     srcs = ["dracula_and_friends.cc"],
     deps = [
-        ":puzzle_test",
+        "//puzzle:puzzle_test",
         ":dracula_and_friends_cc_proto",
         "@com_google_googletest//:gtest",	
     ],
@@ -61,7 +61,7 @@ cc_test(
     name = "swimming_pool_test",
     srcs = ["swimming_pool.cc"],
     deps = [
-        ":puzzle_test",
+        "//puzzle:puzzle_test",
         ":swimming_pool_cc_proto",
         "@com_google_googletest//:gtest",	
     ],
@@ -72,7 +72,7 @@ cc_test(
     srcs = ["swimming_pool.cc"],
     args = ["--puzzle_brute_force=true"],
     deps = [
-        ":puzzle_test",
+        "//puzzle:puzzle_test",
         ":swimming_pool_cc_proto",
         "@com_google_googletest//:gtest",	
     ],
@@ -83,7 +83,7 @@ cc_test(
     srcs = ["swimming_pool.cc"],
     args = ["--puzzle_prune_class_iterator=false"],
     deps = [
-        ":puzzle_test",
+        "//puzzle:puzzle_test",
         ":swimming_pool_cc_proto",
         "@com_google_googletest//:gtest",	
     ],
@@ -93,7 +93,7 @@ cc_test(
     name = "six_fearsome_heroes_test",
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
-        ":puzzle_test",
+        "//puzzle:puzzle_test",
         "@com_google_googletest//:gtest",	
     ],
 )
@@ -103,7 +103,7 @@ cc_test(
     srcs = ["six_fearsome_heroes.cc"],
     args = ["--puzzle_prune_class_iterator=false"],
     deps = [
-        ":puzzle_test",
+        "//puzzle:puzzle_test",
         "@com_google_googletest//:gtest",	
     ],
 )
@@ -115,19 +115,7 @@ cc_test(
         "--puzzle_prune_reorder_classes=false",
     ],
     deps = [
-        ":puzzle_test",
-        "@com_google_googletest//:gtest",
-    ],
-)
-
-cc_library(
-    name = "puzzle_test",
-    srcs = ["puzzle_test.cc"],
-    deps = [
-        "//puzzle:problem",
-        "//puzzle:test_main",
-        "@com_google_absl//absl/memory",
-        "@com_google_benchmark//:benchmark",
+        "//puzzle:puzzle_test",
         "@com_google_googletest//:gtest",
     ],
 )

@@ -192,6 +192,21 @@ cc_library(
 )
 
 cc_library(
+    name = "puzzle_test",
+    srcs = ["puzzle_test.cc"],
+    deps = [
+        ":problem",
+        ":test_main",
+        "@com_google_absl//absl/memory",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
+)
+
+cc_library(
     name = "test_main",
     srcs = ["test_main.cc"],
     deps = [

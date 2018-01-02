@@ -25,3 +25,16 @@ cc_binary(
     ],
 )
 
+cc_test(
+    name = "nyt20180101easy_test",
+    srcs = ["nyt20180101easy.cc"],
+    args = [
+        "--sudoku_problem_setup=pairwise",
+        "--puzzle_prune_pair_class_iterators=true",
+    ],
+    deps = [
+        ":base",
+        "//puzzle:puzzle_test",
+        "@com_google_googletest//:gtest",	
+    ],
+)

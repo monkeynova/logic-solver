@@ -106,7 +106,7 @@ I0101 15:48:11.334724 2819318592 puzzle_main.cc:47] [1 solutions tested in 0.879
   entries.emplace_back(8, std::vector<int>{1, 8, 2, 4, 6, 5, 3, 7, 9},
                        entry_descriptor());
 
-  return puzzle::Solution();
+  return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
 
 }  // namespace sudoku
