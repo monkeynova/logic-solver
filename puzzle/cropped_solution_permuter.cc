@@ -63,12 +63,15 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
       if (permuter_->profiler_->NotePosition(
               position(), permuter_->permutation_count())) {
         std::cout << "; FindNextValid(" << class_position << ") ("
-                  << absl::StrJoin(iterators_, ", ",
-                                   [](std::string* out,
-                                      const ClassPermuter::iterator& it) {
-                                     absl::StrAppend(out, it.Completion());
-                                   })
-                  << "): " << position() << std::flush;
+                  << absl::StrJoin(
+			 permuter_->class_permuters_, ", ",
+			 [this](std::string* out,
+				const ClassPermuter& permuter) {
+			   absl::StrAppend(
+			       out,
+			       iterators_[permuter.class_int()].Completion());
+			 })
+                  << ")" << std::flush;
       }
     }
     while(!solution_cropper.p(current_)) {
