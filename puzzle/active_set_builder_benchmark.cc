@@ -102,19 +102,21 @@ static void BM_PairSet(benchmark::State& state) {
 
     setup.active_sets[setup.permuter_a.class_int()] = ActiveSet(
         a_match_positions, setup.permuter_a.permutation_count());
-    for (const auto& pair : a_b_match_positions) {
-      const int a_val = pair.first;
-      const std::set<int>& b_set = pair.second;
-      setup.active_set_pairs[SetupState::kClassIntA][a_val] = ActiveSet(
-  	  b_set, setup.permuter_b.permutation_count());
-    }
     setup.active_sets[setup.permuter_b.class_int()] = ActiveSet(
         b_match_positions, setup.permuter_b.permutation_count());
-    for (const auto& pair : b_a_match_positions) {
-      const int b_val = pair.first;
-      const std::set<int>& a_set = pair.second;
-      setup.active_set_pairs[SetupState::kClassIntB][b_val] = ActiveSet(
-  	  a_set, setup.permuter_a.permutation_count());
+    if (build_mode == SetupState::kMakePairs) {
+      for (const auto& pair : a_b_match_positions) {
+	const int a_val = pair.first;
+	const std::set<int>& b_set = pair.second;
+	setup.active_set_pairs[SetupState::kClassIntA][a_val] = ActiveSet(
+   	    b_set, setup.permuter_b.permutation_count());
+      }
+      for (const auto& pair : b_a_match_positions) {
+	const int b_val = pair.first;
+	const std::set<int>& a_set = pair.second;
+	setup.active_set_pairs[SetupState::kClassIntB][b_val] = ActiveSet(
+  	    a_set, setup.permuter_a.permutation_count());
+      }
     }
   }
 }
@@ -127,6 +129,7 @@ static void BM_PairPassThroughA(benchmark::State& state) {
     ActiveSet active_set_a = ActiveSet();
     ActiveSet source_a = setup.permuter_a.active_set();
     std::set<int> b_match_positions;
+    std::map<int, std::set<int>> b_a_match_positions;
 
     for (auto it_a = setup.permuter_a.begin();
          it_a != setup.permuter_a.end();
@@ -135,6 +138,8 @@ static void BM_PairPassThroughA(benchmark::State& state) {
       active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
       CHECK(source_a.ConsumeNext());
       bool any_of_a = false;
+      ActiveSet a_b_set;
+      ActiveSet source_b = setup.permuter_b.active_set();
       for (auto it_b = setup.permuter_b.begin();
            it_b != setup.permuter_b.end();
            ++it_b) {
@@ -152,7 +157,20 @@ static void BM_PairPassThroughA(benchmark::State& state) {
         if (this_match) {
           any_of_a = true;
           b_match_positions.insert(it_b.position());
+	}
+	if (build_mode == SetupState::kMakePairs) {
+	  a_b_set.AddFalseBlock(source_b.ConsumeFalseBlock());
+	  CHECK(source_b.ConsumeNext());
+	  a_b_set.Add(this_match);
+	  if (this_match) {
+	    b_a_match_positions[it_b.position()].insert(it_a.position());
+	  }
         }
+      }
+      if (build_mode == SetupState::kMakePairs && any_of_a) {
+	a_b_set.DoneAdding();
+	setup.active_set_pairs[SetupState::kClassIntA][it_a.position()] =
+	  std::move(a_b_set);
       }
       active_set_a.Add(any_of_a);
     }
@@ -163,6 +181,14 @@ static void BM_PairPassThroughA(benchmark::State& state) {
     setup.active_sets[setup.permuter_a.class_int()] = std::move(active_set_a);
     setup.active_sets[setup.permuter_b.class_int()] = ActiveSet(
         b_match_positions, setup.permuter_b.permutation_count());
+    if (build_mode == SetupState::kMakePairs) {
+      for (const auto& pair : b_a_match_positions) {
+	const int b_val = pair.first;
+	const std::set<int>& a_set = pair.second;
+	setup.active_set_pairs[SetupState::kClassIntB][b_val] = ActiveSet(
+    	    a_set, setup.permuter_a.permutation_count());
+      }
+    }
   }
 }
 
@@ -184,6 +210,8 @@ static void BM_PairBackAndForth(benchmark::State& state) {
         active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
         CHECK(source_a.ConsumeNext());
         bool any_of_a = false;
+	ActiveSet a_b_set;
+	ActiveSet source_b = setup.permuter_b.active_set();
         for (auto it_b = setup.permuter_b.begin();
              it_b != setup.permuter_b.end();
              ++it_b) {
@@ -197,8 +225,18 @@ static void BM_PairBackAndForth(benchmark::State& state) {
             any_of_a = true;
             if (build_mode == SetupState::kEarlyExit) break;
           }
+	  if (build_mode == SetupState::kMakePairs) {
+	    a_b_set.AddFalseBlock(source_b.ConsumeFalseBlock());
+	    CHECK(source_b.ConsumeNext());
+	    a_b_set.Add(this_match);
+	  }
         }
         active_set_a.Add(any_of_a);
+	if (build_mode == SetupState::kMakePairs && any_of_a) {
+	  a_b_set.DoneAdding();
+	  setup.active_set_pairs[SetupState::kClassIntA][it_a.position()] =
+	    std::move(a_b_set);
+	}
       }
 
       active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
@@ -214,6 +252,8 @@ static void BM_PairBackAndForth(benchmark::State& state) {
         setup.mutable_solution.SetClass(it_b);
         active_set_a.AddFalseBlock(source_b.ConsumeFalseBlock());
         CHECK(source_b.ConsumeNext());
+	ActiveSet b_a_set;
+	ActiveSet source_a = setup.permuter_a.active_set();
         bool any_of_b = false;
         for (auto it_a = setup.permuter_a.begin();
              it_a != setup.permuter_a.end();
@@ -228,8 +268,18 @@ static void BM_PairBackAndForth(benchmark::State& state) {
             any_of_b = true;
             if (build_mode == SetupState::kEarlyExit) break;
           }
+	  if (build_mode == SetupState::kMakePairs) {
+	    b_a_set.AddFalseBlock(source_a.ConsumeFalseBlock());
+	    CHECK(source_a.ConsumeNext());
+	    b_a_set.Add(this_match);
+	  }
         }
         active_set_b.Add(any_of_b);
+	if (build_mode == SetupState::kMakePairs && any_of_b) {
+	  b_a_set.DoneAdding();
+	  setup.active_set_pairs[SetupState::kClassIntB][it_b.position()] =
+	    std::move(b_a_set);
+	}
       }
 
       active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
@@ -258,5 +308,8 @@ BENCHMARK_TEMPLATE(BM_PairBackAndForth, SetupState::kEarlyExit)->Arg(5);
 BENCHMARK_TEMPLATE(BM_PairSet, SetupState::kFullIteration)->Arg(5);
 BENCHMARK_TEMPLATE(BM_PairPassThroughA, SetupState::kFullIteration)->Arg(5);
 BENCHMARK_TEMPLATE(BM_PairBackAndForth, SetupState::kFullIteration)->Arg(5);
+BENCHMARK_TEMPLATE(BM_PairSet, SetupState::kMakePairs)->Arg(5);
+BENCHMARK_TEMPLATE(BM_PairPassThroughA, SetupState::kMakePairs)->Arg(5);
+BENCHMARK_TEMPLATE(BM_PairBackAndForth, SetupState::kMakePairs)->Arg(5);
 
 }  // namespace puzzle
