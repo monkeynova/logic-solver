@@ -64,13 +64,13 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
               position(), permuter_->permutation_count())) {
         std::cout << "; FindNextValid(" << class_position << ") ("
                   << absl::StrJoin(
-			 permuter_->class_permuters_, ", ",
-			 [this](std::string* out,
-				const ClassPermuter& permuter) {
-			   absl::StrAppend(
-			       out,
-			       iterators_[permuter.class_int()].Completion());
-			 })
+                         permuter_->class_permuters_, ", ",
+                         [this](std::string* out,
+                                const ClassPermuter& permuter) {
+                           absl::StrAppend(
+                               out,
+                               iterators_[permuter.class_int()].Completion());
+                         })
                   << ")" << std::flush;
       }
     }
