@@ -197,10 +197,8 @@ static void BM_PairBackAndForth(benchmark::State& state) {
   SetupState setup(state.range(0));
 
   for (auto _ : state) {
-    ActiveSet active_set_a = ActiveSet();
-    ActiveSet active_set_b = ActiveSet();
-
     {
+      ActiveSet active_set_a = ActiveSet();
       ActiveSet source_a = setup.permuter_a.active_set();
 
       for (auto it_a = setup.permuter_a.begin();
@@ -242,15 +240,17 @@ static void BM_PairBackAndForth(benchmark::State& state) {
       active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
       CHECK(source_a.ConsumeNext());
       active_set_a.DoneAdding();
+      setup.active_sets[setup.permuter_a.class_int()] = std::move(active_set_a);
     }
     {
+      ActiveSet active_set_b = ActiveSet();
       ActiveSet source_b = setup.permuter_b.active_set();
 
       for (auto it_b = setup.permuter_b.begin();
            it_b != setup.permuter_b.end();
            ++it_b) {
         setup.mutable_solution.SetClass(it_b);
-        active_set_a.AddFalseBlock(source_b.ConsumeFalseBlock());
+        active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
         CHECK(source_b.ConsumeNext());
 	ActiveSet b_a_set;
 	ActiveSet source_a = setup.permuter_a.active_set();
@@ -285,10 +285,8 @@ static void BM_PairBackAndForth(benchmark::State& state) {
       active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
       CHECK(source_b.ConsumeNext());
       active_set_b.DoneAdding();
+      setup.active_sets[setup.permuter_b.class_int()] = std::move(active_set_b);
     }
-
-    setup.active_sets[setup.permuter_a.class_int()] = std::move(active_set_a);
-    setup.active_sets[setup.permuter_b.class_int()] = std::move(active_set_b);
   }
 }
 
