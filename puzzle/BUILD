@@ -50,6 +50,7 @@ cc_binary(
     srcs = ["active_set_builder_benchmark.cc"],
     deps = [
         ":active_set_builder",
+	":benchmark_main",
         "@com_google_benchmark//:benchmark",
     ]
 )
@@ -63,6 +64,19 @@ cc_test(
         ":test_main",
     ]
 )   
+
+cc_library(
+    name = "benchmark_main",
+    srcs = ["benchmark_main.cc"],
+    deps = [
+	"@com_github_gflags_gflags//:gflags",
+        "@com_google_benchmark//:benchmark",
+	"@com_google_glog//:glog",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
+)
 
 cc_library(
     name = "brute_solution_permuter",
@@ -153,6 +167,7 @@ cc_binary(
     name = "class_permuter_benchmark",
     srcs = ["class_permuter_benchmark.cc"],
     deps = [
+        ":benchmark_main",
         ":class_permuter",
 	"@com_google_absl//absl/strings",
         "@com_google_benchmark//:benchmark",

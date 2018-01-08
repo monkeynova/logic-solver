@@ -10,8 +10,6 @@ using SteinhausJohnsonTrotter = puzzle::internal::ClassPermuterImpl<
 using FactorialRadix = puzzle::internal::ClassPermuterImpl<
   puzzle::internal::ClassPermuterType::kFactorialRadix>;
 
-BENCHMARK_MAIN();
-
 template <typename PermuterType, int depth>
 static void BM_Permuter(benchmark::State& state) {
   for (auto _ : state) {
