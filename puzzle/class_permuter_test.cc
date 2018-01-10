@@ -14,12 +14,11 @@ namespace puzzle {
 template <typename T>
 class ClassPermuterTest : public ::testing::Test {};
 
-typedef ::testing::Types<
+using ClassPermuterTypes = ::testing::Types<
   internal::ClassPermuterImpl<
       internal::ClassPermuterType::kSteinhausJohnsonTrotter>,
-  internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>
-> MyTypes;
-TYPED_TEST_CASE(ClassPermuterTest, MyTypes);
+  internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>>;
+TYPED_TEST_CASE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
   IntRangeDescriptor d(3, 5);
