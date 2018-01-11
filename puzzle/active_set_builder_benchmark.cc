@@ -24,7 +24,7 @@ struct SetupState {
       permuter_b(descriptor.AllClassValues(kClassIntB), kClassIntB),
       active_sets(descriptor.num_classes()),
       active_set_pairs(descriptor.num_classes()) {
-    ActiveSetBuilder single_class_builder(&descriptor);
+    ActiveSetBuilder<> single_class_builder(&descriptor);
     single_class_builder.Build(permuter_a, {MakeCropperA()});
     permuter_a.set_active_set(single_class_builder.active_set(kClassIntA));
     single_class_builder.Build(permuter_b, {MakeCropperB()});

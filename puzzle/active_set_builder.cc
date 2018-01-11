@@ -2,7 +2,8 @@
 
 namespace puzzle {
 
-void ActiveSetBuilder::Build(
+template <>
+void ActiveSetBuilder<SingleClassBuild::kPassThrough>::Build(
     const ClassPermuter& class_permuter,
     const std::vector<Solution::Cropper>& predicates) {
   for (const auto& p : predicates) {
@@ -30,7 +31,34 @@ void ActiveSetBuilder::Build(
   active_sets_[class_permuter.class_int()] = active_set;
 }
 
-void ActiveSetBuilder::Build(
+template <>
+void ActiveSetBuilder<SingleClassBuild::kPositionSet>::Build(
+    const ClassPermuter& class_permuter,
+    const std::vector<Solution::Cropper>& predicates) {
+  for (const auto& p : predicates) {
+    CHECK_EQ(p.classes.size(), 1);
+    CHECK_EQ(p.classes[0], class_permuter.class_int());
+  }
+  std::set<int> a_matches;
+  Solution s = mutable_solution_.TestableSolution();
+  for (auto it = class_permuter.begin();
+       it != class_permuter.end();
+       ++it) {
+    mutable_solution_.SetClass(it);
+    if (std::all_of(predicates.begin(),
+		    predicates.end(),
+		    [&s](const Solution::Cropper& c) {
+		      return c.p(s);
+		    })) {
+      a_matches.insert(it.position());
+    }
+  }
+  active_sets_[class_permuter.class_int()] = ActiveSet(
+      a_matches, class_permuter.permutation_count());
+}
+
+template <SingleClassBuild single_class_build>
+void ActiveSetBuilder<single_class_build>::Build(
     const ClassPermuter& class_permuter_a,
     const ClassPermuter& class_permuter_b,
     const std::vector<Solution::Cropper>& predicates) {
@@ -107,5 +135,8 @@ void ActiveSetBuilder::Build(
   active_sets_[class_permuter_a.class_int()] = std::move(active_set_a);
   active_sets_[class_permuter_b.class_int()] = std::move(active_set_b);
 }
+
+template class ActiveSetBuilder<SingleClassBuild::kPassThrough>;
+template class ActiveSetBuilder<SingleClassBuild::kPositionSet>; 
 
 }  // namespace puzzle

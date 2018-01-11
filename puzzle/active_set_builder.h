@@ -7,6 +7,12 @@
 
 namespace puzzle {
 
+enum class SingleClassBuild {
+  kPassThrough = 0,
+  kPositionSet = 1,
+};
+
+template <SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
 class ActiveSetBuilder {
  public:
   explicit ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
@@ -44,7 +50,7 @@ class ActiveSetBuilder {
 
   MutableSolution mutable_solution_;
 };
-
+ 
 }  // namespace puzzle
 
 #endif  //  PUZZLE_ACTIVE_SET_BUILDER_H_
