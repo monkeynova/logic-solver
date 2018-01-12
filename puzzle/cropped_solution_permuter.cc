@@ -240,7 +240,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
     }
   }
 
-  ActiveSetBuilder<> active_set_builder(entry_descriptor_);
+  ActiveSetBuilder active_set_builder(entry_descriptor_);
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter.class_int();
     active_set_builder.Build(class_permuter,

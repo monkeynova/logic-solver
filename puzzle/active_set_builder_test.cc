@@ -15,15 +15,21 @@ using ::testing::UnorderedElementsAre;
 
 namespace puzzle {
 
-template <typename T>
-class ActiveSetBuilderTest : public ::testing::Test {};
-  
-using ActiveSetBuilderTypes = ::testing::Types<
-  ActiveSetBuilder<SingleClassBuild::kPassThrough>,
-  ActiveSetBuilder<SingleClassBuild::kPositionSet>>;
-TYPED_TEST_CASE(ActiveSetBuilderTest, ActiveSetBuilderTypes);
+class ActiveSetBuilderTest
+  : public ::testing::TestWithParam<ActiveSetBuilder::SingleClassBuild> {
+ public:
+  ActiveSetBuilder::SingleClassBuild single_class_build() {
+    return GetParam();
+  }
+};
 
-TYPED_TEST(ActiveSetBuilderTest, SingleClass) {
+INSTANTIATE_TEST_CASE_P(
+    Instantiation,
+    ActiveSetBuilderTest,
+    testing::Values(ActiveSetBuilder::SingleClassBuild::kPassThrough,
+		    ActiveSetBuilder::SingleClassBuild::kPositionSet));
+  
+TEST_P(ActiveSetBuilderTest, SingleClass) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassInt = 0;
@@ -31,13 +37,13 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClass) {
   IntRangeDescriptor class_descriptor(3, 5);
   entry_descriptor.SetClass(kClassInt, "test class", &class_descriptor);
 
-  TypeParam builder(&entry_descriptor);
+  ActiveSetBuilder builder(&entry_descriptor);
 
   ClassPermuter p(&class_descriptor, kClassInt);
   ASSERT_THAT(p.permutation_count(), 6);
 
   builder.Build(
-      p,
+      single_class_build(), p,
       {Solution::Cropper("First entry is class 3",
                          [](const Solution& s) {
                            return s.Id(0).Class(kClassInt) == 3;
@@ -46,7 +52,7 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClass) {
   ActiveSet active_set_first_is_3 = builder.active_set(kClassInt);
 
   builder.Build(
-      p,
+      single_class_build(), p,
       {Solution::Cropper("First entry is class 4",
                          [](const Solution& s) {
                            return s.Id(0).Class(kClassInt) == 4;
@@ -55,7 +61,7 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClass) {
   ActiveSet active_set_first_is_4 = builder.active_set(kClassInt);
 
   builder.Build(
-      p,
+      single_class_build(), p,
       {Solution::Cropper("First entry is class 5",
                          [](const Solution& s) {
                            return s.Id(0).Class(kClassInt) == 5;
@@ -99,7 +105,7 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClass) {
   EXPECT_THAT(vector_history.size(), Eq(6));
 }
 
-TYPED_TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
+TEST_P(ActiveSetBuilderTest, SingleClassExistingSet) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassInt = 0;
@@ -107,7 +113,7 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
   IntRangeDescriptor class_descriptor(3, 5);
   entry_descriptor.SetClass(kClassInt, "test class", &class_descriptor);
 
-  TypeParam builder(&entry_descriptor);
+  ActiveSetBuilder builder(&entry_descriptor);
 
   ClassPermuter p(&class_descriptor, kClassInt);
   ASSERT_THAT(p.permutation_count(), 6);
@@ -125,11 +131,11 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
                                 {kClassInt});
 
   LOG(INFO) << "Start: " << p.active_set().DebugString();
-  builder.Build(p, {first_is_3});
+  builder.Build(single_class_build(), p, {first_is_3});
   p.set_active_set(builder.active_set(kClassInt));
   LOG(INFO) << "Add " << first_is_3.name << ": "
             << p.active_set().DebugString();
-  builder.Build(p, {second_is_4});
+  builder.Build(single_class_build(), p, {second_is_4});
   p.set_active_set(builder.active_set(kClassInt));
   LOG(INFO) << "Add " << second_is_4.name << ": "
             << p.active_set().DebugString();
@@ -140,7 +146,7 @@ TYPED_TEST(ActiveSetBuilderTest, SingleClassExistingSet) {
   }
 }
 
-TYPED_TEST(ActiveSetBuilderTest, MultiClass) {
+TEST_P(ActiveSetBuilderTest, MultiClass) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassIntA = 0;
@@ -151,7 +157,7 @@ TYPED_TEST(ActiveSetBuilderTest, MultiClass) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  TypeParam builder(&entry_descriptor);
+  ActiveSetBuilder builder(&entry_descriptor);
 
   ClassPermuter permuter_a(&class_descriptor_a, kClassIntA);
   ClassPermuter permuter_b(&class_descriptor_b, kClassIntB);
@@ -208,7 +214,7 @@ TYPED_TEST(ActiveSetBuilderTest, MultiClass) {
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 
-TYPED_TEST(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
+TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassIntA = 0;
@@ -219,7 +225,7 @@ TYPED_TEST(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  TypeParam builder(&entry_descriptor);
+  ActiveSetBuilder builder(&entry_descriptor);
 
   ClassPermuter permuter_a(&class_descriptor_a, kClassIntA);
   ClassPermuter permuter_b(&class_descriptor_b, kClassIntB);
@@ -287,7 +293,7 @@ TYPED_TEST(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 
-TYPED_TEST(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
+TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassIntA = 0;
@@ -298,7 +304,7 @@ TYPED_TEST(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  TypeParam builder(&entry_descriptor);
+  ActiveSetBuilder builder(&entry_descriptor);
 
   ClassPermuter permuter_a(&class_descriptor_a, kClassIntA);
   ClassPermuter permuter_b(&class_descriptor_b, kClassIntB);

@@ -7,14 +7,13 @@
 
 namespace puzzle {
 
-enum class SingleClassBuild {
-  kPassThrough = 0,
-  kPositionSet = 1,
-};
-
-template <SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
 class ActiveSetBuilder {
  public:
+  enum class SingleClassBuild {
+    kPassThrough = 0,
+    kPositionSet = 1,
+  };
+
   explicit ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
     : active_sets_(entry_descriptor == nullptr
                    ? 0 : entry_descriptor->num_classes()),
@@ -29,8 +28,12 @@ class ActiveSetBuilder {
   // error to pass in predicates on other classes), returns the ActiveSet
   // representing and ANDing of those predicates on each permutation.
   // The returned active set fully honors the ANDing of input predicates.
+  template <SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
   void Build(const ClassPermuter& class_permuter,
              const std::vector<Solution::Cropper>& predicates);
+  void Build(SingleClassBuild single_class_build,
+	     const ClassPermuter& class_permuter,
+	     const std::vector<Solution::Cropper>& predicates);
 
   // Given a pair of class permuters and a set of predicates on those classes
   // (it is an error to pass predicates on other classes), builds active sets
