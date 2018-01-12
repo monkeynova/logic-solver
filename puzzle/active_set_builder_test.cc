@@ -15,7 +15,7 @@ using ::testing::UnorderedElementsAre;
 
 namespace puzzle {
 
-class ActiveSetBuilderTest
+class SinglePermuterTest
   : public ::testing::TestWithParam<ActiveSetBuilder::SingleClassBuild> {
  public:
   ActiveSetBuilder::SingleClassBuild single_class_build() {
@@ -25,11 +25,11 @@ class ActiveSetBuilderTest
 
 INSTANTIATE_TEST_CASE_P(
     Instantiation,
-    ActiveSetBuilderTest,
+    SinglePermuterTest,
     testing::Values(ActiveSetBuilder::SingleClassBuild::kPassThrough,
 		    ActiveSetBuilder::SingleClassBuild::kPositionSet));
   
-TEST_P(ActiveSetBuilderTest, SingleClass) {
+TEST_P(SinglePermuterTest, Simple) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassInt = 0;
@@ -105,7 +105,7 @@ TEST_P(ActiveSetBuilderTest, SingleClass) {
   EXPECT_THAT(vector_history.size(), Eq(6));
 }
 
-TEST_P(ActiveSetBuilderTest, SingleClassExistingSet) {
+TEST_P(SinglePermuterTest, ExistingSet) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassInt = 0;
@@ -146,7 +146,22 @@ TEST_P(ActiveSetBuilderTest, SingleClassExistingSet) {
   }
 }
 
-TEST_P(ActiveSetBuilderTest, MultiClass) {
+class PairPermuterTest
+  : public ::testing::TestWithParam<ActiveSetBuilder::PairClassImpl> {
+ public:
+  ActiveSetBuilder::PairClassImpl pair_class_impl() {
+    return GetParam();
+  }
+};
+
+INSTANTIATE_TEST_CASE_P(
+    Instantiation,
+    PairPermuterTest,
+    testing::Values(ActiveSetBuilder::PairClassImpl::kPairSet,
+		    ActiveSetBuilder::PairClassImpl::kBackAndForth,
+		    ActiveSetBuilder::PairClassImpl::kPassThroughA));
+
+TEST_P(PairPermuterTest, Simple) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassIntA = 0;
@@ -171,7 +186,7 @@ TEST_P(ActiveSetBuilderTest, MultiClass) {
                       },
                       {kClassIntA, kClassIntB});
 
-  builder.Build(permuter_a, permuter_b, {c});
+  builder.Build(pair_class_impl(), permuter_a, permuter_b, {c});
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b = builder.active_set(kClassIntB);
@@ -214,7 +229,7 @@ TEST_P(ActiveSetBuilderTest, MultiClass) {
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 
-TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
+TEST_P(PairPermuterTest, ExistingActiveSet) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassIntA = 0;
@@ -249,7 +264,7 @@ TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
                                  },
                                  {kClassIntA, kClassIntB});
 
-  builder.Build(permuter_a, permuter_b, {pair_cropper});
+  builder.Build(pair_class_impl(), permuter_a, permuter_b, {pair_cropper});
 
   ActiveSet active_set_a_post = builder.active_set(kClassIntA);
   ActiveSet active_set_b = builder.active_set(kClassIntB);
@@ -293,7 +308,7 @@ TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSet) {
   EXPECT_THAT(got_found_count, Eq(expect_found_count));
 }
 
-TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
+TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
   const int kClassIntA = 0;
@@ -328,7 +343,7 @@ TEST_P(ActiveSetBuilderTest, MultiClassExistingActiveSetForB) {
                                  },
                                  {kClassIntA, kClassIntB});
 
-  builder.Build(permuter_a, permuter_b, {pair_cropper});
+  builder.Build(pair_class_impl(), permuter_a, permuter_b, {pair_cropper});
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b_post = builder.active_set(kClassIntB);

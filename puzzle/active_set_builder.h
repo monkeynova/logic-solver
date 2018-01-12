@@ -58,6 +58,10 @@ class ActiveSetBuilder {
   void Build(const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
              const std::vector<Solution::Cropper>& predicates,
 	     PairClassMode pair_class_mode = PairClassMode::kSingleton);
+  void Build(PairClassImpl pair_class_impl,
+	     const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
+             const std::vector<Solution::Cropper>& predicates,
+	     PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
   // Maps class_int to it's built ActiveSet.

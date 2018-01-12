@@ -319,4 +319,29 @@ void ActiveSetBuilder::Build(
   }
 }
 
+void ActiveSetBuilder::Build(
+    PairClassImpl pair_class_impl,
+    const ClassPermuter& permuter_a,
+    const ClassPermuter& permuter_b,
+    const std::vector<Solution::Cropper>& predicates,
+    PairClassMode pair_class_mode) {
+  switch (pair_class_impl) {
+  case PairClassImpl::kPairSet:
+    Build<PairClassImpl::kPairSet>(permuter_a, permuter_b,
+				   predicates, pair_class_mode);
+    return;
+  case PairClassImpl::kBackAndForth:
+    Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b,
+					predicates, pair_class_mode);
+    return;
+  case PairClassImpl::kPassThroughA:
+    Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b,
+					predicates, pair_class_mode);
+    return;
+  default:
+    LOG(FATAL) << "Bad PairClassImpl "
+      << static_cast<int>(pair_class_impl);
+  }
+}
+
 }  // namespace puzzle
