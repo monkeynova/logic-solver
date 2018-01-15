@@ -23,74 +23,82 @@ ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
   DoneAdding();
 }
 
-void ActiveSet::Intersect(const ActiveSet& other) {
-  ActiveSet this_copy = *this;
-  ActiveSet other_copy = other;
+struct ActiveSetIterator {
+  explicit ActiveSetIterator(const std::vector<int>& matches)
+    : matches_(matches) {}
 
-  *this = ActiveSet();
-  int new_total = std::max(this_copy.total(), other_copy.total());
-  for (int i = 0; i < new_total; ++i) {
-    bool this_next = this_copy.ConsumeNext();
-    bool other_next = other_copy.ConsumeNext();
-    Add(this_next && other_next);
+  bool value() const { return value_; }
+  
+  bool more() const { return match_position_ < matches_.size(); }
+  
+  int run_size() const { return matches_[match_position_] - run_position_; }
+
+  void Advance(int n) {
+    run_position_ += n;
+    while (run_position_ >= matches_[match_position_]) {
+      run_position_ -= matches_[match_position_];
+      ++match_position_;
+      value_ = !value_;
+    }
   }
-  DoneAdding();
-}
 
-#if 0
+ private:
+  const std::vector<int>& matches_;
+  bool value_ = true;
+  int match_position_ = 0;
+  int run_position_ = 0;
+};
+  
 void ActiveSet::Intersect(const ActiveSet& other) {
   CHECK(!building_) << "Intersect called during building";
   CHECK(!other.building_) << "Intersect called with an unbuilt ActiveSet";
 
-  bool this_value = true;
-  int this_match_position = 0;
-  int this_run_position = 0;
-  
-  bool other_value = true;
-  int other_match_position = 0;
-  int other_run_position = 0;
+  ActiveSetIterator this_iterator(matches_);
+  ActiveSetIterator other_iterator(other.matches_);
 
+  VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
+	  << ")";
+  
   ActiveSet intersection;
-  while (this_match_position < matches_.size() ||
-	 other_match_position < other.matches_.size()) {
-    bool next_run_value = this_value && other_value;
-    int next_run_size = std::numeric_limits<int>::max();
-    if (this_match_position < matches_.size()) {
-      next_run_size = std::min(
-          next_run_size, matches_[this_match_position] - this_run_position);
-    }
-    if (other_match_position < other.matches_.size()) {
-      next_run_size = std::min(
-          next_run_size,
-	  other.matches_[other_match_position] - other_run_position);
-    }
-    // Advance this by 'next_run_size'.
-    if (this_match_position < matches_.size()) {
-      this_run_position += next_run_size;
-      if (this_run_position >= matches_[this_match_position]) {
-	++this_match_position;
-	this_run_position = 0;
-	this_value = !this_value || this_match_position >= matches_.size();
-      }
-    }
-    // Advance other by 'next_run_size'.
-    if (other_match_position < other.matches_.size()) {
-      other_run_position += next_run_size;
-      if (other_run_position >= other.matches_[other_match_position]) {
-	++other_match_position;
-	other_run_position = 0;
-	this_value =
-	    !other_value || other_match_position >= other.matches_.size();
-      }
-    }
+  while (this_iterator.more() && other_iterator.more()) {
+    VLOG(3) << "Intersect NextBlock="
+	    << (this_iterator.value() ? "true" : "false")
+	    << "/\\" << (other_iterator.value() ? "true" : "false");
+    bool next_run_value = this_iterator.value() && other_iterator.value();
+    int next_run_size = std::min(this_iterator.run_size(),
+				 other_iterator.run_size());
     // Store 'next_run_size' values of 'next_run_value'.
+    VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
+	    << ", " << next_run_size << ")";
     intersection.AddBlock(next_run_value, next_run_size);
+    this_iterator.Advance(next_run_size);
+    other_iterator.Advance(next_run_size);
   }
+  while (this_iterator.more()) {
+    bool next_run_value = this_iterator.value();
+    int next_run_size = this_iterator.run_size();
+    // Store 'next_run_size' values of 'next_run_value'.
+    VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
+	    << ", " << next_run_size << ")";
+    intersection.AddBlock(next_run_value, next_run_size);
+    this_iterator.Advance(next_run_size);
+  }
+  while (other_iterator.more()) {
+    bool next_run_value = other_iterator.value();
+    int next_run_size = other_iterator.run_size();
+    // Store 'next_run_size' values of 'next_run_value'.
+    VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
+	    << ", " << next_run_size << ")";
+    intersection.AddBlock(next_run_value, next_run_size);
+    other_iterator.Advance(next_run_size);
+  }
+
+  intersection.total_ = std::max(total_, other.total_);
   // Mark done and update self.
   intersection.DoneAdding();
+  VLOG(3) << "Intersect == " << intersection.DebugString();
   *this = std::move(intersection);
 }
-#endif
 
 std::string ActiveSet::DebugString() const {
   return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
