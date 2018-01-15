@@ -61,9 +61,24 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 
   if (iterators_[class_int] == class_permuter.end()) {
     iterators_[class_int] = class_permuter.begin();
-    mutable_solution_.SetClass(iterators_[class_int]);
   }
 
+  for (;
+       iterators_[class_int] != class_permuter.end();
+       ++iterators_[class_int]) {
+    mutable_solution_.SetClass(iterators_[class_int]);
+    if (NotePositionForProfiler(class_position)) return false;
+    if (solution_cropper.p(current_) &&
+	FindNextValid(class_position + 1)) {
+      return true;
+    }
+  }
+
+  // Didn't find an entry in iteration. Return "no match".
+  return false;
+}
+
+bool CroppedSolutionPermuter::iterator::NotePositionForProfiler(int class_position) {
   VLOG(3) << "FindNextValid(" << class_position << ") ("
           << absl::StrJoin(
                  permuter_->class_permuters_, ", ",
@@ -78,44 +93,26 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
                  })
           << ")";
 
-  while (iterators_[class_int] != class_permuter.end()) {
-    if (permuter_->profiler_ != nullptr) {
-      if (permuter_->profiler_->Done()) {
-        return false;
-      }
-      if (permuter_->profiler_->NotePosition(
-              position(), permuter_->permutation_count())) {
-        std::cout << "; FindNextValid(" << class_position << ") ("
-                  << absl::StrJoin(
-                         permuter_->class_permuters_, ", ",
-                         [this](std::string* out,
-                                const ClassPermuter& permuter) {
-                           absl::StrAppend(
-                               out,
-                               iterators_[permuter.class_int()] == permuter.end()
-                               ? "<end>"
-                               : absl::StrCat(iterators_[permuter.class_int()]
-                                                  .Completion()));
-                         })
-                  << ")" << std::flush;
-      }
-    }
-    while(!solution_cropper.p(current_)) {
-      ++iterators_[class_int];
-      if (iterators_[class_int] == class_permuter.end()) {
-        return false;
-      }
-      mutable_solution_.SetClass(iterators_[class_int]);
-    }
-    if (FindNextValid(class_position + 1)) {
-      return true;
-    }
-    ++iterators_[class_int];
-    mutable_solution_.SetClass(iterators_[class_int]);
-  }
+  if (permuter_->profiler_ == nullptr) return false;
 
-  // Didn't find an entry in iteration. Return "no match".
-  return false;
+  if (permuter_->profiler_->NotePosition(
+          position(), permuter_->permutation_count())) {
+    std::cout << "; FindNextValid(" << class_position << ") ("
+	      << absl::StrJoin(
+		     permuter_->class_permuters_, ", ",
+		     [this](std::string* out,
+			    const ClassPermuter& permuter) {
+		       absl::StrAppend(
+			   out,
+			   iterators_[permuter.class_int()] == permuter.end()
+			   ? "<end>"
+			   : absl::StrCat(iterators_[permuter.class_int()]
+					      .Completion()));
+		     })
+	      << ")" << std::flush;
+  }
+  
+  return permuter_->profiler_->Done();
 }
 
 void CroppedSolutionPermuter::iterator::Advance() {
