@@ -68,7 +68,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 	  permuter_->class_permuters_[other_pos];
 	int other_class = other_permuter.class_int();
 	int other_val = iterators_[other_class].position();
-	build = build.Intersect(builder.active_set_pair(
+	build.Intersect(builder.active_set_pair(
   	    other_class, other_val, class_int));
       }
       iterators_[class_int] = class_permuter.begin(build);

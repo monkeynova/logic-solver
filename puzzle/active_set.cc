@@ -23,19 +23,18 @@ ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
   DoneAdding();
 }
 
-ActiveSet ActiveSet::Intersect(const ActiveSet& other) const {
+void ActiveSet::Intersect(const ActiveSet& other) {
   ActiveSet this_copy = *this;
   ActiveSet other_copy = other;
 
-  ActiveSet ret;
+  *this = ActiveSet();
   int new_total = std::max(this_copy.total(), other_copy.total());
   for (int i = 0; i < new_total; ++i) {
     bool this_next = this_copy.ConsumeNext();
     bool other_next = other_copy.ConsumeNext();
-    ret.Add(this_next && other_next);
+    Add(this_next && other_next);
   }
-  ret.DoneAdding();
-  return ret;
+  DoneAdding();
 }
 
 std::string ActiveSet::DebugString() const {

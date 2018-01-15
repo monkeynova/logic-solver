@@ -236,8 +236,8 @@ void TestIntersection(const std::set<int>& set_a, const std::set<int>& set_b,
                         set_b.begin(), set_b.end(),
                         std::back_inserter(intersection));
 
-  EXPECT_THAT(ExtractValues(a.Intersect(b)), ElementsAreArray(intersection));
-  EXPECT_THAT(ExtractValues(b.Intersect(a)), ElementsAreArray(intersection));
+  EXPECT_THAT(ExtractValues(a.Intersection(b)), ElementsAreArray(intersection));
+  EXPECT_THAT(ExtractValues(b.Intersection(a)), ElementsAreArray(intersection));
 }
 
 TEST(ActiveSet, IntersectionFull) {
