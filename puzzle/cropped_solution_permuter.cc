@@ -33,6 +33,7 @@ CroppedSolutionPermuter::iterator::iterator(
 
   current_ = mutable_solution_.TestableSolution();
   iterators_.resize(permuter_->class_permuters_.size());
+  pair_selectivity_reduction_.resize(iterators_.size(), 1);
   for (auto& class_permuter : permuter_->class_permuters_) {
     iterators_[class_permuter.class_int()] = class_permuter.end();
   }
@@ -63,6 +64,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
       const ActiveSetBuilder& builder = permuter_->active_set_builder_;
       ActiveSet build = builder.active_set(class_int);
+      double start_selectivity = build.Selectivity();
       for (int other_pos = 0; other_pos < class_position; ++other_pos) {
 	const ClassPermuter& other_permuter =
 	  permuter_->class_permuters_[other_pos];
@@ -71,7 +73,8 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 	build.Intersect(builder.active_set_pair(
   	    other_class, other_val, class_int));
       }
-      iterators_[class_int] = class_permuter.begin(build);
+      pair_selectivity_reduction_[class_int] = build.Selectivity() / start_selectivity;
+      iterators_[class_int] = class_permuter.begin(std::move(build));
     } else {	
       iterators_[class_int] = class_permuter.begin();
     }
@@ -92,38 +95,37 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   return false;
 }
 
-bool CroppedSolutionPermuter::iterator::NotePositionForProfiler(int class_position) {
+std::string CroppedSolutionPermuter::iterator::IterationDebugString() const {
+  return absl::StrJoin(
+      permuter_->class_permuters_, ", ",
+      [this](std::string* out,
+	     const ClassPermuter& permuter) {
+	if (iterators_[permuter.class_int()] == permuter.end()) {
+	  absl::StrAppend(out, "<->");
+	} else {
+	  double truncated = iterators_[permuter.class_int()].Completion();
+	  truncated = static_cast<int>(1000 * truncated) / 1000.0;
+	  absl::StrAppend(out, truncated);
+	  if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+	    double truncated = pair_selectivity_reduction_[permuter.class_int()];
+	    truncated = static_cast<int>(1000 * truncated) / 1000.0;
+	    absl::StrAppend(out, " (", truncated, ")");
+	  }
+	}
+      });
+}
+
+bool CroppedSolutionPermuter::iterator::NotePositionForProfiler(
+    int class_position) {
   VLOG(3) << "FindNextValid(" << class_position << ") ("
-          << absl::StrJoin(
-                 permuter_->class_permuters_, ", ",
-                 [this](std::string* out,
-                        const ClassPermuter& permuter) {
-                   absl::StrAppend(
-                       out,
-                       iterators_[permuter.class_int()] == permuter.end()
-                       ? "<end>"
-                       : absl::StrCat(iterators_[permuter.class_int()]
-                                          .Completion()));
-                 })
-          << ")";
+          << IterationDebugString() << ")";
 
   if (permuter_->profiler_ == nullptr) return false;
 
   if (permuter_->profiler_->NotePosition(
           position(), permuter_->permutation_count())) {
     std::cout << "; FindNextValid(" << class_position << ") ("
-	      << absl::StrJoin(
-		     permuter_->class_permuters_, ", ",
-		     [this](std::string* out,
-			    const ClassPermuter& permuter) {
-		       absl::StrAppend(
-			   out,
-			   iterators_[permuter.class_int()] == permuter.end()
-			   ? "<end>"
-			   : absl::StrCat(iterators_[permuter.class_int()]
-					      .Completion()));
-		     })
-	      << ")" << std::flush;
+	      << IterationDebugString() << ")" << std::flush;
   }
   
   return permuter_->profiler_->Done();

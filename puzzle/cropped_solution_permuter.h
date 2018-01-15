@@ -49,6 +49,8 @@ class CroppedSolutionPermuter {
     void Advance();
     bool FindNextValid(int class_position);
 
+    std::string IterationDebugString() const;
+
     // If permuter_->profiler is not null, calls NotePosition and flushes a
     // status prompt to std::out. Returns true if the profiler signals an
     // early abort is indicated.
@@ -59,6 +61,7 @@ class CroppedSolutionPermuter {
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
     Solution current_;  // Bound to mutable_solution_.
+    std::vector<double> pair_selectivity_reduction_;
   };
 
   CroppedSolutionPermuter(
