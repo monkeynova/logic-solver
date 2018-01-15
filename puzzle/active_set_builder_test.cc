@@ -27,8 +27,8 @@ INSTANTIATE_TEST_CASE_P(
     Instantiation,
     SinglePermuterTest,
     testing::Values(ActiveSetBuilder::SingleClassBuild::kPassThrough,
-		    ActiveSetBuilder::SingleClassBuild::kPositionSet));
-  
+                    ActiveSetBuilder::SingleClassBuild::kPositionSet));
+
 TEST_P(SinglePermuterTest, Simple) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
@@ -158,8 +158,8 @@ INSTANTIATE_TEST_CASE_P(
     Instantiation,
     PairPermuterTest,
     testing::Values(ActiveSetBuilder::PairClassImpl::kPairSet,
-		    ActiveSetBuilder::PairClassImpl::kBackAndForth,
-		    ActiveSetBuilder::PairClassImpl::kPassThroughA));
+                    ActiveSetBuilder::PairClassImpl::kBackAndForth,
+                    ActiveSetBuilder::PairClassImpl::kPassThroughA));
 
 TEST_P(PairPermuterTest, Simple) {
   IntRangeDescriptor id_descriptor(0, 2);

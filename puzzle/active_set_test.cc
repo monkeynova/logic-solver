@@ -208,33 +208,33 @@ std::set<int> ExtractValues(ActiveSet a) {
 
 TEST(ActiveSet, SetConstuctionFullExact) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 4)),
-	      ElementsAre(0, 1, 2, 3));
+              ElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionEmptyEnd) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 5)),
-	      ElementsAre(0, 1, 2, 3));
+              ElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionTruncate) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 3)),
-	      ElementsAre(0, 1, 2));
+              ElementsAre(0, 1, 2));
 }
 TEST(ActiveSet, SetConstuctionNegative) {
   EXPECT_THAT(ExtractValues(ActiveSet({-1, 1}, 2)),
-	      ElementsAre(1));
+              ElementsAre(1));
 }
 TEST(ActiveSet, SetConstuctionSpards) {
   EXPECT_THAT(ExtractValues(ActiveSet({5, 10}, 100)),
-	      ElementsAre(5, 10));
+              ElementsAre(5, 10));
 }
 
 void TestIntersection(const std::set<int>& set_a, const std::set<int>& set_b,
-		      int max_position_a, int max_position_b) {
+                      int max_position_a, int max_position_b) {
   ActiveSet a(set_a, max_position_a);
   ActiveSet b(set_b, max_position_b);
   std::vector<int> intersection;
   std::set_intersection(set_a.begin(), set_a.end(),
-			set_b.begin(), set_b.end(),
-			std::back_inserter(intersection));
+                        set_b.begin(), set_b.end(),
+                        std::back_inserter(intersection));
 
   EXPECT_THAT(ExtractValues(a.Intersect(b)), ElementsAreArray(intersection));
   EXPECT_THAT(ExtractValues(b.Intersect(a)), ElementsAreArray(intersection));

@@ -77,41 +77,41 @@ struct SetupState {
 };
 
 template <ActiveSetBuilder::PairClassImpl pair_class_impl,
-	  ActiveSetBuilder::PairClassMode pair_class_mode>
+          ActiveSetBuilder::PairClassMode pair_class_mode>
 static void BM_Pair(benchmark::State& state) {
   SetupState setup(state.range(0));
 
   for (auto _ : state) {
     ActiveSetBuilder builder(&setup.descriptor);
     builder.Build<pair_class_impl>(
-	setup.permuter_a, setup.permuter_b, setup.predicates, pair_class_mode);
+        setup.permuter_a, setup.permuter_b, setup.predicates, pair_class_mode);
   }
 }
 
 BENCHMARK_TEMPLATE(BM_Pair,
-		   ActiveSetBuilder::PairClassImpl::kPairSet,
-		   ActiveSetBuilder::PairClassMode::kSingleton)
+                   ActiveSetBuilder::PairClassImpl::kPairSet,
+                   ActiveSetBuilder::PairClassMode::kSingleton)
     ->Arg(5)->Arg(7);
 BENCHMARK_TEMPLATE(BM_Pair,
-		   ActiveSetBuilder::PairClassImpl::kPassThroughA,
-		   ActiveSetBuilder::PairClassMode::kSingleton)
+                   ActiveSetBuilder::PairClassImpl::kPassThroughA,
+                   ActiveSetBuilder::PairClassMode::kSingleton)
     ->Arg(5)->Arg(7);
 BENCHMARK_TEMPLATE(BM_Pair,
-		   ActiveSetBuilder::PairClassImpl::kBackAndForth,
-		   ActiveSetBuilder::PairClassMode::kSingleton)
+                   ActiveSetBuilder::PairClassImpl::kBackAndForth,
+                   ActiveSetBuilder::PairClassMode::kSingleton)
     ->Arg(5)->Arg(7);
 
 BENCHMARK_TEMPLATE(BM_Pair,
-		   ActiveSetBuilder::PairClassImpl::kPairSet,
-		   ActiveSetBuilder::PairClassMode::kMakePairs)
+                   ActiveSetBuilder::PairClassImpl::kPairSet,
+                   ActiveSetBuilder::PairClassMode::kMakePairs)
     ->Arg(5)->Arg(7);
 BENCHMARK_TEMPLATE(BM_Pair,
-		   ActiveSetBuilder::PairClassImpl::kPassThroughA,
-		   ActiveSetBuilder::PairClassMode::kMakePairs)
+                   ActiveSetBuilder::PairClassImpl::kPassThroughA,
+                   ActiveSetBuilder::PairClassMode::kMakePairs)
     ->Arg(5)->Arg(7);
 BENCHMARK_TEMPLATE(BM_Pair,
-		   ActiveSetBuilder::PairClassImpl::kBackAndForth,
-		   ActiveSetBuilder::PairClassMode::kMakePairs)
+                   ActiveSetBuilder::PairClassImpl::kBackAndForth,
+                   ActiveSetBuilder::PairClassMode::kMakePairs)
     ->Arg(5)->Arg(7);
 
 }  // namespace puzzle

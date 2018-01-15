@@ -23,7 +23,7 @@ class ActiveSet {
   ActiveSet& operator=(ActiveSet&& other) = default;
 
   ActiveSet Intersect(const ActiveSet& other) const;
-  
+
   std::string DebugString() const;
 
   // Adds a new boolean value to the current ActiveSet. Must not be called

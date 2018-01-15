@@ -26,7 +26,7 @@ ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
 ActiveSet ActiveSet::Intersect(const ActiveSet& other) const {
   ActiveSet this_copy = *this;
   ActiveSet other_copy = other;
-  
+
   ActiveSet ret;
   int new_total = std::max(this_copy.total(), other_copy.total());
   for (int i = 0; i < new_total; ++i) {
@@ -37,7 +37,7 @@ ActiveSet ActiveSet::Intersect(const ActiveSet& other) const {
   ret.DoneAdding();
   return ret;
 }
-  
+
 std::string ActiveSet::DebugString() const {
   return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
                       " ", (current_value_ ? "match" : "skip"),

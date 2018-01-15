@@ -102,7 +102,7 @@ class CroppedSolutionPermuter {
   Profiler* const profiler_;
 
   ActiveSetBuilder active_set_builder_;
-  
+
   friend iterator;
 };
 

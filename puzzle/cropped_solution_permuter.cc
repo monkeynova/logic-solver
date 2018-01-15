@@ -14,9 +14,9 @@ DEFINE_bool(puzzle_prune_pair_class_iterators, false,
             "class predicates that are present.");
 
 DEFINE_bool(puzzle_prune_pair_class_iterators_mode_pair, false,
-	    "If specified pairwise iterators will be pruned with contextual "
-	    "pruning (that is, pairwise iterators will store, for each value of  "
-	    "one iterator, the appropriate active sets for the other iterator).");
+            "If specified pairwise iterators will be pruned with contextual "
+            "pruning (that is, pairwise iterators will store, for each value of  "
+            "one iterator, the appropriate active sets for the other iterator).");
 
 DEFINE_bool(puzzle_prune_reorder_classes, true,
             "If true, class iteration will be re-ordered from the default "
@@ -34,8 +34,7 @@ CroppedSolutionPermuter::iterator::iterator(
   current_ = mutable_solution_.TestableSolution();
   iterators_.resize(permuter_->class_permuters_.size());
   for (auto& class_permuter : permuter_->class_permuters_) {
-    iterators_[class_permuter.class_int()] = class_permuter.begin();
-    mutable_solution_.SetClass(iterators_[class_permuter.class_int()]);
+    iterators_[class_permuter.class_int()] = class_permuter.end();
   }
 
   if (FindNextValid(/*class_position=*/0)) {
@@ -60,6 +59,25 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   const Solution::Cropper& solution_cropper =
     permuter_->class_predicates_[class_int];
 
+  if (iterators_[class_int] == class_permuter.end()) {
+    iterators_[class_int] = class_permuter.begin();
+    mutable_solution_.SetClass(iterators_[class_int]);
+  }
+
+  VLOG(3) << "FindNextValid(" << class_position << ") ("
+          << absl::StrJoin(
+                 permuter_->class_permuters_, ", ",
+                 [this](std::string* out,
+                        const ClassPermuter& permuter) {
+                   absl::StrAppend(
+                       out,
+                       iterators_[permuter.class_int()] == permuter.end()
+                       ? "<end>"
+                       : absl::StrCat(iterators_[permuter.class_int()]
+                                          .Completion()));
+                 })
+          << ")";
+
   while (iterators_[class_int] != class_permuter.end()) {
     if (permuter_->profiler_ != nullptr) {
       if (permuter_->profiler_->Done()) {
@@ -74,7 +92,10 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
                                 const ClassPermuter& permuter) {
                            absl::StrAppend(
                                out,
-                               iterators_[permuter.class_int()].Completion());
+                               iterators_[permuter.class_int()] == permuter.end()
+                               ? "<end>"
+                               : absl::StrCat(iterators_[permuter.class_int()]
+                                                  .Completion()));
                          })
                   << ")" << std::flush;
       }
@@ -82,23 +103,18 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     while(!solution_cropper.p(current_)) {
       ++iterators_[class_int];
       if (iterators_[class_int] == class_permuter.end()) {
-        iterators_[class_int] = class_permuter.begin();
-        mutable_solution_.SetClass(iterators_[class_int]);
         return false;
       }
       mutable_solution_.SetClass(iterators_[class_int]);
     }
     if (FindNextValid(class_position + 1)) {
       return true;
-    } else {
-      ++iterators_[class_int];
-      mutable_solution_.SetClass(iterators_[class_int]);
     }
+    ++iterators_[class_int];
+    mutable_solution_.SetClass(iterators_[class_int]);
   }
 
-  // Didn't find an entry in iteration. Reset iterator and return "no match".
-  iterators_[class_int] = class_permuter.begin();
-  mutable_solution_.SetClass(iterators_[class_int]);
+  // Didn't find an entry in iteration. Return "no match".
   return false;
 }
 
@@ -108,15 +124,18 @@ void CroppedSolutionPermuter::iterator::Advance() {
        it != permuter_->class_permuters_.rend();
        ++it) {
     int class_int = it->class_int();
+
+    if (iterators_[class_int] == it->end()) {
+      iterators_[class_int] = it->begin();
+    }
+
     ++iterators_[class_int];
+    mutable_solution_.SetClass(iterators_[class_int]);
 
     bool carry = false;
     if (iterators_[class_int] == it->end()) {
-      iterators_[class_int] = it->begin();
       carry = true;
     }
-
-    mutable_solution_.SetClass(iterators_[class_int]);
 
     if (!carry) {
       at_end = false;
