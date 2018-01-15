@@ -35,9 +35,9 @@ class ActiveSet {
   // after DoneAdding is called.
   void Add(bool match);
 
-  // Adds 'size' false enties. Equivalent to:
-  // for (int i = 0; i < size; ++i) Add(false);
-  void AddFalseBlock(int size);
+  // Adds 'size' enties of 'value'. Equivalent to:
+  // for (int i = 0; i < size; ++i) Add(value);
+  void AddBlock(bool value, int size);
 
   // Called to indicate that the add phase is over and the consume phase
   // may not begin. Must be called before ConsumeNext.

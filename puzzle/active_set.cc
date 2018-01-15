@@ -13,12 +13,12 @@ ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
   for (auto p : positions) {
     if (p < 0) continue;
     if (p >= max_position) break;
-    AddFalseBlock(p - last_p - 1);
+    AddBlock(false, p - last_p - 1);
     Add(true);
     last_p = p;
   }
   if (last_p < max_position - 1) {
-    AddFalseBlock(max_position - last_p - 1);
+    AddBlock(false, max_position - last_p - 1);
   }
   DoneAdding();
 }
@@ -36,6 +36,61 @@ void ActiveSet::Intersect(const ActiveSet& other) {
   }
   DoneAdding();
 }
+
+#if 0
+void ActiveSet::Intersect(const ActiveSet& other) {
+  CHECK(!building_) << "Intersect called during building";
+  CHECK(!other.building_) << "Intersect called with an unbuilt ActiveSet";
+
+  bool this_value = true;
+  int this_match_position = 0;
+  int this_run_position = 0;
+  
+  bool other_value = true;
+  int other_match_position = 0;
+  int other_run_position = 0;
+
+  ActiveSet intersection;
+  while (this_match_position < matches_.size() ||
+	 other_match_position < other.matches_.size()) {
+    bool next_run_value = this_value && other_value;
+    int next_run_size = std::numeric_limits<int>::max();
+    if (this_match_position < matches_.size()) {
+      next_run_size = std::min(
+          next_run_size, matches_[this_match_position] - this_run_position);
+    }
+    if (other_match_position < other.matches_.size()) {
+      next_run_size = std::min(
+          next_run_size,
+	  other.matches_[other_match_position] - other_run_position);
+    }
+    // Advance this by 'next_run_size'.
+    if (this_match_position < matches_.size()) {
+      this_run_position += next_run_size;
+      if (this_run_position >= matches_[this_match_position]) {
+	++this_match_position;
+	this_run_position = 0;
+	this_value = !this_value || this_match_position >= matches_.size();
+      }
+    }
+    // Advance other by 'next_run_size'.
+    if (other_match_position < other.matches_.size()) {
+      other_run_position += next_run_size;
+      if (other_run_position >= other.matches_[other_match_position]) {
+	++other_match_position;
+	other_run_position = 0;
+	this_value =
+	    !other_value || other_match_position >= other.matches_.size();
+      }
+    }
+    // Store 'next_run_size' values of 'next_run_value'.
+    intersection.AddBlock(next_run_value, next_run_size);
+  }
+  // Mark done and update self.
+  intersection.DoneAdding();
+  *this = std::move(intersection);
+}
+#endif
 
 std::string ActiveSet::DebugString() const {
   return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
@@ -61,8 +116,22 @@ void ActiveSet::Add(bool match) {
   }
 }
 
-void ActiveSet::AddFalseBlock(int size) {
-  for (int i = 0; i < size; ++i) Add(/*match=*/false);
+void ActiveSet::AddBlock(bool match, int size) {
+  CHECK(building_) << "Add called after building";
+  if (size == 0) return;
+  
+  total_ += size;
+  if (match) {
+    matches_count_ += size;
+  }
+
+  if (match == current_value_) {
+    matches_position_ += size;
+  } else {
+    matches_.push_back(matches_position_);
+    current_value_ = match;
+    matches_position_ = size;
+  }
 }
 
 void ActiveSet::DoneAdding() {

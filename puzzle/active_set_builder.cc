@@ -30,7 +30,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
        it != class_permuter.end();
        ++it) {
     mutable_solution_.SetClass(it);
-    active_set.AddFalseBlock(source.ConsumeFalseBlock());
+    active_set.AddBlock(false, source.ConsumeFalseBlock());
     CHECK(source.ConsumeNext());
     active_set.Add(std::all_of(predicates.begin(),
                                predicates.end(),
@@ -38,7 +38,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
                                  return c.p(solution_);
                                }));
   }
-  active_set.AddFalseBlock(source.ConsumeFalseBlock());
+  active_set.AddBlock(false, source.ConsumeFalseBlock());
   CHECK(source.ConsumeNext());
   active_set.DoneAdding();
   active_sets_[class_permuter.class_int()] = active_set;
@@ -98,7 +98,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
 
     for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
       mutable_solution_.SetClass(it_a);
-      active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
+      active_set_a.AddBlock(false, source_a.ConsumeFalseBlock());
       CHECK(source_a.ConsumeNext());
       bool any_of_a = false;
       ActiveSet a_b_set;
@@ -116,7 +116,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
           if (pair_class_mode == PairClassMode::kSingleton) break;
         }
         if (pair_class_mode == PairClassMode::kMakePairs) {
-          a_b_set.AddFalseBlock(source_b.ConsumeFalseBlock());
+          a_b_set.AddBlock(false, source_b.ConsumeFalseBlock());
           CHECK(source_b.ConsumeNext());
           a_b_set.Add(this_match);
         }
@@ -129,7 +129,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       }
     }
 
-    active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
+    active_set_a.AddBlock(false, source_a.ConsumeFalseBlock());
     CHECK(source_a.ConsumeNext());
     active_set_a.DoneAdding();
     active_sets_[class_a] = std::move(active_set_a);
@@ -140,7 +140,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
 
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution_.SetClass(it_b);
-      active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
+      active_set_b.AddBlock(false, source_b.ConsumeFalseBlock());
       CHECK(source_b.ConsumeNext());
       ActiveSet b_a_set;
       ActiveSet source_a = permuter_a.active_set();
@@ -158,7 +158,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
           if (pair_class_mode == PairClassMode::kSingleton) break;
         }
         if (pair_class_mode == PairClassMode::kMakePairs) {
-          b_a_set.AddFalseBlock(source_a.ConsumeFalseBlock());
+          b_a_set.AddBlock(false, source_a.ConsumeFalseBlock());
           CHECK(source_a.ConsumeNext());
           b_a_set.Add(this_match);
         }
@@ -171,7 +171,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       }
     }
 
-    active_set_b.AddFalseBlock(source_b.ConsumeFalseBlock());
+    active_set_b.AddBlock(false, source_b.ConsumeFalseBlock());
     CHECK(source_b.ConsumeNext());
     active_set_b.DoneAdding();
     active_sets_[class_b] = std::move(active_set_b);
@@ -194,7 +194,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
 
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
-    active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
+    active_set_a.AddBlock(false, source_a.ConsumeFalseBlock());
     CHECK(source_a.ConsumeNext());
     bool any_of_a = false;
     ActiveSet a_b_set;
@@ -217,7 +217,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
         b_match_positions.insert(it_b.position());
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-        a_b_set.AddFalseBlock(source_b.ConsumeFalseBlock());
+        a_b_set.AddBlock(false, source_b.ConsumeFalseBlock());
         CHECK(source_b.ConsumeNext());
         a_b_set.Add(this_match);
         if (this_match) {
@@ -233,7 +233,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     active_set_a.Add(any_of_a);
   }
 
-  active_set_a.AddFalseBlock(source_a.ConsumeFalseBlock());
+  active_set_a.AddBlock(false, source_a.ConsumeFalseBlock());
   CHECK(source_a.ConsumeNext());
   active_set_a.DoneAdding();
   active_sets_[class_a] = std::move(active_set_a);
