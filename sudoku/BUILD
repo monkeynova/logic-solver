@@ -44,6 +44,20 @@ cc_test(
     ],
 )
 
+cc_test(
+    name = "nyt20180101easy_pairs_test",
+    args = [
+        "--sudoku_problem_setup=pairwise",
+        "--puzzle_prune_pair_class_iterators=true",
+	"--puzzle_prune_pair_class_iterators=true",
+	"--puzzle_prune_pair_class_iterators_mode_pair=true",
+    ],
+    deps = [
+        ":nyt20180101easy_lib",
+        "//puzzle:puzzle_test",
+    ],
+)
+
 cc_binary(
     name = "nyt20180102medium",
     deps = [

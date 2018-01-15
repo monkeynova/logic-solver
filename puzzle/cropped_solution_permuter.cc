@@ -60,7 +60,21 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     permuter_->class_predicates_[class_int];
 
   if (iterators_[class_int] == class_permuter.end()) {
-    iterators_[class_int] = class_permuter.begin();
+    if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+      const ActiveSetBuilder& builder = permuter_->active_set_builder_;
+      ActiveSet build = builder.active_set(class_int);
+      for (int other_pos = 0; other_pos < class_position; ++other_pos) {
+	const ClassPermuter& other_permuter =
+	  permuter_->class_permuters_[other_pos];
+	int other_class = other_permuter.class_int();
+	int other_val = iterators_[other_class].position();
+	build = build.Intersect(builder.active_set_pair(
+  	    other_class, other_val, class_int));
+      }
+      iterators_[class_int] = class_permuter.begin(build);
+    } else {	
+      iterators_[class_int] = class_permuter.begin();
+    }
   }
 
   for (;
@@ -253,15 +267,17 @@ void CroppedSolutionPermuter::BuildActiveSets(
     if (cropper.classes.size() == 1) {
       int class_int = cropper.classes[0];
       single_class_predicates[class_int].push_back(cropper);
-    } else {
-      if (cropper.classes.size() == 2) {
-        std::pair<int, int> key1 = std::make_pair(
-            cropper.classes[0], cropper.classes[1]);
-        std::pair<int, int> key2 = std::make_pair(
-            cropper.classes[0], cropper.classes[1]);
-        pair_class_predicates[key1].push_back(cropper);
-        pair_class_predicates[key2].push_back(cropper);
+    } else if (cropper.classes.size() == 2) {
+      std::pair<int, int> key1 = std::make_pair(
+          cropper.classes[0], cropper.classes[1]);
+      std::pair<int, int> key2 = std::make_pair(
+          cropper.classes[0], cropper.classes[1]);
+      pair_class_predicates[key1].push_back(cropper);
+      pair_class_predicates[key2].push_back(cropper);
+      if (!FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+	residual->push_back(cropper);
       }
+    } else {
       residual->push_back(cropper);
     }
   }

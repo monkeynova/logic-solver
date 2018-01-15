@@ -89,6 +89,7 @@ bool ActiveSet::ConsumeNext() {
   if (matches_[matches_position_] == 0) {
     current_value_ = !current_value_;
     ++matches_position_;
+    if (matches_position_ >= matches_.size()) return true;
   }
   --matches_[matches_position_];
   return current_value_;

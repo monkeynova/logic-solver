@@ -115,11 +115,14 @@ class ClassPermuterImpl {
   ClassPermuterImpl(ClassPermuterImpl&&) = default;
   ClassPermuterImpl& operator=(ClassPermuterImpl&&) = default;
 
+  // TODO(keith): This copy of active_set_ is likely the cause of malloc
+  // showing up on profiles. We should clean up the model to avoid needing
+  // a data copy here.
   iterator begin() const {
-    // TODO(keith): This copy of active_set_ is likely the cause of malloc
-    // showing up on profiles. We should clean up the model to avoid needing
-    // a data copy here.
     return iterator(this, active_set_);
+  }
+  iterator begin(ActiveSet active_set) const {
+    return iterator(this, std::move(active_set_));
   }
   iterator end() const { return iterator(); }
 

@@ -23,16 +23,21 @@ class ActiveSetBuilder {
     kPairSet = 2,
   };
 
-  explicit ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
-    : active_sets_(entry_descriptor == nullptr
-                   ? 0 : entry_descriptor->num_classes()),
-      active_set_pairs_(entry_descriptor == nullptr
-                        ? 0 : entry_descriptor->num_classes()),
-      mutable_solution_(entry_descriptor) {}
+  explicit ActiveSetBuilder(const EntryDescriptor* entry_descriptor);
 
   const ActiveSet& active_set(int class_int) const {
     DCHECK_LT(class_int, active_sets_.size());
     return active_sets_[class_int];
+  }
+  const ActiveSet& active_set_pair(int class_a, int a_val, int class_b) const {
+    DCHECK_LT(class_a, active_set_pairs_.size());
+    DCHECK_LT(class_b, active_set_pairs_[class_a].size());
+    auto it = active_set_pairs_[class_a][class_b].find(a_val);
+    if (it == active_set_pairs_[class_a][class_b].end()) {
+      static ActiveSet empty;
+      return empty;
+    }
+    return it->second;
   }
 
   // Given a class permuter and a set of predicates on that class (it is an
@@ -64,13 +69,18 @@ class ActiveSetBuilder {
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
+  void SetupPairBuild(int class_a, int class_b, 
+		      const std::vector<Solution::Cropper>& predicates);
+
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;
 
-  // ...
-  std::vector<std::map<int, ActiveSet>> active_set_pairs_;
+  // active_set_pairs_[class_a][class_b][a_val] stores the ActiveSet for
+  // class_b given class_a is at position a_val.
+  std::vector<std::vector<std::map<int, ActiveSet>>> active_set_pairs_;
 
   MutableSolution mutable_solution_;
+  Solution solution_;  // Bound to mutable_solution_;
 };
 
 }  // namespace puzzle
