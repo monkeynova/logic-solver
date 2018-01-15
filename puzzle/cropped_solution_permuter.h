@@ -1,6 +1,7 @@
 #ifndef __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
 #define __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
 
+#include "puzzle/active_set_builder.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"
@@ -100,6 +101,8 @@ class CroppedSolutionPermuter {
 
   Profiler* const profiler_;
 
+  ActiveSetBuilder active_set_builder_;
+  
   friend iterator;
 };
 

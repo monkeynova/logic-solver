@@ -13,6 +13,11 @@ DEFINE_bool(puzzle_prune_pair_class_iterators, false,
             "If specfied, class iterators will be pruned based on pair "
             "class predicates that are present.");
 
+DEFINE_bool(puzzle_prune_pair_class_iterators_mode_pair, false,
+	    "If specified pairwise iterators will be pruned with contextual "
+	    "pruning (that is, pairwise iterators will store, for each value of  "
+	    "one iterator, the appropriate active sets for the other iterator).");
+
 DEFINE_bool(puzzle_prune_reorder_classes, true,
             "If true, class iteration will be re-ordered from the default "
             "based on effective scan rate.");
@@ -147,7 +152,9 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
     const EntryDescriptor* e,
     const std::vector<Solution::Cropper>& croppers_with_class,
     Profiler* profiler)
-    : entry_descriptor_(e), profiler_(profiler) {
+    : entry_descriptor_(e),
+      profiler_(profiler),
+      active_set_builder_(entry_descriptor_) {
   std::vector<int> class_order = entry_descriptor_->AllClasses()->Values();
 
   for (int class_int: class_order) {
@@ -217,7 +224,10 @@ void CroppedSolutionPermuter::BuildActiveSets(
     for (const auto& cropper: croppers) {
       residual->push_back(cropper);
     }
+    return;
   }
+
+  VLOG(1) << "Generating singleton selectivities";
 
   std::vector<std::vector<Solution::Cropper>> single_class_predicates;
   std::map<std::pair<int, int>, std::vector<Solution::Cropper>>
@@ -240,30 +250,36 @@ void CroppedSolutionPermuter::BuildActiveSets(
     }
   }
 
-  ActiveSetBuilder active_set_builder(entry_descriptor_);
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter.class_int();
-    active_set_builder.Build(class_permuter,
+    active_set_builder_.Build(class_permuter,
                              single_class_predicates[class_int]);
     VLOG(2) << "Selectivity (" << class_permuter.class_int() << "): "
             << class_permuter.Selectivity() << " => "
-            << active_set_builder.active_set(class_int).Selectivity();
-    class_permuter.set_active_set(active_set_builder.active_set(class_int));
+            << active_set_builder_.active_set(class_int).Selectivity();
+    class_permuter.set_active_set(active_set_builder_.active_set(class_int));
   }
 
   if (!FLAGS_puzzle_prune_pair_class_iterators) {
     return;
   }
 
+  VLOG(1) << "Generating pair selectivities";
+
   bool cardinality_reduced = true;
-  while (cardinality_reduced) {
+  bool need_final = FLAGS_puzzle_prune_pair_class_iterators_mode_pair;
+  ActiveSetBuilder::PairClassMode pair_class_mode =
+    ActiveSetBuilder::PairClassMode::kSingleton;
+  while (cardinality_reduced || need_final) {
+    if (!cardinality_reduced) {
+      // After cardinality settles, run one more time with make_pairs on the
+      // smallest N^2 required.
+      need_final = false;
+      pair_class_mode = ActiveSetBuilder::PairClassMode::kMakePairs;
+      VLOG(1) << "Running one more pass to generate pairs";
+    }
     cardinality_reduced = false;
 
-    /*
-    std::sort(class_permuters_.begin(), class_permuters_.end(),
-              [](const ClassPermuter& a, const ClassPermuter& b) {
-                return a.Selectivity() < b.Selectivity();
-                });*/
     for (auto it = class_permuters_.begin();
          it != class_permuters_.end();
          ++it) {
@@ -275,9 +291,9 @@ void CroppedSolutionPermuter::BuildActiveSets(
                                                it2->class_int())];
         if (croppers.empty()) continue;
 
-        active_set_builder.Build(*it, *it2, croppers);
-        const ActiveSet& new_a = active_set_builder.active_set(it->class_int());
-        const ActiveSet& new_b = active_set_builder.active_set(it2->class_int());
+        active_set_builder_.Build(*it, *it2, croppers, pair_class_mode);
+        const ActiveSet& new_a = active_set_builder_.active_set(it->class_int());
+        const ActiveSet& new_b = active_set_builder_.active_set(it2->class_int());
         VLOG(2) << "Selectivity (" << it->class_int() << ", "
                 << it2->class_int() << "): (" << it->Selectivity() << ", "
                 << it2->Selectivity() << ") => (" << new_a.Selectivity()

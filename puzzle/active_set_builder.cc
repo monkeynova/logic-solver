@@ -71,6 +71,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
           p.classes[1] == permuter_b.class_int());
     CHECK_NE(p.classes[0], p.classes[1]);
   }
+  if (pair_class_mode == PairClassMode::kMakePairs) {
+    active_set_pairs_[permuter_a.class_int()].clear();
+    active_set_pairs_[permuter_b.class_int()].clear();
+  }
   Solution solution = mutable_solution_.TestableSolution();
   {
     ActiveSet active_set_a = ActiveSet();
@@ -172,6 +176,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
           p.classes[1] == permuter_b.class_int());
     CHECK_NE(p.classes[0], p.classes[1]);
   }
+  if (pair_class_mode == PairClassMode::kMakePairs) {
+    active_set_pairs_[permuter_a.class_int()].clear();
+    active_set_pairs_[permuter_b.class_int()].clear();
+  }
   Solution solution = mutable_solution_.TestableSolution();
   ActiveSet active_set_a = ActiveSet();
   ActiveSet source_a = permuter_a.active_set();
@@ -248,6 +256,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     CHECK(p.classes[1] == permuter_a.class_int() ||
           p.classes[1] == permuter_b.class_int());
     CHECK_NE(p.classes[0], p.classes[1]);
+  }
+  if (pair_class_mode == PairClassMode::kMakePairs) {
+    active_set_pairs_[permuter_a.class_int()].clear();
+    active_set_pairs_[permuter_b.class_int()].clear();
   }
   Solution solution = mutable_solution_.TestableSolution();
   std::set<int> a_match_positions;
