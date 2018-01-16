@@ -61,9 +61,9 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     permuter_->class_predicates_[class_int];
 
   if (iterators_[class_int] == class_permuter.end()) {
+    const ActiveSetBuilder& builder = permuter_->active_set_builder_;
+    ActiveSet build = builder.active_set(class_int);
     if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
-      const ActiveSetBuilder& builder = permuter_->active_set_builder_;
-      ActiveSet build = builder.active_set(class_int);
       double start_selectivity = build.Selectivity();
       for (int other_pos = 0; other_pos < class_position; ++other_pos) {
 	const ClassPermuter& other_permuter =
@@ -73,11 +73,10 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
 	build.Intersect(builder.active_set_pair(
   	    other_class, other_val, class_int));
       }
-      pair_selectivity_reduction_[class_int] = build.Selectivity() / start_selectivity;
-      iterators_[class_int] = class_permuter.begin(std::move(build));
-    } else {	
-      iterators_[class_int] = class_permuter.begin();
+      pair_selectivity_reduction_[class_int] =
+	  build.Selectivity() / start_selectivity;
     }
+    iterators_[class_int] = class_permuter.begin(std::move(build));
   }
 
   for (;
