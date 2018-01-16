@@ -49,7 +49,8 @@ CroppedSolutionPermuter::iterator::iterator(
 }
 
 bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
-  if ((unsigned int)class_position >= permuter_->class_permuters_.size()) {
+  if (static_cast<unsigned int>(class_position) >=
+      permuter_->class_permuters_.size()) {
     return true;
   }
 
