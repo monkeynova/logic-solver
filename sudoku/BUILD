@@ -11,8 +11,8 @@ cc_binary(
     name = "nyt20171202",
     srcs = ["nyt20171202.cc"],
     deps = [
-        "//puzzle:puzzle_main",
         ":base",
+        "//puzzle:puzzle_main",
     ],
 )
 
@@ -27,6 +27,7 @@ cc_binary(
 cc_library(
     name = "nyt20180101easy_lib",
     srcs = ["nyt20180101easy.cc"],
+    alwayslink = 1,
     deps = [
         ":base",
     ],
@@ -69,6 +70,7 @@ cc_binary(
 cc_library(
     name = "nyt20180102medium_lib",
     srcs = ["nyt20180102medium.cc"],
+    alwayslink = 1,
     deps = [
         ":base",
     ],

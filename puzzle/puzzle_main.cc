@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
 
   puzzle::Problem* problem = puzzle::Problem::GetInstance();
+  CHECK(problem != nullptr) << "No puzzle found";
 
   problem->Setup();
 

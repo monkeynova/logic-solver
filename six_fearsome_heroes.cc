@@ -61,7 +61,7 @@ class SixFearsomeHeroes : public puzzle::Problem {
   };
 
   void Setup() override;
-  puzzle::Solution Solution() const override;
+  puzzle::Solution GetSolution() const override;
 
   void AddGeneralPredicates();
   void AddStatementPredicates();
@@ -181,7 +181,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
                {TRID, FIZZBIN});
 }
 
-puzzle::Solution SixFearsomeHeroes::Solution() const {
+puzzle::Solution SixFearsomeHeroes::GetSolution() const {
   std::vector<puzzle::Entry> entries;
   // Picard: hero=Data fear=Troi trid=5 fizzbin=2
   entries.emplace_back(

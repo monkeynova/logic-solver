@@ -124,6 +124,7 @@ cc_library(
 cc_library(
     name = "problem",
     hdrs = ["problem.h"],
+    srcs = ["problem.cc"],
     deps = [
         ":solver",
     ],

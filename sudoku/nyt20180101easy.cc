@@ -3,7 +3,7 @@
 namespace sudoku {
 
 class NYT20180101Easy : public Base {
-  puzzle::Solution Solution() const override;
+  puzzle::Solution GetSolution() const override;
   void AddInstancePredicates() override;
 };
 
@@ -24,7 +24,7 @@ void NYT20180101Easy::AddInstancePredicates() {
   return;
 }
 
-puzzle::Solution NYT20180101Easy::Solution() const {
+puzzle::Solution NYT20180101Easy::GetSolution() const {
   /*
 I0101 15:48:11.334648 2819318592 puzzle_main.cc:43] 0: 1=2 2=1 3=3 4=9 5=5 6=6 7=4 8=8 9=7
 1: 1=8 2=7 3=6 4=3 5=4 6=2 7=5 8=9 9=1

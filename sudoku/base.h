@@ -23,7 +23,7 @@ class Base : public ::puzzle::Problem {
 
  private:
   void Setup() override;
-  ::puzzle::Solution Solution() const override { return puzzle::Solution(); }
+  ::puzzle::Solution GetSolution() const override { return puzzle::Solution(); }
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 

@@ -9,6 +9,7 @@ cc_binary(
 cc_library(
     name = "dracula_and_friends_lib",
     srcs = ["dracula_and_friends.cc"],
+    alwayslink = 1,
     deps = [
         ":dracula_and_friends_cc_proto",
         "//puzzle:problem",
@@ -43,6 +44,7 @@ cc_binary(
 
 cc_library(
     name = "six_fearsome_heroes_lib",
+    alwayslink = 1,
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
         "//puzzle:problem",
@@ -60,6 +62,7 @@ cc_binary(
 cc_library(
     name = "swimming_pool_lib",
     srcs = ["swimming_pool.cc"],
+    alwayslink = 1,
     deps = [
         ":swimming_pool_cc_proto",
         "//puzzle:problem",

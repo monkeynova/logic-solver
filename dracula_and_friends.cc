@@ -32,7 +32,7 @@ using namespace DraculaAndFriends;
 class DraculaAndFriendsProblem : public puzzle::Problem {
  private:
   void Setup() override;
-  puzzle::Solution Solution() const override;
+  puzzle::Solution GetSolution() const override;
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
@@ -128,7 +128,7 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                {REGION, PLANTS, CENTURY});
 }
 
-puzzle::Solution DraculaAndFriendsProblem::Solution() const {
+puzzle::Solution DraculaAndFriendsProblem::GetSolution() const {
   std::vector<puzzle::Entry> entries;
   // BOGDAN: region=MUNTENIA plants=IVY century=XVI
   entries.emplace_back(

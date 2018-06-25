@@ -29,7 +29,7 @@ using namespace SwimmingPool;
 class SwimmingPoolProblem : public puzzle::Problem {
  private:
   void Setup() override;
-  puzzle::Solution Solution() const override;
+  puzzle::Solution GetSolution() const override;
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
@@ -124,7 +124,7 @@ void SwimmingPoolProblem::AddRulePredicates() {
                LANE);
 }
 
-puzzle::Solution SwimmingPoolProblem::Solution() const {
+puzzle::Solution SwimmingPoolProblem::GetSolution() const {
   std::vector<puzzle::Entry> entries;
   // Betty: style=Dolphin country=US lane=2
   entries.emplace_back(

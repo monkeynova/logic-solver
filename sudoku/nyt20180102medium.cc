@@ -3,7 +3,7 @@
 namespace sudoku {
 
 class NYT20180102Medium : public Base {
-  puzzle::Solution Solution() const override;
+  puzzle::Solution GetSolution() const override;
   void AddInstancePredicates() override;
 };
 
@@ -24,7 +24,7 @@ void NYT20180102Medium::AddInstancePredicates() {
   return;
 }
 
-puzzle::Solution NYT20180102Medium::Solution() const {
+puzzle::Solution NYT20180102Medium::GetSolution() const {
   /*
   */
   return MakeSolution(ParseBoard(
