@@ -12,26 +12,26 @@ namespace sudoku {
 Logic solver repurposed for sudoku
  */
 class Base : public ::puzzle::Problem {
- protected:
+ public:
   using Board = std::vector<std::vector<int>>;
 
-  void AddValuePredicate(int row, int col, int value);
-
   static Board ParseBoard(const std::string& board);
-  void AddBoardPredicates(const Board& board);
-  ::puzzle::Solution MakeSolution(const Board& board) const;
 
+  virtual Board GetInstanceBoard() const = 0;
+  virtual Board GetSolutionBoard() const = 0;
+  
  private:
-  void Setup() override;
-  ::puzzle::Solution GetSolution() const override { return puzzle::Solution(); }
+  // ::puzzle::Problem methods. Final to prevent missing parts.
+  void Setup() final;
+  ::puzzle::Solution GetSolution() const final;
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
+  void AddValuePredicate(int row, int col, int value);
+  void AddBoardPredicates(const Board& board);
   void AddPredicates();
   void AddPredicatesCumulative();
   void AddPredicatesPairwise();
-
-  virtual void AddInstancePredicates() = 0;
 };
 
 }  // namespace sudoku

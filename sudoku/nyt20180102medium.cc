@@ -3,12 +3,12 @@
 namespace sudoku {
 
 class NYT20180102Medium : public Base {
-  puzzle::Solution GetSolution() const override;
-  void AddInstancePredicates() override;
+  Board GetInstanceBoard() const override;
+  Board GetSolutionBoard() const override;
 };
 
-void NYT20180102Medium::AddInstancePredicates() {
-  AddBoardPredicates(ParseBoard(
+Base::Board NYT20180102Medium::GetInstanceBoard() const {
+  return ParseBoard(
     "? 9 ? | ? ? 3 | ? 1 2\n"
     "5 ? ? | ? ? ? | ? ? ?\n"
     "? ? ? | ? ? ? | 3 9 ?\n"
@@ -19,15 +19,13 @@ void NYT20180102Medium::AddInstancePredicates() {
     "- - - + - - - + - - -\n"
     "? 1 ? | 2 ? 6 | ? ? ?\n"
     "? ? 8 | ? ? ? | ? ? ?\n"
-    "? 3 ? | 4 5 ? | ? ? 6"));
-
-  return;
+    "? 3 ? | 4 5 ? | ? ? 6");
 }
 
-puzzle::Solution NYT20180102Medium::GetSolution() const {
+Base::Board NYT20180102Medium::GetSolutionBoard() const {
   /*
   */
-  return MakeSolution(ParseBoard(
+  return ParseBoard(
     "? 9 ? | ? ? 3 | ? 1 2\n"
     "5 ? ? | ? ? ? | ? ? ?\n"
     "? ? ? | ? ? ? | ? 3 9\n"
@@ -38,7 +36,7 @@ puzzle::Solution NYT20180102Medium::GetSolution() const {
     "- - - + - - - + - - -\n"
     "? ? 1 | 2 ? 6 | ? ? ?\n"
     "? ? 8 | ? ? ? | ? ? ?\n"
-    "? 3 ? | 4 5 ? | ? ? 6"));
+    "? 3 ? | 4 5 ? | ? ? 6");
 }
 
 }  // namespace sudoku

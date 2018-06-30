@@ -115,7 +115,8 @@ void Base::AddBoardPredicates(const Board& board) {
   }
 }
 
-puzzle::Solution Base::MakeSolution(const Board& board) const {
+puzzle::Solution Base::GetSolution() const {
+  Board board = GetSolutionBoard();
   std::vector<puzzle::Entry> entries;
   CHECK_EQ(board.size(), 9);
   for (int row = 0; row < board.size(); ++row) {
@@ -172,7 +173,7 @@ void Base::Setup() {
     return;
   }
 
-  AddInstancePredicates();
+  AddBoardPredicates(GetInstanceBoard());
 }
 
 }
