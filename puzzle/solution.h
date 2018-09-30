@@ -5,9 +5,9 @@
 #include <functional>
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
+#include "absl/container/flat_hash_map.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "google/protobuf/descriptor.h"
@@ -65,7 +65,7 @@ class StringDescriptor : public Descriptor {
   }
 
  private:
-  std::unordered_map<int, std::string> names_;
+  absl::flat_hash_map<int, std::string> names_;
 };
 
 class ProtoEnumDescriptor : public StringDescriptor {

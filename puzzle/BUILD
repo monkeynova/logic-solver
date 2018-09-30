@@ -19,6 +19,7 @@ cc_library(
     hdrs = ["active_set.h"],
     srcs = ["active_set.cc"],
     deps = [
+        "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
 	"@com_google_glog//:glog",
     ],    
@@ -42,6 +43,7 @@ cc_library(
         ":class_permuter",
         ":mutable_solution",
         ":solution",
+        "@com_google_absl//absl/container:flat_hash_set",
     ],
 )
 
@@ -138,6 +140,7 @@ cc_library(
     hdrs = ["solution.h"],
     srcs = ["solution.cc"],
     deps = [ 
+        "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/strings",
         "@com_google_protobuf//:protobuf",
         "@com_google_glog//:glog",

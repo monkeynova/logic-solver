@@ -1,9 +1,10 @@
 #ifndef __PUZZLE_ACTIVE_SET_H
 #define __PUZZLE_ACTIVE_SET_H
 
-#include <set>
 #include <string>
 #include <vector>
+
+#include "absl/container/flat_hash_set.h"
 
 namespace puzzle {
 
@@ -13,7 +14,11 @@ class ActiveSet {
 
   // Constructs an ActiveSet such that each value contained in 'positions'
   // returns 'true' and every other value in [0, 'max_position') returns false.
-  ActiveSet(const std::set<int>& positions, int max_position);
+  ActiveSet(const absl::flat_hash_set<int>& positions, int max_position);
+  // Same as flat_hash_set form, except positions is required to be sorted.
+  ActiveSet(const std::vector<int>& positions, int max_position);
+  ActiveSet(const std::initializer_list<int>& positions, int max_position)
+      : ActiveSet(absl::flat_hash_set<int>(positions), max_position) {}
 
   // Copy and move constructors preserve the add/consume phase of the
   // ActiveSet.

@@ -10,8 +10,8 @@ git_repository(
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    # Latest on 2017.11.21
-    commit = "6a88b407715315e99b372baa82a01f26608091dc",
+    # Latest on 2018.09.29
+    commit = "48cd2c3f351ff188bc85684b84a91b6e6d17d896",
 )
 
 git_repository(

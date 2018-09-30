@@ -262,7 +262,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
   VLOG(1) << "Generating singleton selectivities";
 
   std::vector<std::vector<Solution::Cropper>> single_class_predicates;
-  std::map<std::pair<int, int>, std::vector<Solution::Cropper>>
+  absl::flat_hash_map<std::pair<int, int>, std::vector<Solution::Cropper>>
       pair_class_predicates;
   single_class_predicates.resize(class_permuters_.size());
   for (const auto& cropper: croppers) {

@@ -1,5 +1,6 @@
-#include "puzzle/active_set.h"
+#include"puzzle/active_set.h"
 
+#include <algorithm>
 #include <iostream>
 
 #include "absl/strings/str_cat.h"
@@ -8,10 +9,26 @@
 
 namespace puzzle {
 
-ActiveSet::ActiveSet(const std::set<int>& positions, int max_position) {
+namespace {
+
+std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
+  std::vector<int> sorted;
+  sorted.reserve(unsorted.size());
+  std::copy(unsorted.begin(), unsorted.end(), std::back_inserter(sorted));
+  std::sort(sorted.begin(), sorted.end());
+  return sorted;
+}
+
+}
+
+ActiveSet::ActiveSet(const absl::flat_hash_set<int>& positions, int max_position)
+    : ActiveSet(SortFlatHashSet(positions), max_position) {}
+
+ActiveSet::ActiveSet(const std::vector<int>& positions, int max_position) {
   int last_p = -1;
   for (auto p : positions) {
     if (p < 0) continue;
+    DCHECK_LT(last_p, p);
     if (p >= max_position) break;
     AddBlock(false, p - last_p - 1);
     Add(true);

@@ -1,17 +1,15 @@
 #include "puzzle/active_set.h"
 
 #include <iostream>
-#include <set>
 
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 using ::testing::AnyOf;
-using ::testing::ElementsAre;
-using ::testing::ElementsAreArray;
 using ::testing::Eq;
 using ::testing::UnorderedElementsAre;
+using ::testing::UnorderedElementsAreArray;
 
 namespace puzzle {
 
@@ -166,8 +164,8 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
   }
 }
 
-std::set<int> Drain(ActiveSet s, int max_positions) {
-  std::set<int> ret;
+absl::flat_hash_set<int> Drain(ActiveSet s, int max_positions) {
+  absl::flat_hash_set<int> ret;
   for (int i = 0; i < max_positions; ++i) {
     if (s.ConsumeNext()) {
       ret.insert(i);
@@ -178,12 +176,12 @@ std::set<int> Drain(ActiveSet s, int max_positions) {
 
 TEST(ActiveSet, SetConstruction) {
   EXPECT_THAT(Drain(ActiveSet({0}, 1), 1),
-              ElementsAre(0));
+              UnorderedElementsAre(0));
   EXPECT_THAT(Drain(ActiveSet({}, 1), 1),
-              ElementsAre());
+              UnorderedElementsAre());
   for (int i = 0; i < 4; ++i) {
     EXPECT_THAT(Drain(ActiveSet({i}, 4), 4),
-                ElementsAre(i));
+                UnorderedElementsAre(i));
   }
   for (int i = 0; i < 9; ++i) {
     if (i == 5) continue;
@@ -191,13 +189,13 @@ TEST(ActiveSet, SetConstruction) {
                 UnorderedElementsAre(i, 5));
   }
   EXPECT_THAT(Drain(ActiveSet({1,3,5,7}, 9), 9),
-              ElementsAre(1,3,5,7));
+              UnorderedElementsAre(1,3,5,7));
   EXPECT_THAT(Drain(ActiveSet({0,2,4,6,8}, 9), 9),
-              ElementsAre(0,2,4,6,8));
+              UnorderedElementsAre(0,2,4,6,8));
 }
 
-std::set<int> ExtractValues(ActiveSet a) {
-  std::set<int> ret;
+absl::flat_hash_set<int> ExtractValues(ActiveSet a) {
+  absl::flat_hash_set<int> ret;
   for (int i = 0; i < a.total(); ++i) {
     if (a.ConsumeNext()) {
       ret.insert(i);
@@ -208,26 +206,27 @@ std::set<int> ExtractValues(ActiveSet a) {
 
 TEST(ActiveSet, SetConstuctionFullExact) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 4)),
-              ElementsAre(0, 1, 2, 3));
+              UnorderedElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionEmptyEnd) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 5)),
-              ElementsAre(0, 1, 2, 3));
+              UnorderedElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionTruncate) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 3)),
-              ElementsAre(0, 1, 2));
+              UnorderedElementsAre(0, 1, 2));
 }
 TEST(ActiveSet, SetConstuctionNegative) {
   EXPECT_THAT(ExtractValues(ActiveSet({-1, 1}, 2)),
-              ElementsAre(1));
+              UnorderedElementsAre(1));
 }
 TEST(ActiveSet, SetConstuctionSpards) {
   EXPECT_THAT(ExtractValues(ActiveSet({5, 10}, 100)),
-              ElementsAre(5, 10));
+              UnorderedElementsAre(5, 10));
 }
 
-void TestIntersection(const std::set<int>& set_a, const std::set<int>& set_b,
+void TestIntersection(const std::vector<int>& set_a,
+                      const std::vector<int>& set_b,
                       int max_position_a, int max_position_b) {
   ActiveSet a(set_a, max_position_a);
   ActiveSet b(set_b, max_position_b);
@@ -236,8 +235,8 @@ void TestIntersection(const std::set<int>& set_a, const std::set<int>& set_b,
                         set_b.begin(), set_b.end(),
                         std::back_inserter(intersection));
 
-  EXPECT_THAT(ExtractValues(a.Intersection(b)), ElementsAreArray(intersection));
-  EXPECT_THAT(ExtractValues(b.Intersection(a)), ElementsAreArray(intersection));
+  EXPECT_THAT(ExtractValues(a.Intersection(b)), UnorderedElementsAreArray(intersection));
+  EXPECT_THAT(ExtractValues(b.Intersection(a)), UnorderedElementsAreArray(intersection));
 }
 
 TEST(ActiveSet, IntersectionFull) {

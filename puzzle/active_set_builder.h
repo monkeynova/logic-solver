@@ -77,7 +77,8 @@ class ActiveSetBuilder {
 
   // active_set_pairs_[class_a][class_b][a_val] stores the ActiveSet for
   // class_b given class_a is at position a_val.
-  std::vector<std::vector<std::map<int, ActiveSet>>> active_set_pairs_;
+  std::vector<std::vector<absl::flat_hash_map<int, ActiveSet>>>
+      active_set_pairs_;
 
   MutableSolution mutable_solution_;
   Solution solution_;  // Bound to mutable_solution_;
