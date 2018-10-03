@@ -4,6 +4,7 @@
 
 #include "absl/strings/str_join.h"
 #include "benchmark/benchmark.h"
+#include "gflags/gflags.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "puzzle/problem.h"

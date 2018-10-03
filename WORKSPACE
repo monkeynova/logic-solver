@@ -35,12 +35,11 @@ git_repository(
     commit = "099d99759101c295244c24d8954ec85b8ac65ce3",
 )
 
-new_git_repository(
+git_repository(
     name = "com_google_benchmark",
     remote = "https://github.com/google/benchmark.git",
     # Latest on 2017.12.03
-    commit = "0bbaeeaf7a557469c1f672ee3b7ca926e1a13e88",
-    build_file = "third_party/BUILD.benchmark",
+    commit = "a8082de5dfdd2132e8bda432314efbce3f280f99",
 )
 
 new_git_repository(
@@ -51,10 +50,9 @@ new_git_repository(
     build_file = "third_party/BUILD.gperftools",
 )
 
-new_git_repository(
+git_repository(
     name = "com_google_glog",
     remote = "https://github.com/google/glog.git",
-    # Latest on 2017.12.04
-    commit = "2063b387080c1e7adffd33ca07adff0eb346ff1a",
-    build_file = "third_party/BUILD.glog",
+    # Latest on 2018.10.03
+    commit = "8d7a107d68c127f3f494bb7807b796c8c5a97a82",
 )
