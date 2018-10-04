@@ -223,7 +223,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
       << absl::StrJoin(cropper.classes, ",") << "]";
   }
 
-  for (int i = 0; i < multi_class_predicates.size(); ++i) {
+  for (size_t i = 0; i < multi_class_predicates.size(); ++i) {
     std::vector<Solution::Cropper> predicates = multi_class_predicates[i];
     class_predicates_.push_back(Solution::Cropper(
         absl::StrJoin(multi_class_predicates[i], ", ",

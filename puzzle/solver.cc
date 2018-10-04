@@ -60,7 +60,7 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
                             it->permutation_count());
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
-      if (limit != -1 && ret.size() >= limit) {
+      if (limit >=0 && ret.size() >= static_cast<size_t>(limit)) {
         break;
       }
     }

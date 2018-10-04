@@ -46,8 +46,10 @@ struct ActiveSetIterator {
 
   bool value() const { return value_; }
   
-  bool more() const { return match_position_ < matches_.size(); }
-  
+  bool more() const {
+    return match_position_ < static_cast<int>(matches_.size());
+  }
+
   int run_size() const { return matches_[match_position_] - run_position_; }
 
   void Advance(int n) {
@@ -177,12 +179,12 @@ bool ActiveSet::ConsumeNext() {
   CHECK(!building_) << "ConsumeNext called while still building";
 
   if (matches_.empty()) return true;
-  if (matches_position_ >= matches_.size()) return true;
+  if (matches_position_ >= static_cast<int>(matches_.size())) return true;
 
   if (matches_[matches_position_] == 0) {
     current_value_ = !current_value_;
     ++matches_position_;
-    if (matches_position_ >= matches_.size()) return true;
+    if (matches_position_ >= static_cast<int>(matches_.size())) return true;
   }
   --matches_[matches_position_];
   return current_value_;
@@ -192,12 +194,12 @@ int ActiveSet::ConsumeFalseBlock() {
   CHECK(!building_) << "ConsumeFalseBlock called while still building";
 
   if (matches_.empty()) return 0;
-  if (matches_position_ >= matches_.size()) return 0;
+  if (matches_position_ >= static_cast<int>(matches_.size())) return 0;
 
   if (matches_[matches_position_] == 0) {
     current_value_ = !current_value_;
     ++matches_position_;
-    if (matches_position_ >= matches_.size()) return 0;
+    if (matches_position_ >= static_cast<int>(matches_.size())) return 0;
   }
   if (current_value_) return 0;
 

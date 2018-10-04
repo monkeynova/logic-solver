@@ -9,7 +9,7 @@ ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
     ::iterator::InitIndex() {
   index_.resize(current_.size());
   direction_.resize(current_.size());
-  for (unsigned int i = 0; i < current_.size(); ++i) {
+  for (size_t i = 0; i < current_.size(); ++i) {
     index_[i] = i;
     direction_[i] = i == 0 ? 0 : -1;
   }
@@ -68,11 +68,11 @@ ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
     std::swap(current_[from], current_[to]);
     std::swap(direction_[from], direction_[to]);
     std::swap(index_[from], index_[to]);
-    if (to == 0 || to == current_.size() - 1 ||
+    if (to == 0 || to == static_cast<int>(current_.size()) - 1 ||
         index_[to + direction_[to]] > index_[to]) {
       direction_[to] = 0;
       int max = -1;
-      for (int i = 0; i < current_.size(); ++i) {
+      for (size_t i = 0; i < current_.size(); ++i) {
         if (direction_[i] != 0 && index_[i] > max) {
           next_from_ = i;
           max = index_[i];
@@ -81,16 +81,16 @@ ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
     } else {
       next_from_ = to;
     }
-    if (index_[to] < current_.size() - 1) {
-      for (int i = 0; i < current_.size(); ++i) {
+    if (index_[to] < static_cast<int>(current_.size()) - 1) {
+      for (size_t i = 0; i < current_.size(); ++i) {
         if (index_[i] > index_[to]) {
-          if (i < to) {
+          if (static_cast<int>(i) < to) {
             direction_[i] = 1;
           } else {
             direction_[i] = -1;
           }
         }
-        if (index_[i] == current_.size() - 1) {
+        if (index_[i] == static_cast<int>(current_.size()) - 1) {
           next_from_ = i;
         }
       }
@@ -115,10 +115,10 @@ ClassPermuterImpl<ClassPermuterType::kFactorialRadix>
     current_.resize(0);
   } else {
     int tmp = position_;
-    for (unsigned int i = 0; i < current_.size(); ++i) {
+    for (size_t i = 0; i < current_.size(); ++i) {
       current_[i] = index_[i];
     }
-    for (unsigned int i = 0; tmp && i < current_.size(); ++i) {
+    for (size_t i = 0; tmp && i < current_.size(); ++i) {
       int next = tmp % (current_.size() - i);
       tmp /= (current_.size() - i);
       std::swap(current_[i], current_[i + next]);

@@ -105,9 +105,9 @@ void Base::AddValuePredicate(int row, int col, int value) {
 
 void Base::AddBoardPredicates(const Board& board) {
   CHECK_EQ(board.size(), 9);
-  for (int row = 1; row <= board.size(); ++row) {
+  for (size_t row = 1; row <= board.size(); ++row) {
     CHECK_EQ(board[row - 1].size(), 9);
-    for (int col = 1; col <= board[row - 1].size(); ++col) {
+    for (size_t col = 1; col <= board[row - 1].size(); ++col) {
       if (board[row - 1][col - 1] > 0) {
         AddValuePredicate(row, col, board[row - 1][col - 1]);
       }
@@ -119,7 +119,7 @@ puzzle::Solution Base::GetSolution() const {
   Board board = GetSolutionBoard();
   std::vector<puzzle::Entry> entries;
   CHECK_EQ(board.size(), 9);
-  for (int row = 0; row < board.size(); ++row) {
+  for (size_t row = 0; row < board.size(); ++row) {
     CHECK_EQ(board[row].size(), 9);
     entries.emplace_back(row , board[row], entry_descriptor());
   }

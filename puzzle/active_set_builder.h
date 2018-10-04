@@ -26,7 +26,7 @@ class ActiveSetBuilder {
   explicit ActiveSetBuilder(const EntryDescriptor* entry_descriptor);
 
   const ActiveSet& active_set(int class_int) const {
-    DCHECK_LT(class_int, active_sets_.size());
+    DCHECK_LT(static_cast<size_t>(class_int), active_sets_.size());
     return active_sets_[class_int];
   }
   const ActiveSet& active_set_pair(int class_a, int a_val, int class_b) const {
