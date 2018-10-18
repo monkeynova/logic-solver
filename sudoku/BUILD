@@ -50,7 +50,6 @@ cc_test(
     args = [
         "--sudoku_problem_setup=pairwise",
         "--puzzle_prune_pair_class_iterators=true",
-	"--puzzle_prune_pair_class_iterators=true",
 	"--puzzle_prune_pair_class_iterators_mode_pair=true",
     ],
     deps = [
@@ -73,5 +72,17 @@ cc_library(
     alwayslink = 1,
     deps = [
         ":base",
+    ],
+)
+
+cc_test(
+    name = "nyt20180102medium_test",
+    args = [
+        "--sudoku_problem_setup=pairwise",
+	"--puzzle_prune_pair_class_iterators=true",
+    ],
+    deps = [
+        ":nyt20180102medium_lib",
+        "//puzzle:puzzle_test",
     ],
 )
