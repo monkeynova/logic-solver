@@ -287,7 +287,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter.class_int();
     active_set_builder_.Build(class_permuter,
-                             single_class_predicates[class_int]);
+                              single_class_predicates[class_int]);
     VLOG(2) << "Selectivity (" << class_permuter.class_int() << "): "
             << class_permuter.Selectivity() << " => "
             << active_set_builder_.active_set(class_int).Selectivity();
@@ -318,7 +318,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
          it != class_permuters_.end();
          ++it) {
       for (auto it2 = it + 1; it2 != class_permuters_.end(); ++it2) {
-        if (it->class_int() == it2->class_int()) continue;
+	CHECK(it->class_int() != it2->class_int());
 
         std::vector<Solution::Cropper>& croppers =
           pair_class_predicates[std::make_pair(it->class_int(),

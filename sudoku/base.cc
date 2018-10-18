@@ -63,34 +63,45 @@ void Base::AddPredicatesCumulative() {
 
 void Base::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
-    for (int j = 0; j < 9; ++j) {
-      if (i < j) {
-        AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
-                     [i, j](const puzzle::Entry& e) {
-                       return e.Class(i) != e.Class(j);
-                     },
-                     {i, j});
-      }
+    for (int j = i + 1; j < 9; ++j) {
+      AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
+                   [i, j](const puzzle::Entry& e) {
+                     return e.Class(i) != e.Class(j);
+                   },
+                   {i, j});
     }
   }
 
-  for (int box_base_x = 0; box_base_x < 9; box_base_x += 3) {
-    for (int box_base_y = 0; box_base_y < 9; box_base_y += 3) {
-      AddPredicate(
-          absl::StrCat("No box dupes (", box_base_x + 1, ",", box_base_y + 1,
-                       ")"),
-          [box_base_x, box_base_y](const puzzle::Solution& s) {
-            int hist = 0;
-            for (int i = 0; i < 3; ++i) {
-              for (int j = 0; j < 3; ++j) {
-                int bit = s.Id(box_base_x + i).Class(box_base_y + j);
-                if (hist & (1<<bit)) return false;
-                hist |= 1<<bit;
-              }
-            }
-            return true;
-          },
-          {box_base_y, box_base_y + 1, box_base_y + 2});
+  for (int box = 0; box < 9; ++box) {
+    const int box_base_x = 3 * (box / 3);
+    const int box_base_y = 3 * (box % 3);
+
+    for (int i = 0; i < 9; ++i) {
+      const int box_i_x = box_base_x + (i/3);
+      const int box_i_y = box_base_y + (i%3);
+
+      for (int j = i + 1; j < 9; ++j) {
+        const int box_j_x = box_base_x + (j/3);
+        const int box_j_y = box_base_y + (j%3);
+
+	CHECK(!(box_i_x == box_j_x && box_i_y == box_j_y));
+
+	// Handled by class permutation.
+	if (box_i_x == box_j_x) continue;
+
+	// Handled by row predicate.
+	if (box_i_y == box_j_y) continue;
+
+	AddPredicate(absl::StrCat("No box dupes "
+				  "(", box_i_x + 1, ",", box_i_y + 1, ") vs "
+				  "(", box_j_x + 1, ",", box_j_y + 1, ")"),
+		     [box_i_x,box_i_y,box_j_x, box_j_y](
+			 const puzzle::Solution& s) {
+		       return s.Id(box_i_x).Class(box_i_y) !=
+			 s.Id(box_j_x).Class(box_j_y);
+		     },
+		     {box_i_y, box_j_y});
+      }
     }
   }
 }
