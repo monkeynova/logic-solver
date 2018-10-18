@@ -33,30 +33,35 @@ Solution Solver::Solve() {
 }
 
 std::vector<Solution> Solver::AllSolutions(int limit) {
-  profiler_ = Profiler::Create();
+  std::unique_ptr<Profiler> profiler = Profiler::Create();
 
   std::vector<Solution> ret;
   if (FLAGS_puzzle_brute_force) {
     BruteSolutionPermuter permuter(&entry_descriptor_);
-    ret = AllSolutionsImpl(limit, &permuter);
+    ret = AllSolutionsImpl(limit, profiler.get(), &permuter);
   } else {
     CroppedSolutionPermuter permuter(&entry_descriptor_,
                                      on_solution_with_class_,
-                                     profiler_.get());
-    ret = AllSolutionsImpl(limit, &permuter);
+                                     profiler.get());
+    ret = AllSolutionsImpl(limit, profiler.get(), &permuter);
   }
 
-  profiler_->NoteFinish();
+  profiler->NoteFinish();
+
+  last_debug_statistics_ =
+      absl::StrCat("[", test_calls_, " solutions tested in ",
+		   profiler->Seconds(), "s]");
 
   return ret;
 }
 
 template <class Permuter>
-std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
+std::vector<Solution> Solver::AllSolutionsImpl(int limit, Profiler* profiler,
+					       Permuter* permuter) {
 
   std::vector<Solution> ret;
   for (auto it = permuter->begin(); it != permuter->end(); ++it) {
-    profiler_->NotePosition(it->permutation_position(),
+    profiler->NotePosition(it->permutation_position(),
                             it->permutation_count());
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
@@ -69,8 +74,7 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit, Permuter* permuter) {
 }
 
 std::string Solver::DebugStatistics() const {
-  return absl::StrCat("[", test_calls_, " solutions tested in ",
-                      (profiler_ == nullptr ? -1 : profiler_->Seconds()), "s]");
+  return last_debug_statistics_;
 }
 
 }  // namespace puzzle

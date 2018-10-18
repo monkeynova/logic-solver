@@ -32,14 +32,14 @@ static void SetFlag(bool val, absl::string_view label, bool* flag,
   labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
 }
 
-template <bool setup_pairwise, bool pair_iterators, bool mode_pair>
+template <bool pair_iterators, bool mode_pair>
 static void BM_Solver(benchmark::State& state) {
   puzzle::Problem* problem = puzzle::Problem::GetInstance();
   problem->Setup();
 
+  puzzle::Solution expect = problem->GetSolution();
+
   std::vector<std::string> labels;
-  FLAGS_sudoku_problem_setup = setup_pairwise ? "pairwise" : "cumulative";
-  labels.push_back(setup_pairwise ? "pairwise" : "cumulative");
   SetFlag(pair_iterators, "pair_iterators",
 	  &FLAGS_puzzle_prune_pair_class_iterators, &labels);
   SetFlag(mode_pair, "mode_pair",
@@ -47,17 +47,16 @@ static void BM_Solver(benchmark::State& state) {
   state.SetLabel(absl::StrJoin(labels, " "));
 
   for (auto _ : state) {
-    problem->Solve();
+    puzzle::Solution got = problem->Solve();
+    EXPECT_EQ(got, expect);
   }
 }
 
 BENCHMARK_TEMPLATE(BM_Solver,
-		   /*setup_pairwise=*/true,
 		   /*pair_iterators=*/true,
                    /*mode_pair=*/false);
 
 BENCHMARK_TEMPLATE(BM_Solver,
-		   /*setup_pairwise=*/true,
 		   /*pair_iterators=*/true,
                    /*mode_pair=*/true);
 

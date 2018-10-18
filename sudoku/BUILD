@@ -36,7 +36,6 @@ cc_library(
 cc_test(
     name = "nyt20180101easy_test",
     args = [
-        "--sudoku_problem_setup=pairwise",
         "--puzzle_prune_pair_class_iterators=true",
     ],
     deps = [
@@ -48,7 +47,6 @@ cc_test(
 cc_test(
     name = "nyt20180101easy_pairs_test",
     args = [
-        "--sudoku_problem_setup=pairwise",
         "--puzzle_prune_pair_class_iterators=true",
 	"--puzzle_prune_pair_class_iterators_mode_pair=true",
     ],
@@ -78,7 +76,6 @@ cc_library(
 cc_test(
     name = "nyt20180102medium_test",
     args = [
-        "--sudoku_problem_setup=pairwise",
 	"--puzzle_prune_pair_class_iterators=true",
     ],
     deps = [

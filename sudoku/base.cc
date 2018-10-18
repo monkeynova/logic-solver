@@ -6,7 +6,7 @@
 #include "absl/strings/str_split.h"
 #include "gflags/gflags.h"
 
-DEFINE_string(sudoku_problem_setup, "cumulative",
+DEFINE_string(sudoku_problem_setup, "pairwise",
               "Sepecifies the form of the predicates passed to the puzzle "
               "solver to validate sudoku boards. Valid vaules are 'cumulative' "
               "and 'pairwise'. 'cumulative' is faster if predicate reordering "

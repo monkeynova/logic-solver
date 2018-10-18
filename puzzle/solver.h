@@ -95,17 +95,18 @@ class Solver {
 
  private:
   template <class Permuter>
-  std::vector<Solution> AllSolutionsImpl(int limit, Permuter* permuter);
+  std::vector<Solution> AllSolutionsImpl(int limit, Profiler* profiler,
+					 Permuter* permuter);
 
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
 
   int test_calls_ = 0;
 
+  std::string last_debug_statistics_;
+
   std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
-
-  std::unique_ptr<Profiler> profiler_;
 
   std::vector<std::unique_ptr<puzzle::Descriptor>> descriptors_;
 };
