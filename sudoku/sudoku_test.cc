@@ -9,9 +9,9 @@
 #include "gtest/gtest.h"
 #include "puzzle/problem.h"
 
-DECLARE_bool(puzzle_brute_force);
-DECLARE_bool(puzzle_prune_class_iterator);
-DECLARE_bool(puzzle_prune_reorder_classes);
+DECLARE_string(sudoku_problem_setup);
+DECLARE_bool(puzzle_prune_pair_class_iterators);
+DECLARE_bool(puzzle_prune_pair_class_iterators_mode_pair);
 
 extern void SetupProblem(puzzle::Solver* s);
 extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
@@ -32,15 +32,18 @@ static void SetFlag(bool val, absl::string_view label, bool* flag,
   labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
 }
 
-template <bool brute, bool prune, bool reorder>
+template <bool setup_pairwise, bool pair_iterators, bool mode_pair>
 static void BM_Solver(benchmark::State& state) {
   puzzle::Problem* problem = puzzle::Problem::GetInstance();
   problem->Setup();
 
   std::vector<std::string> labels;
-  SetFlag(brute, "brute", &FLAGS_puzzle_brute_force, &labels);
-  SetFlag(prune, "prune", &FLAGS_puzzle_prune_class_iterator, &labels);
-  SetFlag(reorder, "reorder", &FLAGS_puzzle_prune_reorder_classes, &labels);
+  FLAGS_sudoku_problem_setup = setup_pairwise ? "pairwise" : "cumulative";
+  labels.push_back(setup_pairwise ? "pairwise" : "cumulative");
+  SetFlag(pair_iterators, "pair_iterators",
+	  &FLAGS_puzzle_prune_pair_class_iterators, &labels);
+  SetFlag(mode_pair, "mode_pair",
+	  &FLAGS_puzzle_prune_pair_class_iterators_mode_pair, &labels);
   state.SetLabel(absl::StrJoin(labels, " "));
 
   for (auto _ : state) {
@@ -48,12 +51,13 @@ static void BM_Solver(benchmark::State& state) {
   }
 }
 
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/false,
-                   /*reorder=*/false);
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/true, /*prune=*/false,
-                   /*reorder=*/false);
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-                   /*reorder=*/false);
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-                   /*reorder=*/true);
+BENCHMARK_TEMPLATE(BM_Solver,
+		   /*setup_pairwise=*/true,
+		   /*pair_iterators=*/true,
+                   /*mode_pair=*/false);
+
+BENCHMARK_TEMPLATE(BM_Solver,
+		   /*setup_pairwise=*/true,
+		   /*pair_iterators=*/true,
+                   /*mode_pair=*/true);
 

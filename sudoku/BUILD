@@ -40,8 +40,8 @@ cc_test(
         "--puzzle_prune_pair_class_iterators=true",
     ],
     deps = [
+        ":sudoku_test",
         ":nyt20180101easy_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
@@ -53,8 +53,8 @@ cc_test(
 	"--puzzle_prune_pair_class_iterators_mode_pair=true",
     ],
     deps = [
+        ":sudoku_test",
         ":nyt20180101easy_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
@@ -82,7 +82,22 @@ cc_test(
 	"--puzzle_prune_pair_class_iterators=true",
     ],
     deps = [
+        ":sudoku_test",
         ":nyt20180102medium_lib",
-        "//puzzle:puzzle_test",
     ],
+)
+
+cc_library(
+    name = "sudoku_test",
+    srcs = ["sudoku_test.cc"],
+    deps = [
+        "//puzzle:problem",
+        "//puzzle:test_main",
+        "@com_google_absl//absl/memory",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
 )
