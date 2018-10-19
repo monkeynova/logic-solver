@@ -146,3 +146,31 @@ cc_test(
         ":nyt20181019easy_lib",
     ],
 )
+
+cc_binary(
+    name = "nyt20181019hard",
+    deps = [
+        ":nyt20181019hard_lib",
+        "//puzzle:puzzle_main",
+    ],
+)
+
+cc_library(
+    name = "nyt20181019hard_lib",
+    srcs = ["nyt20181019hard.cc"],
+    alwayslink = 1,
+    deps = [
+        ":base",
+    ],
+)
+
+cc_test(
+    name = "nyt20181019hard_test",
+    args = [
+        "--puzzle_prune_pair_class_iterators=true",
+    ],
+    deps = [
+        ":sudoku_test",
+        ":nyt20181019hard_lib",
+    ],
+)
