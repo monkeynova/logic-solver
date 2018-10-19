@@ -9,7 +9,7 @@ namespace internal {
 
 enum class ClassPermuterType {
   kUnknown = 0,
-    // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
+  // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
   kSteinhausJohnsonTrotter = 1,
   kFactorialRadix = 2,
 };

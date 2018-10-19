@@ -273,7 +273,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
       std::pair<int, int> key1 = std::make_pair(
           cropper.classes[0], cropper.classes[1]);
       std::pair<int, int> key2 = std::make_pair(
-          cropper.classes[0], cropper.classes[1]);
+          cropper.classes[1], cropper.classes[0]);
       pair_class_predicates[key1].push_back(cropper);
       pair_class_predicates[key2].push_back(cropper);
       if (!FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
@@ -313,6 +313,8 @@ void CroppedSolutionPermuter::BuildActiveSets(
       VLOG(1) << "Running one more pass to generate pairs";
     }
     cardinality_reduced = false;
+
+    ReorderEvaluation();
 
     for (auto it = class_permuters_.begin();
          it != class_permuters_.end();
