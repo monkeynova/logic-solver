@@ -8,6 +8,14 @@ cc_library(
 )
 
 cc_binary(
+    name = "multi_line",
+    srcs = ["multi_line.cc"],
+    deps = [
+        ":base",
+    ]
+)
+
+cc_binary(
     name = "nyt20171202",
     deps = [
         ":nyt20171202_lib",
