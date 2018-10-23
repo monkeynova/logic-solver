@@ -1,6 +1,7 @@
 #ifndef PUZZLE_ACTIVE_SET_BUILDER_H_
 #define PUZZLE_ACTIVE_SET_BUILDER_H_
 
+#include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
@@ -32,12 +33,7 @@ class ActiveSetBuilder {
   const ActiveSet& active_set_pair(int class_a, int a_val, int class_b) const {
     DCHECK_LT(class_a, active_set_pairs_.size());
     DCHECK_LT(class_b, active_set_pairs_[class_a].size());
-    auto it = active_set_pairs_[class_a][class_b].find(a_val);
-    if (it == active_set_pairs_[class_a][class_b].end()) {
-      static ActiveSet empty;
-      return empty;
-    }
-    return it->second;
+    return active_set_pairs_[class_a][class_b].Find(a_val);
   }
 
   // Given a class permuter and a set of predicates on that class (it is an
@@ -77,8 +73,7 @@ class ActiveSetBuilder {
 
   // active_set_pairs_[class_a][class_b][a_val] stores the ActiveSet for
   // class_b given class_a is at position a_val.
-  std::vector<std::vector<absl::flat_hash_map<int, ActiveSet>>>
-      active_set_pairs_;
+  std::vector<std::vector<ActiveSetPair>> active_set_pairs_;
 
   MutableSolution mutable_solution_;
   Solution solution_;  // Bound to mutable_solution_;

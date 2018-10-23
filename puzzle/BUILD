@@ -35,11 +35,31 @@ cc_test(
 )   
 
 cc_library(
+    name = "active_set_pair",
+    hdrs = ["active_set_pair.h"],
+    srcs = ["active_set_pair.cc"],
+    deps = [
+        ":active_set",
+        "@com_google_absl//absl/container:flat_hash_map",
+    ],
+)
+        
+cc_test(
+    name = "active_set_pair_test",
+    srcs = ["active_set_pair_test.cc"],
+    deps = [
+        ":active_set_pair",
+        ":test_main",
+    ]
+)   
+
+cc_library(
     name = "active_set_builder",
     hdrs = ["active_set_builder.h"],
     srcs = ["active_set_builder.cc"],
     deps = [
         ":active_set",
+	":active_set_pair",
         ":class_permuter",
         ":mutable_solution",
         ":solution",

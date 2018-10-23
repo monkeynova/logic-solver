@@ -80,8 +80,8 @@ void ActiveSetBuilder::SetupPairBuild(
     CHECK(p.classes[1] == class_a || p.classes[1] == class_b);
     CHECK_NE(p.classes[0], p.classes[1]);
   }
-  active_set_pairs_[class_a][class_b].clear();
-  active_set_pairs_[class_b][class_a].clear();
+  active_set_pairs_[class_a][class_b].Clear();
+  active_set_pairs_[class_b][class_a].Clear();
 }
   
 
@@ -126,8 +126,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       active_set_a.Add(any_of_a);
       if (pair_class_mode == PairClassMode::kMakePairs && any_of_a) {
         a_b_set.DoneAdding();
-        active_set_pairs_[class_a][class_b][it_a.position()] =
-          std::move(a_b_set);
+        active_set_pairs_[class_a][class_b].Assign(
+            it_a.position(), std::move(a_b_set));
       }
     }
 
@@ -168,8 +168,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       active_set_b.Add(any_of_b);
       if (pair_class_mode == PairClassMode::kMakePairs && any_of_b) {
         b_a_set.DoneAdding();
-        active_set_pairs_[class_b][class_a][it_b.position()] =
-          std::move(b_a_set);
+        active_set_pairs_[class_b][class_a].Assign(
+            it_b.position(), std::move(b_a_set));
       }
     }
 
@@ -229,8 +229,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     }
     if (pair_class_mode == PairClassMode::kMakePairs && any_of_a) {
       a_b_set.DoneAdding();
-      active_set_pairs_[class_a][class_b][it_a.position()] =
-        std::move(a_b_set);
+      active_set_pairs_[class_a][class_b].Assign(
+          it_a.position(), std::move(a_b_set));
     }
     active_set_a.Add(any_of_a);
   }
@@ -245,8 +245,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
       const absl::flat_hash_set<int>& a_set = pair.second;
-      active_set_pairs_[class_b][class_a][b_val] = ActiveSet(
-          a_set, permuter_a.permutation_count());
+      active_set_pairs_[class_b][class_a].Assign(
+          b_val, ActiveSet(a_set, permuter_a.permutation_count()));
     }
   }
 }
@@ -301,14 +301,14 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     for (const auto& pair : a_b_match_positions) {
       const int a_val = pair.first;
       const absl::flat_hash_set<int>& b_set = pair.second;
-      active_set_pairs_[class_a][class_b][a_val] = ActiveSet(
-          b_set, permuter_b.permutation_count());
+      active_set_pairs_[class_a][class_b].Assign(
+          a_val, ActiveSet(b_set, permuter_b.permutation_count()));
     }
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
       const absl::flat_hash_set<int>& a_set = pair.second;
-      active_set_pairs_[class_b][class_a][b_val] = ActiveSet(
-          a_set, permuter_a.permutation_count());
+      active_set_pairs_[class_b][class_a].Assign(
+          b_val, ActiveSet(a_set, permuter_a.permutation_count()));
     }
   }
 }
