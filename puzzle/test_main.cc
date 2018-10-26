@@ -4,7 +4,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-DEFINE_string(benchmarks, "", "...");
+DEFINE_bool(benchmark, false, "...");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);
@@ -12,8 +12,10 @@ int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   ::benchmark::Initialize(&argc, argv);
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
-  if (!FLAGS_benchmarks.empty()) {
+  if (::benchmark::ReportUnrecognizedArguments(argc, argv)) return 1;
+  if (FLAGS_benchmark) {
     ::benchmark::RunSpecifiedBenchmarks();
+    return 0;
   }
   return RUN_ALL_TESTS();
 }
