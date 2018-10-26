@@ -27,7 +27,7 @@ TEST(Puzzle, RightAnswer) {
 }
 
 static void SetFlag(bool val, absl::string_view label, bool* flag,
-		    std::vector<std::string>* labels) {
+                    std::vector<std::string>* labels) {
   *flag = val;
   labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
 }
@@ -41,9 +41,9 @@ static void BM_Solver(benchmark::State& state) {
 
   std::vector<std::string> labels;
   SetFlag(pair_iterators, "pair_iterators",
-	  &FLAGS_puzzle_prune_pair_class_iterators, &labels);
+          &FLAGS_puzzle_prune_pair_class_iterators, &labels);
   SetFlag(mode_pair, "mode_pair",
-	  &FLAGS_puzzle_prune_pair_class_iterators_mode_pair, &labels);
+          &FLAGS_puzzle_prune_pair_class_iterators_mode_pair, &labels);
   state.SetLabel(absl::StrJoin(labels, " "));
 
   for (auto _ : state) {
@@ -53,10 +53,10 @@ static void BM_Solver(benchmark::State& state) {
 }
 
 BENCHMARK_TEMPLATE(BM_Solver,
-		   /*pair_iterators=*/true,
+                   /*pair_iterators=*/true,
                    /*mode_pair=*/false);
 
 BENCHMARK_TEMPLATE(BM_Solver,
-		   /*pair_iterators=*/true,
+                   /*pair_iterators=*/true,
                    /*mode_pair=*/true);
 

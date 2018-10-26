@@ -50,14 +50,14 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
 
   last_debug_statistics_ =
       absl::StrCat("[", test_calls_, " solutions tested in ",
-		   profiler->Seconds(), "s]");
+                   profiler->Seconds(), "s]");
 
   return ret;
 }
 
 template <class Permuter>
 std::vector<Solution> Solver::AllSolutionsImpl(int limit, Profiler* profiler,
-					       Permuter* permuter) {
+                                               Permuter* permuter) {
 
   std::vector<Solution> ret;
   for (auto it = permuter->begin(); it != permuter->end(); ++it) {

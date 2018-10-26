@@ -84,23 +84,23 @@ void Base::AddPredicatesPairwise() {
         const int box_j_x = box_base_x + (j/3);
         const int box_j_y = box_base_y + (j%3);
 
-	CHECK(!(box_i_x == box_j_x && box_i_y == box_j_y));
+        CHECK(!(box_i_x == box_j_x && box_i_y == box_j_y));
 
-	// Handled by class permutation.
-	if (box_i_x == box_j_x) continue;
+        // Handled by class permutation.
+        if (box_i_x == box_j_x) continue;
 
-	// Handled by row predicate.
-	if (box_i_y == box_j_y) continue;
+        // Handled by row predicate.
+        if (box_i_y == box_j_y) continue;
 
-	AddPredicate(absl::StrCat("No box dupes "
-				  "(", box_i_x + 1, ",", box_i_y + 1, ") vs "
-				  "(", box_j_x + 1, ",", box_j_y + 1, ")"),
-		     [box_i_x,box_i_y,box_j_x, box_j_y](
-			 const puzzle::Solution& s) {
-		       return s.Id(box_i_x).Class(box_i_y) !=
-			 s.Id(box_j_x).Class(box_j_y);
-		     },
-		     {box_i_y, box_j_y});
+        AddPredicate(absl::StrCat("No box dupes "
+                                  "(", box_i_x + 1, ",", box_i_y + 1, ") vs "
+                                  "(", box_j_x + 1, ",", box_j_y + 1, ")"),
+                     [box_i_x,box_i_y,box_j_x, box_j_y](
+                         const puzzle::Solution& s) {
+                       return s.Id(box_i_x).Class(box_i_y) !=
+                         s.Id(box_j_x).Class(box_j_y);
+                     },
+                     {box_i_y, box_j_y});
       }
     }
   }

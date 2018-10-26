@@ -45,7 +45,7 @@ struct ActiveSetIterator {
     : matches_(matches) {}
 
   bool value() const { return value_; }
-  
+
   bool more() const {
     return match_position_ < static_cast<int>(matches_.size());
   }
@@ -67,28 +67,30 @@ struct ActiveSetIterator {
   int match_position_ = 0;
   int run_position_ = 0;
 };
-  
-void ActiveSet::Intersect(const ActiveSet& other) {
+
+ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   CHECK(!building_) << "Intersect called during building";
   CHECK(!other.building_) << "Intersect called with an unbuilt ActiveSet";
+
+  if (other.is_trivial()) return *this;
 
   ActiveSetIterator this_iterator(matches_);
   ActiveSetIterator other_iterator(other.matches_);
 
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
-	  << ")";
-  
+          << ")";
+
   ActiveSet intersection;
   while (this_iterator.more() && other_iterator.more()) {
     VLOG(3) << "Intersect NextBlock="
-	    << (this_iterator.value() ? "true" : "false")
-	    << "/\\" << (other_iterator.value() ? "true" : "false");
+            << (this_iterator.value() ? "true" : "false")
+            << "/\\" << (other_iterator.value() ? "true" : "false");
     bool next_run_value = this_iterator.value() && other_iterator.value();
     int next_run_size = std::min(this_iterator.run_size(),
-				 other_iterator.run_size());
+                                 other_iterator.run_size());
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
-	    << ", " << next_run_size << ")";
+            << ", " << next_run_size << ")";
     intersection.AddBlock(next_run_value, next_run_size);
     this_iterator.Advance(next_run_size);
     other_iterator.Advance(next_run_size);
@@ -98,7 +100,7 @@ void ActiveSet::Intersect(const ActiveSet& other) {
     int next_run_size = this_iterator.run_size();
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
-	    << ", " << next_run_size << ")";
+            << ", " << next_run_size << ")";
     intersection.AddBlock(next_run_value, next_run_size);
     this_iterator.Advance(next_run_size);
   }
@@ -107,7 +109,7 @@ void ActiveSet::Intersect(const ActiveSet& other) {
     int next_run_size = other_iterator.run_size();
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
-	    << ", " << next_run_size << ")";
+            << ", " << next_run_size << ")";
     intersection.AddBlock(next_run_value, next_run_size);
     other_iterator.Advance(next_run_size);
   }
@@ -116,7 +118,7 @@ void ActiveSet::Intersect(const ActiveSet& other) {
   // Mark done and update self.
   intersection.DoneAdding();
   VLOG(3) << "Intersect == " << intersection.DebugString();
-  *this = std::move(intersection);
+  return intersection;
 }
 
 std::string ActiveSet::DebugString() const {
@@ -146,7 +148,7 @@ void ActiveSet::Add(bool match) {
 void ActiveSet::AddBlock(bool match, int size) {
   CHECK(building_) << "Add called after building";
   if (size == 0) return;
-  
+
   total_ += size;
   if (match) {
     matches_count_ += size;

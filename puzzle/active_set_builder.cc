@@ -6,7 +6,7 @@ namespace puzzle {
 
 ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
   : active_sets_(entry_descriptor == nullptr
-		 ? 0 : entry_descriptor->num_classes()),
+                 ? 0 : entry_descriptor->num_classes()),
     mutable_solution_(entry_descriptor) {
   if (entry_descriptor != nullptr) {
     int num_classes = entry_descriptor->num_classes();
@@ -80,20 +80,20 @@ void ActiveSetBuilder::SetupPairBuild(
     CHECK(p.classes[1] == class_a || p.classes[1] == class_b);
     CHECK_NE(p.classes[0], p.classes[1]);
   }
-  active_set_pairs_[class_a][class_b].Clear();
-  active_set_pairs_[class_b][class_a].Clear();
 }
-  
+
 
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
     const ClassPermuter& permuter_a,
     const ClassPermuter& permuter_b,
     const std::vector<Solution::Cropper>& predicates,
-    ActiveSetBuilder::PairClassMode pair_class_mode) { 
+    ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
   int class_b = permuter_b.class_int();
   SetupPairBuild(class_a, class_b, predicates);
+  ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
+  ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
   {
     ActiveSet active_set_a = ActiveSet();
     ActiveSet source_a = permuter_a.active_set();
@@ -104,8 +104,11 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       CHECK(source_a.ConsumeNext());
       bool any_of_a = false;
       ActiveSet a_b_set;
-      ActiveSet source_b = permuter_b.active_set();
-      for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
+      ActiveSet source_b =
+        permuter_b.active_set().Intersection(a_b_pair.Find(class_a));
+      for (auto it_b = permuter_b.begin(source_b);
+           it_b != permuter_b.end();
+           ++it_b) {
         mutable_solution_.SetClass(it_b);
         const bool this_match = std::all_of(
             predicates.begin(),
@@ -126,8 +129,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       active_set_a.Add(any_of_a);
       if (pair_class_mode == PairClassMode::kMakePairs && any_of_a) {
         a_b_set.DoneAdding();
-        active_set_pairs_[class_a][class_b].Assign(
-            it_a.position(), std::move(a_b_set));
+        a_b_pair.Assign(it_a.position(), std::move(a_b_set));
       }
     }
 
@@ -145,9 +147,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       active_set_b.AddBlock(false, source_b.ConsumeFalseBlock());
       CHECK(source_b.ConsumeNext());
       ActiveSet b_a_set;
-      ActiveSet source_a = permuter_a.active_set();
       bool any_of_b = false;
-      for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
+      ActiveSet source_a =
+        permuter_a.active_set().Intersection(b_a_pair.Find(class_b));
+      for (auto it_a = permuter_a.begin(source_a);
+           it_a != permuter_a.end();
+           ++it_a) {
         mutable_solution_.SetClass(it_a);
         const bool this_match = std::all_of(
             predicates.begin(),
@@ -168,8 +173,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       active_set_b.Add(any_of_b);
       if (pair_class_mode == PairClassMode::kMakePairs && any_of_b) {
         b_a_set.DoneAdding();
-        active_set_pairs_[class_b][class_a].Assign(
-            it_b.position(), std::move(b_a_set));
+        b_a_pair.Assign(it_b.position(), std::move(b_a_set));
       }
     }
 
@@ -189,6 +193,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
   int class_a = permuter_a.class_int();
   int class_b = permuter_b.class_int();
   SetupPairBuild(class_a, class_b, predicates);
+  ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
+  ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
   ActiveSet active_set_a = ActiveSet();
   ActiveSet source_a = permuter_a.active_set();
   absl::flat_hash_set<int> b_match_positions;
@@ -200,8 +206,11 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     CHECK(source_a.ConsumeNext());
     bool any_of_a = false;
     ActiveSet a_b_set;
-    ActiveSet source_b = permuter_b.active_set();
-    for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
+    ActiveSet source_b =
+        permuter_b.active_set().Intersection(a_b_pair.Find(class_a));
+    for (auto it_b = permuter_b.begin(source_b);
+         it_b != permuter_b.end();
+         ++it_b) {
       if (pair_class_mode == PairClassMode::kSingleton && any_of_a &&
           b_match_positions.find(it_b.position()) != b_match_positions.end()) {
         // Already added both pieces.
@@ -229,8 +238,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     }
     if (pair_class_mode == PairClassMode::kMakePairs && any_of_a) {
       a_b_set.DoneAdding();
-      active_set_pairs_[class_a][class_b].Assign(
-          it_a.position(), std::move(a_b_set));
+      a_b_pair.Assign(it_a.position(), std::move(a_b_set));
     }
     active_set_a.Add(any_of_a);
   }
@@ -245,8 +253,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
       const absl::flat_hash_set<int>& a_set = pair.second;
-      active_set_pairs_[class_b][class_a].Assign(
-          b_val, ActiveSet(a_set, permuter_a.permutation_count()));
+      b_a_pair.Assign(b_val, ActiveSet(a_set, permuter_a.permutation_count()));
     }
   }
 }
@@ -260,6 +267,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
   int class_a = permuter_a.class_int();
   int class_b = permuter_b.class_int();
   SetupPairBuild(class_a, class_b, predicates);
+  ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
+  ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
   Solution solution = mutable_solution_.TestableSolution();
   absl::flat_hash_set<int> a_match_positions;
   absl::flat_hash_set<int> b_match_positions;
@@ -268,7 +277,11 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
 
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
-    for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
+    ActiveSet source_b =
+        permuter_b.active_set().Intersection(a_b_pair.Find(class_a));
+    for (auto it_b = permuter_b.begin(source_b);
+         it_b != permuter_b.end();
+         ++it_b) {
       if (pair_class_mode == PairClassMode::kSingleton &&
           a_match_positions.count(it_a.position()) > 0 &&
           b_match_positions.count(it_b.position()) > 0) {
@@ -301,14 +314,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     for (const auto& pair : a_b_match_positions) {
       const int a_val = pair.first;
       const absl::flat_hash_set<int>& b_set = pair.second;
-      active_set_pairs_[class_a][class_b].Assign(
-          a_val, ActiveSet(b_set, permuter_b.permutation_count()));
+      a_b_pair.Assign(a_val, ActiveSet(b_set, permuter_b.permutation_count()));
     }
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
       const absl::flat_hash_set<int>& a_set = pair.second;
-      active_set_pairs_[class_b][class_a].Assign(
-          b_val, ActiveSet(a_set, permuter_a.permutation_count()));
+      b_a_pair.Assign(b_val, ActiveSet(a_set, permuter_a.permutation_count()));
     }
   }
 }

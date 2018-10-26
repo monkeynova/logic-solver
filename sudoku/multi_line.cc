@@ -20,29 +20,29 @@ class LineBoard : public Base {
     for (int row = 0; row < 9; ++row) {
       b[row].resize(9);
       for (int col = 0; col < 9; ++col) {
-	if (*data == '.') {
-	  b[row][col] = -1;
-	} else {
-	  if (*data < '0' || *data > '9') {
-	    LOG(ERROR) << "Bad input: \"" << *data << "\"";
-	    return nullptr;
-	  } else {
-	    b[row][col] = *data - '0';
-	  }
-	}
-	++data;
+        if (*data == '.') {
+          b[row][col] = -1;
+        } else {
+          if (*data < '0' || *data > '9') {
+            LOG(ERROR) << "Bad input: \"" << *data << "\"";
+            return nullptr;
+          } else {
+            b[row][col] = *data - '0';
+          }
+        }
+        ++data;
       }
     }
 
     return std::unique_ptr<LineBoard>(new LineBoard(std::move(b)));
   }
-  
+
   Board GetInstanceBoard() const override { return board_; }
   Board GetSolutionBoard() const override { return board_; }
 
  private:
   explicit LineBoard(Board board) : board_(std::move(board)) {}
-  
+
   Board board_;
 };
 
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
 
   int exit_code = 0;
-  
+
   for (std::string buf; std::getline(std::cin, buf); ) {
     std::cout << "In:  " << buf << std::endl;
     std::unique_ptr<::puzzle::Problem> line_board =
@@ -69,9 +69,9 @@ int main(int argc, char** argv) {
       char* out = answer_buf;
       for (int row = 0; row < 9; ++row) {
         for (int col = 0; col < 9; ++col) {
-	  *out = answer.Id(row).Class(col) + '0';
-	  ++out;
-	}
+          *out = answer.Id(row).Class(col) + '0';
+          ++out;
+        }
       }
       answer_buf[81] = '\0';
 

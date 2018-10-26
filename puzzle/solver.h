@@ -96,7 +96,7 @@ class Solver {
  private:
   template <class Permuter>
   std::vector<Solution> AllSolutionsImpl(int limit, Profiler* profiler,
-					 Permuter* permuter);
+                                         Permuter* permuter);
 
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;

@@ -27,12 +27,11 @@ class ActiveSet {
   ActiveSet(ActiveSet&& other) = default;
   ActiveSet& operator=(ActiveSet&& other) = default;
 
-  void Intersect(const ActiveSet& other);
-  ActiveSet Intersection(const ActiveSet& other) const {
-    ActiveSet ret = *this;
-    ret.Intersect(other);
-    return ret;
+  void Intersect(const ActiveSet& other) {
+    if (other.is_trivial()) return;
+    *this = Intersection(other);
   }
+  ActiveSet Intersection(const ActiveSet& other) const;
 
   std::string DebugString() const;
 

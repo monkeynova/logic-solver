@@ -67,15 +67,15 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
       double start_selectivity = build.Selectivity();
       for (int other_pos = 0; other_pos < class_position; ++other_pos) {
-	const ClassPermuter& other_permuter =
-	  permuter_->class_permuters_[other_pos];
-	int other_class = other_permuter.class_int();
-	int other_val = iterators_[other_class].position();
-	build.Intersect(builder.active_set_pair(
-  	    other_class, other_val, class_int));
+        const ClassPermuter& other_permuter =
+          permuter_->class_permuters_[other_pos];
+        int other_class = other_permuter.class_int();
+        int other_val = iterators_[other_class].position();
+        build.Intersect(builder.active_set_pair(
+              other_class, other_val, class_int));
       }
       pair_selectivity_reduction_[class_int] =
-	  build.Selectivity() / start_selectivity;
+          build.Selectivity() / start_selectivity;
     }
     iterators_[class_int] = class_permuter.begin(std::move(build));
   }
@@ -86,7 +86,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
     if (solution_cropper.p(current_) &&
-	FindNextValid(class_position + 1)) {
+        FindNextValid(class_position + 1)) {
       return true;
     }
   }
@@ -99,19 +99,19 @@ std::string CroppedSolutionPermuter::iterator::IterationDebugString() const {
   return absl::StrJoin(
       permuter_->class_permuters_, ", ",
       [this](std::string* out,
-	     const ClassPermuter& permuter) {
-	if (iterators_[permuter.class_int()] == permuter.end()) {
-	  absl::StrAppend(out, "<->");
-	} else {
-	  double truncated = iterators_[permuter.class_int()].Completion();
-	  truncated = static_cast<int>(1000 * truncated) / 1000.0;
-	  absl::StrAppend(out, truncated);
-	  if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
-	    double truncated = pair_selectivity_reduction_[permuter.class_int()];
-	    truncated = static_cast<int>(1000 * truncated) / 1000.0;
-	    absl::StrAppend(out, " (", truncated, ")");
-	  }
-	}
+             const ClassPermuter& permuter) {
+        if (iterators_[permuter.class_int()] == permuter.end()) {
+          absl::StrAppend(out, "<->");
+        } else {
+          double truncated = iterators_[permuter.class_int()].Completion();
+          truncated = static_cast<int>(1000 * truncated) / 1000.0;
+          absl::StrAppend(out, truncated);
+          if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+            double truncated = pair_selectivity_reduction_[permuter.class_int()];
+            truncated = static_cast<int>(1000 * truncated) / 1000.0;
+            absl::StrAppend(out, " (", truncated, ")");
+          }
+        }
       });
 }
 
@@ -125,9 +125,9 @@ bool CroppedSolutionPermuter::iterator::NotePositionForProfiler(
   if (permuter_->profiler_->NotePosition(
           position(), permuter_->permutation_count())) {
     std::cout << "; FindNextValid(" << class_position << ") ("
-	      << IterationDebugString() << ")" << std::flush;
+              << IterationDebugString() << ")" << std::flush;
   }
-  
+
   return permuter_->profiler_->Done();
 }
 
@@ -277,7 +277,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
       pair_class_predicates[key1].push_back(cropper);
       pair_class_predicates[key2].push_back(cropper);
       if (!FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
-	residual->push_back(cropper);
+        residual->push_back(cropper);
       }
     } else {
       residual->push_back(cropper);
@@ -316,32 +316,36 @@ void CroppedSolutionPermuter::BuildActiveSets(
 
     ReorderEvaluation();
 
-    for (auto it = class_permuters_.begin();
-         it != class_permuters_.end();
-         ++it) {
-      for (auto it2 = it + 1; it2 != class_permuters_.end(); ++it2) {
-	CHECK(it->class_int() != it2->class_int());
+    for (auto it_a = class_permuters_.begin();
+         it_a != class_permuters_.end();
+         ++it_a) {
+      ClassPermuter& permuter_a = *it_a;
+      for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
+        ClassPermuter& permuter_b = *it_b;
+        CHECK(permuter_a.class_int() != permuter_b.class_int());
 
         std::vector<Solution::Cropper>& croppers =
-          pair_class_predicates[std::make_pair(it->class_int(),
-                                               it2->class_int())];
+          pair_class_predicates[std::make_pair(permuter_a.class_int(),
+                                               permuter_b.class_int())];
         if (croppers.empty()) continue;
 
-        active_set_builder_.Build(*it, *it2, croppers, pair_class_mode);
-        const ActiveSet& new_a = active_set_builder_.active_set(it->class_int());
-        const ActiveSet& new_b = active_set_builder_.active_set(it2->class_int());
-        VLOG(2) << "Selectivity (" << it->class_int() << ", "
-                << it2->class_int() << "): (" << it->Selectivity() << ", "
-                << it2->Selectivity() << ") => (" << new_a.Selectivity()
-                << ", " << new_b.Selectivity() << ")";
-        if (it->Selectivity() > new_a.Selectivity()) {
+        active_set_builder_.Build(*it_a, *it_b, croppers, pair_class_mode);
+        const ActiveSet& new_a =
+            active_set_builder_.active_set(permuter_a.class_int());
+        const ActiveSet& new_b =
+            active_set_builder_.active_set(permuter_b.class_int());
+        VLOG(2) << "Selectivity (" << permuter_a.class_int() << ", "
+                << permuter_b.class_int() << "): (" << permuter_a.Selectivity()
+                << ", " << permuter_b.Selectivity() << ") => ("
+                << new_a.Selectivity() << ", " << new_b.Selectivity() << ")";
+        if (permuter_a.Selectivity() > new_a.Selectivity()) {
           cardinality_reduced = true;
         }
-        if (it2->Selectivity() > new_b.Selectivity()) {
+        if (permuter_b.Selectivity() > new_b.Selectivity()) {
           cardinality_reduced = true;
         }
-        it->set_active_set(new_a);
-        it2->set_active_set(new_b);
+        permuter_a.set_active_set(new_a);
+        permuter_b.set_active_set(new_b);
       }
     }
   }

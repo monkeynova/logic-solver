@@ -11,24 +11,23 @@ class ActiveSetPair {
   ActiveSetPair() = default;
 
   const ActiveSet& Find(int a_val) const {
-    auto it = map_.find(a_val);
-    if (it == map_.end()) {
+    auto it = b_given_a_.find(a_val);
+    if (it == b_given_a_.end()) {
       static ActiveSet empty;
+      empty.DoneAdding();
       return empty;
     }
     return it->second;
   }
 
   void Assign(int a_val, ActiveSet a_b_set) {
-    map_[a_val] = std::move(a_b_set);
+    b_given_a_[a_val] = std::move(a_b_set);
   }
-  
-  void Clear() { map_.clear(); }
-  
+
  private:
-  absl::flat_hash_map<int, ActiveSet> map_;
+  absl::flat_hash_map<int, ActiveSet> b_given_a_;
 };
-  
+
 }  // namespace puzzle
 
 #endif  //  PUZZLE_ACTIVE_SET_PAIR_H

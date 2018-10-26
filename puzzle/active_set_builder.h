@@ -65,8 +65,8 @@ class ActiveSetBuilder {
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
-  void SetupPairBuild(int class_a, int class_b, 
-		      const std::vector<Solution::Cropper>& predicates);
+  void SetupPairBuild(int class_a, int class_b,
+                      const std::vector<Solution::Cropper>& predicates);
 
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;

@@ -27,7 +27,7 @@ TEST(Puzzle, RightAnswer) {
 }
 
 static void SetFlag(bool val, absl::string_view label, bool* flag,
-		    std::vector<std::string>* labels) {
+                    std::vector<std::string>* labels) {
   *flag = val;
   labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
 }
