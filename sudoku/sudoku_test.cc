@@ -18,12 +18,12 @@ extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
   puzzle::Problem* problem = puzzle::Problem::GetInstance();
-   problem->Setup();
+  problem->Setup();
 
   puzzle::Solution got = problem->Solve();
-  puzzle::Solution expect = problem->GetSolution();
+  ASSERT_TRUE(got.IsValid());
 
-  EXPECT_EQ(got, expect);
+  EXPECT_EQ(got, problem->GetSolution());
 }
 
 static void SetFlag(bool val, absl::string_view label, bool* flag,

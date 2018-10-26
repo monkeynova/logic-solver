@@ -11,8 +11,58 @@ cc_binary(
     name = "multi_line",
     srcs = ["multi_line.cc"],
     deps = [
-        ":base",
+        ":line_board",
     ]
+)
+
+cc_binary(
+    name = "single_line",
+    srcs = ["single_line.cc"],
+    deps = [
+        ":line_board",
+    ]
+)
+
+cc_test(
+    name = "single_line_test",
+    srcs = ["single_line_test.cc"],
+    args = [
+	"--puzzle_prune_pair_class_iterators=true",
+        "--sudoku_line_board=" +
+        "......2.4" +
+        "1..9....." +
+        "........8" +
+        "68.7....." +
+        "...1..73." +
+        ".4......." +
+        "....25..." +
+        "5......9." +
+        "....4....",
+        "--sudoku_line_answer=" +
+        "978531264" +
+        "124968357" +
+        "356472918" +
+        "681793542" +
+        "295184736" +
+        "743256189" +
+        "439625871" +
+        "562817493" +
+        "817349625",
+    ],
+    deps = [
+        ":line_board",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
+        "//puzzle:test_main",
+    ]
+)
+
+cc_library(
+    name = "line_board",
+    hdrs = ["line_board.h"],
+    deps = [
+        ":base",
+    ],
 )
 
 cc_binary(
