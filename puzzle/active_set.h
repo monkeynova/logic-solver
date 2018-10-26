@@ -27,11 +27,16 @@ class ActiveSet {
   ActiveSet(ActiveSet&& other) = default;
   ActiveSet& operator=(ActiveSet&& other) = default;
 
+  // Returns the intersections of the two active sets (that is, returns an
+  // ActiveSet which returns a true value for position if that value position
+  // corresponds to true values in both 'this' and 'other').
+  // If 'this' and 'other' have different lengths, the intersections behaves as
+  // though the shorter were padded with 'true' values to the longer.
+  ActiveSet Intersection(const ActiveSet& other) const;
   void Intersect(const ActiveSet& other) {
     if (other.is_trivial()) return;
     *this = Intersection(other);
   }
-  ActiveSet Intersection(const ActiveSet& other) const;
 
   std::string DebugString() const;
 

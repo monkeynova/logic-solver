@@ -85,9 +85,24 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
     VLOG(3) << "Intersect NextBlock="
             << (this_iterator.value() ? "true" : "false")
             << "/\\" << (other_iterator.value() ? "true" : "false");
-    bool next_run_value = this_iterator.value() && other_iterator.value();
-    int next_run_size = std::min(this_iterator.run_size(),
-                                 other_iterator.run_size());
+    bool next_run_value = false;
+    int next_run_size;
+    if (this_iterator.value() && other_iterator.value()) {
+      // Both true, so true for run-length min.
+      next_run_value = true;
+      next_run_size = std::min(this_iterator.run_size(),
+			       other_iterator.run_size());
+    } else if (this_iterator.value()) {
+      // Single false, it dictactes length.
+      next_run_size = this_iterator.run_size();
+    } else if (other_iterator.value()) {
+      // Single false, it dictactes length.
+      next_run_size = other_iterator.run_size();
+    } else {
+      // Both false, so false for run-length max.
+      next_run_size = std::max(this_iterator.run_size(),
+			       other_iterator.run_size());
+    }
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
             << ", " << next_run_size << ")";
