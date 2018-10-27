@@ -23,7 +23,7 @@ TEST(Puzzle, RightAnswer) {
   ::puzzle::Solution answer = line_board->Solve();
   ASSERT_TRUE(answer.IsValid());
 
-  EXPECT_EQ(::sudoku::LineBoard::AsString(answer), FLAGS_sudoku_line_answer);
+  EXPECT_EQ(::sudoku::LineBoard::ToString(answer), FLAGS_sudoku_line_answer);
 }
 
 static void BM_Solver(benchmark::State& state) {
@@ -36,7 +36,7 @@ static void BM_Solver(benchmark::State& state) {
     ::puzzle::Solution answer = line_board->Solve();
     ASSERT_TRUE(answer.IsValid());
     if (!FLAGS_sudoku_line_answer.empty()) {
-      EXPECT_EQ(::sudoku::LineBoard::AsString(answer),
+      EXPECT_EQ(::sudoku::LineBoard::ToString(answer),
 		FLAGS_sudoku_line_answer);
     }
   }

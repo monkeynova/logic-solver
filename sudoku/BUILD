@@ -60,6 +60,7 @@ cc_test(
 cc_library(
     name = "line_board",
     hdrs = ["line_board.h"],
+    srcs = ["line_board.cc"],
     deps = [
         ":base",
     ],
