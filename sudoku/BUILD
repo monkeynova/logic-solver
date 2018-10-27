@@ -27,7 +27,6 @@ cc_test(
     name = "single_line_test",
     srcs = ["single_line_test.cc"],
     args = [
-	"--puzzle_prune_pair_class_iterators=true",
         "--sudoku_line_board=" +
         "......2.4" +
         "1..9....." +
@@ -86,9 +85,6 @@ cc_library(
 
 cc_test(
     name = "nyt20171202_test",
-    args = [
-	"--puzzle_prune_pair_class_iterators=true",
-    ],
     deps = [
         ":sudoku_test",
         ":nyt20171202_lib",
@@ -114,9 +110,6 @@ cc_library(
 
 cc_test(
     name = "nyt20180101easy_test",
-    args = [
-        "--puzzle_prune_pair_class_iterators=true",
-    ],
     deps = [
         ":sudoku_test",
         ":nyt20180101easy_lib",
@@ -126,7 +119,6 @@ cc_test(
 cc_test(
     name = "nyt20180101easy_pairs_test",
     args = [
-        "--puzzle_prune_pair_class_iterators=true",
 	"--puzzle_prune_pair_class_iterators_mode_pair=true",
     ],
     deps = [
@@ -154,9 +146,6 @@ cc_library(
 
 cc_test(
     name = "nyt20180102medium_test",
-    args = [
-	"--puzzle_prune_pair_class_iterators=true",
-    ],
     deps = [
         ":sudoku_test",
         ":nyt20180102medium_lib",
@@ -197,9 +186,6 @@ cc_library(
 
 cc_test(
     name = "nyt20181019easy_test",
-    args = [
-        "--puzzle_prune_pair_class_iterators=true",
-    ],
     deps = [
         ":sudoku_test",
         ":nyt20181019easy_lib",
@@ -225,9 +211,6 @@ cc_library(
 
 cc_test(
     name = "nyt20181019hard_test",
-    args = [
-        "--puzzle_prune_pair_class_iterators=true",
-    ],
     deps = [
         ":sudoku_test",
         ":nyt20181019hard_lib",

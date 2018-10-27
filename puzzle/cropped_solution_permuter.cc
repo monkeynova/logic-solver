@@ -9,7 +9,7 @@ DEFINE_bool(puzzle_prune_class_iterator, true,
             "If specfied, class iterators will be pruned based on single "
             "class predicates that are present.");
 
-DEFINE_bool(puzzle_prune_pair_class_iterators, false,
+DEFINE_bool(puzzle_prune_pair_class_iterators, true,
             "If specfied, class iterators will be pruned based on pair "
             "class predicates that are present.");
 
