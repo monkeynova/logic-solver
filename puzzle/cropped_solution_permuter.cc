@@ -58,7 +58,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
     permuter_->class_permuters_[class_position];
   int class_int = class_permuter.class_int();
 
-  const Solution::Cropper& solution_cropper =
+  const absl::optional<Solution::Cropper>& solution_cropper =
     permuter_->class_predicates_[class_int];
 
   if (iterators_[class_int] == class_permuter.end()) {
@@ -85,7 +85,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
        ++iterators_[class_int]) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (solution_cropper.p(current_) &&
+    if ((!solution_cropper.has_value() || solution_cropper->p(current_)) &&
         FindNextValid(class_position + 1)) {
       return true;
     }
@@ -225,26 +225,35 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(
 
   for (size_t i = 0; i < multi_class_predicates.size(); ++i) {
     std::vector<Solution::Cropper> predicates = multi_class_predicates[i];
-    class_predicates_.push_back(Solution::Cropper(
-        absl::StrJoin(multi_class_predicates[i], ", ",
-                      [](std::string* out, const Solution::Cropper& c) {
-                        absl::StrAppend(out, c.name);
-                      }),
-        [predicates](const Solution& s) {
-          for (auto p : predicates) {
-            if (!p.p(s)) return false;
-          }
-          return true;
-        },
-        {}));
+    if (predicates.size() == 0) {
+      class_predicates_.push_back(absl::nullopt);
+    } else if (predicates.size() == 1) {
+      class_predicates_.push_back(predicates[0]);
+    } else {
+      class_predicates_.push_back(Solution::Cropper(
+          absl::StrJoin(multi_class_predicates[i], ", ",
+                        [](std::string* out, const Solution::Cropper& c) {
+                          absl::StrAppend(out, c.name);
+                        }),
+          [predicates](const Solution& s) {
+            for (auto p : predicates) {
+              if (!p.p(s)) return false;
+            }
+            return true;
+          },
+          {}));
+    }
   }
   if (VLOG_IS_ON(1)) {
     for (const auto& permuter : class_permuters_) {
+      const absl::string_view predicate_name =
+          class_predicates_[permuter.class_int()].has_value()
+          ? class_predicates_[permuter.class_int()]->name : "<noop>";
       VLOG(1) << "Predicates at " << permuter.class_int()
               << " (" << permuter.Selectivity() << "="
               << permuter.Selectivity() * permuter.permutation_count()
               << "): " << multi_class_predicates[permuter.class_int()].size()
-              << ": " << class_predicates_[permuter.class_int()].name;
+              << ": " << predicate_name;
     }
   }
 }

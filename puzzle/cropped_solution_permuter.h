@@ -105,7 +105,7 @@ class CroppedSolutionPermuter {
   std::vector<ClassPermuter> class_permuters_;
 
   // Index is class_int at which evaluation should be performed.
-  std::vector<Solution::Cropper> class_predicates_;
+  std::vector<absl::optional<Solution::Cropper>> class_predicates_;
 
   Profiler* const profiler_;
 

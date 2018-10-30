@@ -173,9 +173,9 @@ class Solution {
             const std::vector<int>& classes)
     : name(name), p(p), classes(classes) {}
 
-      const std::string name;
-      const Solution::Predicate p;
-      const std::vector<int> classes;
+    const std::string name;
+    const Solution::Predicate p;
+    const std::vector<int> classes;
   };
 
   Solution() {}
