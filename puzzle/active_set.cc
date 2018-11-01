@@ -54,7 +54,7 @@ struct ActiveSetIterator {
 
   void Advance(int n) {
     run_position_ += n;
-    while (run_position_ >= matches_[match_position_]) {
+    while (more() && run_position_ >= matches_[match_position_]) {
       run_position_ -= matches_[match_position_];
       ++match_position_;
       value_ = !value_;
