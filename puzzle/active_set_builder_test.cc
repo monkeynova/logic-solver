@@ -23,7 +23,7 @@ class SinglePermuterTest
   }
 };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     Instantiation,
     SinglePermuterTest,
     testing::Values(ActiveSetBuilder::SingleClassBuild::kPassThrough,
@@ -154,7 +154,7 @@ class PairPermuterTest
   }
 };
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
     Instantiation,
     PairPermuterTest,
     testing::Values(ActiveSetBuilder::PairClassImpl::kPairSet,

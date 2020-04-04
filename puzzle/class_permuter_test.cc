@@ -18,7 +18,8 @@ using ClassPermuterTypes = ::testing::Types<
   internal::ClassPermuterImpl<
       internal::ClassPermuterType::kSteinhausJohnsonTrotter>,
   internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>>;
-TYPED_TEST_CASE(ClassPermuterTest, ClassPermuterTypes);
+TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
+
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
   IntRangeDescriptor d(3, 5);

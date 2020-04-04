@@ -21,11 +21,10 @@ class CroppedSolutionPermuter {
 
     iterator(const CroppedSolutionPermuter* permuter);
 
-    iterator(const iterator& other) = delete;
-    iterator& operator=(const iterator& other) = delete;
-
-    iterator(iterator&& other) = default;
-    iterator& operator=(iterator&& other) = default;
+    iterator(const iterator&) = delete;
+    iterator(iterator&&) = default;
+    iterator& operator=(const iterator&) = delete;
+    iterator& operator=(iterator&&) = default;
 
     bool operator!=(const iterator& other) {
       return !(*this == other);
@@ -56,7 +55,7 @@ class CroppedSolutionPermuter {
     // early abort is indicated.
     bool NotePositionForProfiler(int class_position);
 
-    const CroppedSolutionPermuter* const permuter_ = nullptr;
+    const CroppedSolutionPermuter* permuter_ = nullptr;
     MutableSolution mutable_solution_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
@@ -96,7 +95,7 @@ class CroppedSolutionPermuter {
   // maximally prunes unnecessary iteration.
   void ReorderEvaluation();
 
-  const EntryDescriptor* const entry_descriptor_ = nullptr;
+  const EntryDescriptor* entry_descriptor_ = nullptr;
 
   // Ordered by the evaluation order that is configured for 'class_predicates_'.
   // That is, if the first N permuters have been updated then permuting entries
@@ -107,7 +106,7 @@ class CroppedSolutionPermuter {
   // Index is class_int at which evaluation should be performed.
   std::vector<absl::optional<Solution::Cropper>> class_predicates_;
 
-  Profiler* const profiler_;
+  Profiler* profiler_;
 
   ActiveSetBuilder active_set_builder_;
 
