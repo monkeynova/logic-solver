@@ -1,3 +1,5 @@
+load("//puzzle:puzzle.bzl", "puzzle_test")
+
 cc_binary(
     name = "dracula_and_friends",
     deps = [
@@ -26,11 +28,10 @@ proto_library(
     srcs = ["dracula_and_friends.proto"],
 )
 
-cc_test(
+puzzle_test(
     name = "dracula_and_friends_test",
     deps = [
         ":dracula_and_friends_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
@@ -79,56 +80,50 @@ proto_library(
     srcs = ["swimming_pool.proto"],
 )
 
-cc_test(
+puzzle_test(
     name = "swimming_pool_test",
     deps = [
         ":swimming_pool_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
-cc_test(
+puzzle_test(
     name = "swimming_pool_brute_test",
     args = ["--puzzle_brute_force=true"],
     deps = [
         ":swimming_pool_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
-cc_test(
+puzzle_test(
     name = "swimming_pool_noprune_test",
     args = ["--puzzle_prune_class_iterator=false"],
     deps = [
         ":swimming_pool_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
-cc_test(
+puzzle_test(
     name = "six_fearsome_heroes_test",
     deps = [
         ":six_fearsome_heroes_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
-cc_test(
+puzzle_test(
     name = "six_fearsome_heroes_noprune_test",
     args = ["--puzzle_prune_class_iterator=false"],
     deps = [
         ":six_fearsome_heroes_lib",
-        "//puzzle:puzzle_test",
     ],
 )
 
-cc_test(
+puzzle_test(
     name = "six_fearsome_heroes_noreorder_test",
     args = [
         "--puzzle_prune_reorder_classes=false",
     ],
     deps = [
         ":six_fearsome_heroes_lib",
-        "//puzzle:puzzle_test",
     ],
 )

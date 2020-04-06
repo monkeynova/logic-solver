@@ -1,3 +1,5 @@
+load("sudoku.bzl", "sudoku_test")
+
 cc_library(
     name = "base",
     srcs = ["base.cc"],
@@ -48,6 +50,7 @@ cc_test(
         "562817493" +
         "817349625",
     ],
+    tags = ["benchmark"],
     deps = [
         ":line_board",
         "@com_google_benchmark//:benchmark",
@@ -83,10 +86,9 @@ cc_library(
     ],
 )
 
-cc_test(
+sudoku_test(
     name = "nyt20171202_test",
     deps = [
-        ":sudoku_test",
         ":nyt20171202_lib",
     ],
 )
@@ -108,21 +110,19 @@ cc_library(
     ],
 )
 
-cc_test(
+sudoku_test(
     name = "nyt20180101easy_test",
     deps = [
-        ":sudoku_test",
         ":nyt20180101easy_lib",
     ],
 )
 
-cc_test(
+sudoku_test(
     name = "nyt20180101easy_pairs_test",
     args = [
 	"--puzzle_prune_pair_class_iterators_mode_pair=true",
     ],
     deps = [
-        ":sudoku_test",
         ":nyt20180101easy_lib",
     ],
 )
@@ -144,10 +144,9 @@ cc_library(
     ],
 )
 
-cc_test(
+sudoku_test(
     name = "nyt20180102medium_test",
     deps = [
-        ":sudoku_test",
         ":nyt20180102medium_lib",
     ],
 )
@@ -155,6 +154,7 @@ cc_test(
 cc_library(
     name = "sudoku_test",
     srcs = ["sudoku_test.cc"],
+    testonly = 1,
     deps = [
         "//puzzle:problem",
         "//puzzle:test_main",
@@ -184,10 +184,9 @@ cc_library(
     ],
 )
 
-cc_test(
+sudoku_test(
     name = "nyt20181019easy_test",
     deps = [
-        ":sudoku_test",
         ":nyt20181019easy_lib",
     ],
 )
@@ -209,10 +208,9 @@ cc_library(
     ],
 )
 
-cc_test(
+sudoku_test(
     name = "nyt20181019hard_test",
     deps = [
-        ":sudoku_test",
         ":nyt20181019hard_lib",
     ],
 )

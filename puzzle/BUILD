@@ -70,6 +70,7 @@ cc_library(
 cc_binary(
     name = "active_set_builder_benchmark",
     srcs = ["active_set_builder_benchmark.cc"],
+    tags = ["benchmark"],
     deps = [
         ":active_set_builder",
 	":benchmark_main",
@@ -117,8 +118,9 @@ cc_library(
     deps = [
         ":active_set_builder",
         ":class_permuter",
-        ":mutable_solution",
-        ":profiler",
+	":mutable_solution",
+	":profiler",
+	"@com_google_absl//absl/memory",
 	"@com_google_glog//:glog",
     ],
 )
@@ -190,6 +192,7 @@ cc_test(
 cc_binary(
     name = "class_permuter_benchmark",
     srcs = ["class_permuter_benchmark.cc"],
+    tags = ["benchmark"],
     deps = [
         ":benchmark_main",
         ":class_permuter",
@@ -233,6 +236,7 @@ cc_library(
 cc_library(
     name = "puzzle_test",
     srcs = ["puzzle_test.cc"],
+    testonly = 1,
     deps = [
         ":problem",
         ":test_main",
@@ -248,6 +252,7 @@ cc_library(
 cc_library(
     name = "test_main",
     srcs = ["test_main.cc"],
+    testonly = 1,
     deps = [
 	"@com_github_gflags_gflags//:gflags",
         "@com_google_benchmark//:benchmark",
