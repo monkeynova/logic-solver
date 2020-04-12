@@ -1,6 +1,7 @@
 #include "puzzle/solver.h"
 
 #include <functional>
+#include <limits>
 
 #include "gflags/gflags.h"
 #include "puzzle/brute_solution_permuter.h"
@@ -46,11 +47,14 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
     ret = AllSolutionsImpl(limit, profiler.get(), &permuter);
   }
 
-  profiler->NoteFinish();
+  if (profiler) {
+    profiler->NoteFinish();
+  }
 
   last_debug_statistics_ =
       absl::StrCat("[", test_calls_, " solutions tested in ",
-                   profiler->Seconds(), "s]");
+                   profiler ? profiler->Seconds() : std::numeric_limits<double>::quiet_NaN(),
+		   "s]");
 
   return ret;
 }
@@ -61,8 +65,10 @@ std::vector<Solution> Solver::AllSolutionsImpl(int limit, Profiler* profiler,
 
   std::vector<Solution> ret;
   for (auto it = permuter->begin(); it != permuter->end(); ++it) {
-    profiler->NotePosition(it->permutation_position(),
-                            it->permutation_count());
+    if (profiler != nullptr) {
+      profiler->NotePosition(it->permutation_position(),
+                             it->permutation_count());
+    }
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
       if (limit >=0 && ret.size() >= static_cast<size_t>(limit)) {
