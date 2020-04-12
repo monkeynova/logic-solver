@@ -3,4 +3,5 @@
 .*
 bin
 bazel-*
+benchmark-out
 cachegrind.out.*
