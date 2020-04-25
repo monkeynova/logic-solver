@@ -37,15 +37,15 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
   std::unique_ptr<Profiler> profiler = Profiler::Create();
 
   std::vector<Solution> ret;
+  std::unique_ptr<SolutionPermuter> permuter;
   if (FLAGS_puzzle_brute_force) {
-    BruteSolutionPermuter permuter(&entry_descriptor_);
-    ret = AllSolutionsImpl(limit, profiler.get(), &permuter);
+    permuter = absl::make_unique<BruteSolutionPermuter>(&entry_descriptor_);
   } else {
-    CroppedSolutionPermuter permuter(&entry_descriptor_,
-                                     on_solution_with_class_,
-                                     profiler.get());
-    ret = AllSolutionsImpl(limit, profiler.get(), &permuter);
+    permuter = absl::make_unique<CroppedSolutionPermuter>(
+	&entry_descriptor_, on_solution_with_class_, profiler.get());
   }
+
+ ret = AllSolutionsImpl(limit, profiler.get(), permuter.get());
 
   if (profiler) {
     profiler->NoteFinish();
@@ -59,9 +59,8 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
   return ret;
 }
 
-template <class Permuter>
 std::vector<Solution> Solver::AllSolutionsImpl(int limit, Profiler* profiler,
-                                               Permuter* permuter) {
+                                               SolutionPermuter* permuter) {
 
   std::vector<Solution> ret;
   for (auto it = permuter->begin(); it != permuter->end(); ++it) {

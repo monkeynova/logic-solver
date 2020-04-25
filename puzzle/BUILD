@@ -7,6 +7,7 @@ cc_library(
         ":cropped_solution_permuter",
 	":profiler",
         ":solution",
+	":solution_permuter",
 	"@com_github_gflags_gflags//:gflags",
     ],
     visibility = [

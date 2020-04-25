@@ -56,6 +56,7 @@ class SolutionPermuter {
   };
 
   SolutionPermuter() = default;
+  virtual ~SolutionPermuter() = default;
 
   virtual iterator begin() const = 0;
   virtual iterator end() const = 0;

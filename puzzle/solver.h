@@ -6,6 +6,7 @@
 
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
+#include "puzzle/solution_permuter.h"
 
 namespace puzzle {
 
@@ -94,9 +95,8 @@ class Solver {
   }
 
  private:
-  template <class Permuter>
   std::vector<Solution> AllSolutionsImpl(int limit, Profiler* profiler,
-                                         Permuter* permuter);
+                                         SolutionPermuter* permuter);
 
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
