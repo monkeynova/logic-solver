@@ -4,50 +4,26 @@
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
+#include "puzzle/solution_permuter.h"
 
 namespace puzzle {
 
-class BruteSolutionPermuter {
+class BruteSolutionPermuter final : public SolutionPermuter {
  public:
-  class iterator {
+  class Advancer final : public SolutionPermuter::AdvanceInterface {
    public:
-    typedef std::forward_iterator_tag iterator_category;
-    typedef int difference_type;
-    typedef Solution value_type;
-    typedef Solution& reference;
-    typedef Solution* pointer;
+    explicit Advancer(const BruteSolutionPermuter* permuter,
+		      const EntryDescriptor* entry_descriptor);
 
-    iterator(const BruteSolutionPermuter* permuter,
-             const EntryDescriptor* entry_descriptor);
+    Advancer(const Advancer&) = delete;
+    Advancer& operator=(const Advancer&) = delete;
 
-    iterator(const iterator& other) = delete;
-    iterator& operator=(const iterator& other) = delete;
-
-    iterator(iterator&& other) = default;
-    iterator& operator=(iterator&& other) = default;
-
-    bool operator!=(const iterator& other) {
-      return !(*this == other);
-    }
-    bool operator==(const iterator& other) {
-      return current_ == other.current_;
-    }
-    const Solution& operator*() {
-      return current_;
-    }
-    const Solution* operator->() {
-      return &current_;
-    }
-    iterator& operator++() {
-      Advance();
-      return *this;
-    }
-
-    double position() const;
-    double completion() const;
+    double position() const override;
+    double completion() const override;
 
    private:
-    void Advance();
+    const Solution& current() const override { return current_; }
+    void Advance() override;
 
     const BruteSolutionPermuter* permuter_;
     MutableSolution mutable_solution_;
@@ -56,8 +32,8 @@ class BruteSolutionPermuter {
     Solution current_;  // Bound to mutable_solution_.
   };
 
-  BruteSolutionPermuter(const EntryDescriptor* e);
-  ~BruteSolutionPermuter() {}
+  explicit BruteSolutionPermuter(const EntryDescriptor* e);
+  ~BruteSolutionPermuter() = default;
 
   // Movable, but not copyable.
   BruteSolutionPermuter(const BruteSolutionPermuter&) = delete;
@@ -65,8 +41,12 @@ class BruteSolutionPermuter {
   BruteSolutionPermuter(BruteSolutionPermuter&&) = default;
   BruteSolutionPermuter& operator=(BruteSolutionPermuter&&) = default;
 
-  iterator begin() const { return iterator(this, entry_descriptor_); }
-  iterator end() const { return iterator(this, nullptr); }
+  iterator begin() const override {
+    return iterator(absl::make_unique<Advancer>(this, entry_descriptor_));
+  }
+  iterator end() const override {
+    return iterator(absl::make_unique<Advancer>(this, nullptr));
+  }
 
   double permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const {
@@ -77,7 +57,7 @@ class BruteSolutionPermuter {
   const EntryDescriptor* entry_descriptor_;
   std::vector<ClassPermuter> class_permuters_;
 
-  friend iterator;
+  friend Advancer;
 };
 
 }  // namespace puzzle

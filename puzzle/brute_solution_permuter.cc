@@ -2,7 +2,7 @@
 
 namespace puzzle {
 
-BruteSolutionPermuter::iterator::iterator(
+BruteSolutionPermuter::Advancer::Advancer(
    const BruteSolutionPermuter* permuter,
    const EntryDescriptor* entry_descriptor)
    : permuter_(permuter), mutable_solution_(entry_descriptor) {
@@ -23,7 +23,7 @@ BruteSolutionPermuter::iterator::iterator(
   current_.set_permutation_position(0);
 }
 
-void BruteSolutionPermuter::iterator::Advance() {
+void BruteSolutionPermuter::Advancer::Advance() {
   bool at_end = true;
   for (auto it = class_types_.rbegin(); it != class_types_.rend(); ++it) {
     int class_int = *it;
@@ -51,7 +51,7 @@ void BruteSolutionPermuter::iterator::Advance() {
   }
 }
 
-double BruteSolutionPermuter::iterator::position() const {
+double BruteSolutionPermuter::Advancer::position() const {
   double position = 0;
 
   for (int class_int : class_types_) {
@@ -62,7 +62,7 @@ double BruteSolutionPermuter::iterator::position() const {
   return position;
 }
 
-double BruteSolutionPermuter::iterator::completion() const {
+double BruteSolutionPermuter::Advancer::completion() const {
   return position() / permuter_->permutation_count();
 }
 

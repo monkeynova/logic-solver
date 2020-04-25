@@ -108,6 +108,7 @@ cc_library(
     deps = [
         ":class_permuter",
         ":mutable_solution",
+	":solution_permuter",
     ],
 )
 

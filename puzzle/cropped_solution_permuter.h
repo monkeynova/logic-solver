@@ -50,7 +50,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
       const EntryDescriptor* e,
       const std::vector<Solution::Cropper>& croppers_with_class,
       Profiler* profiler);
-  ~CroppedSolutionPermuter() {}
+  ~CroppedSolutionPermuter() = default;
 
   // Movable, but not copyable.
   CroppedSolutionPermuter(const CroppedSolutionPermuter&) = delete;
@@ -58,8 +58,8 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   CroppedSolutionPermuter(CroppedSolutionPermuter&&) = default;
   CroppedSolutionPermuter& operator=(CroppedSolutionPermuter&&) = default;
 
-  iterator begin() const { return iterator(absl::make_unique<Advancer>(this)); }
-  iterator end() const { return iterator(absl::make_unique<Advancer>(nullptr)); }
+  iterator begin() const override { return iterator(absl::make_unique<Advancer>(this)); }
+  iterator end() const override { return iterator(absl::make_unique<Advancer>(nullptr)); }
 
   double permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const {
