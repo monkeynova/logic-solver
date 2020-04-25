@@ -113,6 +113,7 @@ puzzle_test(
 puzzle_test(
     name = "six_fearsome_heroes_noprune_test",
     args = ["--puzzle_prune_class_iterator=false"],
+    tags = ["slowbenchmark"],
     deps = [
         ":six_fearsome_heroes_lib",
     ],

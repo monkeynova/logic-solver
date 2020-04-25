@@ -50,7 +50,7 @@ cc_test(
         "562817493" +
         "817349625",
     ],
-    tags = ["benchmark"],
+    tags = ["benchmark", "slowbenchmark"],
     deps = [
         ":line_board",
         "@com_google_benchmark//:benchmark",
