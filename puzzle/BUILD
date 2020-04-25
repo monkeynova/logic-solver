@@ -3,12 +3,10 @@ cc_library(
     hdrs = ["solver.h"],
     srcs = ["solver.cc"],
     deps = [
-        ":brute_solution_permuter",
-        ":cropped_solution_permuter",
 	":profiler",
         ":solution",
 	":solution_permuter",
-	"@com_github_gflags_gflags//:gflags",
+	":solution_permuter_factory",
     ],
     visibility = [
         "//visibility:public"
@@ -134,6 +132,20 @@ cc_library(
     srcs = ["solution_permuter.cc"],
     deps = [
         ":solution",
+    ],
+)
+
+cc_library(
+    name = "solution_permuter_factory",
+    hdrs = ["solution_permuter_factory.h"],
+    srcs = ["solution_permuter_factory.cc"],
+    deps = [
+        ":brute_solution_permuter",
+        ":cropped_solution_permuter",
+	":profiler",
+	":solution",
+	":solution_permuter",
+	"@com_github_gflags_gflags//:gflags",
     ],
 )
 
