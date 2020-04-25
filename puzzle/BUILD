@@ -120,8 +120,18 @@ cc_library(
         ":class_permuter",
 	":mutable_solution",
 	":profiler",
+        ":solution_permuter",
 	"@com_google_absl//absl/memory",
 	"@com_google_glog//:glog",
+    ],
+)
+
+cc_library(
+    name = "solution_permuter",
+    hdrs = ["solution_permuter.h"],
+    srcs = ["solution_permuter.cc"],
+    deps = [
+        ":solution",
     ],
 )
 

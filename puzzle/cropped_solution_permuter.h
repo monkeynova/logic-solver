@@ -1,51 +1,34 @@
 #ifndef __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
 #define __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
 
+#include "absl/memory/memory.h"
 #include "puzzle/active_set_builder.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
+#include "puzzle/solution_permuter.h"
 
 namespace puzzle {
 
-class CroppedSolutionPermuter {
+class CroppedSolutionPermuter final : public SolutionPermuter {
  public:
-  class iterator {
+  class Advancer final : public SolutionPermuter::AdvanceInterface {
    public:
-    typedef std::forward_iterator_tag iterator_category;
-    typedef int difference_type;
-    typedef Solution value_type;
-    typedef Solution& reference;
-    typedef Solution* pointer;
+    explicit Advancer(const CroppedSolutionPermuter* permuter);
 
-    iterator(const CroppedSolutionPermuter* permuter);
+    Advancer(const Advancer&) = delete;
+    Advancer& operator=(const Advancer&) = delete;
 
-    iterator(const iterator&) = delete;
-    iterator(iterator&&) = default;
-    iterator& operator=(const iterator&) = delete;
-    iterator& operator=(iterator&&) = default;
-
-    bool operator!=(const iterator& other) {
-      return !(*this == other);
-    }
-    bool operator==(const iterator& other) {
-      return current_ == other.current_;
-    }
-    const Solution& operator*() { return current_; }
-    const Solution* operator->() { return &current_; }
-    iterator& operator++() {
-      Advance();
-      return *this;
-    }
-
-    double position() const;
-    double completion() const;
+    double position() const override;
+    double completion() const override;
 
   private:
+    const Solution& current() const override { return current_; }
+    void Advance() override;
+    
     void PruneClass(int class_int,
                     const std::vector<Solution::Cropper>& predicates);
-    void Advance();
     bool FindNextValid(int class_position);
 
     std::string IterationDebugString() const;
@@ -75,8 +58,8 @@ class CroppedSolutionPermuter {
   CroppedSolutionPermuter(CroppedSolutionPermuter&&) = default;
   CroppedSolutionPermuter& operator=(CroppedSolutionPermuter&&) = default;
 
-  iterator begin() const { return iterator(this); }
-  iterator end() const { return iterator(nullptr); }
+  iterator begin() const { return iterator(absl::make_unique<Advancer>(this)); }
+  iterator end() const { return iterator(absl::make_unique<Advancer>(nullptr)); }
 
   double permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const {
@@ -110,7 +93,7 @@ class CroppedSolutionPermuter {
 
   ActiveSetBuilder active_set_builder_;
 
-  friend iterator;
+  friend Advancer;
 };
 
 }  // namespace puzzle

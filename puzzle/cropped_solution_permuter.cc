@@ -24,7 +24,7 @@ DEFINE_bool(puzzle_prune_reorder_classes, true,
 
 namespace puzzle {
 
-CroppedSolutionPermuter::iterator::iterator(
+CroppedSolutionPermuter::Advancer::Advancer(
     const CroppedSolutionPermuter* permuter)
   : permuter_(permuter),
     mutable_solution_(permuter == nullptr
@@ -48,7 +48,7 @@ CroppedSolutionPermuter::iterator::iterator(
   }
 }
 
-bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
+bool CroppedSolutionPermuter::Advancer::FindNextValid(int class_position) {
   if (static_cast<unsigned int>(class_position) >=
       permuter_->class_permuters_.size()) {
     return true;
@@ -95,7 +95,7 @@ bool CroppedSolutionPermuter::iterator::FindNextValid(int class_position) {
   return false;
 }
 
-std::string CroppedSolutionPermuter::iterator::IterationDebugString() const {
+std::string CroppedSolutionPermuter::Advancer::IterationDebugString() const {
   return absl::StrJoin(
       permuter_->class_permuters_, ", ",
       [this](std::string* out,
@@ -115,7 +115,7 @@ std::string CroppedSolutionPermuter::iterator::IterationDebugString() const {
       });
 }
 
-bool CroppedSolutionPermuter::iterator::NotePositionForProfiler(
+bool CroppedSolutionPermuter::Advancer::NotePositionForProfiler(
     int class_position) {
   VLOG(3) << "FindNextValid(" << class_position << ") ("
           << IterationDebugString() << ")";
@@ -131,7 +131,7 @@ bool CroppedSolutionPermuter::iterator::NotePositionForProfiler(
   return permuter_->profiler_->Done();
 }
 
-void CroppedSolutionPermuter::iterator::Advance() {
+void CroppedSolutionPermuter::Advancer::Advance() {
   bool at_end = true;
   for (auto it = permuter_->class_permuters_.rbegin();
        it != permuter_->class_permuters_.rend();
@@ -165,7 +165,7 @@ void CroppedSolutionPermuter::iterator::Advance() {
   }
 }
 
-double CroppedSolutionPermuter::iterator::position() const {
+double CroppedSolutionPermuter::Advancer::position() const {
   double position = 0;
 
   for (auto& class_permuter : permuter_->class_permuters_) {
@@ -176,7 +176,7 @@ double CroppedSolutionPermuter::iterator::position() const {
   return position;
 }
 
-double CroppedSolutionPermuter::iterator::completion() const {
+double CroppedSolutionPermuter::Advancer::completion() const {
   return position() / permuter_->permutation_count();
 }
 
