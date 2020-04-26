@@ -38,6 +38,8 @@ class ActiveSet {
     *this = Intersection(other);
   }
 
+  std::vector<int> EnabledValues() const;
+
   std::string DebugString() const;
 
   // Adds a new boolean value to the current ActiveSet. Must not be called

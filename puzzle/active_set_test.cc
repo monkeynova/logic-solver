@@ -8,6 +8,7 @@
 
 using ::testing::AnyOf;
 using ::testing::Eq;
+using ::testing::ElementsAreArray;
 using ::testing::UnorderedElementsAre;
 using ::testing::UnorderedElementsAreArray;
 
@@ -254,5 +255,20 @@ TEST(ActiveSet, IntersectionSparseRangePartialMatch) {
 TEST(ActiveSet, IntersectionSparseRangeEmpty) {
   TestIntersection({2, 3, 5, 6, 8, 9}, {4, 7}, 10, 10);
 }
+
+TEST(ActiveSet, EnabledValues) {
+  std::vector<std::vector<int>> test_cases = {
+    {0, 1, 2, 3},
+    {},
+    {1, 3},
+    {0, 2},
+    {0, 1}};
+
+  for (const auto test : test_cases) {
+    EXPECT_THAT(ActiveSet(test, 4).EnabledValues(),
+		ElementsAreArray(test));
+  }
+}
+
 
 }  // namespace puzzle

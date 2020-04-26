@@ -226,4 +226,15 @@ int ActiveSet::ConsumeFalseBlock() {
   return ret;
 }
 
+std::vector<int> ActiveSet::EnabledValues() const {
+  ActiveSet copy = *this;
+  std::vector<int> ret;
+  for (int i = 0; i < copy.total(); ++i) {
+    if (copy.ConsumeNext()) {
+      ret.push_back(i);
+    }
+  }
+  return ret;
+}
+  
 }
