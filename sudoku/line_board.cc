@@ -15,19 +15,19 @@ namespace sudoku {
     b[row].resize(9);
     for (int col = 0; col < 9; ++col) {
       if (*data == '.') {
-	b[row][col] = -1;
+        b[row][col] = -1;
       } else {
-	if (*data < '0' || *data > '9') {
-	  LOG(ERROR) << "Bad input: \"" << *data << "\"";
-	  return Board();
-	} else {
-	  b[row][col] = *data - '0';
-	}
+        if (*data < '0' || *data > '9') {
+          LOG(ERROR) << "Bad input: \"" << *data << "\"";
+          return Board();
+        } else {
+          b[row][col] = *data - '0';
+        }
       }
       ++data;
     }
   }
-  
+
   return b;
 }
 

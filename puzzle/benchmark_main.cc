@@ -3,8 +3,8 @@
 #include "glog/logging.h"
 
 DEFINE_bool(benchmark, true,
-	    "If false, disables benchmarks. Flag exists to provide compatability with test "
-	    "suites that also have the flag.");
+            "If false, disables benchmarks. Flag exists to provide compatability with test "
+            "suites that also have the flag.");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);

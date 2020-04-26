@@ -6,7 +6,7 @@
 #include "sudoku/line_board.h"
 
 DEFINE_string(sudoku_line_board, "",
-	      "The sudoku problem to solve as a single line");
+              "The sudoku problem to solve as a single line");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
   ::puzzle::Solution answer = line_board->Solve();
   CHECK(answer.IsValid());
-  
+
   char answer_buf[82];
   char* out = answer_buf;
   for (int row = 0; row < 9; ++row) {
@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     }
   }
   answer_buf[81] = '\0';
-    
+
   std::cout << "Out: " << answer_buf << std::endl;
 
   return 0;

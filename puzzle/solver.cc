@@ -28,7 +28,7 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
   std::unique_ptr<Profiler> profiler = Profiler::Create();
 
   std::unique_ptr<SolutionPermuter> permuter = CreateSolutionPermuter(
-	&entry_descriptor_, on_solution_with_class_, profiler.get());
+        &entry_descriptor_, on_solution_with_class_, profiler.get());
 
   std::vector<Solution> ret;
   for (auto it = permuter->begin(); it != permuter->end(); ++it) {
@@ -51,7 +51,7 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
   last_debug_statistics_ =
       absl::StrCat("[", test_calls_, " solutions tested in ",
                    profiler ? profiler->Seconds() : std::numeric_limits<double>::quiet_NaN(),
-		   "s]");
+                   "s]");
 
   return ret;
 }

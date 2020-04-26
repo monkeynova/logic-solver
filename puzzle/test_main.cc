@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 DEFINE_bool(benchmark, false,
-	    "If true, runs benchmarks rather than gunit test suite.");
+            "If true, runs benchmarks rather than gunit test suite.");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);

@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     ::puzzle::Solution answer = line_board->Solve();
     if (answer.IsValid()) {
       std::cout << "Out: " << ::sudoku::LineBoard::ToString(answer)
-		<< std::endl;
+                << std::endl;
     } else {
       LOG(ERROR) << "No answer found";
       exit_code = 1;

@@ -13,7 +13,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   class Advancer final : public SolutionPermuter::AdvanceInterface {
    public:
     explicit Advancer(const BruteSolutionPermuter* permuter,
-		      const EntryDescriptor* entry_descriptor);
+                      const EntryDescriptor* entry_descriptor);
 
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;

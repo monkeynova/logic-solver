@@ -12,12 +12,12 @@ DEFINE_int32(puzzle_max_profile_calls, std::numeric_limits<int>::max(),
              "Default value is max_int.");
 
 DEFINE_bool(puzzle_profiler_enable, false,
-	    "Enables the profiler which tracks time spent performing iterations.");
+            "Enables the profiler which tracks time spent performing iterations.");
 
 namespace puzzle {
 
 namespace {
-  
+
 class StructTimevalProfiler : public Profiler {
  public:
   StructTimevalProfiler() : Profiler() {

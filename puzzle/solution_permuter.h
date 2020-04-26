@@ -61,7 +61,7 @@ class SolutionPermuter {
   virtual iterator begin() const = 0;
   virtual iterator end() const = 0;
 };
-  
+
 }  // namespace puzzle
 
 #endif  // PUZZLE_SOLUTION_PERMUTER_H_

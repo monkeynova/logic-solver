@@ -9,10 +9,10 @@
 #include "sudoku/line_board.h"
 
 DEFINE_string(sudoku_line_board, "",
-	      "The sudoku problem to solve as a single line");
+              "The sudoku problem to solve as a single line");
 
 DEFINE_string(sudoku_line_answer, "",
-	      "The sudoku problem to solve as a single line");
+              "The sudoku problem to solve as a single line");
 
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<::puzzle::Problem> line_board =
@@ -37,7 +37,7 @@ static void BM_Solver(benchmark::State& state) {
     ASSERT_TRUE(answer.IsValid());
     if (!FLAGS_sudoku_line_answer.empty()) {
       EXPECT_EQ(::sudoku::LineBoard::ToString(answer),
-		FLAGS_sudoku_line_answer);
+                FLAGS_sudoku_line_answer);
     }
   }
 }

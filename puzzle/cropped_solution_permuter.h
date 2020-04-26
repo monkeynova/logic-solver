@@ -26,7 +26,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   private:
     const Solution& current() const override { return current_; }
     void Advance() override;
-    
+
     void PruneClass(int class_int,
                     const std::vector<Solution::Cropper>& predicates);
     bool FindNextValid(int class_position);
