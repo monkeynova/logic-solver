@@ -31,6 +31,7 @@ class ActiveSetBuilder {
     return active_sets_[class_int];
   }
   const ActiveSet& active_set_pair(int class_a, int a_val, int class_b) const {
+    DCHECK_NE(class_a, class_b);
     DCHECK_LT(class_a, active_set_pairs_.size());
     DCHECK_LT(class_b, active_set_pairs_[class_a].size());
     return active_set_pairs_[class_a][class_b].Find(a_val);
@@ -78,6 +79,13 @@ class ActiveSetBuilder {
   MutableSolution mutable_solution_;
   Solution solution_;  // Bound to mutable_solution_;
 };
+
+std::ostream& operator<<(
+    std::ostream& out, ActiveSetBuilder::SingleClassBuild val);
+std::ostream& operator<<(
+    std::ostream& out, ActiveSetBuilder::PairClassMode val);
+std::ostream& operator<<(
+    std::ostream& out, ActiveSetBuilder::PairClassImpl val);
 
 }  // namespace puzzle
 

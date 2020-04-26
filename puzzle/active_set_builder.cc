@@ -4,6 +4,41 @@
 
 namespace puzzle {
 
+std::ostream& operator<<(
+    std::ostream& out, ActiveSetBuilder::SingleClassBuild val) {
+  switch (val) {
+  case ActiveSetBuilder::SingleClassBuild::kPassThrough:
+    return out << "kPassThrough";
+  case ActiveSetBuilder::SingleClassBuild::kPositionSet:
+    return out << "kPositionSet";
+  }
+  return out << "Unknown SingleClassBuild(" << static_cast<int>(val) << ")";
+}
+
+std::ostream& operator<<(
+    std::ostream& out, ActiveSetBuilder::PairClassMode val) {
+  switch (val) {
+  case ActiveSetBuilder::PairClassMode::kSingleton:
+    return out << "kSingleton";
+  case ActiveSetBuilder::PairClassMode::kMakePairs:
+    return out << "kMakePairs";
+  }
+  return out << "Unknown PairClassMode(" << static_cast<int>(val) << ")";
+}
+
+std::ostream& operator<<(
+    std::ostream& out, ActiveSetBuilder::PairClassImpl val) {
+  switch (val) {
+  case ActiveSetBuilder::PairClassImpl::kPassThroughA:
+    return out << "kPassThroughA";  
+  case ActiveSetBuilder::PairClassImpl::kBackAndForth:
+    return out << "kBackAndForth";
+  case ActiveSetBuilder::PairClassImpl::kPairSet:
+    return out << "kPairSet";
+  }
+  return out << "Unknown PairClassImpl(" << static_cast<int>(val) << ")";
+}
+
 ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
   : active_sets_(entry_descriptor == nullptr
                  ? 0 : entry_descriptor->num_classes()),
