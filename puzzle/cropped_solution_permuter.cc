@@ -13,7 +13,7 @@ DEFINE_bool(puzzle_prune_pair_class_iterators, true,
             "If specfied, class iterators will be pruned based on pair "
             "class predicates that are present.");
 
-DEFINE_bool(puzzle_prune_pair_class_iterators_mode_pair, false,
+DEFINE_bool(puzzle_prune_pair_class_iterators_mode_pair, true,
             "If specified pairwise iterators will be pruned with contextual "
             "pruning (that is, pairwise iterators will store, for each value of  "
             "one iterator, the appropriate active sets for the other iterator).");
@@ -197,9 +197,9 @@ bool CroppedSolutionPermuter::AddPredicate(
     return false;
   }
   predicates_.emplace_back(std::string(name), predicate, class_int_restrict_list);
-  // TODO(keith@monkeynova.com): Once accepted, this permuter should guarantee
-  // not to return results that don't satisfy this predicate.
-  return false;
+  // If `predicate` is successfully stored, this class guarantees to honor it
+  // in the returned solutions.
+  return true;
 }
 
 void CroppedSolutionPermuter::Prepare() {
@@ -304,9 +304,9 @@ void CroppedSolutionPermuter::BuildActiveSets(
           cropper.classes[1], cropper.classes[0]);
       pair_class_predicates[key1].push_back(cropper);
       pair_class_predicates[key2].push_back(cropper);
-      if (!FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
-        residual->push_back(cropper);
-      }
+      // TODO(keith@monkeynova.com): Adding to residuals should be redundant if
+      // FLAGS_puzzle_prune_pair_class_iterators_mode_pair is set.
+      residual->push_back(cropper);
     } else {
       residual->push_back(cropper);
     }

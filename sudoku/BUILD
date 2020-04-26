@@ -118,9 +118,9 @@ sudoku_test(
 )
 
 sudoku_test(
-    name = "nyt20180101easy_pairs_test",
+    name = "nyt20180101easy_nopairs_test",
     args = [
-	"--puzzle_prune_pair_class_iterators_mode_pair=true",
+	"--puzzle_prune_pair_class_iterators_mode_pair=false",
     ],
     deps = [
         ":nyt20180101easy_lib",
