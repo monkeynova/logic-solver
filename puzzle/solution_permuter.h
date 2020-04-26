@@ -58,6 +58,15 @@ class SolutionPermuter {
   SolutionPermuter() = default;
   virtual ~SolutionPermuter() = default;
 
+  virtual bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
+	    	            const std::vector<int>& class_int_restrict_list) {
+    return false;
+  }
+
+  // EntryDescriptor is not valid before this call.
+  // TODO(keith@monkeynova.com): Fix this awful interface.
+  virtual void Prepare() = 0;
+
   virtual iterator begin() const = 0;
   virtual iterator end() const = 0;
 };

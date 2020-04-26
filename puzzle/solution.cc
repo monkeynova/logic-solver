@@ -4,6 +4,8 @@
 
 namespace puzzle {
 
+Entry Entry::invalid_(-1);
+
 std::string Entry::DebugString() const {
   std::stringstream ret;
   if (entry_descriptor_ != nullptr) {

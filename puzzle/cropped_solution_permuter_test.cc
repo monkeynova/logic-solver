@@ -20,7 +20,9 @@ TEST(CroppedSolutionPermuterTest, Simple) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  puzzle::CroppedSolutionPermuter p(&ed, /*ignored=*/{}, /*profiler=*/nullptr);
+  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  p.Prepare();
+
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;
@@ -47,14 +49,14 @@ TEST(CroppedSolutionPermuterTest, CropFirstClass) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  std::vector<puzzle::Solution::Cropper> croppers;
-  croppers.emplace_back("test",
-                        [](const puzzle::Solution& s) {
-                            return s.Id(1).Class(0) == 7;
-                        },
-                        std::vector<int>{0});
+  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  p.AddPredicate("test",
+                 [](const puzzle::Solution& s) {
+                   return s.Id(1).Class(0) == 7;
+                 },
+                 std::vector<int>{0});
+  p.Prepare();
 
-  puzzle::CroppedSolutionPermuter p(&ed, croppers, /*profiler=*/nullptr);
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;
@@ -83,16 +85,16 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  std::vector<puzzle::Solution::Cropper> croppers;
-  croppers.emplace_back("test",
-                        [](const puzzle::Solution& s) {
-                          LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
-                                    << std::endl;
-                          return s.Id(1).Class(1) == 12;
-                        },
-                        std::vector<int>{1});
+  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  p.AddPredicate("test",
+                 [](const puzzle::Solution& s) {
+                   LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
+                             << std::endl;
+                   return s.Id(1).Class(1) == 12;
+                 },
+                 std::vector<int>{1});
+  p.Prepare();
 
-  puzzle::CroppedSolutionPermuter p(&ed, croppers, /*profiler=*/nullptr);
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;
@@ -122,21 +124,21 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  std::vector<puzzle::Solution::Cropper> croppers;
-  croppers.emplace_back("test",
-                        [](const puzzle::Solution& s) {
-                          LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
-                          return s.Id(0).Class(0) == 7;
-                        },
-                        std::vector<int>{0});
-  croppers.emplace_back("test",
-                        [](const puzzle::Solution& s) {
-                          LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
-                          return s.Id(1).Class(1) == 12;
-                        },
-                        std::vector<int>{1});
+  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  p.AddPredicate("test",
+                 [](const puzzle::Solution& s) {
+                   LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
+                   return s.Id(0).Class(0) == 7;
+                 },
+                 std::vector<int>{0});
+  p.AddPredicate("test",
+                 [](const puzzle::Solution& s) {
+                   LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
+                   return s.Id(1).Class(1) == 12;
+                 },
+                 std::vector<int>{1});
+  p.Prepare();
 
-  puzzle::CroppedSolutionPermuter p(&ed, croppers, /*profiler=*/nullptr);
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;

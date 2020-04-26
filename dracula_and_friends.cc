@@ -34,8 +34,6 @@ class DraculaAndFriendsProblem : public puzzle::Problem {
   void Setup() override;
   puzzle::Solution GetSolution() const override;
 
-  static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
-
   void AddRulePredicates();
 };
 

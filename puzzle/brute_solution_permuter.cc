@@ -67,8 +67,9 @@ double BruteSolutionPermuter::Advancer::completion() const {
 }
 
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
-  : entry_descriptor_(e) {
+  : entry_descriptor_(e) {}
 
+void BruteSolutionPermuter::Prepare() {
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();
 

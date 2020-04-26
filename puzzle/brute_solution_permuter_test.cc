@@ -19,6 +19,8 @@ TEST(BruteSolutionPermuterTest, Simple) {
   ed.SetClass(1, "bar", &cd2);
 
   puzzle::BruteSolutionPermuter p(&ed);
+  p.Prepare();
+
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<puzzle::Solution> solutions;

@@ -17,7 +17,7 @@ extern void SetupProblem(puzzle::Solver* s);
 extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
-  puzzle::Problem* problem = puzzle::Problem::GetInstance();
+  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   problem->Setup();
 
   puzzle::Solution got = problem->Solve();
@@ -34,7 +34,7 @@ static void SetFlag(bool val, absl::string_view label, bool* flag,
 
 template <bool pair_iterators, bool mode_pair>
 static void BM_Solver(benchmark::State& state) {
-  puzzle::Problem* problem = puzzle::Problem::GetInstance();
+  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   problem->Setup();
 
   puzzle::Solution expect = problem->GetSolution();

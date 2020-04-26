@@ -10,13 +10,11 @@ namespace puzzle {
 
 std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
     EntryDescriptor* entry_descriptor,
-    const std::vector<Solution::Cropper>& on_solution_with_class,
     Profiler* profiler) {
   if (FLAGS_puzzle_brute_force) {
     return absl::make_unique<BruteSolutionPermuter>(entry_descriptor);
   }
-  return absl::make_unique<CroppedSolutionPermuter>(
-      entry_descriptor, on_solution_with_class, profiler);
+  return absl::make_unique<CroppedSolutionPermuter>(entry_descriptor, profiler);
 }
 
 }  // namespace puzzle

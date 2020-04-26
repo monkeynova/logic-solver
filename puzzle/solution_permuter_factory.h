@@ -10,7 +10,7 @@
 namespace puzzle {
 
 std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
-    EntryDescriptor* entry_descriptor, const std::vector<Solution::Cropper>& on_solution_with_class, Profiler* profiler);
+    EntryDescriptor* entry_descriptor, Profiler* profiler);
 
 }  // namespace puzzle
 

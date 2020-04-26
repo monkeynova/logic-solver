@@ -3,17 +3,19 @@
 namespace puzzle {
 
 // static
-Problem* Problem::GetInstance() {
-  return global_instance_;
+std::unique_ptr<Problem> Problem::GetInstance() {
+  return global_problem_generator_();
 }
 
-// static
-Problem* Problem::SetInstance(Problem* p) {
-  CHECK(global_instance_ == nullptr);
-  global_instance_ = p;
-  return global_instance_;
+Problem::Generator Problem::SetGenerator(Generator generator)  {
+  return global_problem_generator_ = generator;
 }
 
-Problem* Problem::global_instance_ = nullptr;
-
+std::unique_ptr<Problem> Problem::MissingGenerator() {
+  CHECK(false) << "No Problem Registered";
+  return nullptr;
 }
+  
+Problem::Generator Problem::global_problem_generator_ = &MissingGenerator;
+
+}  // namespace puzzle

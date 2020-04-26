@@ -4,15 +4,28 @@
 
 namespace puzzle {
 
-Entry Entry::invalid_(-1);
+Solver::Solver()
+  : profiler_(Profiler::Create()),
+    solution_permuter_(CreateSolutionPermuter(&entry_descriptor_,
+					      profiler_.get())) {}
+
+void Solver::AddPredicate(std::string name, Solution::Predicate predicate,
+                          const std::vector<int>& class_int_restrict_list) {
+  if (solution_permuter_->AddPredicate(name, predicate,
+				       class_int_restrict_list)) {
+    // Permuter guarantees no need to evaluate the predicate further.
+  } else {
+    on_solution_.push_back(predicate);
+  }
+}
 
 bool Solver::TestSolution(const Solution& s) {
   ++test_calls_;
   bool ret = std::all_of(on_solution_.begin(),
-                     on_solution_.end(),
-                     [&s](const Solution::Predicate& p) {
-                       return p(s);
-                     });
+                         on_solution_.end(),
+                         [&s](const Solution::Predicate& p) {
+                           return p(s);
+                         });
   return ret;
 }
 
@@ -25,16 +38,13 @@ Solution Solver::Solve() {
 }
 
 std::vector<Solution> Solver::AllSolutions(int limit) {
-  std::unique_ptr<Profiler> profiler = Profiler::Create();
-
-  std::unique_ptr<SolutionPermuter> permuter = CreateSolutionPermuter(
-        &entry_descriptor_, on_solution_with_class_, profiler.get());
-
+  solution_permuter_->Prepare();
+  
   std::vector<Solution> ret;
-  for (auto it = permuter->begin(); it != permuter->end(); ++it) {
-    if (profiler != nullptr) {
-      profiler->NotePosition(it->permutation_position(),
-                             it->permutation_count());
+  for (auto it = solution_permuter_->begin(); it != solution_permuter_->end(); ++it) {
+    if (profiler_ != nullptr) {
+      profiler_->NotePosition(it->permutation_position(),
+                              it->permutation_count());
     }
     if (TestSolution(*it)) {
       ret.emplace_back(it->Clone());
@@ -44,13 +54,15 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
     }
   }
 
-  if (profiler) {
-    profiler->NoteFinish();
+  if (profiler_) {
+    profiler_->NoteFinish();
   }
 
   last_debug_statistics_ =
       absl::StrCat("[", test_calls_, " solutions tested in ",
-                   profiler ? profiler->Seconds() : std::numeric_limits<double>::quiet_NaN(),
+                   (profiler_
+		    ? profiler_->Seconds()
+		    : std::numeric_limits<double>::quiet_NaN()),
                    "s]");
 
   return ret;

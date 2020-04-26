@@ -48,7 +48,6 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
   CroppedSolutionPermuter(
       const EntryDescriptor* e,
-      const std::vector<Solution::Cropper>& croppers_with_class,
       Profiler* profiler);
   ~CroppedSolutionPermuter() = default;
 
@@ -66,12 +65,16 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     return class_permuters_[class_int];
   }
 
+  bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
+		    const std::vector<int>& class_int_restrict_list) override;
+
+  void Prepare() override;
+
  private:
   // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
   // Elements in 'croppers' that are not completely evaluated by these active
   // sets are returned in 'residual'.
-  void BuildActiveSets(const std::vector<Solution::Cropper>& croppers,
-                       std::vector<Solution::Cropper>* residual);
+  void BuildActiveSets(std::vector<Solution::Cropper>* residual);
 
   // Reorders 'class_permuters_' by increasing selectivity. The effect of this
   // is to mean that any filter evaluated on a partial set of 'class_permuters_'
@@ -79,6 +82,12 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   void ReorderEvaluation();
 
   const EntryDescriptor* entry_descriptor_ = nullptr;
+
+  std::vector<Solution::Cropper> predicates_;
+  
+  Profiler* profiler_;
+
+  bool prepared_ = false;
 
   // Ordered by the evaluation order that is configured for 'class_predicates_'.
   // That is, if the first N permuters have been updated then permuting entries
@@ -89,9 +98,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   // Index is class_int at which evaluation should be performed.
   std::vector<absl::optional<Solution::Cropper>> class_predicates_;
 
-  Profiler* profiler_;
-
-  ActiveSetBuilder active_set_builder_;
+  std::unique_ptr<ActiveSetBuilder> active_set_builder_;
 
   friend Advancer;
 };

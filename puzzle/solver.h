@@ -12,7 +12,7 @@ namespace puzzle {
 
 class Solver {
  public:
-  Solver() {}
+  Solver();
   ~Solver() {}
 
   Solution Solve();
@@ -63,7 +63,7 @@ class Solver {
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate) {
-    on_solution_.push_back(predicate);
+    AddPredicate(name, predicate, {});
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate,
@@ -73,11 +73,7 @@ class Solver {
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate,
-                    const std::vector<int>& class_int_restrict_list) {
-    on_solution_.push_back(predicate);
-    on_solution_with_class_.emplace_back(name, predicate,
-                                         class_int_restrict_list);
-  }
+                    const std::vector<int>& class_int_restrict_list);
 
   int test_calls() const { return test_calls_; }
 
@@ -102,8 +98,10 @@ class Solver {
 
   std::string last_debug_statistics_;
 
-  std::vector<Solution::Cropper> on_solution_with_class_;
   std::vector<Solution::Predicate> on_solution_;
+
+  std::unique_ptr<Profiler> profiler_;
+  std::unique_ptr<SolutionPermuter> solution_permuter_;
 
   std::vector<std::unique_ptr<puzzle::Descriptor>> descriptors_;
 };

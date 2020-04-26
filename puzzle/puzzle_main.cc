@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
   ::google::InstallFailureSignalHandler();
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
 
-  puzzle::Problem* problem = puzzle::Problem::GetInstance();
+  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   CHECK(problem != nullptr) << "No puzzle found";
 
   problem->Setup();
