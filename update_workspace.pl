@@ -5,6 +5,8 @@ use warnings;
 
 use JSON;
 
+die "Did you mean $0 < WORKSPACE > WORKSPACE.new" if -t STDIN;
+
 my %commit_map;
 my $workspace = join '', <>;
 while ($workspace =~ m{git_repository\(([^)]+)\)}sg) {

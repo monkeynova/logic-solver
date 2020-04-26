@@ -5,15 +5,15 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_r
 git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
-    commit = "61f010d703b32de9bfb20ab90ece38ab2f25977f",
-    shallow_since = "1585697018 -0400",
+    commit = "dcc92d0ab6c4ce022162a23566d44f673251eee4",
+    shallow_since = "1587058390 -0400"
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    commit = "62f05b1f57ad660e9c09e02ce7d591dcc4d0ca08",
-    shallow_since = "1585768791 -0400",
+    commit = "cde2e2410e58c884b3bf5f67c6511e6266036249",
+    shallow_since = "1587747195 -0400"
 )
 
 git_repository(
@@ -26,8 +26,8 @@ git_repository(
 git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
-    commit = "cf601047ebf87cf7f443753ded41132eb689cb10",
-    shallow_since = "1585843636 -0700"
+    commit = "dddeed298bf84505f4d123a068f911025b351661",
+    shallow_since = "1587760575 -0400"
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -43,8 +43,8 @@ git_repository(
 git_repository(
     name = "com_google_benchmark",
     remote = "https://github.com/google/benchmark.git",
-    commit = "b23d35573bb9f33f9b76cadc652bb7ef88c6c64d",
-    shallow_since = "1585549357 +0300",
+    commit = "56898e9a92fba537671d5462df9c5ef2ea6a823a",
+    shallow_since = "1587640759 +0300"
 )
 
 new_git_repository(
