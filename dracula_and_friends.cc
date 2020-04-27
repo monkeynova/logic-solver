@@ -84,7 +84,7 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                    (from_bucovina.Class(CENTURY) ==
                     s.Id(DORIAN).Class(CENTURY) + 1);
                },
-               {REGION, PLANTS, CENTURY});
+               {REGION, CENTURY});
   AddPredicate("5. Octavain either lived in the XVI century or hated "
                "thornbrush.",
                [](const puzzle::Solution& s) {
