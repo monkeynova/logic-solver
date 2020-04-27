@@ -53,6 +53,15 @@ ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
   solution_ = mutable_solution_.TestableSolution();
 }
 
+bool ActiveSetBuilder::AllMatch(
+    const std::vector<Solution::Cropper>& predicates) const {
+  return std::all_of(predicates.begin(),
+		     predicates.end(),
+		     [this](const Solution::Cropper& c) {
+		       return c.p(solution_);
+		     });
+}
+
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
     const ClassPermuter& class_permuter,
@@ -66,12 +75,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
        it != class_permuter.end();
        ++it) {
     mutable_solution_.SetClass(it);
-    const bool this_match = std::all_of(predicates.begin(),
-					predicates.end(),
-					[this](const Solution::Cropper& c) {
-					  return c.p(solution_);
-					});
-    if (this_match) {
+    if (AllMatch(predicates)) {
       active_set.AddBlock(false, it.position() - active_set.total());
       active_set.Add(true);
     }
@@ -94,11 +98,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
        it != class_permuter.end();
        ++it) {
     mutable_solution_.SetClass(it);
-    if (std::all_of(predicates.begin(),
-                    predicates.end(),
-                    [this](const Solution::Cropper& c) {
-                      return c.p(solution_);
-                    })) {
+    if (AllMatch(predicates)) {
       a_matches.push_back(it.position());
     }
   }
@@ -108,7 +108,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
 
 void ActiveSetBuilder::SetupPairBuild(
     int class_a, int class_b,
-    const std::vector<Solution::Cropper>& predicates) {
+    const std::vector<Solution::Cropper>& predicates) const {
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes.size(), 2);
     CHECK(p.classes[0] == class_a || p.classes[0] == class_b);
@@ -142,13 +142,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
            it_b != permuter_b.end();
            ++it_b) {
         mutable_solution_.SetClass(it_b);
-        const bool this_match = std::all_of(
-            predicates.begin(),
-            predicates.end(),
-            [this](const Solution::Cropper& c) {
-              return c.p(solution_);
-            });
-        if (this_match) {
+        if (AllMatch(predicates)) {
           any_of_a = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
 	  if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -185,13 +179,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
            it_a != permuter_a.end();
            ++it_a) {
         mutable_solution_.SetClass(it_a);
-        const bool this_match = std::all_of(
-            predicates.begin(),
-            predicates.end(),
-            [this](const Solution::Cropper& c) {
-              return c.p(solution_);
-            });
-        if (this_match) {
+        if (AllMatch(predicates)) {
           any_of_b = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
 	  if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -247,13 +235,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
         continue;
       }
       mutable_solution_.SetClass(it_b);
-      const bool this_match = std::all_of(
-          predicates.begin(),
-          predicates.end(),
-          [this](const Solution::Cropper& c) {
-            return c.p(solution_);
-          });
-      if (this_match) {
+      if (AllMatch(predicates)) {
         any_of_a = true;
         b_match_positions.insert(it_b.position());
 	if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -319,13 +301,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
         continue;
       }
       mutable_solution_.SetClass(it_b);
-      const bool this_match = std::all_of(
-          predicates.begin(),
-          predicates.end(),
-          [&solution](const Solution::Cropper& c) {
-            return c.p(solution);
-          });
-      if (this_match) {
+      if (AllMatch(predicates)) {
         a_match_positions.insert(it_a.position());
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {

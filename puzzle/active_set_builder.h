@@ -67,7 +67,9 @@ class ActiveSetBuilder {
 
  private:
   void SetupPairBuild(int class_a, int class_b,
-                      const std::vector<Solution::Cropper>& predicates);
+                      const std::vector<Solution::Cropper>& predicates) const;
+
+  bool AllMatch(const std::vector<Solution::Cropper>& predicates) const;
 
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;
