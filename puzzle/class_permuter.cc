@@ -145,6 +145,15 @@ double ClassPermuterImpl<T>::PermutationCount(const Descriptor* d) {
   return ret;
 }
 
+template <enum ClassPermuterType T>
+std::string ClassPermuterImpl<T>::DebugString() const {
+  return absl::StrJoin(
+      *this, ", ",
+      [](std::string* out, const typename iterator::StorageVector& v) {
+	absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
+      });
+}
+
 template class ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>;
 template class ClassPermuterImpl<ClassPermuterType::kFactorialRadix>;
 

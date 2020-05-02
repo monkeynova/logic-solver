@@ -137,7 +137,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       bool any_of_a = false;
       ActiveSet a_b_set;
       ActiveSet source_b =
-        permuter_b.active_set().Intersection(a_b_pair.Find(class_a));
+        permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
       for (auto it_b = permuter_b.begin(source_b);
            it_b != permuter_b.end();
            ++it_b) {
@@ -174,7 +174,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       ActiveSet b_a_set;
       bool any_of_b = false;
       ActiveSet source_a =
-        permuter_a.active_set().Intersection(b_a_pair.Find(class_b));
+        permuter_a.active_set().Intersection(b_a_pair.Find(it_b.position()));
       for (auto it_a = permuter_a.begin(source_a);
            it_a != permuter_a.end();
            ++it_a) {
@@ -225,7 +225,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     bool any_of_a = false;
     ActiveSet a_b_set;
     ActiveSet source_b =
-        permuter_b.active_set().Intersection(a_b_pair.Find(class_a));
+        permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
     for (auto it_b = permuter_b.begin(source_b);
          it_b != permuter_b.end();
          ++it_b) {
@@ -290,7 +290,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
     ActiveSet source_b =
-        permuter_b.active_set().Intersection(a_b_pair.Find(class_a));
+        permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
     for (auto it_b = permuter_b.begin(source_b);
          it_b != permuter_b.end();
          ++it_b) {

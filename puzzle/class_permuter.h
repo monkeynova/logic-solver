@@ -34,11 +34,8 @@ class ClassPermuterImpl {
     iterator(const ClassPermuterImpl<T>* permuter,
              ActiveSet active_set);
 
-    iterator(const iterator&) = delete;
-    iterator& operator=(const iterator&) = delete;
-
-    iterator(iterator&&) = default;
-    iterator& operator=(iterator&&) = default;
+    iterator(const iterator&) = default;
+    iterator& operator=(const iterator&) = default;
 
     bool operator!=(const iterator& other) const {
       return !(*this == other);
@@ -109,11 +106,8 @@ class ClassPermuterImpl {
   }
   ~ClassPermuterImpl() {}
 
-  // Moveable but not copyable.
-  ClassPermuterImpl(const ClassPermuterImpl&) = delete;
-  ClassPermuterImpl& operator=(const ClassPermuterImpl&) = delete;
-  ClassPermuterImpl(ClassPermuterImpl&&) = default;
-  ClassPermuterImpl& operator=(ClassPermuterImpl&&) = default;
+  ClassPermuterImpl(const ClassPermuterImpl&) = default;
+  ClassPermuterImpl& operator=(const ClassPermuterImpl&) = default;
 
   // TODO(keith): This copy of active_set_ is likely the cause of malloc
   // showing up on profiles. We should clean up the model to avoid needing
@@ -150,6 +144,8 @@ class ClassPermuterImpl {
     return active_set_.Selectivity();
   }
 
+  std::string DebugString() const;
+
  private:
   static double PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
@@ -158,6 +154,12 @@ class ClassPermuterImpl {
   ActiveSet active_set_;
 };
 
+template <enum ClassPermuterType T>
+std::ostream& operator<<(
+     std::ostream& out, internal::ClassPermuterImpl<T> permuter) {
+  return out << permuter.DebugString();
+}
+  
 }  // namespace internal
 
 using ClassPermuter = internal::ClassPermuterImpl<
