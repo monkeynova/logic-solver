@@ -30,7 +30,7 @@ std::ostream& operator<<(
     std::ostream& out, ActiveSetBuilder::PairClassImpl val) {
   switch (val) {
   case ActiveSetBuilder::PairClassImpl::kPassThroughA:
-    return out << "kPassThroughA";  
+    return out << "kPassThroughA";
   case ActiveSetBuilder::PairClassImpl::kBackAndForth:
     return out << "kBackAndForth";
   case ActiveSetBuilder::PairClassImpl::kPairSet:
@@ -56,10 +56,10 @@ ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
 bool ActiveSetBuilder::AllMatch(
     const std::vector<Solution::Cropper>& predicates) const {
   return std::all_of(predicates.begin(),
-		     predicates.end(),
-		     [this](const Solution::Cropper& c) {
-		       return c.p(solution_);
-		     });
+                     predicates.end(),
+                     [this](const Solution::Cropper& c) {
+                       return c.p(solution_);
+                     });
 }
 
 template <>
@@ -147,18 +147,18 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
         if (AllMatch(predicates)) {
           any_of_b = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
-	  if (pair_class_mode == PairClassMode::kMakePairs) {
-	    b_a_set.AddBlock(false, it_a.position() - b_a_set.total());
-	    b_a_set.Add(true);
-	  }
-	}
+          if (pair_class_mode == PairClassMode::kMakePairs) {
+            b_a_set.AddBlock(false, it_a.position() - b_a_set.total());
+            b_a_set.Add(true);
+          }
+        }
       }
       if (any_of_b) {
-	active_set_b.AddBlock(false, it_b.position() - active_set_b.total());
-	active_set_b.Add(true);
+        active_set_b.AddBlock(false, it_b.position() - active_set_b.total());
+        active_set_b.Add(true);
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-	b_a_set.AddBlock(false, permuter_a.permutation_count() - b_a_set.total());
+        b_a_set.AddBlock(false, permuter_a.permutation_count() - b_a_set.total());
         b_a_set.DoneAdding();
         b_a_pair.Assign(it_b.position(), std::move(b_a_set));
       }
@@ -187,18 +187,18 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
         if (AllMatch(predicates)) {
           any_of_a = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
-	  if (pair_class_mode == PairClassMode::kMakePairs) {
-	    a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
-	    a_b_set.Add(true);
-	  }
+          if (pair_class_mode == PairClassMode::kMakePairs) {
+            a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
+            a_b_set.Add(true);
+          }
         }
       }
       if (any_of_a) {
-	active_set_a.AddBlock(false, it_a.position() - active_set_a.total());
-	active_set_a.Add(true);
+        active_set_a.AddBlock(false, it_a.position() - active_set_a.total());
+        active_set_a.Add(true);
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-	a_b_set.AddBlock(false, permuter_b.permutation_count() - a_b_set.total());
+        a_b_set.AddBlock(false, permuter_b.permutation_count() - a_b_set.total());
         a_b_set.DoneAdding();
         a_b_pair.Assign(it_a.position(), std::move(a_b_set));
       }
@@ -243,9 +243,9 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
       if (AllMatch(predicates)) {
         any_of_a = true;
         b_match_positions.insert(it_b.position());
-	if (pair_class_mode == PairClassMode::kMakePairs) {
-	  a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
-	  a_b_set.Add(true);
+        if (pair_class_mode == PairClassMode::kMakePairs) {
+          a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
+          a_b_set.Add(true);
           b_a_match_positions[it_b.position()].insert(it_a.position());
         }
       }

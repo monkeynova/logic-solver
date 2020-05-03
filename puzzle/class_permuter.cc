@@ -150,7 +150,7 @@ std::string ClassPermuterImpl<T>::DebugString() const {
   return absl::StrJoin(
       *this, ", ",
       [](std::string* out, const typename iterator::StorageVector& v) {
-	absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
+        absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
       });
 }
 

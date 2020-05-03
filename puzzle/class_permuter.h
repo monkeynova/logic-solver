@@ -159,7 +159,7 @@ std::ostream& operator<<(
      std::ostream& out, internal::ClassPermuterImpl<T> permuter) {
   return out << permuter.DebugString();
 }
-  
+
 }  // namespace internal
 
 using ClassPermuter = internal::ClassPermuterImpl<

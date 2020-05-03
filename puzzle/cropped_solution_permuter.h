@@ -66,7 +66,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   }
 
   bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
-		    const std::vector<int>& class_int_restrict_list) override;
+                    const std::vector<int>& class_int_restrict_list) override;
 
   void Prepare() override;
 
@@ -84,7 +84,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   const EntryDescriptor* entry_descriptor_ = nullptr;
 
   std::vector<Solution::Cropper> predicates_;
-  
+
   Profiler* profiler_;
 
   bool prepared_ = false;

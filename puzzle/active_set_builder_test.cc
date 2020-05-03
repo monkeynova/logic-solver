@@ -432,21 +432,21 @@ TEST_P(PairPermuterTest, MakePairs) {
                       {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
-		ActiveSetBuilder::PairClassMode::kMakePairs);
+                ActiveSetBuilder::PairClassMode::kMakePairs);
 
   EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/5, kClassIntB)
-	          .EnabledValues(),
-	      IsEmpty());
+                  .EnabledValues(),
+              IsEmpty());
   EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/3, kClassIntA)
-	          .EnabledValues(),
-	      IsEmpty());
+                  .EnabledValues(),
+              IsEmpty());
 
   EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/3, kClassIntB)
-	          .EnabledValues(),
-	      ElementsAreArray(b0_is_4));
+                  .EnabledValues(),
+              ElementsAreArray(b0_is_4));
   EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/4, kClassIntA)
-	          .EnabledValues(),
-	      ElementsAreArray(a0_is_3));
+                  .EnabledValues(),
+              ElementsAreArray(a0_is_3));
 }
 
 TEST_P(PairPermuterTest, MakePairsOrFilter) {
@@ -470,8 +470,8 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   auto val_0_predicate =
     [](int a_val, int b_val) {
       return (a_val == 3 && b_val == 4) || (a_val == 4 && b_val == 3);
-    }; 
-  
+    };
+
   absl::flat_hash_map<int, absl::flat_hash_set<int>> a_to_b_vals;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_to_a_vals;
   int index_a = 0;
@@ -481,12 +481,12 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
     const int a_0_val = a_vals[0];
     int index_b = 0;
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end();
-	 ++index_b, ++it_b) {
+         ++index_b, ++it_b) {
       const std::vector<int>& b_vals = *it_b;
       const int b_0_val = b_vals[0];
       if (val_0_predicate(a_0_val, b_0_val)) {
-	a_to_b_vals[a_0_val].insert(index_b);
-	b_to_a_vals[b_0_val].insert(index_a);
+        a_to_b_vals[a_0_val].insert(index_b);
+        b_to_a_vals[b_0_val].insert(index_a);
       }
     }
   }
@@ -494,26 +494,26 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   Solution::Cropper c("vals[0].{a,b} IN ((3,4), (4, 3))",
                       [val_0_predicate](const Solution& s) {
                         return val_0_predicate(s.Id(0).Class(kClassIntA),
-					       s.Id(0).Class(kClassIntB));
+                                               s.Id(0).Class(kClassIntB));
                       },
                       {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
-		ActiveSetBuilder::PairClassMode::kMakePairs);
+                ActiveSetBuilder::PairClassMode::kMakePairs);
 
   EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/5, kClassIntB)
-	          .EnabledValues(),
-	      IsEmpty());
+                  .EnabledValues(),
+              IsEmpty());
   EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/5, kClassIntA)
-	          .EnabledValues(),
-	      IsEmpty());
+                  .EnabledValues(),
+              IsEmpty());
 
   EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/3, kClassIntB)
-	          .EnabledValues(),
-	      UnorderedElementsAreArray(a_to_b_vals[3]));
+                  .EnabledValues(),
+              UnorderedElementsAreArray(a_to_b_vals[3]));
   EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/4, kClassIntA)
-	          .EnabledValues(),
-	      UnorderedElementsAreArray(b_to_a_vals[4]));
+                  .EnabledValues(),
+              UnorderedElementsAreArray(b_to_a_vals[4]));
 }
 
 
@@ -540,46 +540,46 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   ASSERT_THAT(permuter_b.permutation_count(), 6);
   ASSERT_THAT(permuter_c.permutation_count(), 6);
 
-  
+
   Solution::Cropper a_b("a is 3 and b is 4 for id 0",
-			[](const Solution& s) {
-			  return s.Id(0).Class(kClassIntA) == 3 &&
-			    s.Id(0).Class(kClassIntB) == 4;
-			},
-			{kClassIntA, kClassIntB});
+                        [](const Solution& s) {
+                          return s.Id(0).Class(kClassIntA) == 3 &&
+                            s.Id(0).Class(kClassIntB) == 4;
+                        },
+                        {kClassIntA, kClassIntB});
 
   Solution::Cropper b_c("b is 5 and c is 3 for id 1",
-			[](const Solution& s) {
-			  return s.Id(1).Class(kClassIntB) == 5 &&
-			    s.Id(1).Class(kClassIntC) == 3;
-			},
-			{kClassIntB, kClassIntC});
+                        [](const Solution& s) {
+                          return s.Id(1).Class(kClassIntB) == 5 &&
+                            s.Id(1).Class(kClassIntC) == 3;
+                        },
+                        {kClassIntB, kClassIntC});
 
   Solution::Cropper c_a("c is 4 and a is 5 for id 2",
-			[](const Solution& s) {
-			  return s.Id(2).Class(kClassIntC) == 4 &&
-			    s.Id(2).Class(kClassIntA) == 5;
-			},
-			{kClassIntC, kClassIntA});
+                        [](const Solution& s) {
+                          return s.Id(2).Class(kClassIntC) == 4 &&
+                            s.Id(2).Class(kClassIntA) == 5;
+                        },
+                        {kClassIntC, kClassIntA});
 
-  
+
   for (const auto& loop : {1, 2, 3}) {
     std::ignore = loop;
     builder.Build(pair_class_impl(), permuter_a, permuter_b, {a_b},
-		  ActiveSetBuilder::PairClassMode::kMakePairs);
+                  ActiveSetBuilder::PairClassMode::kMakePairs);
 
     permuter_a.set_active_set(builder.active_set(kClassIntA));
     permuter_b.set_active_set(builder.active_set(kClassIntB));
-    
+
     builder.Build(pair_class_impl(), permuter_b, permuter_c, {b_c},
-		  ActiveSetBuilder::PairClassMode::kMakePairs);
-    
+                  ActiveSetBuilder::PairClassMode::kMakePairs);
+
     permuter_b.set_active_set(builder.active_set(kClassIntB));
     permuter_c.set_active_set(builder.active_set(kClassIntC));
-    
+
     builder.Build(pair_class_impl(), permuter_c, permuter_a, {c_a},
-		  ActiveSetBuilder::PairClassMode::kMakePairs);
-    
+                  ActiveSetBuilder::PairClassMode::kMakePairs);
+
     permuter_c.set_active_set(builder.active_set(kClassIntC));
     permuter_a.set_active_set(builder.active_set(kClassIntA));
   }

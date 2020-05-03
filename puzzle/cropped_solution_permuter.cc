@@ -16,8 +16,8 @@ DEFINE_bool(puzzle_prune_pair_class_iterators, true,
 DEFINE_bool(puzzle_prune_pair_class_iterators_mode_pair, true,
             "If specified pairwise iterators will be pruned with contextual "
             "pruning (that is, pairwise iterators will store, for each value "
-	    "of one iterator, the appropriate active sets for the other "
-	    "iterator).");
+            "of one iterator, the appropriate active sets for the other "
+            "iterator).");
 
 DEFINE_bool(puzzle_prune_reorder_classes, true,
             "If true, class iteration will be re-ordered from the default "
@@ -73,7 +73,7 @@ bool CroppedSolutionPermuter::Advancer::FindNextValid(int class_position) {
         int other_class = other_permuter.class_int();
         int other_val = iterators_[other_class].position();
         build.Intersect(builder->active_set_pair(
-	    other_class, other_val, class_int));
+            other_class, other_val, class_int));
       }
       pair_selectivity_reduction_[class_int] =
           build.Selectivity() / start_selectivity;
@@ -87,9 +87,9 @@ bool CroppedSolutionPermuter::Advancer::FindNextValid(int class_position) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
     if (std::all_of(solution_predicates.begin(), solution_predicates.end(),
-		    [this](const Solution::Cropper& c) {
-		      return c.p(current_);
-		    }) &&
+                    [this](const Solution::Cropper& c) {
+                      return c.p(current_);
+                    }) &&
         FindNextValid(class_position + 1)) {
       return true;
     }
@@ -112,7 +112,7 @@ std::string CroppedSolutionPermuter::Advancer::IterationDebugString() const {
           absl::StrAppend(out, truncated);
           if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
             double truncated =
-	        pair_selectivity_reduction_[permuter.class_int()];
+                pair_selectivity_reduction_[permuter.class_int()];
             truncated = static_cast<int>(1000 * truncated) / 1000.0;
             absl::StrAppend(out, " (", truncated, ")");
           }
@@ -253,12 +253,12 @@ void CroppedSolutionPermuter::Prepare() {
   if (VLOG_IS_ON(1)) {
     for (const auto& permuter : class_permuters_) {
       const std::string predicate_name =
-	class_predicates_[permuter.class_int()].empty()
-	? "<noop>"
-	: absl::StrJoin(class_predicates_[permuter.class_int()], "; ",
-			[](std::string* out, const Solution::Cropper& cropper) {
-			  absl::StrAppend(out, cropper.name);
-			});
+        class_predicates_[permuter.class_int()].empty()
+        ? "<noop>"
+        : absl::StrJoin(class_predicates_[permuter.class_int()], "; ",
+                        [](std::string* out, const Solution::Cropper& cropper) {
+                          absl::StrAppend(out, cropper.name);
+                        });
       VLOG(1) << "Predicates at " << permuter.class_int()
               << " (" << permuter.Selectivity() << "="
               << permuter.Selectivity() * permuter.permutation_count()

@@ -59,7 +59,7 @@ class SolutionPermuter {
   virtual ~SolutionPermuter() = default;
 
   virtual bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
-	    	            const std::vector<int>& class_int_restrict_list) {
+                                const std::vector<int>& class_int_restrict_list) {
     return false;
   }
 

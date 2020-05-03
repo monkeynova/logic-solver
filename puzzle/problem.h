@@ -20,7 +20,7 @@ class Problem : public Solver {
 
  private:
   static std::unique_ptr<Problem> MissingGenerator();
-  
+
   static Generator global_problem_generator_;
 };
 
@@ -31,6 +31,6 @@ class Problem : public Solver {
     return absl::make_unique<Class>();                          \
   }                                                             \
   static ::puzzle::Problem::Generator generator =               \
-    ::puzzle::Problem::SetGenerator(&GeneratePuzzle); 
+    ::puzzle::Problem::SetGenerator(&GeneratePuzzle);
 
 #endif  // PUZZLE_PROBLEM_H

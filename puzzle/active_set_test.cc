@@ -262,8 +262,8 @@ TEST(ActiveSet, IntersectionSparseRangeEmpty) {
 
 TEST(ActiveSet, Empirical) {
   TestIntersection({0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
-		   {3, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
-		   24, 24);
+                   {3, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
+                   24, 24);
 }
 
 TEST(ActiveSet, EnabledValues) {
@@ -276,7 +276,7 @@ TEST(ActiveSet, EnabledValues) {
 
   for (const auto test : test_cases) {
     EXPECT_THAT(ActiveSet(test, 4).EnabledValues(),
-		ElementsAreArray(test));
+                ElementsAreArray(test));
   }
 }
 

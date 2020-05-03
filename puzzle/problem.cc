@@ -15,7 +15,7 @@ std::unique_ptr<Problem> Problem::MissingGenerator() {
   CHECK(false) << "No Problem Registered";
   return nullptr;
 }
-  
+
 Problem::Generator Problem::global_problem_generator_ = &MissingGenerator;
 
 }  // namespace puzzle

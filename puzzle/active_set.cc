@@ -239,7 +239,7 @@ std::vector<int> ActiveSet::EnabledValues() const {
 
 std::string ActiveSet::DebugValues() const {
   return absl::StrCat(
-      "{", absl::StrJoin(EnabledValues(), ", "), "}"); 
+      "{", absl::StrJoin(EnabledValues(), ", "), "}");
 }
 
 }  // namespace puzzle
