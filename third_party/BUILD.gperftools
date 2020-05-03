@@ -39,7 +39,8 @@ cc_library(
 
 genrule(
     name = "configure",
+    srcs = ["autogen.sh"],
     outs = ["src/config.h"],
-    cmd = "(cd $(SRCDIR); autoconf; ./configure)",
+    cmd = "(cd $$(dirname $(execpath autogen.sh)); sh autogen.sh; ./configure)",
 )
 

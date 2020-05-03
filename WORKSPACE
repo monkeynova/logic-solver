@@ -47,11 +47,18 @@ git_repository(
     shallow_since = "1587640759 +0300"
 )
 
+git_repository(
+    name = "com_google_tcmalloc",
+    remote = "https://github.com/google/tcmalloc.git",
+    commit = "9c5390e25c8612332251983d30ca6501bce9d41f",
+    shallow_since = "1588365663 -0700"
+)
+
 new_git_repository(
     name = "com_google_gperftools",
     remote = "https://github.com/gperftools/gperftools.git",
     commit = "e5f77d6485bd2f6ce43862e3e57118b1bb97d30a",
-    build_file = "third_party/BUILD.gperftools",
+    build_file = "@//third_party:BUILD.gperftools",
 )
 
 git_repository(
