@@ -38,28 +38,28 @@ class Solver {
 
   void AddPredicate(std::string name, Entry::Predicate predicate) {
     AddPredicate(name, [predicate](const Solution& s) {
-        return all_of(s.entries().begin(),
-                      s.entries().end(),
-                      predicate);
-      });
+      return all_of(s.entries().begin(), s.entries().end(), predicate);
+    });
   }
 
   void AddPredicate(std::string name, Entry::Predicate predicate,
                     int class_int_restrict) {
-    AddPredicate(name, [predicate](const Solution& s) {
-        return all_of(s.entries().begin(),
-                      s.entries().end(),
-                      predicate);
-      }, class_int_restrict);
+    AddPredicate(
+        name,
+        [predicate](const Solution& s) {
+          return all_of(s.entries().begin(), s.entries().end(), predicate);
+        },
+        class_int_restrict);
   }
 
   void AddPredicate(std::string name, Entry::Predicate predicate,
                     const std::vector<int>& class_int_restrict_list) {
-    AddPredicate(name, [predicate](const Solution& s) {
-        return all_of(s.entries().begin(),
-                      s.entries().end(),
-                      predicate);
-      }, class_int_restrict_list);
+    AddPredicate(
+        name,
+        [predicate](const Solution& s) {
+          return all_of(s.entries().begin(), s.entries().end(), predicate);
+        },
+        class_int_restrict_list);
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate) {
@@ -79,9 +79,7 @@ class Solver {
 
   std::string DebugStatistics() const;
 
-  const EntryDescriptor* entry_descriptor() const {
-    return &entry_descriptor_;
-  }
+  const EntryDescriptor* entry_descriptor() const { return &entry_descriptor_; }
 
   // Takes ownership of 'descriptor' and ensures that it outlives 'solver'.
   template <class SpecificDescriptor>

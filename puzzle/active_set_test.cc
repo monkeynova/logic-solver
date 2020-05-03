@@ -8,15 +8,13 @@
 #include "gtest/gtest.h"
 
 using ::testing::AnyOf;
-using ::testing::Eq;
 using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
+using ::testing::Eq;
 
 namespace puzzle {
 
-TEST(ActiveSet, EmptyIsTrivial) {
-  EXPECT_TRUE(ActiveSet().is_trivial());
-}
+TEST(ActiveSet, EmptyIsTrivial) { EXPECT_TRUE(ActiveSet().is_trivial()); }
 
 TEST(ActiveSet, SingleFalseIsNotTrivial) {
   ActiveSet single_false;
@@ -82,10 +80,8 @@ TEST(ActiveSet, ConsumeFalseBlockFalse) {
     set.Add(false);
   }
   set.DoneAdding();
-  EXPECT_THAT(set.ConsumeFalseBlock(), 40)
-    << set.DebugString();
-  EXPECT_THAT(set.ConsumeFalseBlock(), 0)
-    << set.DebugString();
+  EXPECT_THAT(set.ConsumeFalseBlock(), 40) << set.DebugString();
+  EXPECT_THAT(set.ConsumeFalseBlock(), 0) << set.DebugString();
 }
 
 TEST(ActiveSet, ConsumeFalseBlockTrue) {
@@ -109,8 +105,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaks) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!!(i & 4), true);
-    EXPECT_THAT(set.ConsumeNext(), true)
-      << set.DebugString();
+    EXPECT_THAT(set.ConsumeNext(), true) << set.DebugString();
   }
 }
 
@@ -126,8 +121,7 @@ TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!(i & 4), true);
-    EXPECT_THAT(set.ConsumeNext(), true)
-      << set.DebugString();
+    EXPECT_THAT(set.ConsumeNext(), true) << set.DebugString();
   }
 }
 
@@ -160,8 +154,7 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
     i += delta;
     if (i >= 40) break;
     EXPECT_THAT(!(i & 1), true);
-    EXPECT_THAT(set.ConsumeNext(), true)
-      << i << ": " << set.DebugString();
+    EXPECT_THAT(set.ConsumeNext(), true) << i << ": " << set.DebugString();
   }
 }
 
@@ -176,27 +169,21 @@ std::set<int> Drain(ActiveSet s, int max_positions) {
 }
 
 TEST(ActiveSet, SetConstruction) {
-  EXPECT_THAT(Drain(ActiveSet({0}, 1), 1),
-              ElementsAre(0));
-  EXPECT_THAT(Drain(ActiveSet({}, 1), 1),
-              ElementsAre());
+  EXPECT_THAT(Drain(ActiveSet({0}, 1), 1), ElementsAre(0));
+  EXPECT_THAT(Drain(ActiveSet({}, 1), 1), ElementsAre());
   for (int i = 0; i < 4; ++i) {
-    EXPECT_THAT(Drain(ActiveSet({i}, 4), 4),
-                ElementsAre(i));
+    EXPECT_THAT(Drain(ActiveSet({i}, 4), 4), ElementsAre(i));
   }
   for (int i = 0; i < 5; ++i) {
     if (i == 5) continue;
-    EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9),
-                ElementsAre(i, 5));
+    EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9), ElementsAre(i, 5));
   }
   for (int i = 6; i < 9; ++i) {
-    EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9),
-                ElementsAre(5, i));
+    EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9), ElementsAre(5, i));
   }
-  EXPECT_THAT(Drain(ActiveSet({1,3,5,7}, 9), 9),
-              ElementsAre(1,3,5,7));
-  EXPECT_THAT(Drain(ActiveSet({0,2,4,6,8}, 9), 9),
-              ElementsAre(0,2,4,6,8));
+  EXPECT_THAT(Drain(ActiveSet({1, 3, 5, 7}, 9), 9), ElementsAre(1, 3, 5, 7));
+  EXPECT_THAT(Drain(ActiveSet({0, 2, 4, 6, 8}, 9), 9),
+              ElementsAre(0, 2, 4, 6, 8));
 }
 
 std::set<int> ExtractValues(ActiveSet a) {
@@ -218,38 +205,30 @@ TEST(ActiveSet, SetConstuctionEmptyEnd) {
               ElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionTruncate) {
-  EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 3)),
-              ElementsAre(0, 1, 2));
+  EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 3)), ElementsAre(0, 1, 2));
 }
 TEST(ActiveSet, SetConstuctionNegative) {
-  EXPECT_THAT(ExtractValues(ActiveSet({-1, 1}, 2)),
-              ElementsAre(1));
+  EXPECT_THAT(ExtractValues(ActiveSet({-1, 1}, 2)), ElementsAre(1));
 }
 TEST(ActiveSet, SetConstuctionSpards) {
-  EXPECT_THAT(ExtractValues(ActiveSet({5, 10}, 100)),
-              ElementsAre(5, 10));
+  EXPECT_THAT(ExtractValues(ActiveSet({5, 10}, 100)), ElementsAre(5, 10));
 }
 
 void TestIntersection(const std::vector<int>& set_a,
-                      const std::vector<int>& set_b,
-                      int max_position_a, int max_position_b) {
+                      const std::vector<int>& set_b, int max_position_a,
+                      int max_position_b) {
   ActiveSet a(set_a, max_position_a);
   ActiveSet b(set_b, max_position_b);
   std::vector<int> intersection;
-  std::set_intersection(set_a.begin(), set_a.end(),
-                        set_b.begin(), set_b.end(),
+  std::set_intersection(set_a.begin(), set_a.end(), set_b.begin(), set_b.end(),
                         std::back_inserter(intersection));
 
   EXPECT_THAT(ExtractValues(a.Intersection(b)), ElementsAreArray(intersection));
   EXPECT_THAT(ExtractValues(b.Intersection(a)), ElementsAreArray(intersection));
 }
 
-TEST(ActiveSet, IntersectionFull) {
-  TestIntersection({0, 1}, {0, 1}, 2, 2);
-}
-TEST(ActiveSet, IntersectionEmpty) {
-  TestIntersection({0}, {1}, 2, 2);
-}
+TEST(ActiveSet, IntersectionFull) { TestIntersection({0, 1}, {0, 1}, 2, 2); }
+TEST(ActiveSet, IntersectionEmpty) { TestIntersection({0}, {1}, 2, 2); }
 TEST(ActiveSet, IntersectionSubset) {
   TestIntersection({0, 1, 2, 3}, {2, 3}, 4, 4);
 }
@@ -261,24 +240,18 @@ TEST(ActiveSet, IntersectionSparseRangeEmpty) {
 }
 
 TEST(ActiveSet, Empirical) {
-  TestIntersection({0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
-                   {3, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
-                   24, 24);
+  TestIntersection(
+      {0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
+      {3, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23}, 24, 24);
 }
 
 TEST(ActiveSet, EnabledValues) {
   std::vector<std::vector<int>> test_cases = {
-    {0, 1, 2, 3},
-    {},
-    {1, 3},
-    {0, 2},
-    {0, 1}};
+      {0, 1, 2, 3}, {}, {1, 3}, {0, 2}, {0, 1}};
 
   for (const auto test : test_cases) {
-    EXPECT_THAT(ActiveSet(test, 4).EnabledValues(),
-                ElementsAreArray(test));
+    EXPECT_THAT(ActiveSet(test, 4).EnabledValues(), ElementsAreArray(test));
   }
 }
-
 
 }  // namespace puzzle

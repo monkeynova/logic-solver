@@ -7,7 +7,7 @@ std::unique_ptr<Problem> Problem::GetInstance() {
   return global_problem_generator_();
 }
 
-Problem::Generator Problem::SetGenerator(Generator generator)  {
+Problem::Generator Problem::SetGenerator(Generator generator) {
   return global_problem_generator_ = generator;
 }
 

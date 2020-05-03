@@ -11,9 +11,7 @@ class Profiler {
 
   virtual ~Profiler() {}
   virtual void NoteFinish() {}
-  virtual bool Done() {
-    return false;
-  }
+  virtual bool Done() { return false; }
   virtual double Seconds() { return 0; }
 
   bool NotePosition(double position, double count) {
@@ -24,13 +22,9 @@ class Profiler {
  protected:
   Profiler() {}
 
-  virtual bool NotePositionImpl(double position, double count) {
-    return false;
-  }
+  virtual bool NotePositionImpl(double position, double count) { return false; }
 
-  int test_calls() const {
-    return test_calls_;
-  }
+  int test_calls() const { return test_calls_; }
 
  private:
   int test_calls_ = 0;

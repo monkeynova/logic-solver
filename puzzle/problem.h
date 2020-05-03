@@ -9,7 +9,7 @@ namespace puzzle {
 
 class Problem : public Solver {
  public:
-  using Generator = std::unique_ptr<Problem>(*)();
+  using Generator = std::unique_ptr<Problem> (*)();
   virtual ~Problem() = default;
 
   virtual void Setup() = 0;
@@ -26,11 +26,11 @@ class Problem : public Solver {
 
 }  // namespace puzzle
 
-#define REGISTER_PROBLEM(Class)                                 \
-  static std::unique_ptr<::puzzle::Problem> GeneratePuzzle() {  \
-    return absl::make_unique<Class>();                          \
-  }                                                             \
-  static ::puzzle::Problem::Generator generator =               \
-    ::puzzle::Problem::SetGenerator(&GeneratePuzzle);
+#define REGISTER_PROBLEM(Class)                                \
+  static std::unique_ptr<::puzzle::Problem> GeneratePuzzle() { \
+    return absl::make_unique<Class>();                         \
+  }                                                            \
+  static ::puzzle::Problem::Generator generator =              \
+      ::puzzle::Problem::SetGenerator(&GeneratePuzzle);
 
 #endif  // PUZZLE_PROBLEM_H

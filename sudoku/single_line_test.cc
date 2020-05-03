@@ -16,7 +16,7 @@ DEFINE_string(sudoku_line_answer, "",
 
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<::puzzle::Problem> line_board =
-    ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
+      ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
 
   line_board->Setup();
@@ -28,7 +28,7 @@ TEST(Puzzle, RightAnswer) {
 
 static void BM_Solver(benchmark::State& state) {
   std::unique_ptr<::puzzle::Problem> line_board =
-    ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
+      ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
 
   line_board->Setup();

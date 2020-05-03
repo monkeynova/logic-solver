@@ -31,24 +31,17 @@ class ClassPermuterImpl {
     typedef const StorageVector* const_pointer;
 
     iterator() : iterator(nullptr, {}) {}
-    iterator(const ClassPermuterImpl<T>* permuter,
-             ActiveSet active_set);
+    iterator(const ClassPermuterImpl<T>* permuter, ActiveSet active_set);
 
     iterator(const iterator&) = default;
     iterator& operator=(const iterator&) = default;
 
-    bool operator!=(const iterator& other) const {
-      return !(*this == other);
-    }
+    bool operator!=(const iterator& other) const { return !(*this == other); }
     bool operator==(const iterator& other) const {
       return current_ == other.current_;
     }
-    const_reference operator*() const {
-      return current_;
-    }
-    const_pointer operator->() const {
-      return &current_;
-    }
+    const_reference operator*() const { return current_; }
+    const_pointer operator->() const { return &current_; }
     iterator& operator++() {
       if (active_set_.is_trivial()) {
         Advance();
@@ -97,11 +90,11 @@ class ClassPermuterImpl {
     ActiveSet active_set_;
   };
 
- explicit ClassPermuterImpl(const Descriptor* d = nullptr,
-                            const int class_int = 0)
-    : descriptor_(d),
-      permutation_count_(PermutationCount(d)),
-      class_int_(class_int) {
+  explicit ClassPermuterImpl(const Descriptor* d = nullptr,
+                             const int class_int = 0)
+      : descriptor_(d),
+        permutation_count_(PermutationCount(d)),
+        class_int_(class_int) {
     active_set_.DoneAdding();
   }
   ~ClassPermuterImpl() {}
@@ -112,23 +105,17 @@ class ClassPermuterImpl {
   // TODO(keith): This copy of active_set_ is likely the cause of malloc
   // showing up on profiles. We should clean up the model to avoid needing
   // a data copy here.
-  iterator begin() const {
-    return iterator(this, active_set_);
-  }
+  iterator begin() const { return iterator(this, active_set_); }
   iterator begin(ActiveSet active_set) const {
     return iterator(this, std::move(active_set));
   }
   iterator end() const { return iterator(); }
 
-  double permutation_count() const {
-    return permutation_count_;
-  }
+  double permutation_count() const { return permutation_count_; }
 
   const Descriptor* descriptor() const { return descriptor_; }
 
-  int class_int() const {
-    return class_int_;
-  }
+  int class_int() const { return class_int_; }
 
   // TODO(keith@monkeynova.com): Materialize full permutation if ActiveSet is
   // selective enough.
@@ -136,13 +123,9 @@ class ClassPermuterImpl {
     active_set_ = std::move(active_set);
   }
 
-  const ActiveSet& active_set() const {
-    return active_set_;
-  }
+  const ActiveSet& active_set() const { return active_set_; }
 
-  double Selectivity() const {
-    return active_set_.Selectivity();
-  }
+  double Selectivity() const { return active_set_.Selectivity(); }
 
   std::string DebugString() const;
 
@@ -155,15 +138,15 @@ class ClassPermuterImpl {
 };
 
 template <enum ClassPermuterType T>
-std::ostream& operator<<(
-     std::ostream& out, internal::ClassPermuterImpl<T> permuter) {
+std::ostream& operator<<(std::ostream& out,
+                         internal::ClassPermuterImpl<T> permuter) {
   return out << permuter.DebugString();
 }
 
 }  // namespace internal
 
-using ClassPermuter = internal::ClassPermuterImpl<
-    internal::ClassPermuterType::kFactorialRadix>;
+using ClassPermuter =
+    internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>;
 
 }  // namespace puzzle
 

@@ -30,12 +30,10 @@ int main(int argc, char** argv) {
     std::vector<puzzle::Solution> all_solutions = problem->AllSolutions();
     exit_code = all_solutions.size() > 0 ? 0 : 1;
     LOG(INFO) << "[" << all_solutions.size() << " solutions]";
-    LOG(INFO)
-      << absl::StrJoin(
-             all_solutions, "\n",
-             [](std::string* out, const puzzle::Solution& s) {
-               absl::StrAppend(out, PositionHeader(s), "\n", s.DebugString());
-             });
+    LOG(INFO) << absl::StrJoin(
+        all_solutions, "\n", [](std::string* out, const puzzle::Solution& s) {
+          absl::StrAppend(out, PositionHeader(s), "\n", s.DebugString());
+        });
   } else {
     puzzle::Solution answer = problem->Solve();
     if (answer.IsValid()) {

@@ -4,45 +4,45 @@
 
 namespace puzzle {
 
-std::ostream& operator<<(
-    std::ostream& out, ActiveSetBuilder::SingleClassBuild val) {
+std::ostream& operator<<(std::ostream& out,
+                         ActiveSetBuilder::SingleClassBuild val) {
   switch (val) {
-  case ActiveSetBuilder::SingleClassBuild::kPassThrough:
-    return out << "kPassThrough";
-  case ActiveSetBuilder::SingleClassBuild::kPositionSet:
-    return out << "kPositionSet";
+    case ActiveSetBuilder::SingleClassBuild::kPassThrough:
+      return out << "kPassThrough";
+    case ActiveSetBuilder::SingleClassBuild::kPositionSet:
+      return out << "kPositionSet";
   }
   return out << "Unknown SingleClassBuild(" << static_cast<int>(val) << ")";
 }
 
-std::ostream& operator<<(
-    std::ostream& out, ActiveSetBuilder::PairClassMode val) {
+std::ostream& operator<<(std::ostream& out,
+                         ActiveSetBuilder::PairClassMode val) {
   switch (val) {
-  case ActiveSetBuilder::PairClassMode::kSingleton:
-    return out << "kSingleton";
-  case ActiveSetBuilder::PairClassMode::kMakePairs:
-    return out << "kMakePairs";
+    case ActiveSetBuilder::PairClassMode::kSingleton:
+      return out << "kSingleton";
+    case ActiveSetBuilder::PairClassMode::kMakePairs:
+      return out << "kMakePairs";
   }
   return out << "Unknown PairClassMode(" << static_cast<int>(val) << ")";
 }
 
-std::ostream& operator<<(
-    std::ostream& out, ActiveSetBuilder::PairClassImpl val) {
+std::ostream& operator<<(std::ostream& out,
+                         ActiveSetBuilder::PairClassImpl val) {
   switch (val) {
-  case ActiveSetBuilder::PairClassImpl::kPassThroughA:
-    return out << "kPassThroughA";
-  case ActiveSetBuilder::PairClassImpl::kBackAndForth:
-    return out << "kBackAndForth";
-  case ActiveSetBuilder::PairClassImpl::kPairSet:
-    return out << "kPairSet";
+    case ActiveSetBuilder::PairClassImpl::kPassThroughA:
+      return out << "kPassThroughA";
+    case ActiveSetBuilder::PairClassImpl::kBackAndForth:
+      return out << "kBackAndForth";
+    case ActiveSetBuilder::PairClassImpl::kPairSet:
+      return out << "kPairSet";
   }
   return out << "Unknown PairClassImpl(" << static_cast<int>(val) << ")";
 }
 
 ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
-  : active_sets_(entry_descriptor == nullptr
-                 ? 0 : entry_descriptor->num_classes()),
-    mutable_solution_(entry_descriptor) {
+    : active_sets_(
+          entry_descriptor == nullptr ? 0 : entry_descriptor->num_classes()),
+      mutable_solution_(entry_descriptor) {
   if (entry_descriptor != nullptr) {
     int num_classes = entry_descriptor->num_classes();
     active_set_pairs_.resize(num_classes);
@@ -55,11 +55,9 @@ ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
 
 bool ActiveSetBuilder::AllMatch(
     const std::vector<Solution::Cropper>& predicates) const {
-  return std::all_of(predicates.begin(),
-                     predicates.end(),
-                     [this](const Solution::Cropper& c) {
-                       return c.p(solution_);
-                     });
+  return std::all_of(
+      predicates.begin(), predicates.end(),
+      [this](const Solution::Cropper& c) { return c.p(solution_); });
 }
 
 template <>
@@ -71,16 +69,15 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
     CHECK_EQ(p.classes[0], class_permuter.class_int());
   }
   ActiveSet active_set;
-  for (auto it = class_permuter.begin();
-       it != class_permuter.end();
-       ++it) {
+  for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates)) {
       active_set.AddBlock(false, it.position() - active_set.total());
       active_set.Add(true);
     }
   }
-  active_set.AddBlock(false, class_permuter.permutation_count() - active_set.total());
+  active_set.AddBlock(false,
+                      class_permuter.permutation_count() - active_set.total());
   active_set.DoneAdding();
   active_sets_[class_permuter.class_int()] = active_set;
 }
@@ -94,16 +91,14 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
     CHECK_EQ(p.classes[0], class_permuter.class_int());
   }
   std::vector<int> a_matches;
-  for (auto it = class_permuter.begin();
-       it != class_permuter.end();
-       ++it) {
+  for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates)) {
       a_matches.push_back(it.position());
     }
   }
-  active_sets_[class_permuter.class_int()] = ActiveSet(
-      a_matches, class_permuter.permutation_count());
+  active_sets_[class_permuter.class_int()] =
+      ActiveSet(a_matches, class_permuter.permutation_count());
 }
 
 void ActiveSetBuilder::SetupPairBuild(
@@ -117,11 +112,9 @@ void ActiveSetBuilder::SetupPairBuild(
   }
 }
 
-
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
-    const ClassPermuter& permuter_a,
-    const ClassPermuter& permuter_b,
+    const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
     const std::vector<Solution::Cropper>& predicates,
     ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
@@ -139,9 +132,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       ActiveSet b_a_set;
       bool any_of_b = false;
       ActiveSet source_a =
-        permuter_a.active_set().Intersection(b_a_pair.Find(it_b.position()));
-      for (auto it_a = permuter_a.begin(source_a);
-           it_a != permuter_a.end();
+          permuter_a.active_set().Intersection(b_a_pair.Find(it_b.position()));
+      for (auto it_a = permuter_a.begin(source_a); it_a != permuter_a.end();
            ++it_a) {
         mutable_solution_.SetClass(it_a);
         if (AllMatch(predicates)) {
@@ -158,13 +150,15 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
         active_set_b.Add(true);
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-        b_a_set.AddBlock(false, permuter_a.permutation_count() - b_a_set.total());
+        b_a_set.AddBlock(false,
+                         permuter_a.permutation_count() - b_a_set.total());
         b_a_set.DoneAdding();
         b_a_pair.Assign(it_b.position(), std::move(b_a_set));
       }
     }
 
-    active_set_b.AddBlock(false, permuter_b.permutation_count() - active_set_b.total());
+    active_set_b.AddBlock(
+        false, permuter_b.permutation_count() - active_set_b.total());
     active_set_b.DoneAdding();
     active_sets_[class_b] = std::move(active_set_b);
   }
@@ -180,8 +174,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       ActiveSet a_b_set;
       ActiveSet source_b =
           base_b_iteration.Intersection(a_b_pair.Find(it_a.position()));
-      for (auto it_b = permuter_b.begin(source_b);
-           it_b != permuter_b.end();
+      for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
            ++it_b) {
         mutable_solution_.SetClass(it_b);
         if (AllMatch(predicates)) {
@@ -198,13 +191,15 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
         active_set_a.Add(true);
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-        a_b_set.AddBlock(false, permuter_b.permutation_count() - a_b_set.total());
+        a_b_set.AddBlock(false,
+                         permuter_b.permutation_count() - a_b_set.total());
         a_b_set.DoneAdding();
         a_b_pair.Assign(it_a.position(), std::move(a_b_set));
       }
     }
 
-    active_set_a.AddBlock(false, permuter_a.permutation_count() - active_set_a.total());
+    active_set_a.AddBlock(
+        false, permuter_a.permutation_count() - active_set_a.total());
     active_set_a.DoneAdding();
     active_sets_[class_a] = std::move(active_set_a);
   }
@@ -212,8 +207,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
 
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
-    const ClassPermuter& permuter_a,
-    const ClassPermuter& permuter_b,
+    const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
     const std::vector<Solution::Cropper>& predicates,
     ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
@@ -231,8 +225,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     ActiveSet a_b_set;
     ActiveSet source_b =
         permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
-    for (auto it_b = permuter_b.begin(source_b);
-         it_b != permuter_b.end();
+    for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
          ++it_b) {
       if (pair_class_mode == PairClassMode::kSingleton && any_of_a &&
           b_match_positions.find(it_b.position()) != b_match_positions.end()) {
@@ -261,11 +254,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     }
   }
 
-  active_set_a.AddBlock(false, permuter_a.permutation_count() - active_set_a.total());
+  active_set_a.AddBlock(false,
+                        permuter_a.permutation_count() - active_set_a.total());
   active_set_a.DoneAdding();
   active_sets_[class_a] = std::move(active_set_a);
-  active_sets_[class_b] = ActiveSet(
-      b_match_positions, permuter_b.permutation_count());
+  active_sets_[class_b] =
+      ActiveSet(b_match_positions, permuter_b.permutation_count());
   if (pair_class_mode == PairClassMode::kMakePairs) {
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
@@ -277,8 +271,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
 
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
-    const ClassPermuter& permuter_a,
-    const ClassPermuter& permuter_b,
+    const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
     const std::vector<Solution::Cropper>& predicates,
     ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
@@ -296,8 +289,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     mutable_solution_.SetClass(it_a);
     ActiveSet source_b =
         permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
-    for (auto it_b = permuter_b.begin(source_b);
-         it_b != permuter_b.end();
+    for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
          ++it_b) {
       if (pair_class_mode == PairClassMode::kSingleton &&
           a_match_positions.count(it_a.position()) > 0 &&
@@ -317,10 +309,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     }
   }
 
-  active_sets_[class_a] = ActiveSet(
-      a_match_positions, permuter_a.permutation_count());
-  active_sets_[class_b] = ActiveSet(
-      b_match_positions, permuter_b.permutation_count());
+  active_sets_[class_a] =
+      ActiveSet(a_match_positions, permuter_a.permutation_count());
+  active_sets_[class_b] =
+      ActiveSet(b_match_positions, permuter_b.permutation_count());
   if (pair_class_mode == PairClassMode::kMakePairs) {
     for (const auto& pair : a_b_match_positions) {
       const int a_val = pair.first;
@@ -335,45 +327,42 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
   }
 }
 
-void ActiveSetBuilder::Build(
-    SingleClassBuild single_class_build,
-    const ClassPermuter& class_permuter,
-    const std::vector<Solution::Cropper>& predicates) {
+void ActiveSetBuilder::Build(SingleClassBuild single_class_build,
+                             const ClassPermuter& class_permuter,
+                             const std::vector<Solution::Cropper>& predicates) {
   switch (single_class_build) {
-  case SingleClassBuild::kPassThrough:
-    Build<SingleClassBuild::kPassThrough>(class_permuter, predicates);
-    return;
-  case SingleClassBuild::kPositionSet:
-    Build<SingleClassBuild::kPositionSet>(class_permuter, predicates);
-    return;
-  default:
-    LOG(FATAL) << "Bad SingleClassBuild "
-      << static_cast<int>(single_class_build);
+    case SingleClassBuild::kPassThrough:
+      Build<SingleClassBuild::kPassThrough>(class_permuter, predicates);
+      return;
+    case SingleClassBuild::kPositionSet:
+      Build<SingleClassBuild::kPositionSet>(class_permuter, predicates);
+      return;
+    default:
+      LOG(FATAL) << "Bad SingleClassBuild "
+                 << static_cast<int>(single_class_build);
   }
 }
 
-void ActiveSetBuilder::Build(
-    PairClassImpl pair_class_impl,
-    const ClassPermuter& permuter_a,
-    const ClassPermuter& permuter_b,
-    const std::vector<Solution::Cropper>& predicates,
-    PairClassMode pair_class_mode) {
+void ActiveSetBuilder::Build(PairClassImpl pair_class_impl,
+                             const ClassPermuter& permuter_a,
+                             const ClassPermuter& permuter_b,
+                             const std::vector<Solution::Cropper>& predicates,
+                             PairClassMode pair_class_mode) {
   switch (pair_class_impl) {
-  case PairClassImpl::kPairSet:
-    Build<PairClassImpl::kPairSet>(permuter_a, permuter_b,
-                                   predicates, pair_class_mode);
-    return;
-  case PairClassImpl::kBackAndForth:
-    Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b,
-                                        predicates, pair_class_mode);
-    return;
-  case PairClassImpl::kPassThroughA:
-    Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b,
-                                        predicates, pair_class_mode);
-    return;
-  default:
-    LOG(FATAL) << "Bad PairClassImpl "
-      << static_cast<int>(pair_class_impl);
+    case PairClassImpl::kPairSet:
+      Build<PairClassImpl::kPairSet>(permuter_a, permuter_b, predicates,
+                                     pair_class_mode);
+      return;
+    case PairClassImpl::kBackAndForth:
+      Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b, predicates,
+                                          pair_class_mode);
+      return;
+    case PairClassImpl::kPassThroughA:
+      Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b, predicates,
+                                          pair_class_mode);
+      return;
+    default:
+      LOG(FATAL) << "Bad PairClassImpl " << static_cast<int>(pair_class_impl);
   }
 }
 

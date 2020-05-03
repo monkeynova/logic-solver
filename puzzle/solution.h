@@ -10,8 +10,8 @@
 #include "absl/container/flat_hash_map.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "google/protobuf/descriptor.h"
 #include "glog/logging.h"
+#include "google/protobuf/descriptor.h"
 
 namespace puzzle {
 
@@ -21,9 +21,7 @@ class Descriptor {
 
   virtual std::vector<int> Values() const = 0;
 
-  virtual std::string DebugString(int i) const {
-    return absl::StrCat(i);
-  }
+  virtual std::string DebugString(int i) const { return absl::StrCat(i); }
 };
 
 class IntRangeDescriptor : public Descriptor {
@@ -33,7 +31,7 @@ class IntRangeDescriptor : public Descriptor {
 
   std::vector<int> Values() const override {
     std::vector<int> ret;
-    for (int i = start_; i <= end_; ++i ) {
+    for (int i = start_; i <= end_; ++i) {
       ret.push_back(i);
     }
     return ret;
@@ -58,7 +56,7 @@ class StringDescriptor : public Descriptor {
 
   std::vector<int> Values() const override {
     std::vector<int> ret;
-    for (unsigned int i = 0; i < names_.size(); ++i ) {
+    for (unsigned int i = 0; i < names_.size(); ++i) {
       ret.push_back(i);
     }
     return ret;
@@ -88,7 +86,7 @@ class EntryDescriptor {
     id_descriptor_ = id_descriptor;
   }
   void SetClass(int class_int, const std::string& class_name,
-                const Descriptor* name_descriptor ) {
+                const Descriptor* name_descriptor) {
     class_descriptor_.SetDescription(class_int, class_name);
     name_descriptors_.resize(class_int + 1);
     name_descriptors_[class_int] = name_descriptor;
@@ -110,7 +108,8 @@ class EntryDescriptor {
   }
   std::string Name(int class_int, int name_int) const {
     return name_descriptors_[class_int]
-      ? name_descriptors_[class_int]->DebugString(name_int) : "";
+               ? name_descriptors_[class_int]->DebugString(name_int)
+               : "";
   }
 
  private:
@@ -125,9 +124,7 @@ class Entry {
 
   Entry(int id, const std::vector<int>& classes,
         const EntryDescriptor* entry_descriptor)
-   : id_(id),
-     classes_(classes),
-     entry_descriptor_(entry_descriptor) {}
+      : id_(id), classes_(classes), entry_descriptor_(entry_descriptor) {}
   ~Entry() {}
 
   bool operator==(const Entry& other) const {
@@ -142,18 +139,12 @@ class Entry {
 
   int id() const { return id_; }
   bool IsValid() const { return id_ >= 0; }
-  int Class(int classname) const {
-    return classes_[classname];
-  }
-  void SetClass(int classname, int value) {
-    classes_[classname] = value;
-  }
+  int Class(int classname) const { return classes_[classname]; }
+  void SetClass(int classname, int value) { classes_[classname] = value; }
   std::string DebugString() const;
 
   static const Entry& Invalid() { return invalid_; }
-  const EntryDescriptor* descriptor() const {
-    return entry_descriptor_;
-  }
+  const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
  private:
   Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
@@ -171,7 +162,7 @@ class Solution {
     Cropper() {}
     Cropper(std::string name, Solution::Predicate p,
             const std::vector<int>& classes)
-    : name(name), p(p), classes(classes) {}
+        : name(name), p(p), classes(classes) {}
 
     const std::string name;
     const Solution::Predicate p;
@@ -181,8 +172,7 @@ class Solution {
   Solution() {}
   Solution(const EntryDescriptor* entry_descriptor,
            const std::vector<Entry>* entries)
-    : entry_descriptor_(entry_descriptor),
-      entries_(entries) {}
+      : entry_descriptor_(entry_descriptor), entries_(entries) {}
 
   ~Solution() {
     if (own_entries_ && entries_ != nullptr) {
@@ -193,17 +183,13 @@ class Solution {
   Solution(const Solution& other) = delete;
   Solution& operator=(const Solution& other) = delete;
 
-  Solution(Solution&& other) {
-    *this = std::move(other);
-  }
+  Solution(Solution&& other) { *this = std::move(other); }
   Solution& operator=(Solution&& other);
 
   Solution Clone() const;
   bool operator==(const Solution& other) const;
 
-  const EntryDescriptor* descriptor() const {
-    return entry_descriptor_;
-  }
+  const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
   double permutation_position() const { return permutation_position_; }
   void set_permutation_position(double position) {
@@ -221,7 +207,7 @@ class Solution {
   const std::vector<Entry>& entries() const { return *entries_; }
   const Entry& Id(int id) const { return (*entries_)[id]; }
   const Entry& Find(std::function<bool(const Entry&)> pred) const {
-    for (const Entry& e: *entries_) {
+    for (const Entry& e : *entries_) {
       if (pred(e)) {
         return e;
       }

@@ -9,8 +9,7 @@ DEFINE_bool(puzzle_brute_force, false, "Brute force all possible solutions");
 namespace puzzle {
 
 std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
-    EntryDescriptor* entry_descriptor,
-    Profiler* profiler) {
+    EntryDescriptor* entry_descriptor, Profiler* profiler) {
   if (FLAGS_puzzle_brute_force) {
     return absl::make_unique<BruteSolutionPermuter>(entry_descriptor);
   }

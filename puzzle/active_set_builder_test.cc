@@ -9,26 +9,23 @@
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 
-using ::testing::Eq;
-using ::testing::Le;
-using ::testing::IsEmpty;
 using ::testing::ElementsAreArray;
+using ::testing::Eq;
+using ::testing::IsEmpty;
+using ::testing::Le;
 using ::testing::UnorderedElementsAre;
 using ::testing::UnorderedElementsAreArray;
 
 namespace puzzle {
 
 class SinglePermuterTest
-  : public ::testing::TestWithParam<ActiveSetBuilder::SingleClassBuild> {
+    : public ::testing::TestWithParam<ActiveSetBuilder::SingleClassBuild> {
  public:
-  ActiveSetBuilder::SingleClassBuild single_class_build() {
-    return GetParam();
-  }
+  ActiveSetBuilder::SingleClassBuild single_class_build() { return GetParam(); }
 };
 
 INSTANTIATE_TEST_SUITE_P(
-    Instantiation,
-    SinglePermuterTest,
+    Instantiation, SinglePermuterTest,
     testing::Values(ActiveSetBuilder::SingleClassBuild::kPassThrough,
                     ActiveSetBuilder::SingleClassBuild::kPositionSet));
 
@@ -45,61 +42,52 @@ TEST_P(SinglePermuterTest, Simple) {
   ClassPermuter p(&class_descriptor, kClassInt);
   ASSERT_THAT(p.permutation_count(), 6);
 
-  builder.Build(
-      single_class_build(), p,
-      {Solution::Cropper("First entry is class 3",
-                         [](const Solution& s) {
-                           return s.Id(0).Class(kClassInt) == 3;
-                         },
-                         {kClassInt})});
+  builder.Build(single_class_build(), p,
+                {Solution::Cropper("First entry is class 3",
+                                   [](const Solution& s) {
+                                     return s.Id(0).Class(kClassInt) == 3;
+                                   },
+                                   {kClassInt})});
   ActiveSet active_set_first_is_3 = builder.active_set(kClassInt);
 
-  builder.Build(
-      single_class_build(), p,
-      {Solution::Cropper("First entry is class 4",
-                         [](const Solution& s) {
-                           return s.Id(0).Class(kClassInt) == 4;
-                         },
-                         {kClassInt})});
+  builder.Build(single_class_build(), p,
+                {Solution::Cropper("First entry is class 4",
+                                   [](const Solution& s) {
+                                     return s.Id(0).Class(kClassInt) == 4;
+                                   },
+                                   {kClassInt})});
   ActiveSet active_set_first_is_4 = builder.active_set(kClassInt);
 
-  builder.Build(
-      single_class_build(), p,
-      {Solution::Cropper("First entry is class 5",
-                         [](const Solution& s) {
-                           return s.Id(0).Class(kClassInt) == 5;
-                         },
-                         {kClassInt})});
+  builder.Build(single_class_build(), p,
+                {Solution::Cropper("First entry is class 5",
+                                   [](const Solution& s) {
+                                     return s.Id(0).Class(kClassInt) == 5;
+                                   },
+                                   {kClassInt})});
   ActiveSet active_set_first_is_5 = builder.active_set(kClassInt);
 
   std::set<int> position_history;
   std::set<std::vector<int>> vector_history;
   p.set_active_set(std::move(active_set_first_is_3));
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_TRUE(position_history.insert(it.position()).second)
-      << it.position();
-    EXPECT_TRUE(vector_history.insert(*it).second)
-      << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
+    EXPECT_TRUE(vector_history.insert(*it).second) << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(3));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
 
   p.set_active_set(std::move(active_set_first_is_4));
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_TRUE(position_history.insert(it.position()).second)
-      << it.position();
-    EXPECT_TRUE(vector_history.insert(*it).second)
-      << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
+    EXPECT_TRUE(vector_history.insert(*it).second) << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(4));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
 
   p.set_active_set(std::move(active_set_first_is_5));
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_TRUE(position_history.insert(it.position()).second)
-      << it.position();
-    EXPECT_TRUE(vector_history.insert(*it).second)
-      << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
+    EXPECT_TRUE(vector_history.insert(*it).second) << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(5));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
@@ -121,17 +109,15 @@ TEST_P(SinglePermuterTest, ExistingSet) {
   ClassPermuter p(&class_descriptor, kClassInt);
   ASSERT_THAT(p.permutation_count(), 6);
 
-  Solution::Cropper first_is_3("First entry is class 3",
-                               [](const Solution& s) {
-                                 return s.Id(0).Class(kClassInt) == 3;
-                               },
-                               {kClassInt});
+  Solution::Cropper first_is_3(
+      "First entry is class 3",
+      [](const Solution& s) { return s.Id(0).Class(kClassInt) == 3; },
+      {kClassInt});
 
-  Solution::Cropper second_is_4("Second entry is class 4",
-                                [](const Solution& s) {
-                                  return s.Id(1).Class(kClassInt) == 4;
-                                },
-                                {kClassInt});
+  Solution::Cropper second_is_4(
+      "Second entry is class 4",
+      [](const Solution& s) { return s.Id(1).Class(kClassInt) == 4; },
+      {kClassInt});
 
   LOG(INFO) << "Start: " << p.active_set().DebugString();
   builder.Build(single_class_build(), p, {first_is_3});
@@ -150,16 +136,13 @@ TEST_P(SinglePermuterTest, ExistingSet) {
 }
 
 class PairPermuterTest
-  : public ::testing::TestWithParam<ActiveSetBuilder::PairClassImpl> {
+    : public ::testing::TestWithParam<ActiveSetBuilder::PairClassImpl> {
  public:
-  ActiveSetBuilder::PairClassImpl pair_class_impl() {
-    return GetParam();
-  }
+  ActiveSetBuilder::PairClassImpl pair_class_impl() { return GetParam(); }
 };
 
 INSTANTIATE_TEST_SUITE_P(
-    Instantiation,
-    PairPermuterTest,
+    Instantiation, PairPermuterTest,
     testing::Values(ActiveSetBuilder::PairClassImpl::kPairSet,
                     ActiveSetBuilder::PairClassImpl::kBackAndForth,
                     ActiveSetBuilder::PairClassImpl::kPassThroughA));
@@ -185,7 +168,7 @@ TEST_P(PairPermuterTest, Simple) {
   Solution::Cropper c("a is 3 and b is 4 for id 0",
                       [](const Solution& s) {
                         return s.Id(0).Class(kClassIntA) == 3 &&
-                          s.Id(0).Class(kClassIntB) == 4;
+                               s.Id(0).Class(kClassIntB) == 4;
                       },
                       {kClassIntA, kClassIntB});
 
@@ -193,7 +176,6 @@ TEST_P(PairPermuterTest, Simple) {
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b = builder.active_set(kClassIntB);
-
 
   MutableSolution mutable_solution(&entry_descriptor);
   Solution test_solution = mutable_solution.TestableSolution();
@@ -250,11 +232,10 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  Solution::Cropper a_cropper("a is 4 for id 1",
-                              [](const Solution& s) {
-                                return s.Id(1).Class(kClassIntA) == 4;
-                              },
-                              {kClassIntA});
+  Solution::Cropper a_cropper(
+      "a is 4 for id 1",
+      [](const Solution& s) { return s.Id(1).Class(kClassIntA) == 4; },
+      {kClassIntA});
 
   builder.Build(permuter_a, {a_cropper});
   ActiveSet active_set_a_pre = builder.active_set(kClassIntA);
@@ -263,7 +244,7 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   Solution::Cropper pair_cropper("a is 3 and b is 4 for id 0",
                                  [](const Solution& s) {
                                    return s.Id(0).Class(kClassIntA) == 3 &&
-                                     s.Id(0).Class(kClassIntB) == 4;
+                                          s.Id(0).Class(kClassIntB) == 4;
                                  },
                                  {kClassIntA, kClassIntB});
 
@@ -329,11 +310,10 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  Solution::Cropper b_cropper("b is 4 for id 1",
-                              [](const Solution& s) {
-                                return s.Id(1).Class(kClassIntB) == 5;
-                              },
-                              {kClassIntB});
+  Solution::Cropper b_cropper(
+      "b is 4 for id 1",
+      [](const Solution& s) { return s.Id(1).Class(kClassIntB) == 5; },
+      {kClassIntB});
 
   builder.Build(permuter_b, {b_cropper});
   ActiveSet active_set_b_pre = builder.active_set(kClassIntB);
@@ -342,7 +322,7 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   Solution::Cropper pair_cropper("a is 3 and b is 4 for id 0",
                                  [](const Solution& s) {
                                    return s.Id(0).Class(kClassIntA) == 3 &&
-                                     s.Id(0).Class(kClassIntB) == 4;
+                                          s.Id(0).Class(kClassIntB) == 4;
                                  },
                                  {kClassIntA, kClassIntB});
 
@@ -350,7 +330,6 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b_post = builder.active_set(kClassIntB);
-
 
   MutableSolution mutable_solution(&entry_descriptor);
   Solution test_solution = mutable_solution.TestableSolution();
@@ -427,7 +406,7 @@ TEST_P(PairPermuterTest, MakePairs) {
   Solution::Cropper c("a is 3 and b is 4 for id 0",
                       [](const Solution& s) {
                         return s.Id(0).Class(kClassIntA) == 3 &&
-                          s.Id(0).Class(kClassIntB) == 4;
+                               s.Id(0).Class(kClassIntB) == 4;
                       },
                       {kClassIntA, kClassIntB});
 
@@ -467,10 +446,9 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  auto val_0_predicate =
-    [](int a_val, int b_val) {
-      return (a_val == 3 && b_val == 4) || (a_val == 4 && b_val == 3);
-    };
+  auto val_0_predicate = [](int a_val, int b_val) {
+    return (a_val == 3 && b_val == 4) || (a_val == 4 && b_val == 3);
+  };
 
   absl::flat_hash_map<int, absl::flat_hash_set<int>> a_to_b_vals;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_to_a_vals;
@@ -516,7 +494,6 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
               UnorderedElementsAreArray(b_to_a_vals[4]));
 }
 
-
 TEST_P(PairPermuterTest, MakePairsCycle) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
@@ -540,28 +517,26 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   ASSERT_THAT(permuter_b.permutation_count(), 6);
   ASSERT_THAT(permuter_c.permutation_count(), 6);
 
-
   Solution::Cropper a_b("a is 3 and b is 4 for id 0",
                         [](const Solution& s) {
                           return s.Id(0).Class(kClassIntA) == 3 &&
-                            s.Id(0).Class(kClassIntB) == 4;
+                                 s.Id(0).Class(kClassIntB) == 4;
                         },
                         {kClassIntA, kClassIntB});
 
   Solution::Cropper b_c("b is 5 and c is 3 for id 1",
                         [](const Solution& s) {
                           return s.Id(1).Class(kClassIntB) == 5 &&
-                            s.Id(1).Class(kClassIntC) == 3;
+                                 s.Id(1).Class(kClassIntC) == 3;
                         },
                         {kClassIntB, kClassIntC});
 
   Solution::Cropper c_a("c is 4 and a is 5 for id 2",
                         [](const Solution& s) {
                           return s.Id(2).Class(kClassIntC) == 4 &&
-                            s.Id(2).Class(kClassIntA) == 5;
+                                 s.Id(2).Class(kClassIntA) == 5;
                         },
                         {kClassIntC, kClassIntA});
-
 
   for (const auto& loop : {1, 2, 3}) {
     std::ignore = loop;
@@ -584,12 +559,9 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
     permuter_a.set_active_set(builder.active_set(kClassIntA));
   }
 
-  EXPECT_EQ(builder.active_set(kClassIntA).matches(), 1)
-    << permuter_a;
-  EXPECT_EQ(builder.active_set(kClassIntB).matches(), 1)
-    << permuter_b;
-  EXPECT_EQ(builder.active_set(kClassIntC).matches(), 1)
-    << permuter_c;
+  EXPECT_EQ(builder.active_set(kClassIntA).matches(), 1) << permuter_a;
+  EXPECT_EQ(builder.active_set(kClassIntB).matches(), 1) << permuter_b;
+  EXPECT_EQ(builder.active_set(kClassIntC).matches(), 1) << permuter_c;
 }
 
 }  // namespace puzzle

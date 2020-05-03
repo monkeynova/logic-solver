@@ -28,16 +28,14 @@ class SolutionPermuter {
     typedef Solution* pointer;
 
     explicit iterator(std::unique_ptr<AdvanceInterface> advancer)
-      : advancer_(std::move(advancer)) {}
+        : advancer_(std::move(advancer)) {}
 
     iterator(const iterator&) = delete;
     iterator(iterator&&) = default;
     iterator& operator=(const iterator&) = delete;
     iterator& operator=(iterator&&) = default;
 
-    bool operator!=(const iterator& other) {
-      return !(*this == other);
-    }
+    bool operator!=(const iterator& other) { return !(*this == other); }
     bool operator==(const iterator& other) {
       return advancer_->current() == other.advancer_->current();
     }
@@ -51,15 +49,16 @@ class SolutionPermuter {
     double position() const { return advancer_->position(); }
     double completion() const { return advancer_->completion(); }
 
-  private:
+   private:
     std::unique_ptr<AdvanceInterface> advancer_;
   };
 
   SolutionPermuter() = default;
   virtual ~SolutionPermuter() = default;
 
-  virtual bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
-                                const std::vector<int>& class_int_restrict_list) {
+  virtual bool AddPredicate(absl::string_view name,
+                            Solution::Predicate predicate,
+                            const std::vector<int>& class_int_restrict_list) {
     return false;
   }
 

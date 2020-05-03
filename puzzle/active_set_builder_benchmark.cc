@@ -1,6 +1,5 @@
-#include "puzzle/active_set_builder.h"
-
 #include "benchmark/benchmark.h"
+#include "puzzle/active_set_builder.h"
 
 namespace puzzle {
 
@@ -9,10 +8,10 @@ struct SetupState {
   static const int kClassIntB = 1;
 
   SetupState(int permutation_count)
-    : descriptor(MakeDescriptor(permutation_count, &owned_descriptors)),
-      predicates({MakePairCropper()}),
-      permuter_a(descriptor.AllClassValues(kClassIntA), kClassIntA),
-      permuter_b(descriptor.AllClassValues(kClassIntB), kClassIntB) {
+      : descriptor(MakeDescriptor(permutation_count, &owned_descriptors)),
+        predicates({MakePairCropper()}),
+        permuter_a(descriptor.AllClassValues(kClassIntA), kClassIntA),
+        permuter_b(descriptor.AllClassValues(kClassIntB), kClassIntB) {
     ActiveSetBuilder single_class_builder(&descriptor);
     single_class_builder.Build(permuter_a, {MakeCropperA()});
     permuter_a.set_active_set(single_class_builder.active_set(kClassIntA));
@@ -35,9 +34,8 @@ struct SetupState {
     Solution::Cropper ret(
         "no entry the same",
         [](const Solution& s) {
-          return all_of(s.entries().begin(),
-                        s.entries().end(),
-                              [](const Entry& e) {
+          return all_of(s.entries().begin(), s.entries().end(),
+                        [](const Entry& e) {
                           return e.Class(kClassIntA) != e.Class(kClassIntB);
                         });
         },
@@ -46,22 +44,22 @@ struct SetupState {
   }
 
   static Solution::Cropper MakeCropperA() {
-    Solution::Cropper ret(
-        "no entry the same",
-        [](const Solution& s) {
-          return s.Id(0).Class(kClassIntA) == 0 && s.Id(1).Class(kClassIntA) == 1;
-        },
-        {kClassIntA});
+    Solution::Cropper ret("no entry the same",
+                          [](const Solution& s) {
+                            return s.Id(0).Class(kClassIntA) == 0 &&
+                                   s.Id(1).Class(kClassIntA) == 1;
+                          },
+                          {kClassIntA});
     return ret;
   }
 
   static Solution::Cropper MakeCropperB() {
-    Solution::Cropper ret(
-        "no entry the same",
-        [](const Solution& s) {
-          return s.Id(0).Class(kClassIntB) == 1 && s.Id(1).Class(kClassIntB) == 0;
-        },
-        {kClassIntB});
+    Solution::Cropper ret("no entry the same",
+                          [](const Solution& s) {
+                            return s.Id(0).Class(kClassIntB) == 1 &&
+                                   s.Id(1).Class(kClassIntB) == 0;
+                          },
+                          {kClassIntB});
     return ret;
   }
 
@@ -83,35 +81,35 @@ static void BM_Pair(benchmark::State& state) {
 
   for (auto _ : state) {
     ActiveSetBuilder builder(&setup.descriptor);
-    builder.Build<pair_class_impl>(
-        setup.permuter_a, setup.permuter_b, setup.predicates, pair_class_mode);
+    builder.Build<pair_class_impl>(setup.permuter_a, setup.permuter_b,
+                                   setup.predicates, pair_class_mode);
   }
 }
 
-BENCHMARK_TEMPLATE(BM_Pair,
-                   ActiveSetBuilder::PairClassImpl::kPairSet,
+BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPairSet,
                    ActiveSetBuilder::PairClassMode::kSingleton)
-    ->Arg(5)->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair,
-                   ActiveSetBuilder::PairClassImpl::kPassThroughA,
+    ->Arg(5)
+    ->Arg(7);
+BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPassThroughA,
                    ActiveSetBuilder::PairClassMode::kSingleton)
-    ->Arg(5)->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair,
-                   ActiveSetBuilder::PairClassImpl::kBackAndForth,
+    ->Arg(5)
+    ->Arg(7);
+BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kBackAndForth,
                    ActiveSetBuilder::PairClassMode::kSingleton)
-    ->Arg(5)->Arg(7);
+    ->Arg(5)
+    ->Arg(7);
 
-BENCHMARK_TEMPLATE(BM_Pair,
-                   ActiveSetBuilder::PairClassImpl::kPairSet,
+BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPairSet,
                    ActiveSetBuilder::PairClassMode::kMakePairs)
-    ->Arg(5)->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair,
-                   ActiveSetBuilder::PairClassImpl::kPassThroughA,
+    ->Arg(5)
+    ->Arg(7);
+BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPassThroughA,
                    ActiveSetBuilder::PairClassMode::kMakePairs)
-    ->Arg(5)->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair,
-                   ActiveSetBuilder::PairClassImpl::kBackAndForth,
+    ->Arg(5)
+    ->Arg(7);
+BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kBackAndForth,
                    ActiveSetBuilder::PairClassMode::kMakePairs)
-    ->Arg(5)->Arg(7);
+    ->Arg(5)
+    ->Arg(7);
 
 }  // namespace puzzle

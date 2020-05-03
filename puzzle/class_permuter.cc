@@ -4,9 +4,8 @@ namespace puzzle {
 namespace internal {
 
 template <>
-void
-ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
-    ::iterator::InitIndex() {
+void ClassPermuterImpl<
+    ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::InitIndex() {
   index_.resize(current_.size());
   direction_.resize(current_.size());
   for (size_t i = 0; i < current_.size(); ++i) {
@@ -17,20 +16,17 @@ ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
 }
 
 template <>
-void
-ClassPermuterImpl<ClassPermuterType::kFactorialRadix>
-    ::iterator::InitIndex() {
+void ClassPermuterImpl<
+    ClassPermuterType::kFactorialRadix>::iterator::InitIndex() {
   if (permuter_ != nullptr) {
     index_ = permuter_->descriptor()->Values();
   }
 }
 
 template <enum ClassPermuterType T>
-ClassPermuterImpl<T>::iterator::iterator(
-    const ClassPermuterImpl<T>* permuter,
-    ActiveSet active_set)
-  : permuter_(permuter),
-    active_set_(std::move(active_set)) {
+ClassPermuterImpl<T>::iterator::iterator(const ClassPermuterImpl<T>* permuter,
+                                         ActiveSet active_set)
+    : permuter_(permuter), active_set_(std::move(active_set)) {
   if (permuter_ != nullptr) {
     for (int i : permuter_->descriptor()->Values()) {
       current_.push_back(i);
@@ -42,7 +38,7 @@ ClassPermuterImpl<T>::iterator::iterator(
   if (!active_set_.is_trivial()) {
     Advance(active_set_.ConsumeFalseBlock());
     CHECK(active_set_.ConsumeNext())
-      << "ConsumeNext returned false after ConsumeFalseBlock";
+        << "ConsumeNext returned false after ConsumeFalseBlock";
   }
 }
 
@@ -50,14 +46,13 @@ template <enum ClassPermuterType T>
 void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
   Advance(active_set_.ConsumeFalseBlock() + 1);
   CHECK(active_set_.ConsumeNext())
-    << "ConsumeNext returned false after ConsumeFalseBlock";
+      << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 template <>
-void
-ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
-    ::iterator::Advance() {
+void ClassPermuterImpl<
+    ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::Advance() {
   ++position_;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -99,16 +94,14 @@ ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
 }
 
 template <>
-void
-ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>
-    ::iterator::Advance(int dist) {
+void ClassPermuterImpl<
+    ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::Advance(int dist) {
   for (; dist > 0; --dist) Advance();
 }
 
 template <>
-void
-ClassPermuterImpl<ClassPermuterType::kFactorialRadix>
-    ::iterator::Advance(int dist) {
+void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
+    int dist) {
   position_ += dist;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -127,8 +120,8 @@ ClassPermuterImpl<ClassPermuterType::kFactorialRadix>
 }
 
 template <>
-void
-ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance() {
+void ClassPermuterImpl<
+    ClassPermuterType::kFactorialRadix>::iterator::Advance() {
   Advance(/*dist=*/1);
 }
 
@@ -139,7 +132,7 @@ double ClassPermuterImpl<T>::PermutationCount(const Descriptor* d) {
 
   double ret = 1;
   int value_count = d->Values().size();
-  for (int i = 2; i <= value_count; i++ ) {
+  for (int i = 2; i <= value_count; i++) {
     ret *= i;
   }
   return ret;

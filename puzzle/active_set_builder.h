@@ -41,7 +41,8 @@ class ActiveSetBuilder {
   // error to pass in predicates on other classes), returns the ActiveSet
   // representing and ANDing of those predicates on each permutation.
   // The returned active set fully honors the ANDing of input predicates.
-  template <SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
+  template <
+      SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
   void Build(const ClassPermuter& class_permuter,
              const std::vector<Solution::Cropper>& predicates);
   void Build(SingleClassBuild single_class_build,
@@ -65,8 +66,8 @@ class ActiveSetBuilder {
   void Build(const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
              const std::vector<Solution::Cropper>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
-  void Build(PairClassImpl pair_class_impl,
-             const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
+  void Build(PairClassImpl pair_class_impl, const ClassPermuter& permuter_a,
+             const ClassPermuter& permuter_b,
              const std::vector<Solution::Cropper>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
@@ -87,12 +88,12 @@ class ActiveSetBuilder {
   Solution solution_;  // Bound to mutable_solution_;
 };
 
-std::ostream& operator<<(
-    std::ostream& out, ActiveSetBuilder::SingleClassBuild val);
-std::ostream& operator<<(
-    std::ostream& out, ActiveSetBuilder::PairClassMode val);
-std::ostream& operator<<(
-    std::ostream& out, ActiveSetBuilder::PairClassImpl val);
+std::ostream& operator<<(std::ostream& out,
+                         ActiveSetBuilder::SingleClassBuild val);
+std::ostream& operator<<(std::ostream& out,
+                         ActiveSetBuilder::PairClassMode val);
+std::ostream& operator<<(std::ostream& out,
+                         ActiveSetBuilder::PairClassImpl val);
 
 }  // namespace puzzle
 

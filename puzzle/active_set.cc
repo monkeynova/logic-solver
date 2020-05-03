@@ -1,4 +1,4 @@
-#include"puzzle/active_set.h"
+#include "puzzle/active_set.h"
 
 #include <algorithm>
 #include <iostream>
@@ -19,9 +19,10 @@ std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
   return sorted;
 }
 
-}
+}  // namespace
 
-ActiveSet::ActiveSet(const absl::flat_hash_set<int>& positions, int max_position)
+ActiveSet::ActiveSet(const absl::flat_hash_set<int>& positions,
+                     int max_position)
     : ActiveSet(SortFlatHashSet(positions), max_position) {}
 
 ActiveSet::ActiveSet(const std::vector<int>& positions, int max_position) {
@@ -42,7 +43,7 @@ ActiveSet::ActiveSet(const std::vector<int>& positions, int max_position) {
 
 struct ActiveSetIterator {
   explicit ActiveSetIterator(const std::vector<int>& matches)
-    : matches_(matches) {}
+      : matches_(matches) {}
 
   bool value() const { return value_; }
 
@@ -83,15 +84,15 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   ActiveSet intersection;
   while (this_iterator.more() && other_iterator.more()) {
     VLOG(3) << "Intersect NextBlock="
-            << (this_iterator.value() ? "true" : "false")
-            << "/\\" << (other_iterator.value() ? "true" : "false");
+            << (this_iterator.value() ? "true" : "false") << "/\\"
+            << (other_iterator.value() ? "true" : "false");
     bool next_run_value = false;
     int next_run_size;
     if (this_iterator.value() && other_iterator.value()) {
       // Both true, so true for run-length min.
       next_run_value = true;
-      next_run_size = std::min(this_iterator.run_size(),
-                               other_iterator.run_size());
+      next_run_size =
+          std::min(this_iterator.run_size(), other_iterator.run_size());
     } else if (!this_iterator.value()) {
       // Single false, it dictactes length.
       next_run_size = this_iterator.run_size();
@@ -100,8 +101,8 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
       next_run_size = other_iterator.run_size();
     } else {
       // Both false, so false for run-length max.
-      next_run_size = std::max(this_iterator.run_size(),
-                               other_iterator.run_size());
+      next_run_size =
+          std::max(this_iterator.run_size(), other_iterator.run_size());
     }
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
@@ -137,10 +138,10 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
 }
 
 std::string ActiveSet::DebugString() const {
-  return absl::StrCat("{", (building_ ? "[building]" : "[built]"),
-                      " ", (current_value_ ? "match" : "skip"),
-                      " ", matches_position_, " {",
-                      absl::StrJoin(matches_, ", "), "}}");
+  return absl::StrCat("{", (building_ ? "[building]" : "[built]"), " ",
+                      (current_value_ ? "match" : "skip"), " ",
+                      matches_position_, " {", absl::StrJoin(matches_, ", "),
+                      "}}");
 }
 
 void ActiveSet::Add(bool match) {
@@ -238,8 +239,7 @@ std::vector<int> ActiveSet::EnabledValues() const {
 }
 
 std::string ActiveSet::DebugValues() const {
-  return absl::StrCat(
-      "{", absl::StrJoin(EnabledValues(), ", "), "}");
+  return absl::StrCat("{", absl::StrJoin(EnabledValues(), ", "), "}");
 }
 
 }  // namespace puzzle

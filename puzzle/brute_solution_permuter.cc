@@ -3,9 +3,9 @@
 namespace puzzle {
 
 BruteSolutionPermuter::Advancer::Advancer(
-   const BruteSolutionPermuter* permuter,
-   const EntryDescriptor* entry_descriptor)
-   : permuter_(permuter), mutable_solution_(entry_descriptor) {
+    const BruteSolutionPermuter* permuter,
+    const EntryDescriptor* entry_descriptor)
+    : permuter_(permuter), mutable_solution_(entry_descriptor) {
   if (entry_descriptor == nullptr) {
     return;
   }
@@ -13,7 +13,7 @@ BruteSolutionPermuter::Advancer::Advancer(
   class_types_ = entry_descriptor->AllClasses()->Values();
 
   iterators_.resize(class_types_.size());
-  for (auto class_int: class_types_) {
+  for (auto class_int : class_types_) {
     iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
     mutable_solution_.SetClass(iterators_[class_int]);
   }
@@ -67,14 +67,14 @@ double BruteSolutionPermuter::Advancer::completion() const {
 }
 
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
-  : entry_descriptor_(e) {}
+    : entry_descriptor_(e) {}
 
 void BruteSolutionPermuter::Prepare() {
   const std::vector<int>& class_types =
       entry_descriptor_->AllClasses()->Values();
 
   class_permuters_.resize(class_types.size());
-  for (auto class_int: class_types) {
+  for (auto class_int : class_types) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
     class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);

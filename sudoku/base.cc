@@ -24,14 +24,15 @@ void Base::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
-    AddPredicate(absl::StrCat("No row dupes ", i + 1),
-                 [i](const puzzle::Entry& e) {
-                   for (int j = 0; j < i; ++j) {
-                     if (e.Class(i) == e.Class(j)) return false;
-                   }
-                   return true;
-                 },
-                 cols);
+    AddPredicate(
+        absl::StrCat("No row dupes ", i + 1),
+        [i](const puzzle::Entry& e) {
+          for (int j = 0; j < i; ++j) {
+            if (e.Class(i) == e.Class(j)) return false;
+          }
+          return true;
+        },
+        cols);
   }
 
   for (int i = 0; i < 9; ++i) {
@@ -64,11 +65,10 @@ void Base::AddPredicatesCumulative() {
 void Base::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
     for (int j = i + 1; j < 9; ++j) {
-      AddPredicate(absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
-                   [i, j](const puzzle::Entry& e) {
-                     return e.Class(i) != e.Class(j);
-                   },
-                   {i, j});
+      AddPredicate(
+          absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
+          [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
+          {i, j});
     }
   }
 
@@ -77,12 +77,12 @@ void Base::AddPredicatesPairwise() {
     const int box_base_y = 3 * (box % 3);
 
     for (int i = 0; i < 9; ++i) {
-      const int box_i_x = box_base_x + (i/3);
-      const int box_i_y = box_base_y + (i%3);
+      const int box_i_x = box_base_x + (i / 3);
+      const int box_i_y = box_base_y + (i % 3);
 
       for (int j = i + 1; j < 9; ++j) {
-        const int box_j_x = box_base_x + (j/3);
-        const int box_j_y = box_base_y + (j%3);
+        const int box_j_x = box_base_x + (j / 3);
+        const int box_j_y = box_base_y + (j % 3);
 
         CHECK(!(box_i_x == box_j_x && box_i_y == box_j_y));
 
@@ -92,26 +92,30 @@ void Base::AddPredicatesPairwise() {
         // Handled by row predicate.
         if (box_i_y == box_j_y) continue;
 
-        AddPredicate(absl::StrCat("No box dupes "
-                                  "(", box_i_x + 1, ",", box_i_y + 1, ") vs "
-                                  "(", box_j_x + 1, ",", box_j_y + 1, ")"),
-                     [box_i_x,box_i_y,box_j_x, box_j_y](
-                         const puzzle::Solution& s) {
-                       return s.Id(box_i_x).Class(box_i_y) !=
-                         s.Id(box_j_x).Class(box_j_y);
-                     },
-                     {box_i_y, box_j_y});
+        AddPredicate(
+            absl::StrCat("No box dupes "
+                         "(",
+                         box_i_x + 1, ",", box_i_y + 1,
+                         ") vs "
+                         "(",
+                         box_j_x + 1, ",", box_j_y + 1, ")"),
+            [box_i_x, box_i_y, box_j_x, box_j_y](const puzzle::Solution& s) {
+              return s.Id(box_i_x).Class(box_i_y) !=
+                     s.Id(box_j_x).Class(box_j_y);
+            },
+            {box_i_y, box_j_y});
       }
     }
   }
 }
 
 void Base::AddValuePredicate(int row, int col, int value) {
-  AddPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
-               [row, col, value](const puzzle::Solution& s) {
-                 return s.Id(row - 1).Class(col - 1) == value;
-               },
-               col - 1);
+  AddPredicate(
+      absl::StrCat("(", row, ",", col, ") = ", value),
+      [row, col, value](const puzzle::Solution& s) {
+        return s.Id(row - 1).Class(col - 1) == value;
+      },
+      col - 1);
 }
 
 void Base::AddBoardPredicates(const Board& board) {
@@ -132,7 +136,7 @@ puzzle::Solution Base::GetSolution() const {
   CHECK_EQ(board.size(), 9);
   for (size_t row = 0; row < board.size(); ++row) {
     CHECK_EQ(board[row].size(), 9);
-    entries.emplace_back(row , board[row], entry_descriptor());
+    entries.emplace_back(row, board[row], entry_descriptor());
   }
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
@@ -162,8 +166,8 @@ Base::Board Base::ParseBoard(const std::string& board) {
 }
 
 void Base::Setup() {
-  puzzle::Descriptor* val_descriptor = AddDescriptor(
-      new puzzle::IntRangeDescriptor(1, 9));
+  puzzle::Descriptor* val_descriptor =
+      AddDescriptor(new puzzle::IntRangeDescriptor(1, 9));
 
   SetIdentifiers(AddDescriptor(new puzzle::IntRangeDescriptor(0, 8)));
   for (int i = 0; i < 9; ++i) {
@@ -187,4 +191,4 @@ void Base::Setup() {
   AddBoardPredicates(GetInstanceBoard());
 }
 
-}
+}  // namespace sudoku

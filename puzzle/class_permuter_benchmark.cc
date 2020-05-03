@@ -1,21 +1,21 @@
-#include "puzzle/class_permuter.h"
-
 #include <iostream>
 
 #include "absl/strings/substitute.h"
 #include "benchmark/benchmark.h"
+#include "puzzle/class_permuter.h"
 
 using SteinhausJohnsonTrotter = puzzle::internal::ClassPermuterImpl<
-  puzzle::internal::ClassPermuterType::kSteinhausJohnsonTrotter>;
+    puzzle::internal::ClassPermuterType::kSteinhausJohnsonTrotter>;
 using FactorialRadix = puzzle::internal::ClassPermuterImpl<
-  puzzle::internal::ClassPermuterType::kFactorialRadix>;
+    puzzle::internal::ClassPermuterType::kFactorialRadix>;
 
 template <typename PermuterType, int depth>
 static void BM_Permuter(benchmark::State& state) {
   for (auto _ : state) {
     puzzle::IntRangeDescriptor d(1, depth);
     PermuterType p(&d);
-    for (auto it = p.begin(); it != p.end(); ++it) /* no-op */;
+    for (auto it = p.begin(); it != p.end(); ++it) /* no-op */
+      ;
   }
 }
 
@@ -46,7 +46,8 @@ static void BM_PermuterActiveSet1InN(benchmark::State& state) {
 
   // Now benchmark with 'set'.
   for (auto _ : state) {
-    for (auto it = p.begin(); it != p.end(); ++it) /* no-op */;
+    for (auto it = p.begin(); it != p.end(); ++it) /* no-op */
+      ;
   }
 }
 
@@ -82,19 +83,24 @@ static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   }
   set.DoneAdding();
   p.set_active_set(std::move(set));
-  state.SetLabel(absl::Substitute("{$0: S=$1}: $2", depth, every_n,
-                                  p.Selectivity()));
+  state.SetLabel(
+      absl::Substitute("{$0: S=$1}: $2", depth, every_n, p.Selectivity()));
 
   // Now benchmark with 'set'.
   for (auto _ : state) {
-    for (auto it = p.begin(); it != p.end(); ++it) /* no-op */;
+    for (auto it = p.begin(); it != p.end(); ++it) /* no-op */
+      ;
   }
 }
 
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 7, 1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 7, 1000000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 9, 1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 9, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 7,
+                   1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 7,
+                   1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 9,
+                   1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, SteinhausJohnsonTrotter, 9,
+                   1000000);
 
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 7, 1000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 7, 1000000);

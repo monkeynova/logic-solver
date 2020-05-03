@@ -23,7 +23,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     double position() const override;
     double completion() const override;
 
-  private:
+   private:
     const Solution& current() const override { return current_; }
     void Advance() override;
 
@@ -46,9 +46,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     std::vector<double> pair_selectivity_reduction_;
   };
 
-  CroppedSolutionPermuter(
-      const EntryDescriptor* e,
-      Profiler* profiler);
+  CroppedSolutionPermuter(const EntryDescriptor* e, Profiler* profiler);
   ~CroppedSolutionPermuter() = default;
 
   // Movable, but not copyable.
@@ -57,8 +55,12 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   CroppedSolutionPermuter(CroppedSolutionPermuter&&) = default;
   CroppedSolutionPermuter& operator=(CroppedSolutionPermuter&&) = default;
 
-  iterator begin() const override { return iterator(absl::make_unique<Advancer>(this)); }
-  iterator end() const override { return iterator(absl::make_unique<Advancer>(nullptr)); }
+  iterator begin() const override {
+    return iterator(absl::make_unique<Advancer>(this));
+  }
+  iterator end() const override {
+    return iterator(absl::make_unique<Advancer>(nullptr));
+  }
 
   double permutation_count() const;
   const ClassPermuter& class_permuter(int class_int) const {

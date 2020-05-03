@@ -50,11 +50,9 @@ TEST(CroppedSolutionPermuterTest, CropFirstClass) {
   ed.SetClass(1, "bar", &cd2);
 
   puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.AddPredicate("test",
-                 [](const puzzle::Solution& s) {
-                   return s.Id(1).Class(0) == 7;
-                 },
-                 std::vector<int>{0});
+  p.AddPredicate(
+      "test", [](const puzzle::Solution& s) { return s.Id(1).Class(0) == 7; },
+      std::vector<int>{0});
   p.Prepare();
 
   std::unordered_set<std::string> history;
@@ -86,13 +84,13 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   ed.SetClass(1, "bar", &cd2);
 
   puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.AddPredicate("test",
-                 [](const puzzle::Solution& s) {
-                   LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
-                             << std::endl;
-                   return s.Id(1).Class(1) == 12;
-                 },
-                 std::vector<int>{1});
+  p.AddPredicate(
+      "test",
+      [](const puzzle::Solution& s) {
+        LOG(INFO) << "(1,1) => " << s.Id(0).Class(1) << std::endl;
+        return s.Id(1).Class(1) == 12;
+      },
+      std::vector<int>{1});
   p.Prepare();
 
   std::unordered_set<std::string> history;
@@ -125,18 +123,20 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   ed.SetClass(1, "bar", &cd2);
 
   puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.AddPredicate("test",
-                 [](const puzzle::Solution& s) {
-                   LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
-                   return s.Id(0).Class(0) == 7;
-                 },
-                 std::vector<int>{0});
-  p.AddPredicate("test",
-                 [](const puzzle::Solution& s) {
-                   LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
-                   return s.Id(1).Class(1) == 12;
-                 },
-                 std::vector<int>{1});
+  p.AddPredicate(
+      "test",
+      [](const puzzle::Solution& s) {
+        LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
+        return s.Id(0).Class(0) == 7;
+      },
+      std::vector<int>{0});
+  p.AddPredicate(
+      "test",
+      [](const puzzle::Solution& s) {
+        LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
+        return s.Id(1).Class(1) == 12;
+      },
+      std::vector<int>{1});
   p.Prepare();
 
   std::unordered_set<std::string> history;

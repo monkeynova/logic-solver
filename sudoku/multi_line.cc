@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 
   int exit_code = 0;
 
-  for (std::string buf; std::getline(std::cin, buf); ) {
+  for (std::string buf; std::getline(std::cin, buf);) {
     std::cout << "In:  " << buf << std::endl;
     std::unique_ptr<::puzzle::Problem> line_board =
         ::sudoku::LineBoard::Create(buf);

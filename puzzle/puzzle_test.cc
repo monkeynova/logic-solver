@@ -56,4 +56,3 @@ BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
                    /*reorder=*/false);
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
                    /*reorder=*/true);
-

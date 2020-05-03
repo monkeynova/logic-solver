@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
   CHECK(!FLAGS_sudoku_line_board.empty()) << "--sudoku_line_board must be set";
 
   std::unique_ptr<::puzzle::Problem> line_board =
-    ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
+      ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
   CHECK(line_board != nullptr) << "No puzzle found";
 
   line_board->Setup();
