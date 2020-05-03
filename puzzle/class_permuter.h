@@ -116,7 +116,7 @@ class ClassPermuterImpl {
     return iterator(this, active_set_);
   }
   iterator begin(ActiveSet active_set) const {
-    return iterator(this, std::move(active_set_));
+    return iterator(this, std::move(active_set));
   }
   iterator end() const { return iterator(); }
 

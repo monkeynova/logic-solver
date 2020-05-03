@@ -131,4 +131,40 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   EXPECT_THAT(position, 3);
 }
 
+TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
+  IntRangeDescriptor d(3, 5);
+  TypeParam p(&d);
+  EXPECT_THAT(p.permutation_count(), 6);
+
+  ActiveSet active_set_odd;
+  ActiveSet active_set_even;
+  for (int i = 0; i < 6; ++i) {
+    active_set_odd.Add(i & 1);
+    active_set_even.Add(!(i & 1));
+  }
+  active_set_odd.DoneAdding();
+  active_set_even.DoneAdding();
+
+  std::set<std::vector<int>> history;
+  int position = 0;
+  for (auto it = p.begin(active_set_even); it != p.end(); ++it) {
+    EXPECT_THAT(it.position(), 2 * position);
+    EXPECT_TRUE(history.insert(*it).second)
+      << absl::StrJoin(*it, ", ");
+    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    ++position;
+  }
+  EXPECT_THAT(position, 3);
+
+  position = 0;
+  for (auto it = p.begin(active_set_odd); it != p.end(); ++it) {
+    EXPECT_THAT(it.position(), 2 * position + 1);
+    EXPECT_TRUE(history.insert(*it).second)
+      << absl::StrJoin(*it, ", ");
+    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    ++position;
+  }
+  EXPECT_THAT(position, 3);
+}
+
 }  // namespace puzzle
