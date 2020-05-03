@@ -95,8 +95,9 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   // 'class_predicates_[class_permuter_[N-1].class_int()]' is true.
   std::vector<ClassPermuter> class_permuters_;
 
-  // Index is class_int at which evaluation should be performed.
-  std::vector<absl::optional<Solution::Cropper>> class_predicates_;
+  // class_predicates_[class_int] is an array of predicate residuals to evaluate
+  // after filling class_int.
+  std::vector<std::vector<Solution::Cropper>> class_predicates_;
 
   std::unique_ptr<ActiveSetBuilder> active_set_builder_;
 
