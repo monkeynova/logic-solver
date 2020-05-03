@@ -2,15 +2,15 @@
 
 #include <iostream>
 
+#include "absl/strings/str_join.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
 using ::testing::AnyOf;
 using ::testing::Eq;
+using ::testing::ElementsAre;
 using ::testing::ElementsAreArray;
-using ::testing::UnorderedElementsAre;
-using ::testing::UnorderedElementsAreArray;
 
 namespace puzzle {
 
@@ -165,8 +165,8 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
   }
 }
 
-absl::flat_hash_set<int> Drain(ActiveSet s, int max_positions) {
-  absl::flat_hash_set<int> ret;
+std::set<int> Drain(ActiveSet s, int max_positions) {
+  std::set<int> ret;
   for (int i = 0; i < max_positions; ++i) {
     if (s.ConsumeNext()) {
       ret.insert(i);
@@ -177,26 +177,30 @@ absl::flat_hash_set<int> Drain(ActiveSet s, int max_positions) {
 
 TEST(ActiveSet, SetConstruction) {
   EXPECT_THAT(Drain(ActiveSet({0}, 1), 1),
-              UnorderedElementsAre(0));
+              ElementsAre(0));
   EXPECT_THAT(Drain(ActiveSet({}, 1), 1),
-              UnorderedElementsAre());
+              ElementsAre());
   for (int i = 0; i < 4; ++i) {
     EXPECT_THAT(Drain(ActiveSet({i}, 4), 4),
-                UnorderedElementsAre(i));
+                ElementsAre(i));
   }
-  for (int i = 0; i < 9; ++i) {
+  for (int i = 0; i < 5; ++i) {
     if (i == 5) continue;
     EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9),
-                UnorderedElementsAre(i, 5));
+                ElementsAre(i, 5));
+  }
+  for (int i = 6; i < 9; ++i) {
+    EXPECT_THAT(Drain(ActiveSet({i, 5}, 9), 9),
+                ElementsAre(5, i));
   }
   EXPECT_THAT(Drain(ActiveSet({1,3,5,7}, 9), 9),
-              UnorderedElementsAre(1,3,5,7));
+              ElementsAre(1,3,5,7));
   EXPECT_THAT(Drain(ActiveSet({0,2,4,6,8}, 9), 9),
-              UnorderedElementsAre(0,2,4,6,8));
+              ElementsAre(0,2,4,6,8));
 }
 
-absl::flat_hash_set<int> ExtractValues(ActiveSet a) {
-  absl::flat_hash_set<int> ret;
+std::set<int> ExtractValues(ActiveSet a) {
+  std::set<int> ret;
   for (int i = 0; i < a.total(); ++i) {
     if (a.ConsumeNext()) {
       ret.insert(i);
@@ -207,23 +211,23 @@ absl::flat_hash_set<int> ExtractValues(ActiveSet a) {
 
 TEST(ActiveSet, SetConstuctionFullExact) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 4)),
-              UnorderedElementsAre(0, 1, 2, 3));
+              ElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionEmptyEnd) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 5)),
-              UnorderedElementsAre(0, 1, 2, 3));
+              ElementsAre(0, 1, 2, 3));
 }
 TEST(ActiveSet, SetConstuctionTruncate) {
   EXPECT_THAT(ExtractValues(ActiveSet({0, 1, 2, 3}, 3)),
-              UnorderedElementsAre(0, 1, 2));
+              ElementsAre(0, 1, 2));
 }
 TEST(ActiveSet, SetConstuctionNegative) {
   EXPECT_THAT(ExtractValues(ActiveSet({-1, 1}, 2)),
-              UnorderedElementsAre(1));
+              ElementsAre(1));
 }
 TEST(ActiveSet, SetConstuctionSpards) {
   EXPECT_THAT(ExtractValues(ActiveSet({5, 10}, 100)),
-              UnorderedElementsAre(5, 10));
+              ElementsAre(5, 10));
 }
 
 void TestIntersection(const std::vector<int>& set_a,
@@ -236,8 +240,8 @@ void TestIntersection(const std::vector<int>& set_a,
                         set_b.begin(), set_b.end(),
                         std::back_inserter(intersection));
 
-  EXPECT_THAT(ExtractValues(a.Intersection(b)), UnorderedElementsAreArray(intersection));
-  EXPECT_THAT(ExtractValues(b.Intersection(a)), UnorderedElementsAreArray(intersection));
+  EXPECT_THAT(ExtractValues(a.Intersection(b)), ElementsAreArray(intersection));
+  EXPECT_THAT(ExtractValues(b.Intersection(a)), ElementsAreArray(intersection));
 }
 
 TEST(ActiveSet, IntersectionFull) {
@@ -254,6 +258,12 @@ TEST(ActiveSet, IntersectionSparseRangePartialMatch) {
 }
 TEST(ActiveSet, IntersectionSparseRangeEmpty) {
   TestIntersection({2, 3, 5, 6, 8, 9}, {4, 7}, 10, 10);
+}
+
+TEST(ActiveSet, Empirical) {
+  TestIntersection({0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
+		   {3, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
+		   24, 24);
 }
 
 TEST(ActiveSet, EnabledValues) {

@@ -92,10 +92,10 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
       next_run_value = true;
       next_run_size = std::min(this_iterator.run_size(),
                                other_iterator.run_size());
-    } else if (this_iterator.value()) {
+    } else if (!this_iterator.value()) {
       // Single false, it dictactes length.
       next_run_size = this_iterator.run_size();
-    } else if (other_iterator.value()) {
+    } else if (!other_iterator.value()) {
       // Single false, it dictactes length.
       next_run_size = other_iterator.run_size();
     } else {
@@ -236,5 +236,10 @@ std::vector<int> ActiveSet::EnabledValues() const {
   }
   return ret;
 }
-  
+
+std::string ActiveSet::DebugValues() const {
+  return absl::StrCat(
+      "{", absl::StrJoin(EnabledValues(), ", "), "}"); 
 }
+
+}  // namespace puzzle

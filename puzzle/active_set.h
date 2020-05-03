@@ -42,6 +42,8 @@ class ActiveSet {
 
   std::string DebugString() const;
 
+  std::string DebugValues() const;
+
   // Adds a new boolean value to the current ActiveSet. Must not be called
   // after DoneAdding is called.
   void Add(bool match);
