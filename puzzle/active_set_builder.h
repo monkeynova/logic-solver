@@ -53,9 +53,14 @@ class ActiveSetBuilder {
   // for the permutations such that any value of each permuter that could
   // return a true value with some value of the other permuter will be
   // in the returned active set.
-  // The returned active sets are a good faith pruning, but do not fully honor
-  // the ANDing of predicates passed in.
-  // TODO(keith): Create a first-class concept of a joint ActiveSet.
+  // ActiveSets associated with a single permuter are a good faith pruning,
+  // but do not fully honor the ANDing of predicates passed in.
+  // If pair_class_mode is kMakePairs, the active sets accessible with
+  // active_set(class_a, permutation_a, class_b) however is a fully honored
+  // active set for the permutations of class_b, given permutation_a.
+  // The implementations are built with an eye towards 'permuter_a' being more
+  // selective than 'permuter_b', and all other things being equal, ordering
+  // the arguments that way may provide a slight performance benefit.
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
   void Build(const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
              const std::vector<Solution::Cropper>& predicates,

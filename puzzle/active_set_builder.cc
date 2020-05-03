@@ -129,43 +129,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
   SetupPairBuild(class_a, class_b, predicates);
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
-  {
-    ActiveSet active_set_a = ActiveSet();
-
-    for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
-      mutable_solution_.SetClass(it_a);
-      bool any_of_a = false;
-      ActiveSet a_b_set;
-      ActiveSet source_b =
-        permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
-      for (auto it_b = permuter_b.begin(source_b);
-           it_b != permuter_b.end();
-           ++it_b) {
-        mutable_solution_.SetClass(it_b);
-        if (AllMatch(predicates)) {
-          any_of_a = true;
-          if (pair_class_mode == PairClassMode::kSingleton) break;
-	  if (pair_class_mode == PairClassMode::kMakePairs) {
-	    a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
-	    a_b_set.Add(true);
-	  }
-        }
-      }
-      if (any_of_a) {
-	active_set_a.AddBlock(false, it_a.position() - active_set_a.total());
-	active_set_a.Add(true);
-      }
-      if (pair_class_mode == PairClassMode::kMakePairs) {
-	a_b_set.AddBlock(false, permuter_b.permutation_count() - a_b_set.total());
-        a_b_set.DoneAdding();
-        a_b_pair.Assign(it_a.position(), std::move(a_b_set));
-      }
-    }
-
-    active_set_a.AddBlock(false, permuter_a.permutation_count() - active_set_a.total());
-    active_set_a.DoneAdding();
-    active_sets_[class_a] = std::move(active_set_a);
-  }
+  // Since we expect 'a' to be the smaller of the iterations, we use it as the
+  // inner loop first, hoping to prune 'b' for its iteration.
   {
     ActiveSet active_set_b = ActiveSet();
 
@@ -202,6 +167,46 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
     active_set_b.AddBlock(false, permuter_b.permutation_count() - active_set_b.total());
     active_set_b.DoneAdding();
     active_sets_[class_b] = std::move(active_set_b);
+  }
+  {
+    ActiveSet active_set_a = ActiveSet();
+
+    ActiveSet base_b_iteration =
+        permuter_b.active_set().Intersection(active_sets_[class_b]);
+
+    for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
+      mutable_solution_.SetClass(it_a);
+      bool any_of_a = false;
+      ActiveSet a_b_set;
+      ActiveSet source_b =
+          base_b_iteration.Intersection(a_b_pair.Find(it_a.position()));
+      for (auto it_b = permuter_b.begin(source_b);
+           it_b != permuter_b.end();
+           ++it_b) {
+        mutable_solution_.SetClass(it_b);
+        if (AllMatch(predicates)) {
+          any_of_a = true;
+          if (pair_class_mode == PairClassMode::kSingleton) break;
+	  if (pair_class_mode == PairClassMode::kMakePairs) {
+	    a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
+	    a_b_set.Add(true);
+	  }
+        }
+      }
+      if (any_of_a) {
+	active_set_a.AddBlock(false, it_a.position() - active_set_a.total());
+	active_set_a.Add(true);
+      }
+      if (pair_class_mode == PairClassMode::kMakePairs) {
+	a_b_set.AddBlock(false, permuter_b.permutation_count() - a_b_set.total());
+        a_b_set.DoneAdding();
+        a_b_pair.Assign(it_a.position(), std::move(a_b_set));
+      }
+    }
+
+    active_set_a.AddBlock(false, permuter_a.permutation_count() - active_set_a.total());
+    active_set_a.DoneAdding();
+    active_sets_[class_a] = std::move(active_set_a);
   }
 }
 
