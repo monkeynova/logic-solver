@@ -37,19 +37,12 @@ class Solver {
   // Solution that looks for class requests on other values.
 
   void AddPredicate(std::string name, Entry::Predicate predicate) {
-    AddPredicate(name, [predicate](const Solution& s) {
-      return all_of(s.entries().begin(), s.entries().end(), predicate);
-    });
+    AddPredicate(name, predicate, {});
   }
 
   void AddPredicate(std::string name, Entry::Predicate predicate,
                     int class_int_restrict) {
-    AddPredicate(
-        name,
-        [predicate](const Solution& s) {
-          return all_of(s.entries().begin(), s.entries().end(), predicate);
-        },
-        class_int_restrict);
+    AddPredicate(name, predicate, std::vector<int>{class_int_restrict});
   }
 
   void AddPredicate(std::string name, Entry::Predicate predicate,
@@ -68,8 +61,7 @@ class Solver {
 
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     int class_int_restrict) {
-    std::vector<int> class_int_restrict_list = {class_int_restrict};
-    AddPredicate(name, predicate, class_int_restrict_list);
+    AddPredicate(name, predicate, std::vector<int>{class_int_restrict});
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate,
