@@ -87,7 +87,7 @@ bool CroppedSolutionPermuter::Advancer::FindNextValid(int class_position) {
     if (NotePositionForProfiler(class_position)) return false;
     if (std::all_of(
             solution_predicates.begin(), solution_predicates.end(),
-            [this](const Solution::Cropper& c) { return c.p(current_); }) &&
+            [this](const Solution::Cropper& c) { return c(current_); }) &&
         FindNextValid(class_position + 1)) {
       return true;
     }
@@ -227,17 +227,17 @@ void CroppedSolutionPermuter::Prepare() {
          ++it) {
       int class_int = it->class_int();
 
-      auto it2 =
-          std::find(cropper.classes.begin(), cropper.classes.end(), class_int);
+      auto it2 = std::find(cropper.classes().begin(), cropper.classes().end(),
+                           class_int);
 
-      if (it2 != cropper.classes.end()) {
+      if (it2 != cropper.classes().end()) {
         class_predicates_[class_int].push_back(cropper);
         added = true;
         break;  // class_int
       }
     }
-    CHECK(added) << "Could not add cropper for " << cropper.name << " ["
-                 << absl::StrJoin(cropper.classes, ",") << "]";
+    CHECK(added) << "Could not add cropper for " << cropper.name() << " ["
+                 << absl::StrJoin(cropper.classes(), ",") << "]";
   }
 
   if (VLOG_IS_ON(1)) {
@@ -248,7 +248,7 @@ void CroppedSolutionPermuter::Prepare() {
               : absl::StrJoin(
                     class_predicates_[permuter.class_int()], "; ",
                     [](std::string* out, const Solution::Cropper& cropper) {
-                      absl::StrAppend(out, cropper.name);
+                      absl::StrAppend(out, cropper.name());
                     });
       VLOG(1) << "Predicates at " << permuter.class_int() << " ("
               << permuter.Selectivity() << "="
@@ -275,14 +275,14 @@ void CroppedSolutionPermuter::BuildActiveSets(
       pair_class_predicates;
   single_class_predicates.resize(class_permuters_.size());
   for (const auto& cropper : predicates_) {
-    if (cropper.classes.size() == 1) {
-      int class_int = cropper.classes[0];
+    if (cropper.classes().size() == 1) {
+      int class_int = cropper.classes()[0];
       single_class_predicates[class_int].push_back(cropper);
-    } else if (cropper.classes.size() == 2) {
+    } else if (cropper.classes().size() == 2) {
       std::pair<int, int> key1 =
-          std::make_pair(cropper.classes[0], cropper.classes[1]);
+          std::make_pair(cropper.classes()[0], cropper.classes()[1]);
       std::pair<int, int> key2 =
-          std::make_pair(cropper.classes[1], cropper.classes[0]);
+          std::make_pair(cropper.classes()[1], cropper.classes()[0]);
       pair_class_predicates[key1].push_back(cropper);
       pair_class_predicates[key2].push_back(cropper);
       if (!FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {

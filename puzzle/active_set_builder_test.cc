@@ -122,11 +122,11 @@ TEST_P(SinglePermuterTest, ExistingSet) {
   LOG(INFO) << "Start: " << p.active_set().DebugString();
   builder.Build(single_class_build(), p, {first_is_3});
   p.set_active_set(builder.active_set(kClassInt));
-  LOG(INFO) << "Add " << first_is_3.name << ": "
+  LOG(INFO) << "Add " << first_is_3.name() << ": "
             << p.active_set().DebugString();
   builder.Build(single_class_build(), p, {second_is_4});
   p.set_active_set(builder.active_set(kClassInt));
-  LOG(INFO) << "Add " << second_is_4.name << ": "
+  LOG(INFO) << "Add " << second_is_4.name() << ": "
             << p.active_set().DebugString();
 
   for (auto it = p.begin(); it != p.end(); ++it) {
@@ -187,7 +187,7 @@ TEST_P(PairPermuterTest, Simple) {
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
       ++full_iteration_count;
-      if (c.p(test_solution)) {
+      if (c(test_solution)) {
         ++expect_found_count;
       }
     }
@@ -203,7 +203,7 @@ TEST_P(PairPermuterTest, Simple) {
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
       ++got_iteration_count;
-      if (c.p(test_solution)) {
+      if (c(test_solution)) {
         ++got_found_count;
       }
     }
@@ -260,11 +260,11 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   int full_iteration_count = 0;
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution.SetClass(it_a);
-    EXPECT_TRUE(a_cropper.p(test_solution));
+    EXPECT_TRUE(a_cropper(test_solution));
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
       ++full_iteration_count;
-      if (pair_cropper.p(test_solution)) {
+      if (pair_cropper(test_solution)) {
         ++expect_found_count;
       }
     }
@@ -277,11 +277,11 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   int got_iteration_count = 0;
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution.SetClass(it_a);
-    EXPECT_TRUE(a_cropper.p(test_solution));
+    EXPECT_TRUE(a_cropper(test_solution));
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
       ++got_iteration_count;
-      if (pair_cropper.p(test_solution)) {
+      if (pair_cropper(test_solution)) {
         ++got_found_count;
       }
     }
@@ -340,9 +340,9 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
     mutable_solution.SetClass(it_a);
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
-      EXPECT_TRUE(b_cropper.p(test_solution));
+      EXPECT_TRUE(b_cropper(test_solution));
       ++full_iteration_count;
-      if (pair_cropper.p(test_solution)) {
+      if (pair_cropper(test_solution)) {
         ++expect_found_count;
       }
     }
@@ -357,9 +357,9 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
     mutable_solution.SetClass(it_a);
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
-      EXPECT_TRUE(b_cropper.p(test_solution));
+      EXPECT_TRUE(b_cropper(test_solution));
       ++got_iteration_count;
-      if (pair_cropper.p(test_solution)) {
+      if (pair_cropper(test_solution)) {
         ++got_found_count;
       }
     }

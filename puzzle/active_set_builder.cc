@@ -57,7 +57,7 @@ bool ActiveSetBuilder::AllMatch(
     const std::vector<Solution::Cropper>& predicates) const {
   return std::all_of(
       predicates.begin(), predicates.end(),
-      [this](const Solution::Cropper& c) { return c.p(solution_); });
+      [this](const Solution::Cropper& c) { return c(solution_); });
 }
 
 template <>
@@ -65,8 +65,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
     const ClassPermuter& class_permuter,
     const std::vector<Solution::Cropper>& predicates) {
   for (const auto& p : predicates) {
-    CHECK_EQ(p.classes.size(), 1);
-    CHECK_EQ(p.classes[0], class_permuter.class_int());
+    CHECK_EQ(p.classes().size(), 1);
+    CHECK_EQ(p.classes()[0], class_permuter.class_int());
   }
   ActiveSet active_set;
   for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
@@ -87,8 +87,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
     const ClassPermuter& class_permuter,
     const std::vector<Solution::Cropper>& predicates) {
   for (const auto& p : predicates) {
-    CHECK_EQ(p.classes.size(), 1);
-    CHECK_EQ(p.classes[0], class_permuter.class_int());
+    CHECK_EQ(p.classes().size(), 1);
+    CHECK_EQ(p.classes()[0], class_permuter.class_int());
   }
   std::vector<int> a_matches;
   for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
@@ -105,10 +105,10 @@ void ActiveSetBuilder::SetupPairBuild(
     int class_a, int class_b,
     const std::vector<Solution::Cropper>& predicates) const {
   for (const auto& p : predicates) {
-    CHECK_EQ(p.classes.size(), 2);
-    CHECK(p.classes[0] == class_a || p.classes[0] == class_b);
-    CHECK(p.classes[1] == class_a || p.classes[1] == class_b);
-    CHECK_NE(p.classes[0], p.classes[1]);
+    CHECK_EQ(p.classes().size(), 2);
+    CHECK(p.classes()[0] == class_a || p.classes()[0] == class_b);
+    CHECK(p.classes()[1] == class_a || p.classes()[1] == class_b);
+    CHECK_NE(p.classes()[0], p.classes()[1]);
   }
 }
 
