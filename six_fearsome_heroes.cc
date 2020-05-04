@@ -59,14 +59,14 @@ class SixFearsomeHeroes : public puzzle::Problem {
 REGISTER_PROBLEM(SixFearsomeHeroes);
 
 void SixFearsomeHeroes::AddGeneralPredicates() {
-  AddPredicate(
+  AddAllEntryPredicate(
       "Nobody either fears him/herself ...",
       [](const puzzle::Entry& e) { return e.Class(FEAR) != e.id(); }, FEAR);
-  AddPredicate(
+  AddAllEntryPredicate(
       "... nor counts him/herself as a hero.",
       [](const puzzle::Entry& e) { return e.Class(HERO) != e.id(); }, HERO);
 
-  AddPredicate(
+  AddAllEntryPredicate(
       "Nobody fears his/her own hero",
       [](const puzzle::Entry& e) { return e.Class(HERO) != e.Class(FEAR); },
       {HERO, FEAR});

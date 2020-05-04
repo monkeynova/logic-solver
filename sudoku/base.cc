@@ -24,7 +24,7 @@ void Base::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
-    AddPredicate(
+    AddAllEntryPredicate(
         absl::StrCat("No row dupes ", i + 1),
         [i](const puzzle::Entry& e) {
           for (int j = 0; j < i; ++j) {
@@ -65,7 +65,7 @@ void Base::AddPredicatesCumulative() {
 void Base::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
     for (int j = i + 1; j < 9; ++j) {
-      AddPredicate(
+      AddAllEntryPredicate(
           absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
           [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
           {i, j});

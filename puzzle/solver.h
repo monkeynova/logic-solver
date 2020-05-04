@@ -36,17 +36,17 @@ class Solver {
   // TODO(keith@monkeynova.com): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
 
-  void AddPredicate(std::string name, Entry::Predicate predicate) {
-    AddPredicate(name, predicate, {});
+  void AddAllEntryPredicate(std::string name, Entry::Predicate predicate) {
+    AddAllEntryPredicate(name, predicate, {});
   }
 
-  void AddPredicate(std::string name, Entry::Predicate predicate,
-                    int class_int_restrict) {
-    AddPredicate(name, predicate, std::vector<int>{class_int_restrict});
+  void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
+			    int class_int_restrict) {
+    AddAllEntryPredicate(name, predicate, std::vector<int>{class_int_restrict});
   }
 
-  void AddPredicate(std::string name, Entry::Predicate predicate,
-                    const std::vector<int>& class_int_restrict_list) {
+  void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
+			    const std::vector<int>& class_int_restrict_list) {
     AddPredicate(
         name,
         [predicate](const Solution& s) {
