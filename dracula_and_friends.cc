@@ -51,14 +51,15 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
         return true;
       },
       {REGION});
-  AddPredicate("2. Matei wasn't from Debrogea. He hated onions or ivy.",
-               // Edit "He hated" probably should be "He hated neither".
-               [](const puzzle::Solution& s) {
-                 if (s.Id(MATEI).Class(REGION) == DEBROGEA) return false;
-                 return s.Id(MATEI).Class(PLANTS) == ONION ||
-                        s.Id(MATEI).Class(PLANTS) == IVY;
-               },
-               {REGION, PLANTS});
+  AddSpecificEntryPredicate(
+      "2. Matei wasn't from Debrogea. He hated onions or ivy.",
+      // Edit "He hated" probably should be "He hated neither".
+      MATEI,
+      [](const puzzle::Entry& e) {
+        if (e.Class(REGION) == DEBROGEA) return false;
+        return e.Class(PLANTS) == ONION || e.Class(PLANTS) == IVY;
+      },
+      {REGION, PLANTS});
   AddPredicate(
       "3. The vampire from Mutenia lived 100 years after the "
       "vampire who hated thornbrush.",
@@ -83,13 +84,13 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                 s.Id(DORIAN).Class(CENTURY) + 1);
       },
       {REGION, CENTURY});
-  AddPredicate(
+  AddSpecificEntryPredicate(
       "5. Octavain either lived in the XVI century or hated "
       "thornbrush.",
-      [](const puzzle::Solution& s) {
-        const bool in_xvi = s.Id(OCTAVIAN).Class(CENTURY) == XVI;
-        const bool hated_thornbrush =
-            s.Id(OCTAVIAN).Class(PLANTS) == THORNBRUSH;
+      OCTAVIAN,
+      [](const puzzle::Entry& e) {
+        const bool in_xvi = e.Class(CENTURY) == XVI;
+        const bool hated_thornbrush = e.Class(PLANTS) == THORNBRUSH;
         return (in_xvi || hated_thornbrush) && !(in_xvi && hated_thornbrush);
       },
       {PLANTS, CENTURY});
@@ -101,18 +102,15 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                  return true;
                },
                {REGION, PLANTS});
-  AddPredicate(
-      "7. The vampire from XIV century wasn't Octavian nor Bogdan.",
-      [](const puzzle::Solution& s) {
-        return s.Id(OCTAVIAN).Class(CENTURY) != XIV &&
-               s.Id(BOGDAN).Class(CENTURY) != XIV;
-      },
-      {CENTURY});
-  AddPredicate(
-      "8. Villagers didn't grow thornbrush against Dorian.",
-      [](const puzzle::Solution& s) {
-        return s.Id(DORIAN).Class(PLANTS) != THORNBRUSH;
-      },
+  AddPredicate("7. The vampire from XIV century wasn't Octavian nor Bogdan.",
+               [](const puzzle::Solution& s) {
+                 return s.Id(OCTAVIAN).Class(CENTURY) != XIV &&
+                        s.Id(BOGDAN).Class(CENTURY) != XIV;
+               },
+               {CENTURY});
+  AddSpecificEntryPredicate(
+      "8. Villagers didn't grow thornbrush against Dorian.", DORIAN,
+      [](const puzzle::Entry& e) { return e.Class(PLANTS) != THORNBRUSH; },
       {PLANTS});
   AddPredicate(
       "9. Chronicles of XVII century claimed that ivy was "

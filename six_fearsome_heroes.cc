@@ -73,24 +73,22 @@ void SixFearsomeHeroes::AddGeneralPredicates() {
 }
 
 void SixFearsomeHeroes::AddStatementPredicates() {
-  AddPredicate(
-      "1. Geordi ranks 2 at Tri-D Chess",
-      [](const puzzle::Solution& s) { return s.Id(GEORDI).Class(TRID) == 2; },
-      {TRID});
+  AddSpecificEntryPredicate(
+      "1. Geordi ranks 2 at Tri-D Chess", GEORDI,
+      [](const puzzle::Entry& e) { return e.Class(TRID) == 2; }, {TRID});
 
-  AddPredicate(
-      "2. Picard ranks two positions behind Troi at Fizzbin.",
-      [](const puzzle::Solution& s) {
-        return s.Id(PICARD).Class(FIZZBIN) == s.Id(TROI).Class(FIZZBIN) - 2;
-      },
-      {FIZZBIN});
+  AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
+               [](const puzzle::Solution& s) {
+                 return s.Id(PICARD).Class(FIZZBIN) ==
+                        s.Id(TROI).Class(FIZZBIN) - 2;
+               },
+               {FIZZBIN});
 
-  AddPredicate(
-      "3. Troi is feared by the person Geordi fears.",
-      [](const puzzle::Solution& s) {
-        return s.Id(s.Id(GEORDI).Class(FEAR)).Class(FEAR) == TROI;
-      },
-      {FEAR});
+  AddPredicate("3. Troi is feared by the person Geordi fears.",
+               [](const puzzle::Solution& s) {
+                 return s.Id(s.Id(GEORDI).Class(FEAR)).Class(FEAR) == TROI;
+               },
+               {FEAR});
 
   AddPredicate(
       "4. Worf's hero ranks 3 times lower at Tri-D Chess than "
@@ -109,19 +107,15 @@ void SixFearsomeHeroes::AddStatementPredicates() {
                },
                {HERO, FEAR});
 
-  AddPredicate(
-      "6. Data's hero is not Geordi.",
-      [](const puzzle::Solution& s) {
-        return s.Id(DATA).Class(HERO) != GEORDI;
-      },
-      {HERO});
+  AddSpecificEntryPredicate(
+      "6. Data's hero is not Geordi.", DATA,
+      [](const puzzle::Entry& e) { return e.Class(HERO) != GEORDI; }, {HERO});
 
-  AddPredicate(
-      "7. Data is the hero of Riker's hero.",
-      [](const puzzle::Solution& s) {
-        return s.Id(s.Id(RIKER).Class(HERO)).Class(HERO) == DATA;
-      },
-      {HERO});
+  AddPredicate("7. Data is the hero of Riker's hero.",
+               [](const puzzle::Solution& s) {
+                 return s.Id(s.Id(RIKER).Class(HERO)).Class(HERO) == DATA;
+               },
+               {HERO});
 
   AddPredicate(
       "8. The person who is worst at Fizzbin is better than Troi "
@@ -143,19 +137,17 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       },
       {TRID, FIZZBIN});
 
-  AddPredicate(
-      "10. Riker is feared by the person Picard fears...",
-      [](const puzzle::Solution& s) {
-        return s.Id(s.Id(PICARD).Class(FEAR)).Class(FEAR) == RIKER;
-      },
-      {FEAR});
+  AddPredicate("10. Riker is feared by the person Picard fears...",
+               [](const puzzle::Solution& s) {
+                 return s.Id(s.Id(PICARD).Class(FEAR)).Class(FEAR) == RIKER;
+               },
+               {FEAR});
 
-  AddPredicate(
-      "10(cont). ... and is the hero of Worf's hero.",
-      [](const puzzle::Solution& s) {
-        return s.Id(s.Id(WORF).Class(HERO)).Class(HERO) == RIKER;
-      },
-      {HERO});
+  AddPredicate("10(cont). ... and is the hero of Worf's hero.",
+               [](const puzzle::Solution& s) {
+                 return s.Id(s.Id(WORF).Class(HERO)).Class(HERO) == RIKER;
+               },
+               {HERO});
 
   AddPredicate(
       "11. Riker is ranked 2 lower at Tri-D Chess than the crew "
