@@ -114,7 +114,7 @@ void SwimmingPoolProblem::AddRulePredicates() {
   AddPredicate(
       "6. Daisy is not swimming in lane #2.",
       [](const puzzle::Solution& s) { return s.Id(DAISY).Class(LANE) != 2; },
-      LANE);
+      {LANE});
 }
 
 puzzle::Solution SwimmingPoolProblem::GetSolution() const {

@@ -115,7 +115,7 @@ void Base::AddValuePredicate(int row, int col, int value) {
       [row, col, value](const puzzle::Solution& s) {
         return s.Id(row - 1).Class(col - 1) == value;
       },
-      col - 1);
+      {col - 1});
 }
 
 void Base::AddBoardPredicates(const Board& board) {

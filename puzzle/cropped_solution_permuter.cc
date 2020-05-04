@@ -187,7 +187,7 @@ CroppedSolutionPermuter::CroppedSolutionPermuter(const EntryDescriptor* e,
 
 bool CroppedSolutionPermuter::AddPredicate(
     absl::string_view name, Solution::Predicate predicate,
-    const std::vector<int>& class_int_restrict_list) {
+    std::vector<int> class_int_restrict_list) {
   CHECK(!prepared_);
   // TODO(keith@monkeynova.com): Maybe test for full sized list as well.
   if (class_int_restrict_list.empty()) {
@@ -196,7 +196,7 @@ bool CroppedSolutionPermuter::AddPredicate(
     return false;
   }
   predicates_.emplace_back(std::string(name), predicate,
-                           class_int_restrict_list);
+                           std::move(class_int_restrict_list));
   // If `predicate` is successfully stored, this class guarantees to honor it
   // in the returned solutions.
   return true;

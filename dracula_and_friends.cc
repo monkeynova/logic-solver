@@ -50,7 +50,7 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                      (s.Id(OCTAVIAN).Class(REGION) == OLTENIA ? 1 : 0));
         return true;
       },
-      REGION);
+      {REGION});
   AddPredicate("2. Matei wasn't from Debrogea. He hated onions or ivy.",
                // Edit "He hated" probably should be "He hated neither".
                [](const puzzle::Solution& s) {
@@ -107,13 +107,13 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
         return s.Id(OCTAVIAN).Class(CENTURY) != XIV &&
                s.Id(BOGDAN).Class(CENTURY) != XIV;
       },
-      CENTURY);
+      {CENTURY});
   AddPredicate(
       "8. Villagers didn't grow thornbrush against Dorian.",
       [](const puzzle::Solution& s) {
         return s.Id(DORIAN).Class(PLANTS) != THORNBRUSH;
       },
-      PLANTS);
+      {PLANTS});
   AddPredicate(
       "9. Chronicles of XVII century claimed that ivy was "
       "ineffective and that Debrogea was free from vamipres.",

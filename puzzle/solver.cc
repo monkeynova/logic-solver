@@ -10,9 +10,9 @@ Solver::Solver()
           CreateSolutionPermuter(&entry_descriptor_, profiler_.get())) {}
 
 void Solver::AddPredicate(std::string name, Solution::Predicate predicate,
-                          const std::vector<int>& class_int_restrict_list) {
+                          std::vector<int> class_int_restrict_list) {
   if (solution_permuter_->AddPredicate(name, predicate,
-                                       class_int_restrict_list)) {
+                                       std::move(class_int_restrict_list))) {
     // Permuter guarantees no need to evaluate the predicate further.
   } else {
     on_solution_.push_back(predicate);

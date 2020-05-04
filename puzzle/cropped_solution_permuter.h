@@ -68,7 +68,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   }
 
   bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
-                    const std::vector<int>& class_int_restrict_list) override;
+                    std::vector<int> class_int_restrict_list) override;
 
   void Prepare() override;
 
