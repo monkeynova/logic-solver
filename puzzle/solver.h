@@ -35,12 +35,9 @@ class Solver {
 
   void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
                             std::vector<int> class_int_restrict_list = {}) {
-    AddPredicate(
-        name,
-        [predicate](const Solution& s) {
-          return all_of(s.entries().begin(), s.entries().end(), predicate);
-        },
-        std::move(class_int_restrict_list));
+    for (const int entry_id : entry_descriptor_.AllIds()->Values()) {
+      AddSpecificEntryPredicate(name, entry_id, predicate, class_int_restrict_list);
+    }
   }
 
   void AddSpecificEntryPredicate(
