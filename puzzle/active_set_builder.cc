@@ -54,16 +54,15 @@ ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
 }
 
 bool ActiveSetBuilder::AllMatch(
-    const std::vector<Solution::Cropper>& predicates) const {
-  return std::all_of(
-      predicates.begin(), predicates.end(),
-      [this](const Solution::Cropper& c) { return c(solution_); });
+    const std::vector<SolutionCropper>& predicates) const {
+  return std::all_of(predicates.begin(), predicates.end(),
+                     [this](const SolutionCropper& c) { return c(solution_); });
 }
 
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
     const ClassPermuter& class_permuter,
-    const std::vector<Solution::Cropper>& predicates) {
+    const std::vector<SolutionCropper>& predicates) {
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes().size(), 1);
     CHECK_EQ(p.classes()[0], class_permuter.class_int());
@@ -85,7 +84,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
     const ClassPermuter& class_permuter,
-    const std::vector<Solution::Cropper>& predicates) {
+    const std::vector<SolutionCropper>& predicates) {
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes().size(), 1);
     CHECK_EQ(p.classes()[0], class_permuter.class_int());
@@ -103,7 +102,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
 
 void ActiveSetBuilder::SetupPairBuild(
     int class_a, int class_b,
-    const std::vector<Solution::Cropper>& predicates) const {
+    const std::vector<SolutionCropper>& predicates) const {
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes().size(), 2);
     CHECK(p.classes()[0] == class_a || p.classes()[0] == class_b);
@@ -115,7 +114,7 @@ void ActiveSetBuilder::SetupPairBuild(
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
     const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
-    const std::vector<Solution::Cropper>& predicates,
+    const std::vector<SolutionCropper>& predicates,
     ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
   int class_b = permuter_b.class_int();
@@ -208,7 +207,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
-    const std::vector<Solution::Cropper>& predicates,
+    const std::vector<SolutionCropper>& predicates,
     ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
   int class_b = permuter_b.class_int();
@@ -272,7 +271,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
-    const std::vector<Solution::Cropper>& predicates,
+    const std::vector<SolutionCropper>& predicates,
     ActiveSetBuilder::PairClassMode pair_class_mode) {
   int class_a = permuter_a.class_int();
   int class_b = permuter_b.class_int();
@@ -329,7 +328,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
 
 void ActiveSetBuilder::Build(SingleClassBuild single_class_build,
                              const ClassPermuter& class_permuter,
-                             const std::vector<Solution::Cropper>& predicates) {
+                             const std::vector<SolutionCropper>& predicates) {
   switch (single_class_build) {
     case SingleClassBuild::kPassThrough:
       Build<SingleClassBuild::kPassThrough>(class_permuter, predicates);
@@ -346,7 +345,7 @@ void ActiveSetBuilder::Build(SingleClassBuild single_class_build,
 void ActiveSetBuilder::Build(PairClassImpl pair_class_impl,
                              const ClassPermuter& permuter_a,
                              const ClassPermuter& permuter_b,
-                             const std::vector<Solution::Cropper>& predicates,
+                             const std::vector<SolutionCropper>& predicates,
                              PairClassMode pair_class_mode) {
   switch (pair_class_impl) {
     case PairClassImpl::kPairSet:

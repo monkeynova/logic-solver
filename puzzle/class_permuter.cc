@@ -51,8 +51,7 @@ void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
 
 template <enum ClassPermuterType T>
 typename ClassPermuterImpl<T>::iterator&
-ClassPermuterImpl<T>::iterator::operator+=(
-    ValueSkip value_skip) {
+ClassPermuterImpl<T>::iterator::operator+=(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   while (!current_.empty() && current_[value_skip.value_index] == value) {
     // TODO(keith@monkeynova.com): This is a placeholder reference

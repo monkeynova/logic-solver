@@ -168,14 +168,14 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
     int loop_count = 0;
     int last_val = -1;
     for (auto it = p.begin(); it != p.end();
-	 it += {.value_index = value_index}) {
+         it += {.value_index = value_index}) {
       EXPECT_NE(last_val, (*it)[value_index]);
       last_val = (*it)[value_index];
       ++loop_count;
     }
     EXPECT_LE(loop_count, permutations) << "Iteration: " << value_index;
-    LOG(INFO) << "Reduction [" << value_index << "]: " << permutations
-	      << " => " << loop_count;
+    LOG(INFO) << "Reduction [" << value_index << "]: " << permutations << " => "
+              << loop_count;
   }
 }
 

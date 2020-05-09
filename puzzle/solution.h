@@ -158,23 +158,6 @@ class Solution {
  public:
   using Predicate = std::function<bool(const Solution&)>;
 
-  class Cropper {
-   public:
-    Cropper() = default;
-    Cropper(std::string name, Solution::Predicate p, std::vector<int> classes)
-        : name_(std::move(name)), p_(p), classes_(std::move(classes)) {}
-
-    bool operator()(const Solution& s) const { return p_(s); }
-
-    absl::string_view name() const { return name_; }
-    const std::vector<int>& classes() const { return classes_; }
-
-   private:
-    std::string name_;
-    Solution::Predicate p_;
-    std::vector<int> classes_;
-  };
-
   Solution() {}
   Solution(const EntryDescriptor* entry_descriptor,
            const std::vector<Entry>* entries)

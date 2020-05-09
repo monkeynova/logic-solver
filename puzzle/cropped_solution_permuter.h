@@ -7,6 +7,7 @@
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
+#include "puzzle/solution_cropper.h"
 #include "puzzle/solution_permuter.h"
 
 namespace puzzle {
@@ -28,7 +29,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     void Advance() override;
 
     void PruneClass(int class_int,
-                    const std::vector<Solution::Cropper>& predicates);
+                    const std::vector<SolutionCropper>& predicates);
     bool FindNextValid(int class_position);
 
     std::string IterationDebugString() const;
@@ -76,7 +77,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
   // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
   // Elements in 'croppers' that are not completely evaluated by these active
   // sets are returned in 'residual'.
-  void BuildActiveSets(std::vector<Solution::Cropper>* residual);
+  void BuildActiveSets(std::vector<SolutionCropper>* residual);
 
   // Reorders 'class_permuters_' by increasing selectivity. The effect of this
   // is to mean that any filter evaluated on a partial set of 'class_permuters_'
@@ -85,7 +86,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
   const EntryDescriptor* entry_descriptor_ = nullptr;
 
-  std::vector<Solution::Cropper> predicates_;
+  std::vector<SolutionCropper> predicates_;
 
   Profiler* profiler_;
 
@@ -99,7 +100,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
   // class_predicates_[class_int] is an array of predicate residuals to evaluate
   // after filling class_int.
-  std::vector<std::vector<Solution::Cropper>> class_predicates_;
+  std::vector<std::vector<SolutionCropper>> class_predicates_;
 
   std::unique_ptr<ActiveSetBuilder> active_set_builder_;
 

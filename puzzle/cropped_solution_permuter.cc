@@ -59,7 +59,7 @@ bool CroppedSolutionPermuter::Advancer::FindNextValid(int class_position) {
       permuter_->class_permuters_[class_position];
   int class_int = class_permuter.class_int();
 
-  const std::vector<Solution::Cropper>& solution_predicates =
+  const std::vector<SolutionCropper>& solution_predicates =
       permuter_->class_predicates_[class_int];
 
   if (iterators_[class_int] == class_permuter.end()) {
@@ -85,9 +85,8 @@ bool CroppedSolutionPermuter::Advancer::FindNextValid(int class_position) {
        ++iterators_[class_int]) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (std::all_of(
-            solution_predicates.begin(), solution_predicates.end(),
-            [this](const Solution::Cropper& c) { return c(current_); }) &&
+    if (std::all_of(solution_predicates.begin(), solution_predicates.end(),
+                    [this](const SolutionCropper& c) { return c(current_); }) &&
         FindNextValid(class_position + 1)) {
       return true;
     }
@@ -215,7 +214,7 @@ void CroppedSolutionPermuter::Prepare() {
     class_permuters_.push_back(ClassPermuter(class_descriptor, class_int));
   }
 
-  std::vector<Solution::Cropper> unhandled;
+  std::vector<SolutionCropper> unhandled;
   BuildActiveSets(&unhandled);
   ReorderEvaluation();
 
@@ -247,7 +246,7 @@ void CroppedSolutionPermuter::Prepare() {
               ? "<noop>"
               : absl::StrJoin(
                     class_predicates_[permuter.class_int()], "; ",
-                    [](std::string* out, const Solution::Cropper& cropper) {
+                    [](std::string* out, const SolutionCropper& cropper) {
                       absl::StrAppend(out, cropper.name());
                     });
       VLOG(1) << "Predicates at " << permuter.class_int() << " ("
@@ -260,7 +259,7 @@ void CroppedSolutionPermuter::Prepare() {
 }
 
 void CroppedSolutionPermuter::BuildActiveSets(
-    std::vector<Solution::Cropper>* residual) {
+    std::vector<SolutionCropper>* residual) {
   if (!FLAGS_puzzle_prune_class_iterator) {
     for (const auto& cropper : predicates_) {
       residual->push_back(cropper);
@@ -270,8 +269,8 @@ void CroppedSolutionPermuter::BuildActiveSets(
 
   VLOG(1) << "Generating singleton selectivities";
 
-  std::vector<std::vector<Solution::Cropper>> single_class_predicates;
-  absl::flat_hash_map<std::pair<int, int>, std::vector<Solution::Cropper>>
+  std::vector<std::vector<SolutionCropper>> single_class_predicates;
+  absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionCropper>>
       pair_class_predicates;
   single_class_predicates.resize(class_permuters_.size());
   for (const auto& cropper : predicates_) {
@@ -332,7 +331,7 @@ void CroppedSolutionPermuter::BuildActiveSets(
         ClassPermuter& permuter_b = *it_b;
         CHECK(permuter_a.class_int() != permuter_b.class_int());
 
-        std::vector<Solution::Cropper>& croppers =
+        std::vector<SolutionCropper>& croppers =
             pair_class_predicates[std::make_pair(permuter_a.class_int(),
                                                  permuter_b.class_int())];
         if (croppers.empty()) continue;

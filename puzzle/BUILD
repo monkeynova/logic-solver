@@ -62,6 +62,7 @@ cc_library(
         ":class_permuter",
         ":mutable_solution",
         ":solution",
+        ":solution_cropper",
         "@com_google_absl//absl/container:flat_hash_set",
     ],
 )
@@ -73,6 +74,7 @@ cc_binary(
     deps = [
         ":active_set_builder",
 	":benchmark_main",
+        ":solution_cropper",
         "@com_google_benchmark//:benchmark",
     ]
 )
@@ -83,6 +85,7 @@ cc_test(
     deps = [
         ":active_set_builder",
         ":mutable_solution",
+        ":solution_cropper",
         ":test_main",
     ]
 )   
@@ -120,6 +123,7 @@ cc_library(
         ":class_permuter",
 	":mutable_solution",
 	":profiler",
+        ":solution_cropper",
         ":solution_permuter",
 	"@com_google_absl//absl/memory",
 	"@com_google_glog//:glog",
@@ -191,6 +195,14 @@ cc_library(
         "@com_google_protobuf//:protobuf",
         "@com_google_glog//:glog",
    ],
+)
+
+cc_library(
+    name = "solution_cropper",
+    hdrs = ["solution_cropper.h"],
+    deps = [
+        ":solution",
+    ],
 )
 
 cc_library(

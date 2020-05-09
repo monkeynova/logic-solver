@@ -1,5 +1,6 @@
 #include "benchmark/benchmark.h"
 #include "puzzle/active_set_builder.h"
+#include "puzzle/solution_cropper.h"
 
 namespace puzzle {
 
@@ -30,36 +31,36 @@ struct SetupState {
     return ret;
   }
 
-  static Solution::Cropper MakePairCropper() {
-    Solution::Cropper ret(
-        "no entry the same",
-        [](const Solution& s) {
-          return all_of(s.entries().begin(), s.entries().end(),
-                        [](const Entry& e) {
-                          return e.Class(kClassIntA) != e.Class(kClassIntB);
-                        });
-        },
-        {kClassIntA, kClassIntB});
+  static SolutionCropper MakePairCropper() {
+    SolutionCropper ret("no entry the same",
+                        [](const Solution& s) {
+                          return all_of(s.entries().begin(), s.entries().end(),
+                                        [](const Entry& e) {
+                                          return e.Class(kClassIntA) !=
+                                                 e.Class(kClassIntB);
+                                        });
+                        },
+                        {kClassIntA, kClassIntB});
     return ret;
   }
 
-  static Solution::Cropper MakeCropperA() {
-    Solution::Cropper ret("no entry the same",
-                          [](const Solution& s) {
-                            return s.Id(0).Class(kClassIntA) == 0 &&
-                                   s.Id(1).Class(kClassIntA) == 1;
-                          },
-                          {kClassIntA});
+  static SolutionCropper MakeCropperA() {
+    SolutionCropper ret("no entry the same",
+                        [](const Solution& s) {
+                          return s.Id(0).Class(kClassIntA) == 0 &&
+                                 s.Id(1).Class(kClassIntA) == 1;
+                        },
+                        {kClassIntA});
     return ret;
   }
 
-  static Solution::Cropper MakeCropperB() {
-    Solution::Cropper ret("no entry the same",
-                          [](const Solution& s) {
-                            return s.Id(0).Class(kClassIntB) == 1 &&
-                                   s.Id(1).Class(kClassIntB) == 0;
-                          },
-                          {kClassIntB});
+  static SolutionCropper MakeCropperB() {
+    SolutionCropper ret("no entry the same",
+                        [](const Solution& s) {
+                          return s.Id(0).Class(kClassIntB) == 1 &&
+                                 s.Id(1).Class(kClassIntB) == 0;
+                        },
+                        {kClassIntB});
     return ret;
   }
 
@@ -69,7 +70,7 @@ struct SetupState {
 
   std::vector<std::unique_ptr<Descriptor>> owned_descriptors;
   EntryDescriptor descriptor;
-  std::vector<Solution::Cropper> predicates;
+  std::vector<SolutionCropper> predicates;
   ClassPermuter permuter_a;
   ClassPermuter permuter_b;
 };
