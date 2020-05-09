@@ -142,17 +142,17 @@ puzzle::Solution Base::GetSolution() const {
 }
 
 // static
-Base::Board Base::ParseBoard(const std::string& board) {
+Base::Board Base::ParseBoard(const absl::string_view board) {
   Board ret;
   std::vector<std::string> rows = absl::StrSplit(board, "\n");
   CHECK_EQ(rows.size(), /*data=*/9 + /*spacer=*/2);
-  for (const std::string& row : rows) {
+  for (const absl::string_view row : rows) {
     if (row == "- - - + - - - + - - -") continue;
 
     std::vector<std::string> cols = absl::StrSplit(row, " ");
     CHECK_EQ(cols.size(), /*data=*/9 + /*spacer=*/2);
     std::vector<int> cur_cols;
-    for (const std::string& col : cols) {
+    for (const absl::string_view col : cols) {
       if (col == "|") continue;
       int val = -1;
       if (col != "?") {

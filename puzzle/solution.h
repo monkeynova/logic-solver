@@ -47,7 +47,7 @@ class StringDescriptor : public Descriptor {
   StringDescriptor() {}
   ~StringDescriptor() override {}
 
-  void SetDescription(int i, const std::string& d) { names_[i] = d; }
+  void SetDescription(int i, std::string d) { names_[i] = std::move(d); }
   std::string DebugString(int i) const override {
     auto it = names_.find(i);
     if (it != names_.end()) return it->second;
@@ -85,9 +85,9 @@ class EntryDescriptor {
     // TODO(petersk): Verify descriptor covers values 0..N.
     id_descriptor_ = id_descriptor;
   }
-  void SetClass(int class_int, const std::string& class_name,
+  void SetClass(int class_int, std::string class_name,
                 const Descriptor* name_descriptor) {
-    class_descriptor_.SetDescription(class_int, class_name);
+    class_descriptor_.SetDescription(class_int, std::move(class_name));
     name_descriptors_.resize(class_int + 1);
     name_descriptors_[class_int] = name_descriptor;
   }

@@ -15,7 +15,7 @@ class Base : public ::puzzle::Problem {
  public:
   using Board = std::vector<std::vector<int>>;
 
-  static Board ParseBoard(const std::string& board);
+  static Board ParseBoard(const absl::string_view board);
 
   virtual Board GetInstanceBoard() const = 0;
   virtual Board GetSolutionBoard() const = 0;

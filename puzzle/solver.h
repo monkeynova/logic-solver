@@ -22,9 +22,10 @@ class Solver {
     entry_descriptor_.SetIds(id_descriptor);
   }
 
-  void AddClass(int class_int, const std::string& class_name,
+  void AddClass(int class_int, std::string class_name,
                 const Descriptor* name_descriptor) {
-    entry_descriptor_.SetClass(class_int, class_name, name_descriptor);
+    entry_descriptor_.SetClass(class_int, std::move(class_name),
+                               name_descriptor);
   }
 
   // TODO(keith@monkeynova.com): Entry::Predicate rules have the structure
