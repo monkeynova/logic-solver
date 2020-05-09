@@ -4,6 +4,7 @@
 #include "glog/logging.h"
 #include "puzzle/active_set.h"
 #include "puzzle/active_set_builder.h"
+#include "puzzle/all_match.h"
 
 DEFINE_bool(puzzle_prune_class_iterator, true,
             "If specfied, class iterators will be pruned based on single "
@@ -81,11 +82,13 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
     iterators_[class_int] = class_permuter.begin(std::move(build));
   }
 
+  ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
+                                                       Entry::kBadId};
   for (; iterators_[class_int] != class_permuter.end();
-       ++iterators_[class_int]) {
+       iterators_[class_int] += value_skip) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (AllMatch(solution_predicates, current_) && 
+    if (AllMatch(solution_predicates, current_, &value_skip) &&
         FindNextValid(class_position + 1)) {
       return true;
     }

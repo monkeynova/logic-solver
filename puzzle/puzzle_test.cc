@@ -34,9 +34,6 @@ static void SetFlag(bool val, absl::string_view label, bool* flag,
 
 template <bool brute, bool prune, bool reorder>
 static void BM_Solver(benchmark::State& state) {
-  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  problem->Setup();
-
   std::vector<std::string> labels;
   SetFlag(brute, "brute", &FLAGS_puzzle_brute_force, &labels);
   SetFlag(prune, "prune", &FLAGS_puzzle_prune_class_iterator, &labels);
@@ -44,6 +41,8 @@ static void BM_Solver(benchmark::State& state) {
   state.SetLabel(absl::StrJoin(labels, " "));
 
   for (auto _ : state) {
+    std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
+    problem->Setup();
     problem->Solve();
   }
 }

@@ -71,7 +71,6 @@ class Solver {
  private:
   void AddFilter(SolutionFilter solution_filter);
 
-  bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
 
   int test_calls_ = 0;

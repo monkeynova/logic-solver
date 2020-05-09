@@ -1,5 +1,6 @@
 #include "puzzle/solver.h"
 
+#include "puzzle/all_match.h"
 #include "puzzle/solution_permuter_factory.h"
 
 namespace puzzle {
@@ -15,11 +16,6 @@ void Solver::AddFilter(SolutionFilter solution_filter) {
   } else {
     on_solution_.push_back(solution_filter);
   }
-}
-
-bool Solver::TestSolution(const Solution& s) {
-  ++test_calls_;
-  return AllMatch(on_solution_, s);
 }
 
 Solution Solver::Solve() {
@@ -40,7 +36,8 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
       profiler_->NotePosition(it->permutation_position(),
                               it->permutation_count());
     }
-    if (TestSolution(*it)) {
+    ++test_calls_;
+    if (AllMatch(on_solution_, *it)) {
       ret.emplace_back(it->Clone());
       if (limit >= 0 && ret.size() >= static_cast<size_t>(limit)) {
         break;

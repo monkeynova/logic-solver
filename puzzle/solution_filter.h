@@ -59,12 +59,6 @@ class SolutionFilter {
   Entry::Predicate entry_p_;
 };
 
-inline bool AllMatch(const std::vector<SolutionFilter>& predicates,
-		     const Solution& solution) {
-  return std::all_of(predicates.begin(), predicates.end(),
-                     [&solution](const SolutionFilter& c) { return c(solution); });
-}
-
 }  // namespace puzzle
 
 #endif  // PUZZLE_SOLUTION_FILTER_H

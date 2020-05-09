@@ -52,11 +52,17 @@ void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
 template <enum ClassPermuterType T>
 void ClassPermuterImpl<T>::iterator::Advance(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
-  while (!current_.empty() && current_[value_skip.value_index] == value) {
-    // TODO(keith@monkeynova.com): This is a placeholder reference
-    // implementation for API testing. Specific implementations could be much
-    // more efficient.
-    Advance();
+  // TODO(keith@monkeynova.com): This is a placeholder reference
+  // implementation for API testing. Specific implementations could be much
+  // more efficient.
+  if (active_set_.is_trivial()) {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      Advance();
+    }
+  } else {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      AdvanceWithSkip();
+    }
   }
 }
 

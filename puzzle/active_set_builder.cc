@@ -1,6 +1,7 @@
 #include "puzzle/active_set_builder.h"
 
 #include "absl/container/flat_hash_set.h"
+#include "puzzle/all_match.h"
 
 namespace puzzle {
 
@@ -62,9 +63,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
     CHECK_EQ(p.classes()[0], class_permuter.class_int());
   }
   ActiveSet active_set;
-  for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
+  ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
+                                                       Entry::kBadId};
+  for (auto it = class_permuter.begin(); it != class_permuter.end();
+       it += value_skip) {
     mutable_solution_.SetClass(it);
-    if (AllMatch(predicates, solution_)) {
+    if (AllMatch(predicates, solution_, &value_skip)) {
       active_set.AddBlock(false, it.position() - active_set.total());
       active_set.Add(true);
     }
@@ -84,9 +88,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
     CHECK_EQ(p.classes()[0], class_permuter.class_int());
   }
   std::vector<int> a_matches;
-  for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
+  ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
+                                                       Entry::kBadId};
+  for (auto it = class_permuter.begin(); it != class_permuter.end();
+       it += value_skip) {
     mutable_solution_.SetClass(it);
-    if (AllMatch(predicates, solution_)) {
+    if (AllMatch(predicates, solution_, &value_skip)) {
       a_matches.push_back(it.position());
     }
   }
@@ -126,10 +133,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       bool any_of_b = false;
       ActiveSet source_a =
           permuter_a.active_set().Intersection(b_a_pair.Find(it_b.position()));
+      ClassPermuter::iterator::ValueSkip value_skip_a = {.value_index =
+                                                             Entry::kBadId};
       for (auto it_a = permuter_a.begin(source_a); it_a != permuter_a.end();
-           ++it_a) {
+           it_a += value_skip_a) {
         mutable_solution_.SetClass(it_a);
-        if (AllMatch(predicates, solution_)) {
+        if (AllMatch(predicates, solution_, &value_skip_a)) {
           any_of_b = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -167,10 +176,12 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       ActiveSet a_b_set;
       ActiveSet source_b =
           base_b_iteration.Intersection(a_b_pair.Find(it_a.position()));
+      ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
+                                                             Entry::kBadId};
       for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
-           ++it_b) {
+           it_b += value_skip_b) {
         mutable_solution_.SetClass(it_b);
-        if (AllMatch(predicates, solution_)) {
+        if (AllMatch(predicates, solution_, &value_skip_b)) {
           any_of_a = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -218,15 +229,17 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
     ActiveSet a_b_set;
     ActiveSet source_b =
         permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
+    ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
+                                                           Entry::kBadId};
     for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
-         ++it_b) {
+         it_b += value_skip_b) {
       if (pair_class_mode == PairClassMode::kSingleton && any_of_a &&
           b_match_positions.find(it_b.position()) != b_match_positions.end()) {
         // Already added both pieces.
         continue;
       }
       mutable_solution_.SetClass(it_b);
-      if (AllMatch(predicates, solution_)) {
+      if (AllMatch(predicates, solution_, &value_skip_b)) {
         any_of_a = true;
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -282,8 +295,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
     mutable_solution_.SetClass(it_a);
     ActiveSet source_b =
         permuter_b.active_set().Intersection(a_b_pair.Find(it_a.position()));
+    ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
+                                                           Entry::kBadId};
     for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
-         ++it_b) {
+         it_b += value_skip_b) {
       if (pair_class_mode == PairClassMode::kSingleton &&
           a_match_positions.count(it_a.position()) > 0 &&
           b_match_positions.count(it_b.position()) > 0) {
@@ -291,7 +306,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
         continue;
       }
       mutable_solution_.SetClass(it_b);
-      if (AllMatch(predicates, solution_)) {
+      if (AllMatch(predicates, solution_, &value_skip_b)) {
         a_match_positions.insert(it_a.position());
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {

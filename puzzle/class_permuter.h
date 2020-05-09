@@ -64,8 +64,10 @@ class ClassPermuterImpl {
     // our goal is to skip all permutations with a specific (index, value) pair,
     // we should be able to skip up to 8! permutations.
     iterator& operator+=(ValueSkip value_skip) {
-      if (value_skip.value_index == Entry::kBadId) Advance();
-      else Advance(value_skip);
+      if (value_skip.value_index == Entry::kBadId) {
+        return ++*this;
+      }
+      Advance(value_skip);
       return *this;
     }
 

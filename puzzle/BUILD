@@ -3,6 +3,7 @@ cc_library(
     hdrs = ["solver.h"],
     srcs = ["solver.cc"],
     deps = [
+        ":all_match",
 	":profiler",
         ":solution",
 	":solution_permuter",
@@ -10,6 +11,16 @@ cc_library(
     ],
     visibility = [
         "//visibility:public"
+    ],
+)
+
+cc_library(
+    name = "all_match",
+    hdrs = ["all_match.h"],
+    deps = [
+        ":class_permuter",
+        ":solution_filter",
+        ":solution",
     ],
 )
 
@@ -59,6 +70,7 @@ cc_library(
     deps = [
         ":active_set",
 	":active_set_pair",
+        ":all_match",
         ":class_permuter",
         ":mutable_solution",
         ":solution",
@@ -121,6 +133,7 @@ cc_library(
     srcs = ["filtered_solution_permuter.cc"],
     deps = [
         ":active_set_builder",
+        ":all_match",
         ":class_permuter",
 	":mutable_solution",
 	":profiler",
