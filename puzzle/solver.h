@@ -44,12 +44,8 @@ class Solver {
   void AddSpecificEntryPredicate(
       std::string name, int entry_id, Entry::Predicate predicate,
       std::vector<int> class_int_restrict_list = {}) {
-    AddFilter(SolutionFilter(
-        name,
-        [entry_id, predicate](const Solution& s) {
-          return predicate(s.Id(entry_id));
-        },
-        std::move(class_int_restrict_list)));
+    AddFilter(SolutionFilter(std::move(name), entry_id, predicate,
+                             std::move(class_int_restrict_list)));
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate,

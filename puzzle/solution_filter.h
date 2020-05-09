@@ -31,6 +31,13 @@ class SolutionFilter {
                  std::vector<int> classes)
       : name_(std::move(name)), p_(p), classes_(std::move(classes)) {}
 
+  SolutionFilter(std::string name, int entry_id, Entry::Predicate p,
+                 std::vector<int> classes)
+      : SolutionFilter(
+            std::move(name),
+            [entry_id, p](const Solution& s) { return p(s.Id(entry_id)); },
+            std::move(classes)) {}
+
   bool operator()(const Solution& s) const { return p_(s); }
 
   absl::string_view name() const { return name_; }
