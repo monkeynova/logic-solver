@@ -8,7 +8,7 @@
 #include "puzzle/active_set.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
-#include "puzzle/solution_cropper.h"
+#include "puzzle/solution_filter.h"
 
 using ::testing::ElementsAreArray;
 using ::testing::Eq;
@@ -44,27 +44,27 @@ TEST_P(SinglePermuterTest, Simple) {
   ASSERT_THAT(p.permutation_count(), 6);
 
   builder.Build(single_class_build(), p,
-                {SolutionCropper("First entry is class 3",
-                                 [](const Solution& s) {
-                                   return s.Id(0).Class(kClassInt) == 3;
-                                 },
-                                 {kClassInt})});
+                {SolutionFilter("First entry is class 3",
+                                [](const Solution& s) {
+                                  return s.Id(0).Class(kClassInt) == 3;
+                                },
+                                {kClassInt})});
   ActiveSet active_set_first_is_3 = builder.active_set(kClassInt);
 
   builder.Build(single_class_build(), p,
-                {SolutionCropper("First entry is class 4",
-                                 [](const Solution& s) {
-                                   return s.Id(0).Class(kClassInt) == 4;
-                                 },
-                                 {kClassInt})});
+                {SolutionFilter("First entry is class 4",
+                                [](const Solution& s) {
+                                  return s.Id(0).Class(kClassInt) == 4;
+                                },
+                                {kClassInt})});
   ActiveSet active_set_first_is_4 = builder.active_set(kClassInt);
 
   builder.Build(single_class_build(), p,
-                {SolutionCropper("First entry is class 5",
-                                 [](const Solution& s) {
-                                   return s.Id(0).Class(kClassInt) == 5;
-                                 },
-                                 {kClassInt})});
+                {SolutionFilter("First entry is class 5",
+                                [](const Solution& s) {
+                                  return s.Id(0).Class(kClassInt) == 5;
+                                },
+                                {kClassInt})});
   ActiveSet active_set_first_is_5 = builder.active_set(kClassInt);
 
   std::set<int> position_history;
@@ -110,12 +110,12 @@ TEST_P(SinglePermuterTest, ExistingSet) {
   ClassPermuter p(&class_descriptor, kClassInt);
   ASSERT_THAT(p.permutation_count(), 6);
 
-  SolutionCropper first_is_3(
+  SolutionFilter first_is_3(
       "First entry is class 3",
       [](const Solution& s) { return s.Id(0).Class(kClassInt) == 3; },
       {kClassInt});
 
-  SolutionCropper second_is_4(
+  SolutionFilter second_is_4(
       "Second entry is class 4",
       [](const Solution& s) { return s.Id(1).Class(kClassInt) == 4; },
       {kClassInt});
@@ -166,12 +166,12 @@ TEST_P(PairPermuterTest, Simple) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  SolutionCropper c("a is 3 and b is 4 for id 0",
-                    [](const Solution& s) {
-                      return s.Id(0).Class(kClassIntA) == 3 &&
-                             s.Id(0).Class(kClassIntB) == 4;
-                    },
-                    {kClassIntA, kClassIntB});
+  SolutionFilter c("a is 3 and b is 4 for id 0",
+                   [](const Solution& s) {
+                     return s.Id(0).Class(kClassIntA) == 3 &&
+                            s.Id(0).Class(kClassIntB) == 4;
+                   },
+                   {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c});
 
@@ -233,23 +233,23 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  SolutionCropper a_cropper(
+  SolutionFilter a_filter(
       "a is 4 for id 1",
       [](const Solution& s) { return s.Id(1).Class(kClassIntA) == 4; },
       {kClassIntA});
 
-  builder.Build(permuter_a, {a_cropper});
+  builder.Build(permuter_a, {a_filter});
   ActiveSet active_set_a_pre = builder.active_set(kClassIntA);
   permuter_a.set_active_set(active_set_a_pre);
 
-  SolutionCropper pair_cropper("a is 3 and b is 4 for id 0",
-                               [](const Solution& s) {
-                                 return s.Id(0).Class(kClassIntA) == 3 &&
-                                        s.Id(0).Class(kClassIntB) == 4;
-                               },
-                               {kClassIntA, kClassIntB});
+  SolutionFilter pair_filter("a is 3 and b is 4 for id 0",
+                             [](const Solution& s) {
+                               return s.Id(0).Class(kClassIntA) == 3 &&
+                                      s.Id(0).Class(kClassIntB) == 4;
+                             },
+                             {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a, permuter_b, {pair_cropper});
+  builder.Build(pair_class_impl(), permuter_a, permuter_b, {pair_filter});
 
   ActiveSet active_set_a_post = builder.active_set(kClassIntA);
   ActiveSet active_set_b = builder.active_set(kClassIntB);
@@ -261,11 +261,11 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   int full_iteration_count = 0;
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution.SetClass(it_a);
-    EXPECT_TRUE(a_cropper(test_solution));
+    EXPECT_TRUE(a_filter(test_solution));
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
       ++full_iteration_count;
-      if (pair_cropper(test_solution)) {
+      if (pair_filter(test_solution)) {
         ++expect_found_count;
       }
     }
@@ -278,11 +278,11 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   int got_iteration_count = 0;
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end(); ++it_a) {
     mutable_solution.SetClass(it_a);
-    EXPECT_TRUE(a_cropper(test_solution));
+    EXPECT_TRUE(a_filter(test_solution));
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
       ++got_iteration_count;
-      if (pair_cropper(test_solution)) {
+      if (pair_filter(test_solution)) {
         ++got_found_count;
       }
     }
@@ -311,23 +311,23 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   ASSERT_THAT(permuter_a.permutation_count(), 6);
   ASSERT_THAT(permuter_b.permutation_count(), 6);
 
-  SolutionCropper b_cropper(
+  SolutionFilter b_filter(
       "b is 4 for id 1",
       [](const Solution& s) { return s.Id(1).Class(kClassIntB) == 5; },
       {kClassIntB});
 
-  builder.Build(permuter_b, {b_cropper});
+  builder.Build(permuter_b, {b_filter});
   ActiveSet active_set_b_pre = builder.active_set(kClassIntB);
   permuter_b.set_active_set(active_set_b_pre);
 
-  SolutionCropper pair_cropper("a is 3 and b is 4 for id 0",
-                               [](const Solution& s) {
-                                 return s.Id(0).Class(kClassIntA) == 3 &&
-                                        s.Id(0).Class(kClassIntB) == 4;
-                               },
-                               {kClassIntA, kClassIntB});
+  SolutionFilter pair_filter("a is 3 and b is 4 for id 0",
+                             [](const Solution& s) {
+                               return s.Id(0).Class(kClassIntA) == 3 &&
+                                      s.Id(0).Class(kClassIntB) == 4;
+                             },
+                             {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a, permuter_b, {pair_cropper});
+  builder.Build(pair_class_impl(), permuter_a, permuter_b, {pair_filter});
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b_post = builder.active_set(kClassIntB);
@@ -341,9 +341,9 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
     mutable_solution.SetClass(it_a);
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
-      EXPECT_TRUE(b_cropper(test_solution));
+      EXPECT_TRUE(b_filter(test_solution));
       ++full_iteration_count;
-      if (pair_cropper(test_solution)) {
+      if (pair_filter(test_solution)) {
         ++expect_found_count;
       }
     }
@@ -358,9 +358,9 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
     mutable_solution.SetClass(it_a);
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end(); ++it_b) {
       mutable_solution.SetClass(it_b);
-      EXPECT_TRUE(b_cropper(test_solution));
+      EXPECT_TRUE(b_filter(test_solution));
       ++got_iteration_count;
-      if (pair_cropper(test_solution)) {
+      if (pair_filter(test_solution)) {
         ++got_found_count;
       }
     }
@@ -404,12 +404,12 @@ TEST_P(PairPermuterTest, MakePairs) {
   }
   ASSERT_EQ(b0_is_4.size(), 2);
 
-  SolutionCropper c("a is 3 and b is 4 for id 0",
-                    [](const Solution& s) {
-                      return s.Id(0).Class(kClassIntA) == 3 &&
-                             s.Id(0).Class(kClassIntB) == 4;
-                    },
-                    {kClassIntA, kClassIntB});
+  SolutionFilter c("a is 3 and b is 4 for id 0",
+                   [](const Solution& s) {
+                     return s.Id(0).Class(kClassIntA) == 3 &&
+                            s.Id(0).Class(kClassIntB) == 4;
+                   },
+                   {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
                 ActiveSetBuilder::PairClassMode::kMakePairs);
@@ -470,12 +470,12 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
     }
   }
 
-  SolutionCropper c("vals[0].{a,b} IN ((3,4), (4, 3))",
-                    [val_0_predicate](const Solution& s) {
-                      return val_0_predicate(s.Id(0).Class(kClassIntA),
-                                             s.Id(0).Class(kClassIntB));
-                    },
-                    {kClassIntA, kClassIntB});
+  SolutionFilter c("vals[0].{a,b} IN ((3,4), (4, 3))",
+                   [val_0_predicate](const Solution& s) {
+                     return val_0_predicate(s.Id(0).Class(kClassIntA),
+                                            s.Id(0).Class(kClassIntB));
+                   },
+                   {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
                 ActiveSetBuilder::PairClassMode::kMakePairs);
@@ -518,26 +518,26 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   ASSERT_THAT(permuter_b.permutation_count(), 6);
   ASSERT_THAT(permuter_c.permutation_count(), 6);
 
-  SolutionCropper a_b("a is 3 and b is 4 for id 0",
-                      [](const Solution& s) {
-                        return s.Id(0).Class(kClassIntA) == 3 &&
-                               s.Id(0).Class(kClassIntB) == 4;
-                      },
-                      {kClassIntA, kClassIntB});
+  SolutionFilter a_b("a is 3 and b is 4 for id 0",
+                     [](const Solution& s) {
+                       return s.Id(0).Class(kClassIntA) == 3 &&
+                              s.Id(0).Class(kClassIntB) == 4;
+                     },
+                     {kClassIntA, kClassIntB});
 
-  SolutionCropper b_c("b is 5 and c is 3 for id 1",
-                      [](const Solution& s) {
-                        return s.Id(1).Class(kClassIntB) == 5 &&
-                               s.Id(1).Class(kClassIntC) == 3;
-                      },
-                      {kClassIntB, kClassIntC});
+  SolutionFilter b_c("b is 5 and c is 3 for id 1",
+                     [](const Solution& s) {
+                       return s.Id(1).Class(kClassIntB) == 5 &&
+                              s.Id(1).Class(kClassIntC) == 3;
+                     },
+                     {kClassIntB, kClassIntC});
 
-  SolutionCropper c_a("c is 4 and a is 5 for id 2",
-                      [](const Solution& s) {
-                        return s.Id(2).Class(kClassIntC) == 4 &&
-                               s.Id(2).Class(kClassIntA) == 5;
-                      },
-                      {kClassIntC, kClassIntA});
+  SolutionFilter c_a("c is 4 and a is 5 for id 2",
+                     [](const Solution& s) {
+                       return s.Id(2).Class(kClassIntC) == 4 &&
+                              s.Id(2).Class(kClassIntA) == 5;
+                     },
+                     {kClassIntC, kClassIntA});
 
   for (const auto& loop : {1, 2, 3}) {
     std::ignore = loop;

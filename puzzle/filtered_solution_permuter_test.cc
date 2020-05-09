@@ -1,4 +1,4 @@
-#include "puzzle/cropped_solution_permuter.h"
+#include "puzzle/filtered_solution_permuter.h"
 
 #include <iostream>
 #include <string>
@@ -10,7 +10,7 @@
 
 using ::testing::Ge;
 
-TEST(CroppedSolutionPermuterTest, Simple) {
+TEST(FilteredSolutionPermuterTest, Simple) {
   puzzle::EntryDescriptor ed;
   puzzle::IntRangeDescriptor id(3, 5);
   puzzle::IntRangeDescriptor cd1(6, 8);
@@ -20,7 +20,7 @@ TEST(CroppedSolutionPermuterTest, Simple) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  puzzle::FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   p.Prepare();
 
   std::unordered_set<std::string> history;
@@ -39,7 +39,7 @@ TEST(CroppedSolutionPermuterTest, Simple) {
   }
 }
 
-TEST(CroppedSolutionPermuterTest, CropFirstClass) {
+TEST(FilteredSolutionPermuterTest, CropFirstClass) {
   puzzle::EntryDescriptor ed;
   puzzle::IntRangeDescriptor id(0, 2);
   puzzle::IntRangeDescriptor cd1(6, 8);
@@ -49,7 +49,7 @@ TEST(CroppedSolutionPermuterTest, CropFirstClass) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  puzzle::FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   p.AddPredicate(
       "test", [](const puzzle::Solution& s) { return s.Id(1).Class(0) == 7; },
       std::vector<int>{0});
@@ -73,7 +73,7 @@ TEST(CroppedSolutionPermuterTest, CropFirstClass) {
   }
 }
 
-TEST(CroppedSolutionPermuterTest, CropLastClass) {
+TEST(FilteredSolutionPermuterTest, CropLastClass) {
   puzzle::EntryDescriptor ed;
   puzzle::IntRangeDescriptor id(0, 2);
   puzzle::IntRangeDescriptor cd1(6, 8);
@@ -83,7 +83,7 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  puzzle::FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   p.AddPredicate(
       "test",
       [](const puzzle::Solution& s) {
@@ -112,7 +112,7 @@ TEST(CroppedSolutionPermuterTest, CropLastClass) {
   }
 }
 
-TEST(CroppedSolutionPermuterTest, CropBothClasses) {
+TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   puzzle::EntryDescriptor ed;
   puzzle::IntRangeDescriptor id(0, 2);
   puzzle::IntRangeDescriptor cd1(6, 8);
@@ -122,7 +122,7 @@ TEST(CroppedSolutionPermuterTest, CropBothClasses) {
   ed.SetClass(0, "foo", &cd1);
   ed.SetClass(1, "bar", &cd2);
 
-  puzzle::CroppedSolutionPermuter p(&ed, /*profiler=*/nullptr);
+  puzzle::FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   p.AddPredicate(
       "test",
       [](const puzzle::Solution& s) {

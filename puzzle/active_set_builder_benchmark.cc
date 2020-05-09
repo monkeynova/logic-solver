@@ -1,6 +1,6 @@
 #include "benchmark/benchmark.h"
 #include "puzzle/active_set_builder.h"
-#include "puzzle/solution_cropper.h"
+#include "puzzle/solution_filter.h"
 
 namespace puzzle {
 
@@ -10,13 +10,13 @@ struct SetupState {
 
   SetupState(int permutation_count)
       : descriptor(MakeDescriptor(permutation_count, &owned_descriptors)),
-        predicates({MakePairCropper()}),
+        predicates({MakePairFilter()}),
         permuter_a(descriptor.AllClassValues(kClassIntA), kClassIntA),
         permuter_b(descriptor.AllClassValues(kClassIntB), kClassIntB) {
     ActiveSetBuilder single_class_builder(&descriptor);
-    single_class_builder.Build(permuter_a, {MakeCropperA()});
+    single_class_builder.Build(permuter_a, {MakeFilterA()});
     permuter_a.set_active_set(single_class_builder.active_set(kClassIntA));
-    single_class_builder.Build(permuter_b, {MakeCropperB()});
+    single_class_builder.Build(permuter_b, {MakeFilterB()});
     permuter_b.set_active_set(single_class_builder.active_set(kClassIntB));
   }
 
@@ -31,36 +31,36 @@ struct SetupState {
     return ret;
   }
 
-  static SolutionCropper MakePairCropper() {
-    SolutionCropper ret("no entry the same",
-                        [](const Solution& s) {
-                          return all_of(s.entries().begin(), s.entries().end(),
-                                        [](const Entry& e) {
-                                          return e.Class(kClassIntA) !=
-                                                 e.Class(kClassIntB);
-                                        });
-                        },
-                        {kClassIntA, kClassIntB});
+  static SolutionFilter MakePairFilter() {
+    SolutionFilter ret("no entry the same",
+                       [](const Solution& s) {
+                         return all_of(s.entries().begin(), s.entries().end(),
+                                       [](const Entry& e) {
+                                         return e.Class(kClassIntA) !=
+                                                e.Class(kClassIntB);
+                                       });
+                       },
+                       {kClassIntA, kClassIntB});
     return ret;
   }
 
-  static SolutionCropper MakeCropperA() {
-    SolutionCropper ret("no entry the same",
-                        [](const Solution& s) {
-                          return s.Id(0).Class(kClassIntA) == 0 &&
-                                 s.Id(1).Class(kClassIntA) == 1;
-                        },
-                        {kClassIntA});
+  static SolutionFilter MakeFilterA() {
+    SolutionFilter ret("no entry the same",
+                       [](const Solution& s) {
+                         return s.Id(0).Class(kClassIntA) == 0 &&
+                                s.Id(1).Class(kClassIntA) == 1;
+                       },
+                       {kClassIntA});
     return ret;
   }
 
-  static SolutionCropper MakeCropperB() {
-    SolutionCropper ret("no entry the same",
-                        [](const Solution& s) {
-                          return s.Id(0).Class(kClassIntB) == 1 &&
-                                 s.Id(1).Class(kClassIntB) == 0;
-                        },
-                        {kClassIntB});
+  static SolutionFilter MakeFilterB() {
+    SolutionFilter ret("no entry the same",
+                       [](const Solution& s) {
+                         return s.Id(0).Class(kClassIntB) == 1 &&
+                                s.Id(1).Class(kClassIntB) == 0;
+                       },
+                       {kClassIntB});
     return ret;
   }
 
@@ -70,7 +70,7 @@ struct SetupState {
 
   std::vector<std::unique_ptr<Descriptor>> owned_descriptors;
   EntryDescriptor descriptor;
-  std::vector<SolutionCropper> predicates;
+  std::vector<SolutionFilter> predicates;
   ClassPermuter permuter_a;
   ClassPermuter permuter_b;
 };

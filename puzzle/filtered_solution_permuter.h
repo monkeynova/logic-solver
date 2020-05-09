@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
-#define __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
+#ifndef __PUZZLE_FILTERED_SOLUTION_PERMUTER_H
+#define __PUZZLE_FILTERED_SOLUTION_PERMUTER_H
 
 #include "absl/memory/memory.h"
 #include "puzzle/active_set_builder.h"
@@ -7,16 +7,16 @@
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
-#include "puzzle/solution_cropper.h"
+#include "puzzle/solution_filter.h"
 #include "puzzle/solution_permuter.h"
 
 namespace puzzle {
 
-class CroppedSolutionPermuter final : public SolutionPermuter {
+class FilteredSolutionPermuter final : public SolutionPermuter {
  public:
   class Advancer final : public SolutionPermuter::AdvanceInterface {
    public:
-    explicit Advancer(const CroppedSolutionPermuter* permuter);
+    explicit Advancer(const FilteredSolutionPermuter* permuter);
 
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;
@@ -29,7 +29,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     void Advance() override;
 
     void PruneClass(int class_int,
-                    const std::vector<SolutionCropper>& predicates);
+                    const std::vector<SolutionFilter>& predicates);
     bool FindNextValid(int class_position);
 
     std::string IterationDebugString() const;
@@ -39,7 +39,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     // early abort is indicated.
     bool NotePositionForProfiler(int class_position);
 
-    const CroppedSolutionPermuter* permuter_ = nullptr;
+    const FilteredSolutionPermuter* permuter_ = nullptr;
     MutableSolution mutable_solution_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
@@ -47,14 +47,14 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
     std::vector<double> pair_selectivity_reduction_;
   };
 
-  CroppedSolutionPermuter(const EntryDescriptor* e, Profiler* profiler);
-  ~CroppedSolutionPermuter() = default;
+  FilteredSolutionPermuter(const EntryDescriptor* e, Profiler* profiler);
+  ~FilteredSolutionPermuter() = default;
 
   // Movable, but not copyable.
-  CroppedSolutionPermuter(const CroppedSolutionPermuter&) = delete;
-  CroppedSolutionPermuter& operator=(const CroppedSolutionPermuter&) = delete;
-  CroppedSolutionPermuter(CroppedSolutionPermuter&&) = default;
-  CroppedSolutionPermuter& operator=(CroppedSolutionPermuter&&) = default;
+  FilteredSolutionPermuter(const FilteredSolutionPermuter&) = delete;
+  FilteredSolutionPermuter& operator=(const FilteredSolutionPermuter&) = delete;
+  FilteredSolutionPermuter(FilteredSolutionPermuter&&) = default;
+  FilteredSolutionPermuter& operator=(FilteredSolutionPermuter&&) = default;
 
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this));
@@ -75,9 +75,9 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
  private:
   // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
-  // Elements in 'croppers' that are not completely evaluated by these active
+  // Elements in 'filters' that are not completely evaluated by these active
   // sets are returned in 'residual'.
-  void BuildActiveSets(std::vector<SolutionCropper>* residual);
+  void BuildActiveSets(std::vector<SolutionFilter>* residual);
 
   // Reorders 'class_permuters_' by increasing selectivity. The effect of this
   // is to mean that any filter evaluated on a partial set of 'class_permuters_'
@@ -86,7 +86,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
   const EntryDescriptor* entry_descriptor_ = nullptr;
 
-  std::vector<SolutionCropper> predicates_;
+  std::vector<SolutionFilter> predicates_;
 
   Profiler* profiler_;
 
@@ -100,7 +100,7 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
   // class_predicates_[class_int] is an array of predicate residuals to evaluate
   // after filling class_int.
-  std::vector<std::vector<SolutionCropper>> class_predicates_;
+  std::vector<std::vector<SolutionFilter>> class_predicates_;
 
   std::unique_ptr<ActiveSetBuilder> active_set_builder_;
 
@@ -109,4 +109,4 @@ class CroppedSolutionPermuter final : public SolutionPermuter {
 
 }  // namespace puzzle
 
-#endif  // __PUZZLE_CROPPED_SOLUTION_PERMUTER_H
+#endif  // __PUZZLE_FILTERED_SOLUTION_PERMUTER_H

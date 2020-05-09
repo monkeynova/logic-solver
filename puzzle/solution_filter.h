@@ -1,5 +1,5 @@
-#ifndef PUZZLE_SOLUTION_CROPPER_H
-#define PUZZLE_SOLUTION_CROPPER_H
+#ifndef PUZZLE_SOLUTION_FILTER_H
+#define PUZZLE_SOLUTION_FILTER_H
 
 #include <string>
 #include <vector>
@@ -8,11 +8,11 @@
 
 namespace puzzle {
 
-class SolutionCropper {
+class SolutionFilter {
  public:
-  SolutionCropper() = default;
-  SolutionCropper(std::string name, Solution::Predicate p,
-                  std::vector<int> classes)
+  SolutionFilter() = default;
+  SolutionFilter(std::string name, Solution::Predicate p,
+                 std::vector<int> classes)
       : name_(std::move(name)), p_(p), classes_(std::move(classes)) {}
 
   bool operator()(const Solution& s) const { return p_(s); }
@@ -28,4 +28,4 @@ class SolutionCropper {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_SOLUTION_CROPPER_H
+#endif  // PUZZLE_SOLUTION_FILTER_H

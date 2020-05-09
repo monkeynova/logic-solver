@@ -62,7 +62,7 @@ cc_library(
         ":class_permuter",
         ":mutable_solution",
         ":solution",
-        ":solution_cropper",
+        ":solution_filter",
         "@com_google_absl//absl/container:flat_hash_set",
     ],
 )
@@ -74,7 +74,7 @@ cc_binary(
     deps = [
         ":active_set_builder",
 	":benchmark_main",
-        ":solution_cropper",
+        ":solution_filter",
         "@com_google_benchmark//:benchmark",
     ]
 )
@@ -85,7 +85,7 @@ cc_test(
     deps = [
         ":active_set_builder",
         ":mutable_solution",
-        ":solution_cropper",
+        ":solution_filter",
         ":test_main",
     ]
 )   
@@ -115,15 +115,15 @@ cc_library(
 )
 
 cc_library(
-    name = "cropped_solution_permuter",
-    hdrs = ["cropped_solution_permuter.h"],
-    srcs = ["cropped_solution_permuter.cc"],
+    name = "filtered_solution_permuter",
+    hdrs = ["filtered_solution_permuter.h"],
+    srcs = ["filtered_solution_permuter.cc"],
     deps = [
         ":active_set_builder",
         ":class_permuter",
 	":mutable_solution",
 	":profiler",
-        ":solution_cropper",
+        ":solution_filter",
         ":solution_permuter",
 	"@com_google_absl//absl/memory",
 	"@com_google_glog//:glog",
@@ -145,7 +145,7 @@ cc_library(
     srcs = ["solution_permuter_factory.cc"],
     deps = [
         ":brute_solution_permuter",
-        ":cropped_solution_permuter",
+        ":filtered_solution_permuter",
 	":profiler",
 	":solution",
 	":solution_permuter",
@@ -198,8 +198,8 @@ cc_library(
 )
 
 cc_library(
-    name = "solution_cropper",
-    hdrs = ["solution_cropper.h"],
+    name = "solution_filter",
+    hdrs = ["solution_filter.h"],
     deps = [
         ":solution",
     ],
@@ -248,10 +248,10 @@ cc_test(
 )
 
 cc_test(
-    name = "cropped_solution_permuter_test",
-    srcs = ["cropped_solution_permuter_test.cc"],
+    name = "filtered_solution_permuter_test",
+    srcs = ["filtered_solution_permuter_test.cc"],
     deps = [
-        ":cropped_solution_permuter",
+        ":filtered_solution_permuter",
         ":test_main",
         "@com_google_googletest//:gtest",
     ]

@@ -2,7 +2,7 @@
 
 #include "gflags/gflags.h"
 #include "puzzle/brute_solution_permuter.h"
-#include "puzzle/cropped_solution_permuter.h"
+#include "puzzle/filtered_solution_permuter.h"
 
 DEFINE_bool(puzzle_brute_force, false, "Brute force all possible solutions");
 
@@ -13,7 +13,8 @@ std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
   if (FLAGS_puzzle_brute_force) {
     return absl::make_unique<BruteSolutionPermuter>(entry_descriptor);
   }
-  return absl::make_unique<CroppedSolutionPermuter>(entry_descriptor, profiler);
+  return absl::make_unique<FilteredSolutionPermuter>(entry_descriptor,
+                                                     profiler);
 }
 
 }  // namespace puzzle

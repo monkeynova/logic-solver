@@ -5,7 +5,7 @@
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
-#include "puzzle/solution_cropper.h"
+#include "puzzle/solution_filter.h"
 
 namespace puzzle {
 
@@ -45,10 +45,10 @@ class ActiveSetBuilder {
   template <
       SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
   void Build(const ClassPermuter& class_permuter,
-             const std::vector<SolutionCropper>& predicates);
+             const std::vector<SolutionFilter>& predicates);
   void Build(SingleClassBuild single_class_build,
              const ClassPermuter& class_permuter,
-             const std::vector<SolutionCropper>& predicates);
+             const std::vector<SolutionFilter>& predicates);
 
   // Given a pair of class permuters and a set of predicates on those classes
   // (it is an error to pass predicates on other classes), builds active sets
@@ -65,18 +65,18 @@ class ActiveSetBuilder {
   // the arguments that way may provide a slight performance benefit.
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
   void Build(const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
-             const std::vector<SolutionCropper>& predicates,
+             const std::vector<SolutionFilter>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
   void Build(PairClassImpl pair_class_impl, const ClassPermuter& permuter_a,
              const ClassPermuter& permuter_b,
-             const std::vector<SolutionCropper>& predicates,
+             const std::vector<SolutionFilter>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
   void SetupPairBuild(int class_a, int class_b,
-                      const std::vector<SolutionCropper>& predicates) const;
+                      const std::vector<SolutionFilter>& predicates) const;
 
-  bool AllMatch(const std::vector<SolutionCropper>& predicates) const;
+  bool AllMatch(const std::vector<SolutionFilter>& predicates) const;
 
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;
