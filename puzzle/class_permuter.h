@@ -63,7 +63,11 @@ class ClassPermuterImpl {
     // when skipping at a single value_index through the full permutation. If
     // our goal is to skip all permutations with a specific (index, value) pair,
     // we should be able to skip up to 8! permutations.
-    iterator& operator+=(ValueSkip value_skip);
+    iterator& operator+=(ValueSkip value_skip) {
+      if (value_skip.value_index == Entry::kBadId) Advance();
+      else Advance(value_skip);
+      return *this;
+    }
 
     double position() const { return position_; }
     double Completion() const {
@@ -78,6 +82,8 @@ class ClassPermuterImpl {
 
     // Advances permutation 'dist' positions  independent of skipping behavior.
     void Advance(int dist);
+
+    void Advance(ValueSkip value_skip);
 
     // Equivalent to Advance(1).
     void Advance();

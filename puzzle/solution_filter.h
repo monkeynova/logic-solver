@@ -1,7 +1,6 @@
 #ifndef PUZZLE_SOLUTION_FILTER_H
 #define PUZZLE_SOLUTION_FILTER_H
 
-#include <limits>
 #include <string>
 #include <vector>
 
@@ -43,7 +42,7 @@ class SolutionFilter {
   bool operator()(const Solution& s) const { return solution_p_(s); }
 
   bool operator()(const Entry& e) const {
-    DCHECK_NE(entry_id_, std::numeric_limits<int>::max()) << name_;
+    DCHECK_NE(entry_id_, Entry::kBadId) << name_;
     return entry_p_(e);
   }
 
@@ -56,7 +55,7 @@ class SolutionFilter {
   std::string name_;
   Solution::Predicate solution_p_;
   std::vector<int> classes_;
-  int entry_id_ = std::numeric_limits<int>::max();
+  int entry_id_ = Entry::kBadId;
   Entry::Predicate entry_p_;
 };
 

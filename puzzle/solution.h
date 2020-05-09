@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -121,6 +122,8 @@ class EntryDescriptor {
 class Entry {
  public:
   using Predicate = std::function<bool(const Entry&)>;
+
+  static constexpr int kBadId = std::numeric_limits<int>::max();
 
   Entry(int id, const std::vector<int>& classes,
         const EntryDescriptor* entry_descriptor)

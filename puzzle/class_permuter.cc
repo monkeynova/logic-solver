@@ -50,8 +50,7 @@ void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
 }
 
 template <enum ClassPermuterType T>
-typename ClassPermuterImpl<T>::iterator&
-ClassPermuterImpl<T>::iterator::operator+=(ValueSkip value_skip) {
+void ClassPermuterImpl<T>::iterator::Advance(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   while (!current_.empty() && current_[value_skip.value_index] == value) {
     // TODO(keith@monkeynova.com): This is a placeholder reference
@@ -59,7 +58,6 @@ ClassPermuterImpl<T>::iterator::operator+=(ValueSkip value_skip) {
     // more efficient.
     Advance();
   }
-  return *this;
 }
 
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm

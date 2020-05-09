@@ -179,4 +179,18 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
   }
 }
 
+TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
+  constexpr int permuter_size = 9;
+  IntRangeDescriptor d(1, permuter_size);
+  TypeParam p(&d);
+  const int permutations = p.permutation_count();
+
+  int loop_count = 0;
+  for (auto it = p.begin(); it != p.end();
+       it += {.value_index = Entry::kBadId}) {
+    ++loop_count;
+  }
+  EXPECT_EQ(loop_count, permutations);
+}
+
 }  // namespace puzzle
