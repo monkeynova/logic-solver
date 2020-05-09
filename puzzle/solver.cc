@@ -9,20 +9,18 @@ Solver::Solver()
       solution_permuter_(
           CreateSolutionPermuter(&entry_descriptor_, profiler_.get())) {}
 
-void Solver::AddPredicate(std::string name, Solution::Predicate predicate,
-                          std::vector<int> class_int_restrict_list) {
-  if (solution_permuter_->AddPredicate(name, predicate,
-                                       std::move(class_int_restrict_list))) {
+void Solver::AddFilter(SolutionFilter solution_filter) {
+  if (solution_permuter_->AddFilter(solution_filter)) {
     // Permuter guarantees no need to evaluate the predicate further.
   } else {
-    on_solution_.push_back(predicate);
+    on_solution_.push_back(solution_filter);
   }
 }
 
 bool Solver::TestSolution(const Solution& s) {
   ++test_calls_;
   bool ret = std::all_of(on_solution_.begin(), on_solution_.end(),
-                         [&s](const Solution::Predicate& p) { return p(s); });
+                         [&s](const SolutionFilter& p) { return p(s); });
   return ret;
 }
 

@@ -68,8 +68,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     return class_permuters_[class_int];
   }
 
-  bool AddPredicate(absl::string_view name, Solution::Predicate predicate,
-                    std::vector<int> class_int_restrict_list) override;
+  bool AddFilter(SolutionFilter solution_filter) override;
 
   void Prepare() override;
 

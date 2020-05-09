@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "puzzle/solution.h"
+#include "puzzle/solution_filter.h"
 
 namespace puzzle {
 
@@ -56,11 +57,7 @@ class SolutionPermuter {
   SolutionPermuter() = default;
   virtual ~SolutionPermuter() = default;
 
-  virtual bool AddPredicate(absl::string_view name,
-                            Solution::Predicate predicate,
-                            std::vector<int> class_int_restrict_list) {
-    return false;
-  }
+  virtual bool AddFilter(SolutionFilter solution_filter) { return false; }
 
   // EntryDescriptor is not valid before this call.
   // TODO(keith@monkeynova.com): Fix this awful interface.

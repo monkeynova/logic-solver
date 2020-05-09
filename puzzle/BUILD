@@ -110,6 +110,7 @@ cc_library(
     deps = [
         ":class_permuter",
         ":mutable_solution",
+	":solution_filter",
 	":solution_permuter",
     ],
 )
@@ -136,6 +137,7 @@ cc_library(
     srcs = ["solution_permuter.cc"],
     deps = [
         ":solution",
+	":solution_filter",
     ],
 )
 
@@ -252,6 +254,7 @@ cc_test(
     srcs = ["filtered_solution_permuter_test.cc"],
     deps = [
         ":filtered_solution_permuter",
+	":solution_filter",
         ":test_main",
         "@com_google_googletest//:gtest",
     ]

@@ -184,18 +184,15 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
                                                    Profiler* profiler)
     : entry_descriptor_(e), profiler_(profiler) {}
 
-bool FilteredSolutionPermuter::AddPredicate(
-    absl::string_view name, Solution::Predicate predicate,
-    std::vector<int> class_int_restrict_list) {
+bool FilteredSolutionPermuter::AddFilter(SolutionFilter solution_filter) {
   CHECK(!prepared_);
   // TODO(keith@monkeynova.com): Maybe test for full sized list as well.
-  if (class_int_restrict_list.empty()) {
+  if (solution_filter.classes().empty()) {
     // No reason to store the predicate here as we require a full solution to
     // evaluate the predicate.
     return false;
   }
-  predicates_.emplace_back(std::string(name), predicate,
-                           std::move(class_int_restrict_list));
+  predicates_.emplace_back(std::move(solution_filter));
   // If `predicate` is successfully stored, this class guarantees to honor it
   // in the returned solutions.
   return true;

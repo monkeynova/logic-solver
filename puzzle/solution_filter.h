@@ -8,6 +8,22 @@
 
 namespace puzzle {
 
+class EntryFilter {
+  EntryFilter() = default;
+  EntryFilter(std::string name, Entry::Predicate p, std::vector<int> classes)
+      : name_(std::move(name)), p_(p), classes_(std::move(classes)) {}
+
+  bool operator()(const Entry& e) const { return p_(e); }
+
+  absl::string_view name() const { return name_; }
+  const std::vector<int>& classes() const { return classes_; }
+
+ private:
+  std::string name_;
+  Entry::Predicate p_;
+  std::vector<int> classes_;
+};
+
 class SolutionFilter {
  public:
   SolutionFilter() = default;

@@ -44,16 +44,19 @@ class Solver {
   void AddSpecificEntryPredicate(
       std::string name, int entry_id, Entry::Predicate predicate,
       std::vector<int> class_int_restrict_list = {}) {
-    AddPredicate(
+    AddFilter(SolutionFilter(
         name,
         [entry_id, predicate](const Solution& s) {
           return predicate(s.Id(entry_id));
         },
-        std::move(class_int_restrict_list));
+        std::move(class_int_restrict_list)));
   }
 
   void AddPredicate(std::string name, Solution::Predicate predicate,
-                    std::vector<int> class_int_restrict_list = {});
+                    std::vector<int> class_int_restrict_list = {}) {
+    AddFilter(SolutionFilter(std::move(name), predicate,
+                             std::move(class_int_restrict_list)));
+  }
 
   int test_calls() const { return test_calls_; }
 
@@ -69,6 +72,8 @@ class Solver {
   }
 
  private:
+  void AddFilter(SolutionFilter solution_filter);
+
   bool TestSolution(const Solution& s);
   EntryDescriptor entry_descriptor_;
 
@@ -76,7 +81,7 @@ class Solver {
 
   std::string last_debug_statistics_;
 
-  std::vector<Solution::Predicate> on_solution_;
+  std::vector<SolutionFilter> on_solution_;
 
   std::unique_ptr<Profiler> profiler_;
   std::unique_ptr<SolutionPermuter> solution_permuter_;
