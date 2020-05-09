@@ -29,24 +29,34 @@ class SolutionFilter {
   SolutionFilter() = default;
   SolutionFilter(std::string name, Solution::Predicate p,
                  std::vector<int> classes)
-      : name_(std::move(name)), p_(p), classes_(std::move(classes)) {}
+      : name_(std::move(name)), solution_p_(p), classes_(std::move(classes)) {}
 
   SolutionFilter(std::string name, int entry_id, Entry::Predicate p,
                  std::vector<int> classes)
-      : SolutionFilter(
-            std::move(name),
-            [entry_id, p](const Solution& s) { return p(s.Id(entry_id)); },
-            std::move(classes)) {}
+      : name_(std::move(name)),
+        solution_p_(
+            [entry_id, p](const Solution& s) { return p(s.Id(entry_id)); }),
+        classes_(std::move(classes)),
+        entry_id_(entry_id) {}
 
-  bool operator()(const Solution& s) const { return p_(s); }
+  bool operator()(const Solution& s) const { return solution_p_(s); }
+
+  bool operator()(const Entry& e) const {
+    DCHECK_NE(entry_id_, -1) << name_;
+    return entry_p_(e);
+  }
 
   absl::string_view name() const { return name_; }
   const std::vector<int>& classes() const { return classes_; }
 
+  int entry_id() const { return entry_id_; }
+
  private:
   std::string name_;
-  Solution::Predicate p_;
+  Solution::Predicate solution_p_;
   std::vector<int> classes_;
+  int entry_id_ = -1;
+  Entry::Predicate entry_p_;
 };
 
 }  // namespace puzzle
