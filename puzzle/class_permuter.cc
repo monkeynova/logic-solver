@@ -49,6 +49,20 @@ void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
       << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
+template <enum ClassPermuterType T>
+typename ClassPermuterImpl<T>::iterator&
+ClassPermuterImpl<T>::iterator::operator+=(
+    ValueSkip value_skip) {
+  int value = current_[value_skip.value_index];
+  while (!current_.empty() && current_[value_skip.value_index] == value) {
+    // TODO(keith@monkeynova.com): This is a placeholder reference
+    // implementation for API testing. Specific implementations could be much
+    // more efficient.
+    Advance();
+  }
+  return *this;
+}
+
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 template <>
 void ClassPermuterImpl<

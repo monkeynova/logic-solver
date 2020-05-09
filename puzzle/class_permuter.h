@@ -22,6 +22,12 @@ class ClassPermuterImpl {
     constexpr static int kInlineSize = 10;
     using StorageVector = std::vector<int>;
 
+    // Argument type for operator+= to advance until a sepecific position in the
+    // permutation changes values.
+    struct ValueSkip {
+      int value_index;
+    };
+
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
     typedef StorageVector value_type;
@@ -50,6 +56,14 @@ class ClassPermuterImpl {
       }
       return *this;
     }
+
+    // Advance until the value of `current_[value_skip.value_index]` changes.
+    // TODO(keith@monkeynova.com): The details of permutation iteration are
+    // putting the iteration reduction to a permutation of size 9 between 1-4x
+    // when skipping at a single value_index through the full permutation. If
+    // our goal is to skip all permutations with a specific (index, value) pair,
+    // we should be able to skip up to 8! permutations.
+    iterator& operator+=(ValueSkip value_skip);
 
     double position() const { return position_; }
     double Completion() const {

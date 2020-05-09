@@ -158,4 +158,25 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   EXPECT_THAT(position, 3);
 }
 
+TYPED_TEST(ClassPermuterTest, ValueSkip) {
+  constexpr int permuter_size = 9;
+  IntRangeDescriptor d(1, permuter_size);
+  TypeParam p(&d);
+  const int permutations = p.permutation_count();
+
+  for (int value_index = 0; value_index < permuter_size; ++value_index) {
+    int loop_count = 0;
+    int last_val = -1;
+    for (auto it = p.begin(); it != p.end();
+	 it += {.value_index = value_index}) {
+      EXPECT_NE(last_val, (*it)[value_index]);
+      last_val = (*it)[value_index];
+      ++loop_count;
+    }
+    EXPECT_LE(loop_count, permutations) << "Iteration: " << value_index;
+    LOG(INFO) << "Reduction [" << value_index << "]: " << permutations
+	      << " => " << loop_count;
+  }
+}
+
 }  // namespace puzzle
