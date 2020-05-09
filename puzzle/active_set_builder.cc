@@ -53,12 +53,6 @@ ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
   solution_ = mutable_solution_.TestableSolution();
 }
 
-bool ActiveSetBuilder::AllMatch(
-    const std::vector<SolutionFilter>& predicates) const {
-  return std::all_of(predicates.begin(), predicates.end(),
-                     [this](const SolutionFilter& c) { return c(solution_); });
-}
-
 template <>
 void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
     const ClassPermuter& class_permuter,
@@ -70,7 +64,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
   ActiveSet active_set;
   for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
     mutable_solution_.SetClass(it);
-    if (AllMatch(predicates)) {
+    if (AllMatch(predicates, solution_)) {
       active_set.AddBlock(false, it.position() - active_set.total());
       active_set.Add(true);
     }
@@ -92,7 +86,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
   std::vector<int> a_matches;
   for (auto it = class_permuter.begin(); it != class_permuter.end(); ++it) {
     mutable_solution_.SetClass(it);
-    if (AllMatch(predicates)) {
+    if (AllMatch(predicates, solution_)) {
       a_matches.push_back(it.position());
     }
   }
@@ -135,7 +129,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       for (auto it_a = permuter_a.begin(source_a); it_a != permuter_a.end();
            ++it_a) {
         mutable_solution_.SetClass(it_a);
-        if (AllMatch(predicates)) {
+        if (AllMatch(predicates, solution_)) {
           any_of_b = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -176,7 +170,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
       for (auto it_b = permuter_b.begin(source_b); it_b != permuter_b.end();
            ++it_b) {
         mutable_solution_.SetClass(it_b);
-        if (AllMatch(predicates)) {
+        if (AllMatch(predicates, solution_)) {
           any_of_a = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -232,7 +226,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
         continue;
       }
       mutable_solution_.SetClass(it_b);
-      if (AllMatch(predicates)) {
+      if (AllMatch(predicates, solution_)) {
         any_of_a = true;
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -297,7 +291,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
         continue;
       }
       mutable_solution_.SetClass(it_b);
-      if (AllMatch(predicates)) {
+      if (AllMatch(predicates, solution_)) {
         a_match_positions.insert(it_a.position());
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {

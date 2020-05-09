@@ -76,8 +76,6 @@ class ActiveSetBuilder {
   void SetupPairBuild(int class_a, int class_b,
                       const std::vector<SolutionFilter>& predicates) const;
 
-  bool AllMatch(const std::vector<SolutionFilter>& predicates) const;
-
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;
 

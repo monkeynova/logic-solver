@@ -85,8 +85,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
        ++iterators_[class_int]) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (std::all_of(solution_predicates.begin(), solution_predicates.end(),
-                    [this](const SolutionFilter& c) { return c(current_); }) &&
+    if (AllMatch(solution_predicates, current_) && 
         FindNextValid(class_position + 1)) {
       return true;
     }

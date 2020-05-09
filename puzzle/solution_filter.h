@@ -1,6 +1,7 @@
 #ifndef PUZZLE_SOLUTION_FILTER_H
 #define PUZZLE_SOLUTION_FILTER_H
 
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -42,7 +43,7 @@ class SolutionFilter {
   bool operator()(const Solution& s) const { return solution_p_(s); }
 
   bool operator()(const Entry& e) const {
-    DCHECK_NE(entry_id_, -1) << name_;
+    DCHECK_NE(entry_id_, std::numeric_limits<int>::max()) << name_;
     return entry_p_(e);
   }
 
@@ -55,9 +56,15 @@ class SolutionFilter {
   std::string name_;
   Solution::Predicate solution_p_;
   std::vector<int> classes_;
-  int entry_id_ = -1;
+  int entry_id_ = std::numeric_limits<int>::max();
   Entry::Predicate entry_p_;
 };
+
+inline bool AllMatch(const std::vector<SolutionFilter>& predicates,
+		     const Solution& solution) {
+  return std::all_of(predicates.begin(), predicates.end(),
+                     [&solution](const SolutionFilter& c) { return c(solution); });
+}
 
 }  // namespace puzzle
 

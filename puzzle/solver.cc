@@ -19,9 +19,7 @@ void Solver::AddFilter(SolutionFilter solution_filter) {
 
 bool Solver::TestSolution(const Solution& s) {
   ++test_calls_;
-  bool ret = std::all_of(on_solution_.begin(), on_solution_.end(),
-                         [&s](const SolutionFilter& p) { return p(s); });
-  return ret;
+  return AllMatch(on_solution_, s);
 }
 
 Solution Solver::Solve() {
