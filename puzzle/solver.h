@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_SOLVER_H
-#define __PUZZLE_SOLVER_H
+#ifndef PUZZLE_SOLVER_H
+#define PUZZLE_SOLVER_H
 
 #include <memory>
 #include <vector>
@@ -86,4 +86,4 @@ class Solver {
 
 }  // namespace puzzle
 
-#endif  // __PUZZLE_SOLVER_H
+#endif  // PUZZLE_SOLVER_H

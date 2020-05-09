@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_ACTIVE_SET_H
-#define __PUZZLE_ACTIVE_SET_H
+#ifndef PUZZLE_ACTIVE_SET_H
+#define PUZZLE_ACTIVE_SET_H
 
 #include <string>
 #include <vector>
@@ -109,4 +109,4 @@ class ActiveSet {
 
 }  // namespace puzzle
 
-#endif  // __PUZZLE_ACTIVE_SET_H
+#endif  // PUZZLE_ACTIVE_SET_H

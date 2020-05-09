@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_SOLUTION_PERMUTER_FACTORY_H
-#define __PUZZLE_SOLUTION_PERMUTER_FACTORY_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_FACTORY_H
+#define PUZZLE_SOLUTION_PERMUTER_FACTORY_H
 
 #include <memory>
 
@@ -14,4 +14,4 @@ std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
 
 }  // namespace puzzle
 
-#endif  //  __PUZZLE_SOLUTION_PERMUTER_FACTORY_H
+#endif  //  PUZZLE_SOLUTION_PERMUTER_FACTORY_H

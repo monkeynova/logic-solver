@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_SOLUTION_H
-#define __PUZZLE_SOLUTION_H
+#ifndef PUZZLE_SOLUTION_H
+#define PUZZLE_SOLUTION_H
 
 #include <algorithm>
 #include <functional>
@@ -229,4 +229,4 @@ inline void PrintTo(const Solution& solution, ::std::ostream* os) {
 
 }  // namespace puzzle
 
-#endif  // __PUZZLE_SOLUTION_H
+#endif  // PUZZLE_SOLUTION_H

@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_FILTERED_SOLUTION_PERMUTER_H
-#define __PUZZLE_FILTERED_SOLUTION_PERMUTER_H
+#ifndef PUZZLE_FILTERED_SOLUTION_PERMUTER_H
+#define PUZZLE_FILTERED_SOLUTION_PERMUTER_H
 
 #include "absl/memory/memory.h"
 #include "puzzle/active_set_builder.h"
@@ -109,4 +109,4 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
 }  // namespace puzzle
 
-#endif  // __PUZZLE_FILTERED_SOLUTION_PERMUTER_H
+#endif  // PUZZLE_FILTERED_SOLUTION_PERMUTER_H

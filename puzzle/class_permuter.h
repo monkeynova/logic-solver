@@ -1,5 +1,5 @@
-#ifndef __PUZZLE_CLASS_PERMUTER_H
-#define __PUZZLE_CLASS_PERMUTER_H
+#ifndef PUZZLE_CLASS_PERMUTER_H
+#define PUZZLE_CLASS_PERMUTER_H
 
 #include "puzzle/active_set.h"
 #include "puzzle/solution.h"
@@ -164,4 +164,4 @@ using ClassPermuter =
 
 }  // namespace puzzle
 
-#endif  // __PUZZLE_CLASS_PERMUTER_H
+#endif  // PUZZLE_CLASS_PERMUTER_H
