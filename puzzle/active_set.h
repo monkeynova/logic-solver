@@ -66,7 +66,9 @@ class ActiveSet {
   // Must be called after DoneAdding is called.
   int ConsumeFalseBlock();
 
-  void DiscardBlock(int block_size);
+  // Consumes the next 'block_size' values and returns the last value from the
+  // block.
+  bool DiscardBlock(int block_size);
 
   bool is_trivial() const { return matches_.empty(); }
   int matches() const { return matches_count_; }

@@ -72,7 +72,7 @@ TEST(ActiveSet, DiscardBlockAlternating) {
   for (int i = 0; i < 15; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
   }
-  set.DiscardBlock(20);
+  EXPECT_EQ(set.DiscardBlock(20), (34 & 1));
   for (int i = 35; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
   }
@@ -98,7 +98,7 @@ TEST(ActiveSet, DiscardBlockStreaks) {
   for (int i = 0; i < 10; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
   }
-  set.DiscardBlock(20);
+  EXPECT_EQ(set.DiscardBlock(20), !!(29 & 4));
   for (int i = 30; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
   }
