@@ -214,8 +214,11 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
     }
     int delta = div - (position_ % div);
     if (!active_set_.is_trivial()) {
-      active_set_.DiscardBlock(delta);
-      delta += active_set_.ConsumeFalseBlock();
+      if (!active_set_.DiscardBlock(delta)) {
+        delta += active_set_.ConsumeFalseBlock() + 1;
+        CHECK(active_set_.ConsumeNext())
+            << "ConsumeNext returned false after ConsumeFalseBlock";
+      }
     }
     Advance(/*dist=*/delta);
   }

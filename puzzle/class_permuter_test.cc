@@ -195,4 +195,32 @@ TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
   EXPECT_EQ(loop_count, permutations);
 }
 
+TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
+  constexpr int permuter_size = 4;
+  IntRangeDescriptor d(1, permuter_size);
+  TypeParam p(&d);
+
+  ActiveSet only_three_in_position_one;
+  for (const auto& permutation : p) {
+    only_three_in_position_one.Add(permutation[1] == 3);
+  }
+  only_three_in_position_one.DoneAdding();
+  EXPECT_EQ(only_three_in_position_one.matches(), 6);
+
+  p.set_active_set(only_three_in_position_one);
+  int loop_count = 0;
+  for (const auto& permutation : p) {
+    std::ignore = permutation;
+    ++loop_count;
+  }
+  EXPECT_EQ(loop_count, only_three_in_position_one.matches());
+
+  loop_count = 0;
+  for (auto it = p.begin(); it != p.end(); it += {.value_index = 1}) {
+    EXPECT_EQ((*it)[1], 3);
+    ++loop_count;
+  }
+  EXPECT_EQ(loop_count, 1);
+}
+
 }  // namespace puzzle
