@@ -8,6 +8,8 @@ using SteinhausJohnsonTrotter = puzzle::internal::ClassPermuterImpl<
     puzzle::internal::ClassPermuterType::kSteinhausJohnsonTrotter>;
 using FactorialRadix = puzzle::internal::ClassPermuterImpl<
     puzzle::internal::ClassPermuterType::kFactorialRadix>;
+using FactorialRadixDeleteTracking = puzzle::internal::ClassPermuterImpl<
+    puzzle::internal::ClassPermuterType::kFactorialRadixDeleteTracking>;
 
 template <typename PermuterType, int depth>
 static void BM_Permuter(benchmark::State& state) {
@@ -28,6 +30,11 @@ BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadix, 3);
 BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadix, 5);
 BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadix, 7);
 BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadix, 9);
+
+BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadixDeleteTracking, 3);
+BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadixDeleteTracking, 5);
+BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadixDeleteTracking, 7);
+BENCHMARK_TEMPLATE(BM_Permuter, FactorialRadixDeleteTracking, 9);
 
 template <typename PermuterType, int depth, int crop_column, int crop_value>
 static void BM_PermuterActiveSet1InN(benchmark::State& state) {
@@ -69,6 +76,15 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadix, 9, 0, 9);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadix, 9, 0, 1);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadix, 9, 5, 5);
 
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 0);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 8);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 7);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 3, 3);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 0, 9);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 5, 5);
+
 template <typename PermuterType, int depth, int every_n>
 static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   puzzle::ActiveSet set;
@@ -106,3 +122,8 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 7, 1000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 7, 1000000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 9, 1000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 9, 1000000);
+
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 7, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 7, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 9, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 9, 1000000);
