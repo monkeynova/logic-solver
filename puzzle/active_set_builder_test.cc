@@ -391,17 +391,27 @@ TEST_P(PairPermuterTest, MakePairs) {
 
   int i = 0;
   std::vector<int> a0_is_3;
+  int a0_is_not_3 = -1;
   for (const std::vector<int>& a_vals : permuter_a) {
-    if (a_vals[0] == 3) a0_is_3.push_back(i);
+    if (a_vals[0] == 3)
+      a0_is_3.push_back(i);
+    else
+      a0_is_not_3 = i;
     ++i;
   }
+  ASSERT_NE(a0_is_not_3, -1);
   ASSERT_EQ(a0_is_3.size(), 2);
   i = 0;
   std::vector<int> b0_is_4;
+  int b0_is_not_4 = -1;
   for (const std::vector<int>& b_vals : permuter_b) {
-    if (b_vals[0] == 4) b0_is_4.push_back(i);
+    if (b_vals[0] == 4)
+      b0_is_4.push_back(i);
+    else
+      b0_is_not_4 = i;
     ++i;
   }
+  ASSERT_NE(b0_is_not_4, -1);
   ASSERT_EQ(b0_is_4.size(), 2);
 
   SolutionFilter c("a is 3 and b is 4 for id 0",
@@ -414,19 +424,23 @@ TEST_P(PairPermuterTest, MakePairs) {
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
                 ActiveSetBuilder::PairClassMode::kMakePairs);
 
-  EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/5, kClassIntB)
-                  .EnabledValues(),
-              IsEmpty());
-  EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/3, kClassIntA)
-                  .EnabledValues(),
-              IsEmpty());
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_not_3, kClassIntB)
+          .EnabledValues(),
+      IsEmpty());
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntB, /*a_val=*/b0_is_not_4, kClassIntA)
+          .EnabledValues(),
+      IsEmpty());
 
-  EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/3, kClassIntB)
-                  .EnabledValues(),
-              ElementsAreArray(b0_is_4));
-  EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/4, kClassIntA)
-                  .EnabledValues(),
-              ElementsAreArray(a0_is_3));
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_3[0], kClassIntB)
+          .EnabledValues(),
+      ElementsAreArray(b0_is_4));
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntB, /*a_val=*/b0_is_4[0], kClassIntA)
+          .EnabledValues(),
+      ElementsAreArray(a0_is_3));
 }
 
 TEST_P(PairPermuterTest, MakePairsOrFilter) {
@@ -453,16 +467,20 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
 
   absl::flat_hash_map<int, absl::flat_hash_set<int>> a_to_b_vals;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_to_a_vals;
+  int a_0_is_5 = -1;
+  int b_0_is_5 = -1;
   int index_a = 0;
   for (auto it_a = permuter_a.begin(); it_a != permuter_a.end();
        ++index_a, ++it_a) {
     const std::vector<int>& a_vals = *it_a;
     const int a_0_val = a_vals[0];
+    if (a_0_val == 5) a_0_is_5 = index_a;
     int index_b = 0;
     for (auto it_b = permuter_b.begin(); it_b != permuter_b.end();
          ++index_b, ++it_b) {
       const std::vector<int>& b_vals = *it_b;
       const int b_0_val = b_vals[0];
+      if (b_0_val == 5) b_0_is_5 = index_b;
       if (val_0_predicate(a_0_val, b_0_val)) {
         a_to_b_vals[a_0_val].insert(index_b);
         b_to_a_vals[b_0_val].insert(index_a);
@@ -480,17 +498,23 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
                 ActiveSetBuilder::PairClassMode::kMakePairs);
 
-  EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/5, kClassIntB)
-                  .EnabledValues(),
-              IsEmpty());
-  EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/5, kClassIntA)
-                  .EnabledValues(),
-              IsEmpty());
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntA, /*a_val=*/a_0_is_5, kClassIntB)
+          .EnabledValues(),
+      IsEmpty());
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntB, /*a_val=*/b_0_is_5, kClassIntA)
+          .EnabledValues(),
+      IsEmpty());
 
-  EXPECT_THAT(builder.active_set_pair(kClassIntA, /*a_val=*/3, kClassIntB)
+  EXPECT_THAT(builder
+                  .active_set_pair(
+                      kClassIntA, /*a_val=*/*b_to_a_vals[4].begin(), kClassIntB)
                   .EnabledValues(),
               UnorderedElementsAreArray(a_to_b_vals[3]));
-  EXPECT_THAT(builder.active_set_pair(kClassIntB, /*a_val=*/4, kClassIntA)
+  EXPECT_THAT(builder
+                  .active_set_pair(
+                      kClassIntB, /*a_val=*/*a_to_b_vals[3].begin(), kClassIntA)
                   .EnabledValues(),
               UnorderedElementsAreArray(b_to_a_vals[4]));
 }
