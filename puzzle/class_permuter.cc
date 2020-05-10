@@ -173,21 +173,23 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
   } else {
     int mod = current_.size();
     int div = permuter_->permutation_count() / mod;
-    std::vector<int> deleted(index_.size(), 0);
+    int deleted = 0;
+    DCHECK_LT(current_.size(), 32)
+      << "Permutation indexes must be useable as a bit vector";
     for (size_t i = 0; i < current_.size() - 1; ++i) {
       int next = (position_ / div) % mod;
       for (int j = 0; j <= next; ++j) {
-        if (deleted[j]) ++next;
+        if (deleted & (1 << j)) ++next;
       }
       DCHECK_LT(next, index_.size());
       current_[i] = index_[next];
-      deleted[next] = 1;
+      deleted |= (1 << next);
       --mod;
       div /= mod;
     }
     int next = -1;
-    for (int j = 0; j < deleted.size(); ++j) {
-      if (!deleted[j]) {
+    for (int j = 0; j < current_.size(); ++j) {
+      if (!(deleted & (1 << j))) {
         next = j;
         break;
       }
