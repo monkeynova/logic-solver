@@ -227,6 +227,21 @@ int ActiveSet::ConsumeFalseBlock() {
   return ret;
 }
 
+void ActiveSet::DiscardBlock(int block_size) {
+  if (matches_.empty()) return;
+
+  while (block_size > 0) {
+    if (matches_[matches_position_] == 0) {
+      current_value_ = !current_value_;
+      ++matches_position_;
+      if (matches_position_ >= static_cast<int>(matches_.size())) return;
+    }
+    int delta = std::min(matches_[matches_position_], block_size);
+    matches_[matches_position_] -= delta;
+    block_size -= delta;
+  }
+}
+
 std::vector<int> ActiveSet::EnabledValues() const {
   ActiveSet copy = *this;
   std::vector<int> ret;

@@ -66,6 +66,8 @@ class ActiveSet {
   // Must be called after DoneAdding is called.
   int ConsumeFalseBlock();
 
+  void DiscardBlock(int block_size);
+
   bool is_trivial() const { return matches_.empty(); }
   int matches() const { return matches_count_; }
   int total() const { return total_; }
