@@ -26,6 +26,13 @@ DEFINE_bool(puzzle_prune_reorder_classes, true,
 
 namespace puzzle {
 
+static void OrderSolutionFiltersByEntryId(std::vector<SolutionFilter>* list) {
+  std::sort(list->begin(), list->end(),
+            [](const SolutionFilter& a, const SolutionFilter& b) {
+              return a.entry_id() < b.entry_id();
+            });
+}
+
 FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
     : permuter_(permuter),
@@ -238,6 +245,10 @@ void FilteredSolutionPermuter::Prepare() {
                  << absl::StrJoin(filter.classes(), ",") << "]";
   }
 
+  for (auto& predicates : class_predicates_) {
+    OrderSolutionFiltersByEntryId(&predicates);
+  }
+
   if (VLOG_IS_ON(1)) {
     for (const auto& permuter : class_permuters_) {
       const std::string predicate_name =
@@ -289,6 +300,14 @@ void FilteredSolutionPermuter::BuildActiveSets(
     } else {
       residual->push_back(filter);
     }
+  }
+
+  for (auto& single_class_predicate_list : single_class_predicates) {
+    OrderSolutionFiltersByEntryId(&single_class_predicate_list);
+  }
+
+  for (auto& pair_and_predicates : pair_class_predicates) {
+    OrderSolutionFiltersByEntryId(&pair_and_predicates.second);
   }
 
   for (auto& class_permuter : class_permuters_) {
