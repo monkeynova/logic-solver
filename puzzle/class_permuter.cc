@@ -23,6 +23,14 @@ void ClassPermuterImpl<
   }
 }
 
+template <>
+void ClassPermuterImpl<
+    ClassPermuterType::kFactorialRadixDeleteTracking>::iterator::InitIndex() {
+  if (permuter_ != nullptr) {
+    index_ = permuter_->descriptor()->Values();
+  }
+}
+
 template <enum ClassPermuterType T>
 ClassPermuterImpl<T>::iterator::iterator(const ClassPermuterImpl<T>* permuter,
                                          ActiveSet active_set)
@@ -47,23 +55,6 @@ void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
   Advance(active_set_.ConsumeFalseBlock() + 1);
   CHECK(active_set_.ConsumeNext())
       << "ConsumeNext returned false after ConsumeFalseBlock";
-}
-
-template <enum ClassPermuterType T>
-void ClassPermuterImpl<T>::iterator::Advance(ValueSkip value_skip) {
-  int value = current_[value_skip.value_index];
-  // TODO(keith@monkeynova.com): This is a placeholder reference
-  // implementation for API testing. Specific implementations could be much
-  // more efficient.
-  if (active_set_.is_trivial()) {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
-      Advance();
-    }
-  } else {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
-      AdvanceWithSkip();
-    }
-  }
 }
 
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
@@ -117,6 +108,21 @@ void ClassPermuterImpl<
 }
 
 template <>
+void ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::
+    Advance(ValueSkip value_skip) {
+  int value = current_[value_skip.value_index];
+  if (active_set_.is_trivial()) {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      Advance();
+    }
+  } else {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      AdvanceWithSkip();
+    }
+  }
+}
+
+template <>
 void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
     int dist) {
   position_ += dist;
@@ -140,6 +146,79 @@ template <>
 void ClassPermuterImpl<
     ClassPermuterType::kFactorialRadix>::iterator::Advance() {
   Advance(/*dist=*/1);
+}
+
+template <>
+void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
+    ValueSkip value_skip) {
+  int value = current_[value_skip.value_index];
+  if (active_set_.is_trivial()) {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      Advance();
+    }
+  } else {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      AdvanceWithSkip();
+    }
+  }
+}
+
+template <>
+void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
+    iterator::Advance(int dist) {
+  position_ += dist;
+  if (position_ >= permuter_->permutation_count()) {
+    position_ = permuter_->permutation_count();
+    current_.resize(0);
+  } else {
+    int mod = current_.size();
+    int div = permuter_->permutation_count() / mod;
+    std::vector<int> deleted(index_.size(), 0);
+    for (size_t i = 0; i < current_.size() - 1; ++i) {
+      int next = (position_ / div) % mod;
+      for (int j = 0; j <= next; ++j) {
+        if (deleted[j]) ++next;
+      }
+      DCHECK_LT(next, index_.size());
+      current_[i] = index_[next];
+      deleted[next] = 1;
+      --mod;
+      div /= mod;
+    }
+    int next = -1;
+    for (int j = 0; j < deleted.size(); ++j) {
+      if (!deleted[j]) {
+        next = j;
+        break;
+      }
+    }
+    DCHECK_GE(next, 0);
+    current_[current_.size() - 1] = index_[next];
+  }
+}
+
+template <>
+void ClassPermuterImpl<
+    ClassPermuterType::kFactorialRadixDeleteTracking>::iterator::Advance() {
+  Advance(/*dist=*/1);
+}
+
+template <>
+void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
+    iterator::Advance(ValueSkip value_skip) {
+  int value = current_[value_skip.value_index];
+  while (!current_.empty() && current_[value_skip.value_index] == value) {
+    int div = 1;
+    for (int i = 1; i <= current_.size() - value_skip.value_index - 1; ++i) {
+      div *= i;
+    }
+    int delta = div - (position_ % div);
+    if (!active_set_.is_trivial()) {
+      active_set_.DiscardBlock(delta);
+      delta += active_set_.ConsumeFalseBlock();
+    }
+    Advance(/*dist=*/delta);
+  }
 }
 
 // static
@@ -166,6 +245,8 @@ std::string ClassPermuterImpl<T>::DebugString() const {
 
 template class ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>;
 template class ClassPermuterImpl<ClassPermuterType::kFactorialRadix>;
+template class ClassPermuterImpl<
+    ClassPermuterType::kFactorialRadixDeleteTracking>;
 
 }  // namespace internal
 }  // namespace puzzle

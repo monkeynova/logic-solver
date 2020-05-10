@@ -11,7 +11,15 @@ enum class ClassPermuterType {
   kUnknown = 0,
   // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
   kSteinhausJohnsonTrotter = 1,
+  // Treats the permutation index as a factorial radix number
+  // ({0..8} * 8! + {0..7} * 7! + ... {0..1} * 1! + {0} * 0!).
+  // This implementation is O(class_size) turning a position into a permutation
+  // but does not allow seeking to a position for Advance(ValueSkip).
   kFactorialRadix = 2,
+  // This implementation is O(class_size^2) turning a position into a
+  // permutation but does allows a single position advance for
+  // Advance(ValueSkip).
+  kFactorialRadixDeleteTracking = 3,
 };
 
 template <enum ClassPermuterType T>
@@ -71,9 +79,9 @@ class ClassPermuterImpl {
       return *this;
     }
 
-    double position() const { return position_; }
+    double position() const { return static_cast<double>(position_); }
     double Completion() const {
-      return position_ / permuter_->permutation_count();
+      return static_cast<double>(position_) / permuter_->permutation_count();
     }
     int class_int() const { return permuter_->class_int(); }
 
@@ -106,7 +114,7 @@ class ClassPermuterImpl {
 
     // Position in the iteration. Integer from 1 to number of permutations.
     // Represents the position independent of skipped values from 'active_set'.
-    double position_;
+    int position_;
 
     // Representation of the subset of the permutations to return.
     ActiveSet active_set_;

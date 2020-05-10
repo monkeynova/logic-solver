@@ -17,7 +17,9 @@ class ClassPermuterTest : public ::testing::Test {};
 using ClassPermuterTypes = ::testing::Types<
     internal::ClassPermuterImpl<
         internal::ClassPermuterType::kSteinhausJohnsonTrotter>,
-    internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>>;
+    internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>,
+    internal::ClassPermuterImpl<
+        internal::ClassPermuterType::kFactorialRadixDeleteTracking>>;
 TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
