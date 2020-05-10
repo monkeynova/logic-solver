@@ -443,6 +443,79 @@ TEST_P(PairPermuterTest, MakePairs) {
       ElementsAreArray(a0_is_3));
 }
 
+TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
+  IntRangeDescriptor id_descriptor(0, 2);
+  EntryDescriptor entry_descriptor;
+  const int kClassIntA = 0;
+  const int kClassIntB = 1;
+  entry_descriptor.SetIds(&id_descriptor);
+  IntRangeDescriptor class_descriptor_a(3, 5);
+  entry_descriptor.SetClass(kClassIntA, "class a", &class_descriptor_a);
+  IntRangeDescriptor class_descriptor_b(3, 5);
+  entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
+
+  ActiveSetBuilder builder(&entry_descriptor);
+
+  ClassPermuter permuter_a(&class_descriptor_a, kClassIntA);
+  ClassPermuter permuter_b(&class_descriptor_b, kClassIntB);
+  ASSERT_THAT(permuter_a.permutation_count(), 6);
+  ASSERT_THAT(permuter_b.permutation_count(), 6);
+
+  int i = 0;
+  std::vector<int> a0_is_3;
+  int a0_is_not_3 = -1;
+  for (const std::vector<int>& a_vals : permuter_a) {
+    if (a_vals[0] == 3)
+      a0_is_3.push_back(i);
+    else
+      a0_is_not_3 = i;
+    ++i;
+  }
+  ASSERT_NE(a0_is_not_3, -1);
+  ASSERT_EQ(a0_is_3.size(), 2);
+  i = 0;
+  std::vector<int> b0_is_4;
+  int b0_is_not_4 = -1;
+  for (const std::vector<int>& b_vals : permuter_b) {
+    if (b_vals[0] == 4)
+      b0_is_4.push_back(i);
+    else
+      b0_is_not_4 = i;
+    ++i;
+  }
+  ASSERT_NE(b0_is_not_4, -1);
+  ASSERT_EQ(b0_is_4.size(), 2);
+
+  SolutionFilter c("a is 3 and b is 4 for id 0",
+                   /*entry_id=*/0,
+                   [](const Entry& e) {
+                     return e.Class(kClassIntA) == 3 &&
+                            e.Class(kClassIntB) == 4;
+                   },
+                   {kClassIntA, kClassIntB});
+
+  builder.Build(pair_class_impl(), permuter_a, permuter_b, {c},
+                ActiveSetBuilder::PairClassMode::kMakePairs);
+
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_not_3, kClassIntB)
+          .EnabledValues(),
+      IsEmpty());
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntB, /*a_val=*/b0_is_not_4, kClassIntA)
+          .EnabledValues(),
+      IsEmpty());
+
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_3[0], kClassIntB)
+          .EnabledValues(),
+      ElementsAreArray(b0_is_4));
+  EXPECT_THAT(
+      builder.active_set_pair(kClassIntB, /*a_val=*/b0_is_4[0], kClassIntA)
+          .EnabledValues(),
+      ElementsAreArray(a0_is_3));
+}
+
 TEST_P(PairPermuterTest, MakePairsOrFilter) {
   IntRangeDescriptor id_descriptor(0, 2);
   EntryDescriptor entry_descriptor;
