@@ -76,14 +76,22 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadix, 9, 0, 9);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadix, 9, 0, 1);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadix, 9, 5, 5);
 
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 0);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 8);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 7);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0, 1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 3, 3);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 0, 9);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 0, 1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 5, 5);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0,
+                   0);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0,
+                   8);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0,
+                   7);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 0,
+                   1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 7, 3,
+                   3);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 0,
+                   9);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 0,
+                   1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, FactorialRadixDeleteTracking, 9, 5,
+                   5);
 
 template <typename PermuterType, int depth, int every_n>
 static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
@@ -123,7 +131,11 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 7, 1000000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 9, 1000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadix, 9, 1000000);
 
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 7, 1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 7, 1000000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 9, 1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, FactorialRadixDeleteTracking, 9, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   FactorialRadixDeleteTracking, 7, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   FactorialRadixDeleteTracking, 7, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   FactorialRadixDeleteTracking, 9, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   FactorialRadixDeleteTracking, 9, 1000000);

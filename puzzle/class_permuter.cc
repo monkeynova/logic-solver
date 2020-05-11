@@ -3,6 +3,29 @@
 namespace puzzle {
 namespace internal {
 
+template <enum ClassPermuterType T>
+std::vector<std::unique_ptr<RadixIndexToRawIndex>> ClassPermuterImpl<
+    T>::iterator::iterator::max_pos_to_radix_index_to_raw_index_;
+
+static int ComputeRadixIndexToRawIndex(int position, int delete_bit_vector) {
+  for (int j = 0; j <= position; ++j) {
+    if (delete_bit_vector & (1 << j)) ++position;
+  }
+  return position;
+}
+
+static RadixIndexToRawIndex ComputeAllRadixIndexToRawIndex(int max_pos) {
+  RadixIndexToRawIndex ret;
+  ret.resize(max_pos);
+  for (int position = 0; position < max_pos; ++position) {
+    ret[position].resize(1 << max_pos, 0);
+    for (int bv = 0; bv < (1 << max_pos); ++bv) {
+      ret[position][bv] = ComputeRadixIndexToRawIndex(position, bv);
+    }
+  }
+  return ret;
+}
+
 template <>
 void ClassPermuterImpl<
     ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::InitIndex() {
@@ -28,6 +51,16 @@ void ClassPermuterImpl<
     ClassPermuterType::kFactorialRadixDeleteTracking>::iterator::InitIndex() {
   if (permuter_ != nullptr) {
     index_ = permuter_->descriptor()->Values();
+    if (max_pos_to_radix_index_to_raw_index_.size() < index_.size() + 1) {
+      max_pos_to_radix_index_to_raw_index_.resize(index_.size() + 1);
+    }
+    if (max_pos_to_radix_index_to_raw_index_[index_.size()] == nullptr) {
+      max_pos_to_radix_index_to_raw_index_[index_.size()] =
+          absl::make_unique<RadixIndexToRawIndex>(
+              ComputeAllRadixIndexToRawIndex(index_.size()));
+    }
+    radix_index_to_raw_index_ =
+        max_pos_to_radix_index_to_raw_index_[index_.size()].get();
   }
 }
 
@@ -175,25 +208,17 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
     int div = permuter_->permutation_count() / mod;
     int deleted = 0;
     DCHECK_LT(current_.size(), 32)
-      << "Permutation indexes must be useable as a bit vector";
+        << "Permutation indexes must be useable as a bit vector";
     for (size_t i = 0; i < current_.size() - 1; ++i) {
-      int next = (position_ / div) % mod;
-      for (int j = 0; j <= next; ++j) {
-        if (deleted & (1 << j)) ++next;
-      }
+      const int next =
+          (*radix_index_to_raw_index_)[(position_ / div) % mod][deleted];
       DCHECK_LT(next, index_.size());
       current_[i] = index_[next];
       deleted |= (1 << next);
       --mod;
       div /= mod;
     }
-    int next = -1;
-    for (int j = 0; j < current_.size(); ++j) {
-      if (!(deleted & (1 << j))) {
-        next = j;
-        break;
-      }
-    }
+    const int next = (*radix_index_to_raw_index_)[0][deleted];
     DCHECK_GE(next, 0);
     current_[current_.size() - 1] = index_[next];
   }

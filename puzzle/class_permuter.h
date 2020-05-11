@@ -22,6 +22,13 @@ enum class ClassPermuterType {
   kFactorialRadixDeleteTracking = 3,
 };
 
+// Contains a map from a radix index position and a bit vector marked with
+// previously selected values from index_ in a permutation to the index for
+// the correspondingly selected value in index_.
+// This is a lookup-table for the function ComputeRadixIndexToRawIndex which
+// is called in the innermost loop.
+using RadixIndexToRawIndex = std::vector<std::vector<int>>;
+
 template <enum ClassPermuterType T>
 class ClassPermuterImpl {
  public:
@@ -112,6 +119,18 @@ class ClassPermuterImpl {
     value_type direction_;
     int next_from_;
 
+    // Only populated for kFactorialRadixDeleteTracking.
+    RadixIndexToRawIndex* radix_index_to_raw_index_;
+
+    // Global container/cache for `radix_index_to_raw_index_`. Keyed on the
+    // number of items in the permutation.
+    // This data structure makes ClassPermuter thread-unsafe unless concurrent
+    // calls to the constructor are serialized.
+    // This is a non-trivial amount of memory to use and failure to share the
+    // memory between ClassPermuters has significant costs on memory caching.
+    static std::vector<std::unique_ptr<RadixIndexToRawIndex>>
+        max_pos_to_radix_index_to_raw_index_;
+
     // Position in the iteration. Integer from 1 to number of permutations.
     // Represents the position independent of skipped values from 'active_set'.
     int position_;
@@ -175,8 +194,8 @@ std::ostream& operator<<(std::ostream& out,
 
 }  // namespace internal
 
-using ClassPermuter =
-    internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>;
+using ClassPermuter = internal::ClassPermuterImpl<
+    internal::ClassPermuterType::kFactorialRadixDeleteTracking>;
 
 }  // namespace puzzle
 
