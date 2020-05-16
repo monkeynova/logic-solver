@@ -1,11 +1,19 @@
 #include "puzzle/class_permuter.h"
 
+#include "absl/synchronization/mutex.h"
+
 namespace puzzle {
 namespace internal {
 
-template <enum ClassPermuterType T>
-std::vector<std::unique_ptr<RadixIndexToRawIndex>> ClassPermuterImpl<
-    T>::iterator::iterator::max_pos_to_radix_index_to_raw_index_;
+// Global container/cache for `radix_index_to_raw_index_`. Keyed on the  number
+// of items in the permutation.
+// This is a non-trivial amount of memory to use and failure to share the
+// memory between ClassPermuters causes memory pressure on the CPU cache which
+// in turn is very present in profiling.
+static absl::Mutex max_pos_to_radix_index_to_raw_index_lock_;
+static std::vector<std::unique_ptr<RadixIndexToRawIndex>>
+    max_pos_to_radix_index_to_raw_index_
+        ABSL_GUARDED_BY(max_pos_to_radix_index_to_raw_index_lock_);
 
 static int ComputeRadixIndexToRawIndex(int position, int delete_bit_vector) {
   for (int j = 0; j <= position; ++j) {
@@ -24,6 +32,20 @@ static RadixIndexToRawIndex ComputeAllRadixIndexToRawIndex(int max_pos) {
     }
   }
   return ret;
+}
+
+static RadixIndexToRawIndex* GetRadixIndexToRawIndex(int max_pos) {
+  absl::MutexLock l(&max_pos_to_radix_index_to_raw_index_lock_);
+  if (max_pos_to_radix_index_to_raw_index_.size() < max_pos + 1) {
+    max_pos_to_radix_index_to_raw_index_.resize(max_pos + 1);
+  }
+  if (max_pos_to_radix_index_to_raw_index_[max_pos] == nullptr) {
+    max_pos_to_radix_index_to_raw_index_[max_pos] =
+        absl::make_unique<RadixIndexToRawIndex>(
+            ComputeAllRadixIndexToRawIndex(max_pos));
+  }
+
+  return max_pos_to_radix_index_to_raw_index_[max_pos].get();
 }
 
 template <>
@@ -51,16 +73,7 @@ void ClassPermuterImpl<
     ClassPermuterType::kFactorialRadixDeleteTracking>::iterator::InitIndex() {
   if (permuter_ != nullptr) {
     index_ = permuter_->descriptor()->Values();
-    if (max_pos_to_radix_index_to_raw_index_.size() < index_.size() + 1) {
-      max_pos_to_radix_index_to_raw_index_.resize(index_.size() + 1);
-    }
-    if (max_pos_to_radix_index_to_raw_index_[index_.size()] == nullptr) {
-      max_pos_to_radix_index_to_raw_index_[index_.size()] =
-          absl::make_unique<RadixIndexToRawIndex>(
-              ComputeAllRadixIndexToRawIndex(index_.size()));
-    }
-    radix_index_to_raw_index_ =
-        max_pos_to_radix_index_to_raw_index_[index_.size()].get();
+    radix_index_to_raw_index_ = GetRadixIndexToRawIndex(index_.size());
   }
 }
 

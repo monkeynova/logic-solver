@@ -119,17 +119,9 @@ class ClassPermuterImpl {
     value_type direction_;
     int next_from_;
 
-    // Only populated for kFactorialRadixDeleteTracking.
+    // Only populated for kFactorialRadixDeleteTracking. Memory based data
+    // structure to turn an O(N^2) delete with replacement into an O(N) one.
     RadixIndexToRawIndex* radix_index_to_raw_index_;
-
-    // Global container/cache for `radix_index_to_raw_index_`. Keyed on the
-    // number of items in the permutation.
-    // This data structure makes ClassPermuter thread-unsafe unless concurrent
-    // calls to the constructor are serialized.
-    // This is a non-trivial amount of memory to use and failure to share the
-    // memory between ClassPermuters has significant costs on memory caching.
-    static std::vector<std::unique_ptr<RadixIndexToRawIndex>>
-        max_pos_to_radix_index_to_raw_index_;
 
     // Position in the iteration. Integer from 1 to number of permutations.
     // Represents the position independent of skipped values from 'active_set'.
