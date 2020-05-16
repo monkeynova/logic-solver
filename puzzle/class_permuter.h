@@ -32,16 +32,26 @@ using RadixIndexToRawIndex = std::vector<std::vector<int>>;
 template <enum ClassPermuterType T>
 class ClassPermuterImpl {
  public:
-  class iterator {
-   public:
-    constexpr static int kInlineSize = 10;
-    using StorageVector = std::vector<int>;
-
+  class AdvanceInterface {
+  public:
     // Argument type for operator+= to advance until a sepecific position in the
     // permutation changes values.
     struct ValueSkip {
       int value_index;
     };
+
+    virtual ~AdvanceInterface() {}
+
+    virtual void Advance() = 0;
+    virtual void Advance(int dist) = 0;
+    virtual void Advance(ValueSkip value_skip) = 0;
+  };
+  
+  class iterator : public AdvanceInterface {
+   public:
+    constexpr static int kInlineSize = 10;
+    using StorageVector = std::vector<int>;
+    using ValueSkip = typename AdvanceInterface::ValueSkip;
 
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
@@ -98,12 +108,12 @@ class ClassPermuterImpl {
     void AdvanceWithSkip();
 
     // Advances permutation 'dist' positions  independent of skipping behavior.
-    void Advance(int dist);
+    void Advance(int dist) override;
 
-    void Advance(ValueSkip value_skip);
+    void Advance(ValueSkip value_skip) override;
 
     // Equivalent to Advance(1).
-    void Advance();
+    void Advance() override;
 
     // Initializes Algorithm depend information during construction.
     void InitIndex();
@@ -138,16 +148,19 @@ class ClassPermuterImpl {
         class_int_(class_int) {
     active_set_.DoneAdding();
   }
-  ~ClassPermuterImpl() {}
+  virtual ~ClassPermuterImpl() {}
 
-  ClassPermuterImpl(const ClassPermuterImpl&) = default;
-  ClassPermuterImpl& operator=(const ClassPermuterImpl&) = default;
+  ClassPermuterImpl(const ClassPermuterImpl&) = delete;
+  ClassPermuterImpl& operator=(const ClassPermuterImpl&) = delete;
+
+  ClassPermuterImpl(ClassPermuterImpl&&) = default;
+  ClassPermuterImpl& operator=(ClassPermuterImpl&&) = default;
 
   // TODO(keith): This copy of active_set_ is likely the cause of malloc
   // showing up on profiles. We should clean up the model to avoid needing
   // a data copy here.
-  iterator begin() const { return iterator(this, active_set_); }
-  iterator begin(ActiveSet active_set) const {
+  virtual iterator begin() const { return iterator(this, active_set_); }
+  virtual iterator begin(ActiveSet active_set) const {
     return iterator(this, std::move(active_set));
   }
   iterator end() const { return iterator(); }
@@ -180,7 +193,7 @@ class ClassPermuterImpl {
 
 template <enum ClassPermuterType T>
 std::ostream& operator<<(std::ostream& out,
-                         internal::ClassPermuterImpl<T> permuter) {
+                         const internal::ClassPermuterImpl<T>& permuter) {
   return out << permuter.DebugString();
 }
 
