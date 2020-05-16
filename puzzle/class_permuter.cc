@@ -49,8 +49,8 @@ static RadixIndexToRawIndex* GetRadixIndexToRawIndex(int max_pos) {
 }
 
 ClassPermuterSteinhausJohnsonTrotter::Advancer::Advancer(
-     const ClassPermuterSteinhausJohnsonTrotter* permuter, ActiveSet active_set)
-      : AdvancerBase(permuter, std::move(active_set)) {
+    const ClassPermuterSteinhausJohnsonTrotter* permuter, ActiveSet active_set)
+    : AdvancerBase(permuter, std::move(active_set)) {
   index_.resize(current_.size());
   direction_.resize(current_.size());
   for (size_t i = 0; i < current_.size(); ++i) {
@@ -62,19 +62,21 @@ ClassPermuterSteinhausJohnsonTrotter::Advancer::Advancer(
 
 ClassPermuterFactorialRadix::Advancer::Advancer(
     const ClassPermuterFactorialRadix* permuter, ActiveSet active_set)
-      : AdvancerBase(permuter, std::move(active_set)) {
+    : AdvancerBase(permuter, std::move(active_set)) {
   index_ = permuter_->descriptor()->Values();
 }
 
 ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
-    const ClassPermuterFactorialRadixDeleteTracking* permuter, ActiveSet active_set)
-      : AdvancerBase(permuter, std::move(active_set)) {
+    const ClassPermuterFactorialRadixDeleteTracking* permuter,
+    ActiveSet active_set)
+    : AdvancerBase(permuter, std::move(active_set)) {
   index_ = permuter_->descriptor()->Values();
   radix_index_to_raw_index_ = GetRadixIndexToRawIndex(index_.size());
 }
 
-ClassPermuterBase::AdvancerBase::AdvancerBase(const ClassPermuterBase* permuter, ActiveSet active_set)
-  : permuter_(permuter), active_set_(std::move(active_set)) {
+ClassPermuterBase::AdvancerBase::AdvancerBase(const ClassPermuterBase* permuter,
+                                              ActiveSet active_set)
+    : permuter_(permuter), active_set_(std::move(active_set)) {
   for (int i : permuter_->descriptor()->Values()) {
     current_.push_back(i);
   }
@@ -142,7 +144,8 @@ void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(int dist) {
   for (; dist > 0; --dist) Advance();
 }
 
-void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(ValueSkip value_skip) {
+void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(
+    ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   if (active_set_.is_trivial()) {
     while (!current_.empty() && current_[value_skip.value_index] == value) {
@@ -155,8 +158,7 @@ void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(ValueSkip value_ski
   }
 }
 
-void ClassPermuterFactorialRadix::Advancer::Advance(
-    int dist) {
+void ClassPermuterFactorialRadix::Advancer::Advance(int dist) {
   position_ += dist;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -174,9 +176,7 @@ void ClassPermuterFactorialRadix::Advancer::Advance(
   }
 }
 
-void ClassPermuterFactorialRadix::Advancer::Advance() {
-  Advance(/*dist=*/1);
-}
+void ClassPermuterFactorialRadix::Advancer::Advance() { Advance(/*dist=*/1); }
 
 void ClassPermuterFactorialRadix::Advancer::Advance(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];

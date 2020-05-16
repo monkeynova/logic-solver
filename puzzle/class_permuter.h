@@ -17,7 +17,7 @@ using RadixIndexToRawIndex = std::vector<std::vector<int>>;
 class ClassPermuterBase {
  public:
   class AdvancerBase {
-  public:
+   public:
     using StorageVector = std::vector<int>;
 
     // Argument type for operator+= to advance until a sepecific position in the
@@ -29,7 +29,7 @@ class ClassPermuterBase {
     AdvancerBase(const ClassPermuterBase* permuter, ActiveSet active_set);
 
     virtual std::unique_ptr<AdvancerBase> Clone() const = 0;
-    
+
     virtual ~AdvancerBase() {}
 
     void Prepare();
@@ -44,7 +44,7 @@ class ClassPermuterBase {
     const StorageVector& current() const { return current_; }
     int position() const { return position_; }
     const ActiveSet& active_set() const { return active_set_; }
-    
+
    protected:
     const ClassPermuterBase* permuter_;
 
@@ -58,7 +58,7 @@ class ClassPermuterBase {
     // Representation of the subset of the permutations to return.
     ActiveSet active_set_;
   };
-  
+
   class iterator {
    public:
     constexpr static int kInlineSize = 10;
@@ -74,7 +74,7 @@ class ClassPermuterBase {
     typedef const StorageVector* const_pointer;
 
     explicit iterator(std::unique_ptr<AdvancerBase> advancer = nullptr)
-      : advancer_(std::move(advancer)) {
+        : advancer_(std::move(advancer)) {
       if (advancer_ != nullptr) advancer_->Prepare();
     }
 
@@ -84,7 +84,7 @@ class ClassPermuterBase {
       if (advancer_ != nullptr) advancer_->Prepare();
       return *this;
     }
-    
+
     iterator(iterator&&) = default;
     iterator& operator=(iterator&&) = default;
 
@@ -121,7 +121,8 @@ class ClassPermuterBase {
 
     int position() const { return advancer_->position(); }
     double Completion() const {
-      return static_cast<double>(position()) / advancer_->permuter()->permutation_count();
+      return static_cast<double>(position()) /
+             advancer_->permuter()->permutation_count();
     }
     int class_int() const { return advancer_->permuter()->class_int(); }
 
@@ -129,7 +130,7 @@ class ClassPermuterBase {
     bool is_end() const {
       return advancer_ == nullptr || advancer_->current().empty();
     }
-    
+
     // Advances permutation until the the result should be allowed considering
     // 'active_set_'.
     void AdvanceWithSkip();
@@ -185,8 +186,9 @@ class ClassPermuterBase {
 class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
  public:
   class Advancer final : public AdvancerBase {
-  public:
-    Advancer(const ClassPermuterSteinhausJohnsonTrotter* permuter, ActiveSet active_set);
+   public:
+    Advancer(const ClassPermuterSteinhausJohnsonTrotter* permuter,
+             ActiveSet active_set);
 
     std::unique_ptr<AdvancerBase> Clone() const override {
       return absl::make_unique<Advancer>(*this);
@@ -196,7 +198,7 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
     void Advance(int dist) override;
     void Advance(ValueSkip value_skip) override;
 
-  private:
+   private:
     // Algorithm dependent information for iteration.
     StorageVector index_;
     StorageVector direction_;
@@ -204,11 +206,13 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
   };
 
   explicit ClassPermuterSteinhausJohnsonTrotter(const Descriptor* d = nullptr,
-						const int class_int = 0)
-    : ClassPermuterBase(d, class_int) {}
+                                                const int class_int = 0)
+      : ClassPermuterBase(d, class_int) {}
 
-  ClassPermuterSteinhausJohnsonTrotter(ClassPermuterSteinhausJohnsonTrotter&&) = default;
-  ClassPermuterSteinhausJohnsonTrotter& operator=(ClassPermuterSteinhausJohnsonTrotter&&) = default;
+  ClassPermuterSteinhausJohnsonTrotter(ClassPermuterSteinhausJohnsonTrotter&&) =
+      default;
+  ClassPermuterSteinhausJohnsonTrotter& operator=(
+      ClassPermuterSteinhausJohnsonTrotter&&) = default;
 
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this, active_set()));
@@ -225,7 +229,7 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
 class ClassPermuterFactorialRadix final : public ClassPermuterBase {
  public:
   class Advancer final : public AdvancerBase {
-  public:
+   public:
     Advancer(const ClassPermuterFactorialRadix* permuter, ActiveSet active_set);
 
     std::unique_ptr<AdvancerBase> Clone() const override {
@@ -241,11 +245,12 @@ class ClassPermuterFactorialRadix final : public ClassPermuterBase {
   };
 
   explicit ClassPermuterFactorialRadix(const Descriptor* d = nullptr,
-						const int class_int = 0)
-    : ClassPermuterBase(d, class_int) {}
+                                       const int class_int = 0)
+      : ClassPermuterBase(d, class_int) {}
 
   ClassPermuterFactorialRadix(ClassPermuterFactorialRadix&&) = default;
-  ClassPermuterFactorialRadix& operator=(ClassPermuterFactorialRadix&&) = default;
+  ClassPermuterFactorialRadix& operator=(ClassPermuterFactorialRadix&&) =
+      default;
 
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this, active_set()));
@@ -258,11 +263,13 @@ class ClassPermuterFactorialRadix final : public ClassPermuterBase {
 // This implementation is O(class_size^2) turning a position into a
 // permutation but does allows a single position advance for
 // Advance(ValueSkip).
-class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuterBase {
+class ClassPermuterFactorialRadixDeleteTracking final
+    : public ClassPermuterBase {
  public:
   class Advancer final : public AdvancerBase {
-  public:
-    Advancer(const ClassPermuterFactorialRadixDeleteTracking* permuter, ActiveSet active_set);
+   public:
+    Advancer(const ClassPermuterFactorialRadixDeleteTracking* permuter,
+             ActiveSet active_set);
 
     std::unique_ptr<AdvancerBase> Clone() const override {
       return absl::make_unique<Advancer>(*this);
@@ -280,12 +287,14 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuterBase
     RadixIndexToRawIndex* radix_index_to_raw_index_;
   };
 
-  explicit ClassPermuterFactorialRadixDeleteTracking(const Descriptor* d = nullptr,
-						const int class_int = 0)
-    : ClassPermuterBase(d, class_int) {}
+  explicit ClassPermuterFactorialRadixDeleteTracking(
+      const Descriptor* d = nullptr, const int class_int = 0)
+      : ClassPermuterBase(d, class_int) {}
 
-  ClassPermuterFactorialRadixDeleteTracking(ClassPermuterFactorialRadixDeleteTracking&&) = default;
-  ClassPermuterFactorialRadixDeleteTracking& operator=(ClassPermuterFactorialRadixDeleteTracking&&) = default;
+  ClassPermuterFactorialRadixDeleteTracking(
+      ClassPermuterFactorialRadixDeleteTracking&&) = default;
+  ClassPermuterFactorialRadixDeleteTracking& operator=(
+      ClassPermuterFactorialRadixDeleteTracking&&) = default;
 
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this, active_set()));
@@ -295,7 +304,8 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuterBase
   }
 };
 
-inline std::ostream& operator<<(std::ostream& out, const ClassPermuterBase& permuter) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const ClassPermuterBase& permuter) {
   return out << permuter.DebugString();
 }
 
