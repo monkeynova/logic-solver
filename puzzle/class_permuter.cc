@@ -48,9 +48,9 @@ static RadixIndexToRawIndex* GetRadixIndexToRawIndex(int max_pos) {
   return max_pos_to_radix_index_to_raw_index_[max_pos].get();
 }
 
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::InitIndex() {
+ClassPermuterSteinhausJohnsonTrotter::Advancer::Advancer(
+     const ClassPermuterSteinhausJohnsonTrotter* permuter, ActiveSet active_set)
+      : AdvancerBase(permuter, std::move(active_set)) {
   index_.resize(current_.size());
   direction_.resize(current_.size());
   for (size_t i = 0; i < current_.size(); ++i) {
@@ -60,35 +60,29 @@ void ClassPermuterImpl<
   next_from_ = current_.size() - 1;
 }
 
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kFactorialRadix>::iterator::InitIndex() {
-  if (permuter_ != nullptr) {
-    index_ = permuter_->descriptor()->Values();
-  }
+ClassPermuterFactorialRadix::Advancer::Advancer(
+    const ClassPermuterFactorialRadix* permuter, ActiveSet active_set)
+      : AdvancerBase(permuter, std::move(active_set)) {
+  index_ = permuter_->descriptor()->Values();
 }
 
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kFactorialRadixDeleteTracking>::iterator::InitIndex() {
-  if (permuter_ != nullptr) {
-    index_ = permuter_->descriptor()->Values();
-    radix_index_to_raw_index_ = GetRadixIndexToRawIndex(index_.size());
-  }
+ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
+    const ClassPermuterFactorialRadixDeleteTracking* permuter, ActiveSet active_set)
+      : AdvancerBase(permuter, std::move(active_set)) {
+  index_ = permuter_->descriptor()->Values();
+  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(index_.size());
 }
 
-template <enum ClassPermuterType T>
-ClassPermuterImpl<T>::iterator::iterator(const ClassPermuterImpl<T>* permuter,
-                                         ActiveSet active_set)
-    : permuter_(permuter), active_set_(std::move(active_set)) {
-  if (permuter_ != nullptr) {
-    for (int i : permuter_->descriptor()->Values()) {
-      current_.push_back(i);
-    }
+ClassPermuterBase::AdvancerBase::AdvancerBase(const ClassPermuterBase* permuter, ActiveSet active_set)
+  : permuter_(permuter), active_set_(std::move(active_set)) {
+  for (int i : permuter_->descriptor()->Values()) {
+    current_.push_back(i);
   }
+
   position_ = 0;
-  InitIndex();
+}
 
+void ClassPermuterBase::AdvancerBase::Prepare() {
   if (!active_set_.is_trivial()) {
     Advance(active_set_.ConsumeFalseBlock());
     CHECK(active_set_.ConsumeNext())
@@ -96,17 +90,14 @@ ClassPermuterImpl<T>::iterator::iterator(const ClassPermuterImpl<T>* permuter,
   }
 }
 
-template <enum ClassPermuterType T>
-void ClassPermuterImpl<T>::iterator::AdvanceWithSkip() {
+void ClassPermuterBase::AdvancerBase::AdvanceWithSkip() {
   Advance(active_set_.ConsumeFalseBlock() + 1);
   CHECK(active_set_.ConsumeNext())
       << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::Advance() {
+void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance() {
   ++position_;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -147,15 +138,11 @@ void ClassPermuterImpl<
   }
 }
 
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::Advance(int dist) {
+void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(int dist) {
   for (; dist > 0; --dist) Advance();
 }
 
-template <>
-void ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::
-    Advance(ValueSkip value_skip) {
+void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   if (active_set_.is_trivial()) {
     while (!current_.empty() && current_[value_skip.value_index] == value) {
@@ -168,8 +155,7 @@ void ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>::iterator::
   }
 }
 
-template <>
-void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
+void ClassPermuterFactorialRadix::Advancer::Advance(
     int dist) {
   position_ += dist;
   if (position_ >= permuter_->permutation_count()) {
@@ -188,15 +174,11 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
   }
 }
 
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kFactorialRadix>::iterator::Advance() {
+void ClassPermuterFactorialRadix::Advancer::Advance() {
   Advance(/*dist=*/1);
 }
 
-template <>
-void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
-    ValueSkip value_skip) {
+void ClassPermuterFactorialRadix::Advancer::Advance(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   if (active_set_.is_trivial()) {
     while (!current_.empty() && current_[value_skip.value_index] == value) {
@@ -209,9 +191,7 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadix>::iterator::Advance(
   }
 }
 
-template <>
-void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
-    iterator::Advance(int dist) {
+void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
   position_ += dist;
   if (position_ >= permuter_->permutation_count()) {
     position_ = permuter_->permutation_count();
@@ -237,15 +217,12 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
   }
 }
 
-template <>
-void ClassPermuterImpl<
-    ClassPermuterType::kFactorialRadixDeleteTracking>::iterator::Advance() {
+void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance() {
   Advance(/*dist=*/1);
 }
 
-template <>
-void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
-    iterator::Advance(ValueSkip value_skip) {
+void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
+    ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   while (!current_.empty() && current_[value_skip.value_index] == value) {
     int div = 1;
@@ -265,8 +242,7 @@ void ClassPermuterImpl<ClassPermuterType::kFactorialRadixDeleteTracking>::
 }
 
 // static
-template <enum ClassPermuterType T>
-double ClassPermuterImpl<T>::PermutationCount(const Descriptor* d) {
+double ClassPermuterBase::PermutationCount(const Descriptor* d) {
   if (d == nullptr) return 0;
 
   double ret = 1;
@@ -277,19 +253,13 @@ double ClassPermuterImpl<T>::PermutationCount(const Descriptor* d) {
   return ret;
 }
 
-template <enum ClassPermuterType T>
-std::string ClassPermuterImpl<T>::DebugString() const {
+std::string ClassPermuterBase::DebugString() const {
   return absl::StrJoin(
       *this, ", ",
       [](std::string* out, const typename iterator::StorageVector& v) {
         absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
       });
 }
-
-template class ClassPermuterImpl<ClassPermuterType::kSteinhausJohnsonTrotter>;
-template class ClassPermuterImpl<ClassPermuterType::kFactorialRadix>;
-template class ClassPermuterImpl<
-    ClassPermuterType::kFactorialRadixDeleteTracking>;
 
 }  // namespace internal
 }  // namespace puzzle

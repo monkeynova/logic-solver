@@ -15,11 +15,9 @@ template <typename T>
 class ClassPermuterTest : public ::testing::Test {};
 
 using ClassPermuterTypes = ::testing::Types<
-    internal::ClassPermuterImpl<
-        internal::ClassPermuterType::kSteinhausJohnsonTrotter>,
-    internal::ClassPermuterImpl<internal::ClassPermuterType::kFactorialRadix>,
-    internal::ClassPermuterImpl<
-        internal::ClassPermuterType::kFactorialRadixDeleteTracking>>;
+    internal::ClassPermuterSteinhausJohnsonTrotter,
+    internal::ClassPermuterFactorialRadix,
+    internal::ClassPermuterFactorialRadixDeleteTracking>;
 TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
