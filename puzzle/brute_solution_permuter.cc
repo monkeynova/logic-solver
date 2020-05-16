@@ -14,7 +14,7 @@ BruteSolutionPermuter::Advancer::Advancer(
 
   iterators_.resize(class_types_.size());
   for (auto class_int : class_types_) {
-    iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
+    iterators_[class_int] = permuter_->class_permuters_[class_int]->begin();
     mutable_solution_.SetClass(iterators_[class_int]);
   }
 
@@ -30,8 +30,9 @@ void BruteSolutionPermuter::Advancer::Advance() {
     ++iterators_[class_int];
 
     bool carry = false;
-    if (iterators_[class_int] == permuter_->class_permuters_[class_int].end()) {
-      iterators_[class_int] = permuter_->class_permuters_[class_int].begin();
+    if (iterators_[class_int] ==
+        permuter_->class_permuters_[class_int]->end()) {
+      iterators_[class_int] = permuter_->class_permuters_[class_int]->begin();
       carry = true;
     }
 
@@ -55,7 +56,7 @@ double BruteSolutionPermuter::Advancer::position() const {
   double position = 0;
 
   for (int class_int : class_types_) {
-    position *= permuter_->class_permuters_[class_int].permutation_count();
+    position *= permuter_->class_permuters_[class_int]->permutation_count();
     position += iterators_[class_int].position();
   }
 
@@ -77,14 +78,15 @@ void BruteSolutionPermuter::Prepare() {
   for (auto class_int : class_types) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
-    class_permuters_[class_int] = ClassPermuter(class_descriptor, class_int);
+    class_permuters_[class_int] =
+        MakeClassPermuter(class_descriptor, class_int);
   }
 }
 
 double BruteSolutionPermuter::permutation_count() const {
   double count = 1;
-  for (auto& permuter : class_permuters_) {
-    count *= permuter.permutation_count();
+  for (const auto& permuter : class_permuters_) {
+    count *= permuter->permutation_count();
   }
   return count;
 }

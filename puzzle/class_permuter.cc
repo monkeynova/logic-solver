@@ -3,7 +3,6 @@
 #include "absl/synchronization/mutex.h"
 
 namespace puzzle {
-namespace internal {
 
 // Global container/cache for `radix_index_to_raw_index_`. Keyed on the  number
 // of items in the permutation.
@@ -74,8 +73,8 @@ ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
   radix_index_to_raw_index_ = GetRadixIndexToRawIndex(index_.size());
 }
 
-ClassPermuterBase::AdvancerBase::AdvancerBase(const ClassPermuterBase* permuter,
-                                              ActiveSet active_set)
+ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
+                                          ActiveSet active_set)
     : permuter_(permuter), active_set_(std::move(active_set)) {
   for (int i : permuter_->descriptor()->Values()) {
     current_.push_back(i);
@@ -84,7 +83,7 @@ ClassPermuterBase::AdvancerBase::AdvancerBase(const ClassPermuterBase* permuter,
   position_ = 0;
 }
 
-void ClassPermuterBase::AdvancerBase::Prepare() {
+void ClassPermuter::AdvancerBase::Prepare() {
   if (!active_set_.is_trivial()) {
     Advance(active_set_.ConsumeFalseBlock());
     CHECK(active_set_.ConsumeNext())
@@ -92,7 +91,7 @@ void ClassPermuterBase::AdvancerBase::Prepare() {
   }
 }
 
-void ClassPermuterBase::AdvancerBase::AdvanceWithSkip() {
+void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
   Advance(active_set_.ConsumeFalseBlock() + 1);
   CHECK(active_set_.ConsumeNext())
       << "ConsumeNext returned false after ConsumeFalseBlock";
@@ -242,7 +241,7 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
 }
 
 // static
-double ClassPermuterBase::PermutationCount(const Descriptor* d) {
+double ClassPermuter::PermutationCount(const Descriptor* d) {
   if (d == nullptr) return 0;
 
   double ret = 1;
@@ -253,7 +252,7 @@ double ClassPermuterBase::PermutationCount(const Descriptor* d) {
   return ret;
 }
 
-std::string ClassPermuterBase::DebugString() const {
+std::string ClassPermuter::DebugString() const {
   return absl::StrJoin(
       *this, ", ",
       [](std::string* out, const typename iterator::StorageVector& v) {
@@ -261,5 +260,10 @@ std::string ClassPermuterBase::DebugString() const {
       });
 }
 
-}  // namespace internal
+std::unique_ptr<ClassPermuter> MakeClassPermuter(const Descriptor* d,
+                                                 int class_int) {
+  return absl::make_unique<ClassPermuterFactorialRadixDeleteTracking>(
+      d, class_int);
+}
+
 }  // namespace puzzle

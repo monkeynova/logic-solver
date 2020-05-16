@@ -64,8 +64,8 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   }
 
   double permutation_count() const;
-  const ClassPermuter& class_permuter(int class_int) const {
-    return class_permuters_[class_int];
+  const ClassPermuter* class_permuter(int class_int) const {
+    return class_permuters_[class_int].get();
   }
 
   bool AddFilter(SolutionFilter solution_filter) override;
@@ -95,7 +95,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   // That is, if the first N permuters have been updated then permuting entries
   // N+1 and further should only be performed if
   // 'class_predicates_[class_permuter_[N-1].class_int()]' is true.
-  std::vector<ClassPermuter> class_permuters_;
+  std::vector<std::unique_ptr<ClassPermuter>> class_permuters_;
 
   // class_predicates_[class_int] is an array of predicate residuals to evaluate
   // after filling class_int.

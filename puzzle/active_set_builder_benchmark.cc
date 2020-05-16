@@ -11,13 +11,15 @@ struct SetupState {
   SetupState(int permutation_count)
       : descriptor(MakeDescriptor(permutation_count, &owned_descriptors)),
         predicates({MakePairFilter()}),
-        permuter_a(descriptor.AllClassValues(kClassIntA), kClassIntA),
-        permuter_b(descriptor.AllClassValues(kClassIntB), kClassIntB) {
+        permuter_a(MakeClassPermuter(descriptor.AllClassValues(kClassIntA),
+                                     kClassIntA)),
+        permuter_b(MakeClassPermuter(descriptor.AllClassValues(kClassIntB),
+                                     kClassIntB)) {
     ActiveSetBuilder single_class_builder(&descriptor);
-    single_class_builder.Build(permuter_a, {MakeFilterA()});
-    permuter_a.set_active_set(single_class_builder.active_set(kClassIntA));
-    single_class_builder.Build(permuter_b, {MakeFilterB()});
-    permuter_b.set_active_set(single_class_builder.active_set(kClassIntB));
+    single_class_builder.Build(permuter_a.get(), {MakeFilterA()});
+    permuter_a->set_active_set(single_class_builder.active_set(kClassIntA));
+    single_class_builder.Build(permuter_b.get(), {MakeFilterB()});
+    permuter_b->set_active_set(single_class_builder.active_set(kClassIntB));
   }
 
   static EntryDescriptor MakeDescriptor(
@@ -71,8 +73,8 @@ struct SetupState {
   std::vector<std::unique_ptr<Descriptor>> owned_descriptors;
   EntryDescriptor descriptor;
   std::vector<SolutionFilter> predicates;
-  ClassPermuter permuter_a;
-  ClassPermuter permuter_b;
+  std::unique_ptr<ClassPermuter> permuter_a;
+  std::unique_ptr<ClassPermuter> permuter_b;
 };
 
 template <ActiveSetBuilder::PairClassImpl pair_class_impl,
@@ -82,8 +84,9 @@ static void BM_Pair(benchmark::State& state) {
 
   for (auto _ : state) {
     ActiveSetBuilder builder(&setup.descriptor);
-    builder.Build<pair_class_impl>(setup.permuter_a, setup.permuter_b,
-                                   setup.predicates, pair_class_mode);
+    builder.Build<pair_class_impl>(setup.permuter_a.get(),
+                                   setup.permuter_b.get(), setup.predicates,
+                                   pair_class_mode);
   }
 }
 

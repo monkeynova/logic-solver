@@ -4,11 +4,10 @@
 #include "benchmark/benchmark.h"
 #include "puzzle/class_permuter.h"
 
-using SteinhausJohnsonTrotter =
-    puzzle::internal::ClassPermuterSteinhausJohnsonTrotter;
-using FactorialRadix = puzzle::internal::ClassPermuterFactorialRadix;
+using SteinhausJohnsonTrotter = puzzle::ClassPermuterSteinhausJohnsonTrotter;
+using FactorialRadix = puzzle::ClassPermuterFactorialRadix;
 using FactorialRadixDeleteTracking =
-    puzzle::internal::ClassPermuterFactorialRadixDeleteTracking;
+    puzzle::ClassPermuterFactorialRadixDeleteTracking;
 
 template <typename PermuterType, int depth>
 static void BM_Permuter(benchmark::State& state) {

@@ -44,10 +44,10 @@ class ActiveSetBuilder {
   // The returned active set fully honors the ANDing of input predicates.
   template <
       SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
-  void Build(const ClassPermuter& class_permuter,
+  void Build(const ClassPermuter* class_permuter,
              const std::vector<SolutionFilter>& predicates);
   void Build(SingleClassBuild single_class_build,
-             const ClassPermuter& class_permuter,
+             const ClassPermuter* class_permuter,
              const std::vector<SolutionFilter>& predicates);
 
   // Given a pair of class permuters and a set of predicates on those classes
@@ -64,11 +64,11 @@ class ActiveSetBuilder {
   // selective than 'permuter_b', and all other things being equal, ordering
   // the arguments that way may provide a slight performance benefit.
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
-  void Build(const ClassPermuter& permuter_a, const ClassPermuter& permuter_b,
+  void Build(const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
              const std::vector<SolutionFilter>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
-  void Build(PairClassImpl pair_class_impl, const ClassPermuter& permuter_a,
-             const ClassPermuter& permuter_b,
+  void Build(PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
+             const ClassPermuter* permuter_b,
              const std::vector<SolutionFilter>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 

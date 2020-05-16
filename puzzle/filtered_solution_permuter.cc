@@ -43,8 +43,8 @@ FilteredSolutionPermuter::Advancer::Advancer(
   current_ = mutable_solution_.TestableSolution();
   iterators_.resize(permuter_->class_permuters_.size());
   pair_selectivity_reduction_.resize(iterators_.size(), 1);
-  for (auto& class_permuter : permuter_->class_permuters_) {
-    iterators_[class_permuter.class_int()] = class_permuter.end();
+  for (const auto& class_permuter : permuter_->class_permuters_) {
+    iterators_[class_permuter->class_int()] = class_permuter->end();
   }
 
   if (FindNextValid(/*class_position=*/0)) {
@@ -63,22 +63,22 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
     return true;
   }
 
-  const ClassPermuter& class_permuter =
-      permuter_->class_permuters_[class_position];
-  int class_int = class_permuter.class_int();
+  const ClassPermuter* class_permuter =
+      permuter_->class_permuters_[class_position].get();
+  int class_int = class_permuter->class_int();
 
   const std::vector<SolutionFilter>& solution_predicates =
       permuter_->class_predicates_[class_int];
 
-  if (iterators_[class_int] == class_permuter.end()) {
+  if (iterators_[class_int] == class_permuter->end()) {
     const ActiveSetBuilder* builder = permuter_->active_set_builder_.get();
     ActiveSet build = builder->active_set(class_int);
     if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
       double start_selectivity = build.Selectivity();
       for (int other_pos = 0; other_pos < class_position; ++other_pos) {
-        const ClassPermuter& other_permuter =
-            permuter_->class_permuters_[other_pos];
-        int other_class = other_permuter.class_int();
+        const ClassPermuter* other_permuter =
+            permuter_->class_permuters_[other_pos].get();
+        int other_class = other_permuter->class_int();
         int other_val = iterators_[other_class].position();
         build.Intersect(
             builder->active_set_pair(other_class, other_val, class_int));
@@ -86,12 +86,12 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
       pair_selectivity_reduction_[class_int] =
           build.Selectivity() / start_selectivity;
     }
-    iterators_[class_int] = class_permuter.begin(std::move(build));
+    iterators_[class_int] = class_permuter->begin(std::move(build));
   }
 
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
                                                        Entry::kBadId};
-  for (; iterators_[class_int] != class_permuter.end();
+  for (; iterators_[class_int] != class_permuter->end();
        iterators_[class_int] += value_skip) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
@@ -108,16 +108,16 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
 std::string FilteredSolutionPermuter::Advancer::IterationDebugString() const {
   return absl::StrJoin(
       permuter_->class_permuters_, ", ",
-      [this](std::string* out, const ClassPermuter& permuter) {
-        if (iterators_[permuter.class_int()] == permuter.end()) {
+      [this](std::string* out, const std::unique_ptr<ClassPermuter>& permuter) {
+        if (iterators_[permuter->class_int()] == permuter->end()) {
           absl::StrAppend(out, "<->");
         } else {
-          double truncated = iterators_[permuter.class_int()].Completion();
+          double truncated = iterators_[permuter->class_int()].Completion();
           truncated = static_cast<int>(1000 * truncated) / 1000.0;
           absl::StrAppend(out, truncated);
           if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
             double truncated =
-                pair_selectivity_reduction_[permuter.class_int()];
+                pair_selectivity_reduction_[permuter->class_int()];
             truncated = static_cast<int>(1000 * truncated) / 1000.0;
             absl::StrAppend(out, " (", truncated, ")");
           }
@@ -145,17 +145,17 @@ void FilteredSolutionPermuter::Advancer::Advance() {
   bool at_end = true;
   for (auto it = permuter_->class_permuters_.rbegin();
        it != permuter_->class_permuters_.rend(); ++it) {
-    int class_int = it->class_int();
+    int class_int = (*it)->class_int();
 
-    if (iterators_[class_int] == it->end()) {
-      iterators_[class_int] = it->begin();
+    if (iterators_[class_int] == (*it)->end()) {
+      iterators_[class_int] = (*it)->begin();
     }
 
     ++iterators_[class_int];
     mutable_solution_.SetClass(iterators_[class_int]);
 
     bool carry = false;
-    if (iterators_[class_int] == it->end()) {
+    if (iterators_[class_int] == (*it)->end()) {
       carry = true;
     }
 
@@ -178,8 +178,8 @@ double FilteredSolutionPermuter::Advancer::position() const {
   double position = 0;
 
   for (auto& class_permuter : permuter_->class_permuters_) {
-    position *= class_permuter.permutation_count();
-    position += iterators_[class_permuter.class_int()].position();
+    position *= class_permuter->permutation_count();
+    position += iterators_[class_permuter->class_int()].position();
   }
 
   return position;
@@ -217,7 +217,8 @@ void FilteredSolutionPermuter::Prepare() {
   for (int class_int : class_order) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
-    class_permuters_.push_back(ClassPermuter(class_descriptor, class_int));
+    class_permuters_.emplace_back(
+        MakeClassPermuter(class_descriptor, class_int));
   }
 
   std::vector<SolutionFilter> unhandled;
@@ -230,7 +231,7 @@ void FilteredSolutionPermuter::Prepare() {
     bool added = false;
     for (auto it = class_permuters_.rbegin(); it != class_permuters_.rend();
          ++it) {
-      int class_int = it->class_int();
+      int class_int = (*it)->class_int();
 
       auto it2 = std::find(filter.classes().begin(), filter.classes().end(),
                            class_int);
@@ -252,18 +253,18 @@ void FilteredSolutionPermuter::Prepare() {
   if (VLOG_IS_ON(1)) {
     for (const auto& permuter : class_permuters_) {
       const std::string predicate_name =
-          class_predicates_[permuter.class_int()].empty()
+          class_predicates_[permuter->class_int()].empty()
               ? "<noop>"
               : absl::StrJoin(
-                    class_predicates_[permuter.class_int()], "; ",
+                    class_predicates_[permuter->class_int()], "; ",
                     [](std::string* out, const SolutionFilter& filter) {
                       absl::StrAppend(out, filter.name());
                     });
-      VLOG(1) << "Predicates at " << permuter.class_int() << " ("
-              << permuter.Selectivity() << "="
-              << permuter.Selectivity() * permuter.permutation_count()
-              << "): " << class_predicates_[permuter.class_int()].size() << ": "
-              << predicate_name;
+      VLOG(1) << "Predicates at " << permuter->class_int() << " ("
+              << permuter->Selectivity() << "="
+              << permuter->Selectivity() * permuter->permutation_count()
+              << "): " << class_predicates_[permuter->class_int()].size()
+              << ": " << predicate_name;
     }
   }
 }
@@ -311,13 +312,13 @@ void FilteredSolutionPermuter::BuildActiveSets(
   }
 
   for (auto& class_permuter : class_permuters_) {
-    int class_int = class_permuter.class_int();
-    active_set_builder_->Build(class_permuter,
+    int class_int = class_permuter->class_int();
+    active_set_builder_->Build(class_permuter.get(),
                                single_class_predicates[class_int]);
-    VLOG(2) << "Selectivity (" << class_permuter.class_int()
-            << "): " << class_permuter.Selectivity() << " => "
+    VLOG(2) << "Selectivity (" << class_permuter->class_int()
+            << "): " << class_permuter->Selectivity() << " => "
             << active_set_builder_->active_set(class_int).Selectivity();
-    class_permuter.set_active_set(active_set_builder_->active_set(class_int));
+    class_permuter->set_active_set(active_set_builder_->active_set(class_int));
   }
 
   if (!FLAGS_puzzle_prune_pair_class_iterators) {
@@ -344,33 +345,35 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
     for (auto it_a = class_permuters_.begin(); it_a != class_permuters_.end();
          ++it_a) {
-      ClassPermuter& permuter_a = *it_a;
+      ClassPermuter* permuter_a = it_a->get();
       for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
-        ClassPermuter& permuter_b = *it_b;
-        CHECK(permuter_a.class_int() != permuter_b.class_int());
+        ClassPermuter* permuter_b = it_b->get();
+        CHECK(permuter_a->class_int() != permuter_b->class_int());
 
         std::vector<SolutionFilter>& filters =
-            pair_class_predicates[std::make_pair(permuter_a.class_int(),
-                                                 permuter_b.class_int())];
+            pair_class_predicates[std::make_pair(permuter_a->class_int(),
+                                                 permuter_b->class_int())];
         if (filters.empty()) continue;
 
-        active_set_builder_->Build(*it_a, *it_b, filters, pair_class_mode);
+        active_set_builder_->Build(permuter_a, permuter_b, filters,
+                                   pair_class_mode);
         const ActiveSet& new_a =
-            active_set_builder_->active_set(permuter_a.class_int());
+            active_set_builder_->active_set(permuter_a->class_int());
         const ActiveSet& new_b =
-            active_set_builder_->active_set(permuter_b.class_int());
-        VLOG(2) << "Selectivity (" << permuter_a.class_int() << ", "
-                << permuter_b.class_int() << "): (" << permuter_a.Selectivity()
-                << ", " << permuter_b.Selectivity() << ") => ("
-                << new_a.Selectivity() << ", " << new_b.Selectivity() << ")";
-        if (permuter_a.Selectivity() > new_a.Selectivity()) {
+            active_set_builder_->active_set(permuter_b->class_int());
+        VLOG(2) << "Selectivity (" << permuter_a->class_int() << ", "
+                << permuter_b->class_int() << "): ("
+                << permuter_a->Selectivity() << ", "
+                << permuter_b->Selectivity() << ") => (" << new_a.Selectivity()
+                << ", " << new_b.Selectivity() << ")";
+        if (permuter_a->Selectivity() > new_a.Selectivity()) {
           cardinality_reduced = true;
         }
-        if (permuter_b.Selectivity() > new_b.Selectivity()) {
+        if (permuter_b->Selectivity() > new_b.Selectivity()) {
           cardinality_reduced = true;
         }
-        permuter_a.set_active_set(new_a);
-        permuter_b.set_active_set(new_b);
+        permuter_a->set_active_set(new_a);
+        permuter_b->set_active_set(new_b);
       }
     }
 
@@ -386,22 +389,24 @@ void FilteredSolutionPermuter::ReorderEvaluation() {
   }
 
   std::sort(class_permuters_.begin(), class_permuters_.end(),
-            [](const ClassPermuter& a, const ClassPermuter& b) {
-              return a.Selectivity() < b.Selectivity();
+            [](const std::unique_ptr<ClassPermuter>& a,
+               const std::unique_ptr<ClassPermuter>& b) {
+              return a->Selectivity() < b->Selectivity();
             });
 
   VLOG(1) << "Reordered to: "
-          << absl::StrJoin(class_permuters_, ", ",
-                           [](std::string* out, const ClassPermuter& a) {
-                             absl::StrAppend(out, "(", a.class_int(), ",",
-                                             a.Selectivity(), ")");
-                           });
+          << absl::StrJoin(
+                 class_permuters_, ", ",
+                 [](std::string* out, const std::unique_ptr<ClassPermuter>& a) {
+                   absl::StrAppend(out, "(", a->class_int(), ",",
+                                   a->Selectivity(), ")");
+                 });
 }
 
 double FilteredSolutionPermuter::permutation_count() const {
   double count = 1;
-  for (auto& permuter : class_permuters_) {
-    count *= permuter.permutation_count();
+  for (const auto& permuter : class_permuters_) {
+    count *= permuter->permutation_count();
   }
   return count;
 }

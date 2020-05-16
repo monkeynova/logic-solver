@@ -51,13 +51,13 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   }
 
   double permutation_count() const;
-  const ClassPermuter& class_permuter(int class_int) const {
-    return class_permuters_[class_int];
+  const ClassPermuter* class_permuter(int class_int) const {
+    return class_permuters_[class_int].get();
   }
 
  private:
   const EntryDescriptor* entry_descriptor_;
-  std::vector<ClassPermuter> class_permuters_;
+  std::vector<std::unique_ptr<ClassPermuter>> class_permuters_;
 
   friend Advancer;
 };

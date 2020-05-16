@@ -5,7 +5,6 @@
 #include "puzzle/solution.h"
 
 namespace puzzle {
-namespace internal {
 
 // Contains a map from a radix index position and a bit vector marked with
 // previously selected values from index_ in a permutation to the index for
@@ -14,7 +13,7 @@ namespace internal {
 // is called in the innermost loop.
 using RadixIndexToRawIndex = std::vector<std::vector<int>>;
 
-class ClassPermuterBase {
+class ClassPermuter {
  public:
   class AdvancerBase {
    public:
@@ -26,7 +25,7 @@ class ClassPermuterBase {
       int value_index;
     };
 
-    AdvancerBase(const ClassPermuterBase* permuter, ActiveSet active_set);
+    AdvancerBase(const ClassPermuter* permuter, ActiveSet active_set);
 
     virtual std::unique_ptr<AdvancerBase> Clone() const = 0;
 
@@ -40,13 +39,13 @@ class ClassPermuterBase {
 
     void AdvanceWithSkip();
 
-    const ClassPermuterBase* permuter() const { return permuter_; }
+    const ClassPermuter* permuter() const { return permuter_; }
     const StorageVector& current() const { return current_; }
     int position() const { return position_; }
     const ActiveSet& active_set() const { return active_set_; }
 
    protected:
-    const ClassPermuterBase* permuter_;
+    const ClassPermuter* permuter_;
 
     // The cached current value of iteration.
     StorageVector current_;
@@ -139,14 +138,13 @@ class ClassPermuterBase {
     std::unique_ptr<AdvancerBase> advancer_;
   };
 
-  explicit ClassPermuterBase(const Descriptor* d = nullptr,
-                             const int class_int = 0)
+  explicit ClassPermuter(const Descriptor* d, int class_int)
       : descriptor_(d),
         permutation_count_(PermutationCount(d)),
         class_int_(class_int) {
     active_set_.DoneAdding();
   }
-  virtual ~ClassPermuterBase() {}
+  virtual ~ClassPermuter() {}
 
   // TODO(keith): This copy of active_set_ is likely the cause of malloc
   // showing up on profiles. We should clean up the model to avoid needing
@@ -183,7 +181,7 @@ class ClassPermuterBase {
 };
 
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
-class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
+class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
  public:
   class Advancer final : public AdvancerBase {
    public:
@@ -206,8 +204,8 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
   };
 
   explicit ClassPermuterSteinhausJohnsonTrotter(const Descriptor* d = nullptr,
-                                                const int class_int = 0)
-      : ClassPermuterBase(d, class_int) {}
+                                                int class_int = 0)
+      : ClassPermuter(d, class_int) {}
 
   ClassPermuterSteinhausJohnsonTrotter(ClassPermuterSteinhausJohnsonTrotter&&) =
       default;
@@ -226,7 +224,7 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuterBase {
 // ({0..8} * 8! + {0..7} * 7! + ... {0..1} * 1! + {0} * 0!).
 // This implementation is O(class_size) turning a position into a permutation
 // but does not allow seeking to a position for Advance(ValueSkip).
-class ClassPermuterFactorialRadix final : public ClassPermuterBase {
+class ClassPermuterFactorialRadix final : public ClassPermuter {
  public:
   class Advancer final : public AdvancerBase {
    public:
@@ -245,8 +243,8 @@ class ClassPermuterFactorialRadix final : public ClassPermuterBase {
   };
 
   explicit ClassPermuterFactorialRadix(const Descriptor* d = nullptr,
-                                       const int class_int = 0)
-      : ClassPermuterBase(d, class_int) {}
+                                       int class_int = 0)
+      : ClassPermuter(d, class_int) {}
 
   ClassPermuterFactorialRadix(ClassPermuterFactorialRadix&&) = default;
   ClassPermuterFactorialRadix& operator=(ClassPermuterFactorialRadix&&) =
@@ -263,8 +261,7 @@ class ClassPermuterFactorialRadix final : public ClassPermuterBase {
 // This implementation is O(class_size^2) turning a position into a
 // permutation but does allows a single position advance for
 // Advance(ValueSkip).
-class ClassPermuterFactorialRadixDeleteTracking final
-    : public ClassPermuterBase {
+class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
  public:
   class Advancer final : public AdvancerBase {
    public:
@@ -288,8 +285,8 @@ class ClassPermuterFactorialRadixDeleteTracking final
   };
 
   explicit ClassPermuterFactorialRadixDeleteTracking(
-      const Descriptor* d = nullptr, const int class_int = 0)
-      : ClassPermuterBase(d, class_int) {}
+      const Descriptor* d = nullptr, int class_int = 0)
+      : ClassPermuter(d, class_int) {}
 
   ClassPermuterFactorialRadixDeleteTracking(
       ClassPermuterFactorialRadixDeleteTracking&&) = default;
@@ -305,13 +302,12 @@ class ClassPermuterFactorialRadixDeleteTracking final
 };
 
 inline std::ostream& operator<<(std::ostream& out,
-                                const ClassPermuterBase& permuter) {
+                                const ClassPermuter& permuter) {
   return out << permuter.DebugString();
 }
 
-}  // namespace internal
-
-using ClassPermuter = internal::ClassPermuterFactorialRadixDeleteTracking;
+std::unique_ptr<ClassPermuter> MakeClassPermuter(const Descriptor* d = nullptr,
+                                                 int class_int = 0);
 
 }  // namespace puzzle
 
