@@ -7,23 +7,23 @@
 #include "puzzle/all_match.h"
 #include "puzzle/class_permuter_factory.h"
 
-ABSL_FLAG(bool,puzzle_prune_class_iterator, true,
-            "If specfied, class iterators will be pruned based on single "
-            "class predicates that are present.");
+ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
+          "If specfied, class iterators will be pruned based on single "
+          "class predicates that are present.");
 
-ABSL_FLAG(bool,puzzle_prune_pair_class_iterators, true,
-            "If specfied, class iterators will be pruned based on pair "
-            "class predicates that are present.");
+ABSL_FLAG(bool, puzzle_prune_pair_class_iterators, true,
+          "If specfied, class iterators will be pruned based on pair "
+          "class predicates that are present.");
 
-ABSL_FLAG(bool,puzzle_prune_pair_class_iterators_mode_pair, true,
-            "If specified pairwise iterators will be pruned with contextual "
-            "pruning (that is, pairwise iterators will store, for each value "
-            "of one iterator, the appropriate active sets for the other "
-            "iterator).");
+ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, true,
+          "If specified pairwise iterators will be pruned with contextual "
+          "pruning (that is, pairwise iterators will store, for each value "
+          "of one iterator, the appropriate active sets for the other "
+          "iterator).");
 
-ABSL_FLAG(bool,puzzle_prune_reorder_classes, true,
-            "If true, class iteration will be re-ordered from the default "
-            "based on effective scan rate.");
+ABSL_FLAG(bool, puzzle_prune_reorder_classes, true,
+          "If true, class iteration will be re-ordered from the default "
+          "based on effective scan rate.");
 
 namespace puzzle {
 
@@ -114,7 +114,8 @@ std::string FilteredSolutionPermuter::Advancer::IterationDebugString() const {
           double truncated = iterators_[permuter->class_int()].Completion();
           truncated = static_cast<int>(1000 * truncated) / 1000.0;
           absl::StrAppend(out, truncated);
-          if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
+          if (absl::GetFlag(
+                  FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
             double truncated =
                 pair_selectivity_reduction_[permuter->class_int()];
             truncated = static_cast<int>(1000 * truncated) / 1000.0;
@@ -327,7 +328,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
   VLOG(1) << "Generating pair selectivities";
 
   bool cardinality_reduced = true;
-  bool need_final = absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair);
+  bool need_final =
+      absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair);
   ActiveSetBuilder::PairClassMode pair_class_mode =
       ActiveSetBuilder::PairClassMode::kSingleton;
   while (cardinality_reduced || need_final) {

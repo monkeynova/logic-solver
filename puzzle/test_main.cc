@@ -6,8 +6,8 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-ABSL_FLAG(bool,benchmark, false,
-            "If true, runs benchmarks rather than gunit test suite.");
+ABSL_FLAG(bool, benchmark, false,
+          "If true, runs benchmarks rather than gunit test suite.");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);

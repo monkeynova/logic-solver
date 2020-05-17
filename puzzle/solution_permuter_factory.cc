@@ -4,7 +4,8 @@
 #include "puzzle/brute_solution_permuter.h"
 #include "puzzle/filtered_solution_permuter.h"
 
-ABSL_FLAG(bool,puzzle_brute_force, false, "Brute force all possible solutions");
+ABSL_FLAG(bool, puzzle_brute_force, false,
+          "Brute force all possible solutions");
 
 namespace puzzle {
 

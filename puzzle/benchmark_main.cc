@@ -4,10 +4,10 @@
 #include "benchmark/benchmark.h"
 #include "glog/logging.h"
 
-ABSL_FLAG(bool,benchmark, true,
-            "If false, disables benchmarks. Flag exists to provide "
-            "compatability with test "
-            "suites that also have the flag.");
+ABSL_FLAG(bool, benchmark, true,
+          "If false, disables benchmarks. Flag exists to provide "
+          "compatability with test "
+          "suites that also have the flag.");
 
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);

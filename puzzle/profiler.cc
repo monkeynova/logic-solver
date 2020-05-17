@@ -8,12 +8,12 @@
 #include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
 
-ABSL_FLAG(int,puzzle_max_profile_calls, std::numeric_limits<int>::max(),
-             "Maximum number of iterations before giving up in profiler. "
-             "Default value is max_int.");
+ABSL_FLAG(int, puzzle_max_profile_calls, std::numeric_limits<int>::max(),
+          "Maximum number of iterations before giving up in profiler. "
+          "Default value is max_int.");
 
-ABSL_FLAG(bool,
-    puzzle_profiler_enable, false,
+ABSL_FLAG(
+    bool, puzzle_profiler_enable, false,
     "Enables the profiler which tracks time spent performing iterations.");
 
 namespace puzzle {
@@ -29,7 +29,9 @@ class StructTimevalProfiler : public Profiler {
   ~StructTimevalProfiler() override { std::cout << "\033[1K\r" << std::flush; }
 
  private:
-  bool Done() override { return test_calls() > absl::GetFlag(FLAGS_puzzle_max_profile_calls); }
+  bool Done() override {
+    return test_calls() > absl::GetFlag(FLAGS_puzzle_max_profile_calls);
+  }
 
   bool NotePositionImpl(double position, double count) override {
     struct timeval now;

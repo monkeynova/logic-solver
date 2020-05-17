@@ -7,17 +7,17 @@
 #include "absl/strings/str_split.h"
 #include "gflags/gflags.h"
 
-ABSL_FLAG(std::string,sudoku_problem_setup, "pairwise",
-              "Sepecifies the form of the predicates passed to the puzzle "
-              "solver to validate sudoku boards. Valid vaules are 'cumulative' "
-              "and 'pairwise'. 'cumulative' is faster if predicate reordering "
-              "is disabled, but 'pairwise' is better suited for predicate "
-              "reordering and results in faster overall evaluation if "
-              "reordering is enabled.");
+ABSL_FLAG(std::string, sudoku_problem_setup, "pairwise",
+          "Sepecifies the form of the predicates passed to the puzzle "
+          "solver to validate sudoku boards. Valid vaules are 'cumulative' "
+          "and 'pairwise'. 'cumulative' is faster if predicate reordering "
+          "is disabled, but 'pairwise' is better suited for predicate "
+          "reordering and results in faster overall evaluation if "
+          "reordering is enabled.");
 
-ABSL_FLAG(bool,sudoku_setup_only, false,
-            "If true, only set up predicates for valid sudoku board "
-            "configuration rather than solving a specific board.");
+ABSL_FLAG(bool, sudoku_setup_only, false,
+          "If true, only set up predicates for valid sudoku board "
+          "configuration rather than solving a specific board.");
 
 namespace sudoku {
 
@@ -181,7 +181,8 @@ void Base::Setup() {
     AddPredicatesPairwise();
   } else {
     LOG(FATAL) << "Unrecognized option for sudoku_problem_setup '"
-               << absl::GetFlag(FLAGS_sudoku_problem_setup) << "'; valid values are "
+               << absl::GetFlag(FLAGS_sudoku_problem_setup)
+               << "'; valid values are "
                << "'cumulative' and 'pairwise'.";
   }
 

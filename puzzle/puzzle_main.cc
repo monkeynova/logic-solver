@@ -7,7 +7,7 @@
 #include "glog/logging.h"
 #include "puzzle/problem.h"
 
-ABSL_FLAG(bool,all, false, "Show all solutions");
+ABSL_FLAG(bool, all, false, "Show all solutions");
 
 std::string PositionHeader(const puzzle::Solution& s) {
   return absl::StrCat("[position=", s.permutation_position(), "/",
