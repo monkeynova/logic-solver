@@ -223,6 +223,7 @@ cc_library(
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
         ":solution",
+	"@com_google_absl//absl/flags:flag",
     ],
 )
 
