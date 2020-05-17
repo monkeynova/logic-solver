@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["base.h"],
     deps = [
         "//puzzle:problem",
+	"@com_google_absl//absl/flags:flag",
     ],
 )
 
@@ -22,6 +23,7 @@ cc_binary(
     srcs = ["single_line.cc"],
     deps = [
         ":line_board",
+	"@com_google_absl//absl/flags:flag",
     ]
 )
 
@@ -53,6 +55,7 @@ cc_test(
     tags = ["benchmark", "slowbenchmark"],
     deps = [
         ":line_board",
+	"@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
         "//puzzle:test_main",
@@ -158,6 +161,7 @@ cc_library(
     deps = [
         "//puzzle:problem",
         "//puzzle:test_main",
+	"@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",

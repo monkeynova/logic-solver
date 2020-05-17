@@ -1,10 +1,12 @@
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
+#include "absl/strings/str_join.h"
 #include "benchmark/benchmark.h"
-#include "gflags/gflags.h"
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-DEFINE_bool(benchmark, false,
+ABSL_FLAG(bool,benchmark, false,
             "If true, runs benchmarks rather than gunit test suite.");
 
 int main(int argc, char** argv) {
@@ -12,9 +14,9 @@ int main(int argc, char** argv) {
   ::google::InstallFailureSignalHandler();
   ::testing::InitGoogleTest(&argc, argv);
   ::benchmark::Initialize(&argc, argv);
-  ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
-  if (::benchmark::ReportUnrecognizedArguments(argc, argv)) return 1;
-  if (FLAGS_benchmark) {
+  std::vector<char*> args = ::absl::ParseCommandLine(argc, argv);
+  CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
+  if (absl::GetFlag(FLAGS_benchmark)) {
     ::benchmark::RunSpecifiedBenchmarks();
     return 0;
   }

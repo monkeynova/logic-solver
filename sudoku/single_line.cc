@@ -1,11 +1,11 @@
 #include <iostream>
 #include <memory>
 
-#include "gflags/gflags.h"
+#include "absl/flags/flag.h"
 #include "glog/logging.h"
 #include "sudoku/line_board.h"
 
-DEFINE_string(sudoku_line_board, "",
+ABSL_FLAG(std::string,sudoku_line_board, "",
               "The sudoku problem to solve as a single line");
 
 int main(int argc, char** argv) {
@@ -13,10 +13,10 @@ int main(int argc, char** argv) {
   ::google::InstallFailureSignalHandler();
   ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
 
-  CHECK(!FLAGS_sudoku_line_board.empty()) << "--sudoku_line_board must be set";
+  CHECK(!absl::GetFlag(FLAGS_sudoku_line_board).empty()) << "--sudoku_line_board must be set";
 
   std::unique_ptr<::puzzle::Problem> line_board =
-      ::sudoku::LineBoard::Create(FLAGS_sudoku_line_board);
+    ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
   CHECK(line_board != nullptr) << "No puzzle found";
 
   line_board->Setup();

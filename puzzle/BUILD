@@ -108,7 +108,8 @@ cc_library(
     name = "benchmark_main",
     srcs = ["benchmark_main.cc"],
     deps = [
-	"@com_github_gflags_gflags//:gflags",
+	"@com_google_absl//absl/flags:flag",
+	"@com_google_absl//absl/flags:parse",
         "@com_google_benchmark//:benchmark",
 	"@com_google_glog//:glog",
     ],
@@ -169,7 +170,7 @@ cc_library(
 	":profiler",
 	":solution",
 	":solution_permuter",
-	"@com_github_gflags_gflags//:gflags",
+	"@com_google_absl//absl/flags:flag",
     ],
 )
 
@@ -271,7 +272,7 @@ cc_library(
     hdrs = ["profiler.h"],
     srcs = ["profiler.cc"],
     deps = [ 
-	"@com_github_gflags_gflags//:gflags",
+	"@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
    ],
 )
@@ -330,6 +331,8 @@ cc_library(
     srcs = ["puzzle_main.cc"],
     deps = [
         ":problem",
+	"@com_google_absl//absl/flags:flag",
+	"@com_google_absl//absl/flags:parse",
         "@com_google_absl//absl/memory",
     ],
     visibility = [
@@ -344,6 +347,7 @@ cc_library(
     deps = [
         ":problem",
         ":test_main",
+	"@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
@@ -358,7 +362,9 @@ cc_library(
     srcs = ["test_main.cc"],
     testonly = 1,
     deps = [
-	"@com_github_gflags_gflags//:gflags",
+	"@com_google_absl//absl/flags:flag",
+	"@com_google_absl//absl/flags:parse",
+        "@com_google_absl//absl/strings",
         "@com_google_benchmark//:benchmark",
 	"@com_google_glog//:glog",
         "@com_google_googletest//:gtest",

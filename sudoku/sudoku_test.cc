@@ -2,16 +2,16 @@
 #include <memory>
 #include <vector>
 
+#include "absl/flags/flag.h"
 #include "absl/strings/str_join.h"
 #include "benchmark/benchmark.h"
-#include "gflags/gflags.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "puzzle/problem.h"
 
-DECLARE_string(sudoku_problem_setup);
-DECLARE_bool(puzzle_prune_pair_class_iterators);
-DECLARE_bool(puzzle_prune_pair_class_iterators_mode_pair);
+ABSL_DECLARE_FLAG(std::string, sudoku_problem_setup);
+ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators);
+ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair);
 
 extern void SetupProblem(puzzle::Solver* s);
 extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
@@ -26,9 +26,9 @@ TEST(Puzzle, RightAnswer) {
   EXPECT_EQ(got, problem->GetSolution());
 }
 
-static void SetFlag(bool val, absl::string_view label, bool* flag,
+static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
                     std::vector<std::string>* labels) {
-  *flag = val;
+  absl::SetFlag(flag, val);
   labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
 }
 

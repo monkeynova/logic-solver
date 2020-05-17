@@ -1,27 +1,27 @@
 #include "puzzle/filtered_solution_permuter.h"
 
-#include "gflags/gflags.h"
+#include "absl/flags/flag.h"
 #include "glog/logging.h"
 #include "puzzle/active_set.h"
 #include "puzzle/active_set_builder.h"
 #include "puzzle/all_match.h"
 #include "puzzle/class_permuter_factory.h"
 
-DEFINE_bool(puzzle_prune_class_iterator, true,
+ABSL_FLAG(bool,puzzle_prune_class_iterator, true,
             "If specfied, class iterators will be pruned based on single "
             "class predicates that are present.");
 
-DEFINE_bool(puzzle_prune_pair_class_iterators, true,
+ABSL_FLAG(bool,puzzle_prune_pair_class_iterators, true,
             "If specfied, class iterators will be pruned based on pair "
             "class predicates that are present.");
 
-DEFINE_bool(puzzle_prune_pair_class_iterators_mode_pair, true,
+ABSL_FLAG(bool,puzzle_prune_pair_class_iterators_mode_pair, true,
             "If specified pairwise iterators will be pruned with contextual "
             "pruning (that is, pairwise iterators will store, for each value "
             "of one iterator, the appropriate active sets for the other "
             "iterator).");
 
-DEFINE_bool(puzzle_prune_reorder_classes, true,
+ABSL_FLAG(bool,puzzle_prune_reorder_classes, true,
             "If true, class iteration will be re-ordered from the default "
             "based on effective scan rate.");
 
@@ -72,7 +72,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
   if (iterators_[class_int] == class_permuter->end()) {
     const ActiveSetBuilder* builder = permuter_->active_set_builder_.get();
     ActiveSet build = builder->active_set(class_int);
-    if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+    if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
       double start_selectivity = build.Selectivity();
       for (int other_pos = 0; other_pos < class_position; ++other_pos) {
         const ClassPermuter* other_permuter =
@@ -114,7 +114,7 @@ std::string FilteredSolutionPermuter::Advancer::IterationDebugString() const {
           double truncated = iterators_[permuter->class_int()].Completion();
           truncated = static_cast<int>(1000 * truncated) / 1000.0;
           absl::StrAppend(out, truncated);
-          if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+          if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
             double truncated =
                 pair_selectivity_reduction_[permuter->class_int()];
             truncated = static_cast<int>(1000 * truncated) / 1000.0;
@@ -270,7 +270,7 @@ void FilteredSolutionPermuter::Prepare() {
 
 void FilteredSolutionPermuter::BuildActiveSets(
     std::vector<SolutionFilter>* residual) {
-  if (!FLAGS_puzzle_prune_class_iterator) {
+  if (!absl::GetFlag(FLAGS_puzzle_prune_class_iterator)) {
     for (const auto& filter : predicates_) {
       residual->push_back(filter);
     }
@@ -294,7 +294,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
           std::make_pair(filter.classes()[1], filter.classes()[0]);
       pair_class_predicates[key1].push_back(filter);
       pair_class_predicates[key2].push_back(filter);
-      if (!FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+      if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
         residual->push_back(filter);
       }
     } else {
@@ -320,14 +320,14 @@ void FilteredSolutionPermuter::BuildActiveSets(
     class_permuter->set_active_set(active_set_builder_->active_set(class_int));
   }
 
-  if (!FLAGS_puzzle_prune_pair_class_iterators) {
+  if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {
     return;
   }
 
   VLOG(1) << "Generating pair selectivities";
 
   bool cardinality_reduced = true;
-  bool need_final = FLAGS_puzzle_prune_pair_class_iterators_mode_pair;
+  bool need_final = absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair);
   ActiveSetBuilder::PairClassMode pair_class_mode =
       ActiveSetBuilder::PairClassMode::kSingleton;
   while (cardinality_reduced || need_final) {
@@ -376,14 +376,14 @@ void FilteredSolutionPermuter::BuildActiveSets(
       }
     }
 
-    if (FLAGS_puzzle_prune_pair_class_iterators_mode_pair) {
+    if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
       CHECK(!(!need_final && cardinality_reduced));
     }
   }
 }
 
 void FilteredSolutionPermuter::ReorderEvaluation() {
-  if (!FLAGS_puzzle_prune_reorder_classes) {
+  if (!absl::GetFlag(FLAGS_puzzle_prune_reorder_classes)) {
     return;
   }
 

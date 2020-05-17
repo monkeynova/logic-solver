@@ -2,11 +2,12 @@
 #include <memory>
 #include <vector>
 
-#include "gflags/gflags.h"
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
 #include "glog/logging.h"
 #include "puzzle/problem.h"
 
-DEFINE_bool(all, false, "Show all solutions");
+ABSL_FLAG(bool,all, false, "Show all solutions");
 
 std::string PositionHeader(const puzzle::Solution& s) {
   return absl::StrCat("[position=", s.permutation_position(), "/",
@@ -16,7 +17,8 @@ std::string PositionHeader(const puzzle::Solution& s) {
 int main(int argc, char** argv) {
   ::google::InitGoogleLogging(argv[0]);
   ::google::InstallFailureSignalHandler();
-  ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
+  std::vector<char*> args = ::absl::ParseCommandLine(argc, argv);
+  CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   CHECK(problem != nullptr) << "No puzzle found";
@@ -25,7 +27,7 @@ int main(int argc, char** argv) {
 
   int exit_code = 1;
 
-  if (FLAGS_all) {
+  if (absl::GetFlag(FLAGS_all)) {
     LOG(INFO) << "[AllSolutions]";
     std::vector<puzzle::Solution> all_solutions = problem->AllSolutions();
     exit_code = all_solutions.size() > 0 ? 0 : 1;
