@@ -45,10 +45,12 @@ std::vector<char*> InitMain(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
   google::InstallFailureSignalHandler();
   testing::InitGoogleTest(&argc, argv);
-  benchmark::Initialize(&argc, argv);
   gflags::AllowCommandLineReparsing();
   gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/false);
   StripGflags(&argc, &argv);
+  // benchmark and gflags both want --v=. Give priority to gflags since that's
+  // the one in glog and we want VLOG(#) to work in puzzle code.
+  benchmark::Initialize(&argc, argv);
   return absl::ParseCommandLine(argc, argv);
 }
 
