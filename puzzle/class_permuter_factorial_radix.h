@@ -23,7 +23,9 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
     void Advance(int dist) override;
 
    private:
-    StorageVector index_;
+    // Copy of the values being permuted, stored in order from the values in
+    // permuter().
+    StorageVector values_;
   };
 
   explicit ClassPermuterFactorialRadix(const Descriptor* d = nullptr,

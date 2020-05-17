@@ -31,7 +31,9 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
     void Advance(ValueSkip value_skip) override;
 
    private:
-    StorageVector index_;
+    // Copy of the values being permuted, stored in order from the values in
+    // permuter().
+    StorageVector values_;
 
     // Memory based data structure to turn an O(N^2) delete with replacement
     // into an O(N) one.

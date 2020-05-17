@@ -21,7 +21,6 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
     void Advance(int dist) override;
 
    private:
-    // Algorithm dependent information for iteration.
     StorageVector index_;
     StorageVector direction_;
     int next_from_;

@@ -51,8 +51,8 @@ ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter,
     ActiveSet active_set)
     : AdvancerBase(permuter, std::move(active_set)) {
-  index_ = permuter_->descriptor()->Values();
-  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(index_.size());
+  values_ = permuter_->descriptor()->Values();
+  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(values_.size());
 }
 
 void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
@@ -69,15 +69,15 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
     for (size_t i = 0; i < current_.size() - 1; ++i) {
       const int next =
           (*radix_index_to_raw_index_)[(position_ / div) % mod][deleted];
-      DCHECK_LT(next, index_.size());
-      current_[i] = index_[next];
+      DCHECK_LT(next, values_.size());
+      current_[i] = values_[next];
       deleted |= (1 << next);
       --mod;
       div /= mod;
     }
     const int next = (*radix_index_to_raw_index_)[0][deleted];
     DCHECK_GE(next, 0);
-    current_[current_.size() - 1] = index_[next];
+    current_[current_.size() - 1] = values_[next];
   }
 }
 
