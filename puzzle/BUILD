@@ -86,6 +86,7 @@ cc_binary(
     deps = [
         ":active_set_builder",
 	":benchmark_main",
+        ":class_permuter_factory",
         ":solution_filter",
         "@com_google_benchmark//:benchmark",
     ]
@@ -96,6 +97,7 @@ cc_test(
     srcs = ["active_set_builder_test.cc"],
     deps = [
         ":active_set_builder",
+        ":class_permuter_factory",
         ":mutable_solution",
         ":solution_filter",
         ":test_main",
@@ -121,6 +123,7 @@ cc_library(
     srcs = ["brute_solution_permuter.cc"],
     deps = [
         ":class_permuter",
+        ":class_permuter_factory",
         ":mutable_solution",
 	":solution_filter",
 	":solution_permuter",
@@ -135,6 +138,7 @@ cc_library(
         ":active_set_builder",
         ":all_match",
         ":class_permuter",
+        ":class_permuter_factory",
 	":mutable_solution",
 	":profiler",
         ":solution_filter",
@@ -177,6 +181,16 @@ cc_library(
         ":solution",
 	"@com_google_absl//absl/container:inlined_vector",
 	"@com_google_absl//absl/synchronization",
+    ],
+)
+
+cc_library(
+    name = "class_permuter_factory",
+    hdrs = ["class_permuter_factory.h"],
+    srcs = ["class_permuter_factory.cc"],
+    deps = [
+        ":class_permuter",
+        ":solution",
     ],
 )
 

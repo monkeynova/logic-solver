@@ -1,5 +1,7 @@
 #include "puzzle/brute_solution_permuter.h"
 
+#include "puzzle/class_permuter_factory.h"
+
 namespace puzzle {
 
 BruteSolutionPermuter::Advancer::Advancer(

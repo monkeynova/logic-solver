@@ -306,9 +306,6 @@ inline std::ostream& operator<<(std::ostream& out,
   return out << permuter.DebugString();
 }
 
-std::unique_ptr<ClassPermuter> MakeClassPermuter(const Descriptor* d = nullptr,
-                                                 int class_int = 0);
-
 }  // namespace puzzle
 
 #endif  // PUZZLE_CLASS_PERMUTER_H

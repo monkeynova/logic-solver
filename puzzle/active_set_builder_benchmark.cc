@@ -1,5 +1,6 @@
 #include "benchmark/benchmark.h"
 #include "puzzle/active_set_builder.h"
+#include "puzzle/class_permuter_factory.h"
 #include "puzzle/solution_filter.h"
 
 namespace puzzle {

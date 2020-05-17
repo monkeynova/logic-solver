@@ -7,6 +7,7 @@
 #include "gtest/gtest.h"
 #include "puzzle/active_set.h"
 #include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter_factory.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/solution_filter.h"
 

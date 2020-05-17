@@ -5,6 +5,7 @@
 #include "puzzle/active_set.h"
 #include "puzzle/active_set_builder.h"
 #include "puzzle/all_match.h"
+#include "puzzle/class_permuter_factory.h"
 
 DEFINE_bool(puzzle_prune_class_iterator, true,
             "If specfied, class iterators will be pruned based on single "
