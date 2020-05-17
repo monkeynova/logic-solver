@@ -51,7 +51,7 @@ ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter,
     ActiveSet active_set)
     : AdvancerBase(permuter, std::move(active_set)) {
-  values_ = permuter->descriptor()->Values();
+  values_ = current_;
   radix_index_to_raw_index_ = GetRadixIndexToRawIndex(permutation_size());
 }
 

@@ -4,15 +4,12 @@ namespace puzzle {
 
 ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
                                           ActiveSet active_set)
-    : active_set_(std::move(active_set)),
-      permutation_size_(permuter->descriptor()->Values().size()),
-      permutation_count_(permuter->permutation_count()),
-      class_int_(permuter->class_int()) {
-  for (int i : permuter->descriptor()->Values()) {
-    current_.push_back(i);
-  }
-
-  position_ = 0;
+  : current_(permuter->descriptor()->Values()),
+    position_(0),
+    active_set_(std::move(active_set)),
+    permutation_size_(permuter->descriptor()->Values().size()),
+    permutation_count_(permuter->permutation_count()),
+    class_int_(permuter->class_int()) {
 }
 
 void ClassPermuter::AdvancerBase::Prepare() {

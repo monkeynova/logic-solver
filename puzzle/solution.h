@@ -32,6 +32,7 @@ class IntRangeDescriptor : public Descriptor {
 
   std::vector<int> Values() const override {
     std::vector<int> ret;
+    ret.reserve(end_ - start_);
     for (int i = start_; i <= end_; ++i) {
       ret.push_back(i);
     }
@@ -57,6 +58,7 @@ class StringDescriptor : public Descriptor {
 
   std::vector<int> Values() const override {
     std::vector<int> ret;
+    ret.reserve(names_.size());
     for (unsigned int i = 0; i < names_.size(); ++i) {
       ret.push_back(i);
     }
