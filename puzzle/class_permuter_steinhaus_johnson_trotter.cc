@@ -60,18 +60,4 @@ void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(int dist) {
   for (; dist > 0; --dist) Advance();
 }
 
-void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance(
-    ValueSkip value_skip) {
-  int value = current_[value_skip.value_index];
-  if (active_set_.is_trivial()) {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
-      Advance();
-    }
-  } else {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
-      AdvanceWithSkip();
-    }
-  }
-}
-
 }  // namespace puzzle

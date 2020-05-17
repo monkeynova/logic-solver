@@ -28,17 +28,4 @@ void ClassPermuterFactorialRadix::Advancer::Advance(int dist) {
 
 void ClassPermuterFactorialRadix::Advancer::Advance() { Advance(/*dist=*/1); }
 
-void ClassPermuterFactorialRadix::Advancer::Advance(ValueSkip value_skip) {
-  int value = current_[value_skip.value_index];
-  if (active_set_.is_trivial()) {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
-      Advance();
-    }
-  } else {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
-      AdvanceWithSkip();
-    }
-  }
-}
-
 }  // namespace puzzle

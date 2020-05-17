@@ -26,6 +26,19 @@ void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
       << "ConsumeNext returned false after ConsumeFalseBlock";
 }
 
+void ClassPermuter::AdvancerBase::Advance(ValueSkip value_skip) {
+  int value = current_[value_skip.value_index];
+  if (active_set_.is_trivial()) {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      Advance();
+    }
+  } else {
+    while (!current_.empty() && current_[value_skip.value_index] == value) {
+      AdvanceWithSkip();
+    }
+  }
+}
+
 // static
 double ClassPermuter::PermutationCount(const Descriptor* d) {
   if (d == nullptr) return 0;

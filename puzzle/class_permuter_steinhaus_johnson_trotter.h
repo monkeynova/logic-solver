@@ -19,7 +19,6 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
 
     void Advance() override;
     void Advance(int dist) override;
-    void Advance(ValueSkip value_skip) override;
 
    private:
     // Algorithm dependent information for iteration.

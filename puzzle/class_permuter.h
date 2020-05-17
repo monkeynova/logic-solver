@@ -28,7 +28,7 @@ class ClassPermuter {
 
     virtual void Advance() = 0;
     virtual void Advance(int dist) = 0;
-    virtual void Advance(ValueSkip value_skip) = 0;
+    virtual void Advance(ValueSkip value_skip);
 
     void AdvanceWithSkip();
 
