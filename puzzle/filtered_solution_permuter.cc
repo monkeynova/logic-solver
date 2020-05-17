@@ -36,12 +36,10 @@ static void OrderSolutionFiltersByEntryId(std::vector<SolutionFilter>* list) {
 
 FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
-    : permuter_(permuter),
-      mutable_solution_(permuter == nullptr ? nullptr
-                                            : permuter_->entry_descriptor_) {
+    : AdvancerBase(permuter == nullptr ? nullptr : permuter->entry_descriptor_),
+      permuter_(permuter) {
   if (permuter_ == nullptr) return;
 
-  current_ = mutable_solution_.TestableSolution();
   iterators_.resize(permuter_->class_permuters_.size());
   pair_selectivity_reduction_.resize(iterators_.size(), 1);
   for (const auto& class_permuter : permuter_->class_permuters_) {

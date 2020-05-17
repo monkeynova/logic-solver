@@ -14,7 +14,7 @@ namespace puzzle {
 
 class FilteredSolutionPermuter final : public SolutionPermuter {
  public:
-  class Advancer final : public SolutionPermuter::AdvanceInterface {
+  class Advancer final : public SolutionPermuter::AdvancerBase {
    public:
     explicit Advancer(const FilteredSolutionPermuter* permuter);
 
@@ -25,7 +25,6 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     double completion() const override;
 
    private:
-    const Solution& current() const override { return current_; }
     void Advance() override;
 
     void PruneClass(int class_int,
@@ -40,10 +39,8 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     bool NotePositionForProfiler(int class_position);
 
     const FilteredSolutionPermuter* permuter_ = nullptr;
-    MutableSolution mutable_solution_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
-    Solution current_;  // Bound to mutable_solution_.
     std::vector<double> pair_selectivity_reduction_;
   };
 

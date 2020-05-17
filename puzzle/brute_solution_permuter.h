@@ -2,7 +2,6 @@
 #define PUZZLE_BRUTE_SOLUTION_PERMUTER_H
 
 #include "puzzle/class_permuter.h"
-#include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_permuter.h"
 
@@ -10,7 +9,7 @@ namespace puzzle {
 
 class BruteSolutionPermuter final : public SolutionPermuter {
  public:
-  class Advancer final : public SolutionPermuter::AdvanceInterface {
+  class Advancer final : public SolutionPermuter::AdvancerBase {
    public:
     explicit Advancer(const BruteSolutionPermuter* permuter,
                       const EntryDescriptor* entry_descriptor);
@@ -22,14 +21,11 @@ class BruteSolutionPermuter final : public SolutionPermuter {
     double completion() const override;
 
    private:
-    const Solution& current() const override { return current_; }
     void Advance() override;
 
     const BruteSolutionPermuter* permuter_;
-    MutableSolution mutable_solution_;
     std::vector<int> class_types_;
     std::vector<ClassPermuter::iterator> iterators_;
-    Solution current_;  // Bound to mutable_solution_.
   };
 
   explicit BruteSolutionPermuter(const EntryDescriptor* e);

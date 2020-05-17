@@ -7,7 +7,7 @@ namespace puzzle {
 BruteSolutionPermuter::Advancer::Advancer(
     const BruteSolutionPermuter* permuter,
     const EntryDescriptor* entry_descriptor)
-    : permuter_(permuter), mutable_solution_(entry_descriptor) {
+    : AdvancerBase(entry_descriptor), permuter_(permuter) {
   if (entry_descriptor == nullptr) {
     return;
   }
@@ -20,7 +20,6 @@ BruteSolutionPermuter::Advancer::Advancer(
     mutable_solution_.SetClass(iterators_[class_int]);
   }
 
-  current_ = mutable_solution_.TestableSolution();
   current_.set_permutation_count(permuter_->permutation_count());
   current_.set_permutation_position(0);
 }

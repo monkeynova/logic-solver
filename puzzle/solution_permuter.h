@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_filter.h"
 
@@ -10,14 +11,21 @@ namespace puzzle {
 
 class SolutionPermuter {
  public:
-  class AdvanceInterface {
+  class AdvancerBase {
    public:
-    virtual ~AdvanceInterface() {}
+    explicit AdvancerBase(const EntryDescriptor* entry_descriptor);
+
+    virtual ~AdvancerBase() {}
 
     virtual double position() const = 0;
     virtual double completion() const = 0;
-    virtual const Solution& current() const = 0;
     virtual void Advance() = 0;
+
+    const Solution& current() const { return current_; }
+
+   protected:
+    MutableSolution mutable_solution_;
+    Solution current_;  // Bound to mutable_solution_.
   };
 
   class iterator {
@@ -28,7 +36,7 @@ class SolutionPermuter {
     typedef Solution& reference;
     typedef Solution* pointer;
 
-    explicit iterator(std::unique_ptr<AdvanceInterface> advancer)
+    explicit iterator(std::unique_ptr<AdvancerBase> advancer)
         : advancer_(std::move(advancer)) {}
 
     iterator(const iterator&) = delete;
@@ -38,6 +46,8 @@ class SolutionPermuter {
 
     bool operator!=(const iterator& other) { return !(*this == other); }
     bool operator==(const iterator& other) {
+      if (advancer_ == nullptr) return other.advancer_ == nullptr;
+      if (other.advancer_ == nullptr) return false;
       return advancer_->current() == other.advancer_->current();
     }
     const Solution& operator*() { return advancer_->current(); }
@@ -51,7 +61,7 @@ class SolutionPermuter {
     double completion() const { return advancer_->completion(); }
 
    private:
-    std::unique_ptr<AdvanceInterface> advancer_;
+    std::unique_ptr<AdvancerBase> advancer_;
   };
 
   SolutionPermuter() = default;

@@ -153,6 +153,7 @@ cc_library(
     hdrs = ["solution_permuter.h"],
     srcs = ["solution_permuter.cc"],
     deps = [
+	":mutable_solution",
         ":solution",
 	":solution_filter",
     ],
