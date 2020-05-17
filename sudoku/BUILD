@@ -15,6 +15,7 @@ cc_binary(
     srcs = ["multi_line.cc"],
     deps = [
         ":line_board",
+	"//puzzle:main_lib",
     ]
 )
 
@@ -23,6 +24,7 @@ cc_binary(
     srcs = ["single_line.cc"],
     deps = [
         ":line_board",
+	"//puzzle:main_lib",
 	"@com_google_absl//absl/flags:flag",
     ]
 )

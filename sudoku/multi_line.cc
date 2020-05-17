@@ -1,14 +1,12 @@
 #include <iostream>
 #include <memory>
 
-#include "gflags/gflags.h"
-#include "glog/logging.h"
+#include "puzzle/main_lib.h"
 #include "sudoku/line_board.h"
 
 int main(int argc, char** argv) {
-  ::google::InitGoogleLogging(argv[0]);
-  ::google::InstallFailureSignalHandler();
-  ::gflags::ParseCommandLineFlags(&argc, &argv, /*remove_flags=*/true);
+  std::vector<char*> args = ::puzzle::InitMain(argc, argv);
+  CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
 
   int exit_code = 0;
 
