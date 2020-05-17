@@ -32,14 +32,15 @@ class ClassPermuter {
 
     void AdvanceWithSkip();
 
-    const ClassPermuter* permuter() const { return permuter_; }
     const StorageVector& current() const { return current_; }
     int position() const { return position_; }
     const ActiveSet& active_set() const { return active_set_; }
 
-   protected:
-    const ClassPermuter* permuter_;
+    int class_int() const { return class_int_; }
+    int permutation_size() const { return permutation_size_; }
+    int permutation_count() const { return permutation_count_; }
 
+   protected:
     // The cached current value of iteration.
     StorageVector current_;
 
@@ -49,6 +50,15 @@ class ClassPermuter {
 
     // Representation of the subset of the permutations to return.
     ActiveSet active_set_;
+
+   private:
+    // The number of elements being permuted.
+    int permutation_size_;
+
+    // The number of permutations iterated (permutation_size_!).
+    int permutation_count_;
+
+    int class_int_;
   };
 
   class iterator {
@@ -113,10 +123,9 @@ class ClassPermuter {
 
     int position() const { return advancer_->position(); }
     double Completion() const {
-      return static_cast<double>(position()) /
-             advancer_->permuter()->permutation_count();
+      return static_cast<double>(position()) / advancer_->permutation_count();
     }
-    int class_int() const { return advancer_->permuter()->class_int(); }
+    int class_int() const { return advancer_->class_int(); }
 
    private:
     bool is_end() const {

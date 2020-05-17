@@ -51,25 +51,25 @@ ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter,
     ActiveSet active_set)
     : AdvancerBase(permuter, std::move(active_set)) {
-  values_ = permuter_->descriptor()->Values();
-  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(values_.size());
+  values_ = permuter->descriptor()->Values();
+  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(permutation_size());
 }
 
 void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
   position_ += dist;
-  if (position_ >= permuter_->permutation_count()) {
-    position_ = permuter_->permutation_count();
+  if (position_ >= permutation_count()) {
+    position_ = permutation_count();
     current_.resize(0);
   } else {
-    int mod = current_.size();
-    int div = permuter_->permutation_count() / mod;
+    int mod = permutation_size();
+    int div = permutation_count() / mod;
     int deleted = 0;
-    DCHECK_LT(current_.size(), 32)
+    DCHECK_LT(permutation_size(), 32)
         << "Permutation indexes must be useable as a bit vector";
-    for (size_t i = 0; i < current_.size() - 1; ++i) {
+    for (size_t i = 0; i < permutation_size() - 1; ++i) {
       const int next =
           (*radix_index_to_raw_index_)[(position_ / div) % mod][deleted];
-      DCHECK_LT(next, values_.size());
+      DCHECK_LT(next, permutation_size());
       current_[i] = values_[next];
       deleted |= (1 << next);
       --mod;
@@ -77,7 +77,7 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
     }
     const int next = (*radix_index_to_raw_index_)[0][deleted];
     DCHECK_GE(next, 0);
-    current_[current_.size() - 1] = values_[next];
+    current_[permutation_size() - 1] = values_[next];
   }
 }
 
@@ -90,7 +90,7 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
   int value = current_[value_skip.value_index];
   while (!current_.empty() && current_[value_skip.value_index] == value) {
     int div = 1;
-    for (int i = 1; i <= current_.size() - value_skip.value_index - 1; ++i) {
+    for (int i = 1; i <= permutation_size() - value_skip.value_index - 1; ++i) {
       div *= i;
     }
     int delta = div - (position_ % div);

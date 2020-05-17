@@ -17,8 +17,8 @@ ClassPermuterSteinhausJohnsonTrotter::Advancer::Advancer(
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
 void ClassPermuterSteinhausJohnsonTrotter::Advancer::Advance() {
   ++position_;
-  if (position_ >= permuter_->permutation_count()) {
-    position_ = permuter_->permutation_count();
+  if (position_ >= permutation_count()) {
+    position_ = permutation_count();
     current_.resize(0);
   } else {
     int from = next_from_;

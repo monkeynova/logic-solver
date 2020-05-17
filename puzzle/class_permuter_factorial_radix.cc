@@ -5,13 +5,13 @@ namespace puzzle {
 ClassPermuterFactorialRadix::Advancer::Advancer(
     const ClassPermuterFactorialRadix* permuter, ActiveSet active_set)
     : AdvancerBase(permuter, std::move(active_set)) {
-  values_ = permuter_->descriptor()->Values();
+  values_ = permuter->descriptor()->Values();
 }
 
 void ClassPermuterFactorialRadix::Advancer::Advance(int dist) {
   position_ += dist;
-  if (position_ >= permuter_->permutation_count()) {
-    position_ = permuter_->permutation_count();
+  if (position_ >= permutation_count()) {
+    position_ = permutation_count();
     current_.resize(0);
   } else {
     int tmp = position_;

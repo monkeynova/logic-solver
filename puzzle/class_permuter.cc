@@ -4,8 +4,11 @@ namespace puzzle {
 
 ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
                                           ActiveSet active_set)
-    : permuter_(permuter), active_set_(std::move(active_set)) {
-  for (int i : permuter_->descriptor()->Values()) {
+    : active_set_(std::move(active_set)),
+      permutation_size_(permuter->descriptor()->Values().size()),
+      permutation_count_(permuter->permutation_count()),
+      class_int_(permuter->class_int()) {
+  for (int i : permuter->descriptor()->Values()) {
     current_.push_back(i);
   }
 
