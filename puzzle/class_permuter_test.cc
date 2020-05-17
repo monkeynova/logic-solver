@@ -6,6 +6,9 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "puzzle/active_set.h"
+#include "puzzle/class_permuter_factorial_radix.h"
+#include "puzzle/class_permuter_factorial_radix_delete_tracking.h"
+#include "puzzle/class_permuter_steinhaus_johnson_trotter.h"
 
 using ::testing::UnorderedElementsAre;
 

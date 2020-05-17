@@ -180,6 +180,33 @@ cc_library(
         ":active_set",
         ":solution",
 	"@com_google_absl//absl/container:inlined_vector",
+    ],
+)
+
+cc_library(
+    name = "class_permuter_steinhaus_johnson_trotter",
+    hdrs = ["class_permuter_steinhaus_johnson_trotter.h"],
+    srcs = ["class_permuter_steinhaus_johnson_trotter.cc"],
+    deps = [
+        ":class_permuter",
+    ],
+)
+
+cc_library(
+    name = "class_permuter_factorial_radix",
+    hdrs = ["class_permuter_factorial_radix.h"],
+    srcs = ["class_permuter_factorial_radix.cc"],
+    deps = [
+        ":class_permuter",
+    ],
+)
+
+cc_library(
+    name = "class_permuter_factorial_radix_delete_tracking",
+    hdrs = ["class_permuter_factorial_radix_delete_tracking.h"],
+    srcs = ["class_permuter_factorial_radix_delete_tracking.cc"],
+    deps = [
+        ":class_permuter",
 	"@com_google_absl//absl/synchronization",
     ],
 )
@@ -190,6 +217,9 @@ cc_library(
     srcs = ["class_permuter_factory.cc"],
     deps = [
         ":class_permuter",
+        ":class_permuter_factorial_radix",
+        ":class_permuter_factorial_radix_delete_tracking",
+        ":class_permuter_steinhaus_johnson_trotter",
         ":solution",
     ],
 )
@@ -250,6 +280,9 @@ cc_test(
     srcs = ["class_permuter_test.cc"],
     deps = [
         ":class_permuter",
+        ":class_permuter_factorial_radix",
+        ":class_permuter_factorial_radix_delete_tracking",
+        ":class_permuter_steinhaus_johnson_trotter",
         ":test_main",
         "@com_google_googletest//:gtest",
     ]
@@ -262,6 +295,9 @@ cc_binary(
     deps = [
         ":benchmark_main",
         ":class_permuter",
+        ":class_permuter_factorial_radix",
+        ":class_permuter_factorial_radix_delete_tracking",
+        ":class_permuter_steinhaus_johnson_trotter",
 	"@com_google_absl//absl/strings",
         "@com_google_benchmark//:benchmark",
     ]
