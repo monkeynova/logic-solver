@@ -64,6 +64,43 @@ cc_test(
     ]
 )
 
+cc_test(
+    name = "single_line_test_empirical",
+    srcs = ["single_line_test.cc"],
+    args = [
+        "--sudoku_line_board=" +
+        ".......13" +
+	"...2....." +
+	".......8." +
+	"...76.2.." +
+	"..8...4.." +
+	".1......." +
+	"2.....75." +
+	"6..34...." +
+	".....8...",
+        "--sudoku_line_answer=" +
+	"562874913" +
+	"839215647" +
+	"174639582" +
+	"345761298" +
+	"728953461" +
+	"916482375" +
+	"283196754" +
+	"651347829" +
+	"497528136",
+	# TODO(keith@monkeynova.com): There's a bug if this is set to true.
+	"--puzzle_prune_pair_class_iterators_mode_pair=false",
+    ],
+    tags = ["benchmark", "slowbenchmark"],
+    deps = [
+        ":line_board",
+	"@com_google_absl//absl/flags:flag",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
+        "//puzzle:test_main",
+    ]
+)
+
 cc_library(
     name = "line_board",
     hdrs = ["line_board.h"],
