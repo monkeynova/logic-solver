@@ -85,15 +85,20 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance() {
   Advance(/*dist=*/1);
 }
 
+static int factorial(int n) {
+  int ret = 1;
+  for (int i = 2; i <= n; ++i) {
+    ret *= i;
+  }
+  return ret;
+}
+
 void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
     ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
-  while (!current_.empty() && current_[value_skip.value_index] == value) {
-    int div = 1;
-    for (int i = 1; i <= permutation_size() - value_skip.value_index - 1; ++i) {
-      div *= i;
-    }
-    int delta = div - (position_ % div);
+  int div = factorial(permutation_size() - value_skip.value_index - 1);
+  int delta = div - (position_ % div);
+  do {
     if (!active_set_.is_trivial()) {
       if (!active_set_.DiscardBlock(delta)) {
         delta += active_set_.ConsumeFalseBlock() + 1;
@@ -102,7 +107,8 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
       }
     }
     Advance(/*dist=*/delta);
-  }
+    delta = div;
+  } while (!current_.empty() && current_[value_skip.value_index] == value);
 }
 
 }  // namespace puzzle
