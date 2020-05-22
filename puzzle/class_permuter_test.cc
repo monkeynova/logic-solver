@@ -32,7 +32,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElements) {
   int position = 0;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -48,7 +49,8 @@ TYPED_TEST(ClassPermuterTest, FiveElements) {
   int position = 0;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5, 6, 7));
     ++position;
   }
@@ -74,7 +76,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   p.set_active_set(std::move(active_set_first));
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -84,7 +87,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   p.set_active_set(std::move(active_set_last));
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), position + 3);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -110,7 +114,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   p.set_active_set(std::move(active_set_even));
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -120,7 +125,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   p.set_active_set(std::move(active_set_odd));
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -145,7 +151,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   int position = 0;
   for (auto it = p.begin(active_set_even); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -154,7 +161,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   position = 0;
   for (auto it = p.begin(active_set_odd); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
-    EXPECT_TRUE(history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }

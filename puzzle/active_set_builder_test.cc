@@ -74,7 +74,8 @@ TEST_P(SinglePermuterTest, Simple) {
   p->set_active_set(std::move(active_set_first_is_3));
   for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
-    EXPECT_TRUE(vector_history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(vector_history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(3));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
@@ -82,7 +83,8 @@ TEST_P(SinglePermuterTest, Simple) {
   p->set_active_set(std::move(active_set_first_is_4));
   for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
-    EXPECT_TRUE(vector_history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(vector_history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(4));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
@@ -90,7 +92,8 @@ TEST_P(SinglePermuterTest, Simple) {
   p->set_active_set(std::move(active_set_first_is_5));
   for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
-    EXPECT_TRUE(vector_history.insert(*it).second) << absl::StrJoin(*it, ", ");
+    EXPECT_TRUE(vector_history.emplace(it->begin(), it->end()).second)
+      << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(5));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
@@ -405,7 +408,7 @@ TEST_P(PairPermuterTest, MakePairs) {
   int i = 0;
   std::vector<int> a0_is_3;
   int a0_is_not_3 = -1;
-  for (const std::vector<int>& a_vals : *permuter_a) {
+  for (absl::Span<const int> a_vals : *permuter_a) {
     if (a_vals[0] == 3)
       a0_is_3.push_back(i);
     else
@@ -417,7 +420,7 @@ TEST_P(PairPermuterTest, MakePairs) {
   i = 0;
   std::vector<int> b0_is_4;
   int b0_is_not_4 = -1;
-  for (const std::vector<int>& b_vals : *permuter_b) {
+  for (absl::Span<const int> b_vals : *permuter_b) {
     if (b_vals[0] == 4)
       b0_is_4.push_back(i);
     else
@@ -479,7 +482,7 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
   int i = 0;
   std::vector<int> a0_is_3;
   int a0_is_not_3 = -1;
-  for (const std::vector<int>& a_vals : *permuter_a) {
+  for (absl::Span<const int> a_vals : *permuter_a) {
     if (a_vals[0] == 3)
       a0_is_3.push_back(i);
     else
@@ -491,7 +494,7 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
   i = 0;
   std::vector<int> b0_is_4;
   int b0_is_not_4 = -1;
-  for (const std::vector<int>& b_vals : *permuter_b) {
+  for (absl::Span<const int> b_vals : *permuter_b) {
     if (b_vals[0] == 4)
       b0_is_4.push_back(i);
     else
@@ -562,13 +565,13 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   int index_a = 0;
   for (auto it_a = permuter_a->begin(); it_a != permuter_a->end();
        ++index_a, ++it_a) {
-    const std::vector<int>& a_vals = *it_a;
+    absl::Span<const int> a_vals = *it_a;
     const int a_0_val = a_vals[0];
     if (a_0_val == 5) a_0_is_5 = index_a;
     int index_b = 0;
     for (auto it_b = permuter_b->begin(); it_b != permuter_b->end();
          ++index_b, ++it_b) {
-      const std::vector<int>& b_vals = *it_b;
+      absl::Span<const int> b_vals = *it_b;
       const int b_0_val = b_vals[0];
       if (b_0_val == 5) b_0_is_5 = index_b;
       if (val_0_predicate(a_0_val, b_0_val)) {

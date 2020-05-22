@@ -61,7 +61,7 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
   position_ += dist;
   if (position_ >= permutation_count()) {
     position_ = permutation_count();
-    current_.resize(0);
+    current_span_ = absl::Span<const int>();
   } else {
     int mod = permutation_size();
     int div = permutation_count() / mod;
@@ -114,7 +114,7 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
     } else {
       delta = div - (position_ % div);
     }
-  } while (!current_.empty() && current_[value_skip.value_index] == value);
+  } while (!current_span_.empty() && current_[value_skip.value_index] == value);
 }
 
 }  // namespace puzzle

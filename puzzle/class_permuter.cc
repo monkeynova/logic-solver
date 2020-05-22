@@ -5,6 +5,7 @@ namespace puzzle {
 ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
                                           ActiveSet active_set)
     : current_(permuter->descriptor()->Values()),
+      current_span_(absl::MakeSpan(current_)),
       position_(0),
       active_set_(std::move(active_set)),
       permutation_size_(permuter->descriptor()->Values().size()),
@@ -28,11 +29,11 @@ void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
 void ClassPermuter::AdvancerBase::Advance(ValueSkip value_skip) {
   int value = current_[value_skip.value_index];
   if (active_set_.is_trivial()) {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
+    while (!current_span_.empty() && current_[value_skip.value_index] == value) {
       Advance();
     }
   } else {
-    while (!current_.empty() && current_[value_skip.value_index] == value) {
+    while (!current_span_.empty() && current_[value_skip.value_index] == value) {
       AdvanceWithSkip();
     }
   }
@@ -53,7 +54,7 @@ double ClassPermuter::PermutationCount(const Descriptor* d) {
 std::string ClassPermuter::DebugString() const {
   return absl::StrJoin(
       *this, ", ",
-      [](std::string* out, const typename iterator::StorageVector& v) {
+      [](std::string* out, absl::Span<const int> v) {
         absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
       });
 }

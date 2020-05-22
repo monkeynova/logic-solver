@@ -10,8 +10,6 @@ class ClassPermuter {
  public:
   class AdvancerBase {
    public:
-    using StorageVector = std::vector<int>;
-
     // Argument type for operator+= to advance until a sepecific position in the
     // permutation changes values.
     struct ValueSkip {
@@ -35,7 +33,7 @@ class ClassPermuter {
 
     void AdvanceWithSkip();
 
-    const StorageVector& current() const { return current_; }
+    const absl::Span<const int>& current() const { return current_span_; }
     int position() const { return position_; }
     const ActiveSet& active_set() const { return active_set_; }
 
@@ -44,8 +42,15 @@ class ClassPermuter {
     int permutation_count() const { return permutation_count_; }
 
    protected:
+    using StorageVector = std::vector<int>;
+
     // The cached current value of iteration.
+    // TODO(keith@monkeynova.com): current_ and other fields could be statically
+    // allocated when we construct the Advancer avoiding a few layers of
+    // indirection and complexity.
     StorageVector current_;
+
+    absl::Span<const int> current_span_;
 
     // Position in the iteration. Integer from 1 to number of permutations.
     // Represents the position independent of skipped values from 'active_set'.
@@ -67,16 +72,15 @@ class ClassPermuter {
   class iterator {
    public:
     constexpr static int kInlineSize = 10;
-    using StorageVector = typename AdvancerBase::StorageVector;
     using ValueSkip = typename AdvancerBase::ValueSkip;
 
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;
-    typedef StorageVector value_type;
-    typedef StorageVector& reference;
-    typedef const StorageVector& const_reference;
-    typedef StorageVector* pointer;
-    typedef const StorageVector* const_pointer;
+    typedef absl::Span<const int> value_type;
+    typedef absl::Span<const int> reference;
+    typedef const absl::Span<const int> const_reference;
+    typedef absl::Span<const int>* pointer;
+    typedef const absl::Span<const int>* const_pointer;
 
     explicit iterator(std::unique_ptr<AdvancerBase> advancer = nullptr)
         : advancer_(std::move(advancer)) {

@@ -12,15 +12,15 @@ void ClassPermuterFactorialRadix::Advancer::Advance(int dist) {
   position_ += dist;
   if (position_ >= permutation_count()) {
     position_ = permutation_count();
-    current_.resize(0);
+    current_span_ = absl::Span<const int>();
   } else {
     int tmp = position_;
-    for (size_t i = 0; i < current_.size(); ++i) {
+    for (size_t i = 0; i < permutation_size(); ++i) {
       current_[i] = values_[i];
     }
-    for (size_t i = 0; tmp && i < current_.size(); ++i) {
-      int next = tmp % (current_.size() - i);
-      tmp /= (current_.size() - i);
+    for (size_t i = 0; tmp && i < permutation_size(); ++i) {
+      int next = tmp % (permutation_size() - i);
+      tmp /= (permutation_size() - i);
       std::swap(current_[i], current_[i + next]);
     }
   }
