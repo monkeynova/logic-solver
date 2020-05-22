@@ -52,6 +52,8 @@ ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
     ActiveSet active_set)
     : AdvancerBase(permuter, std::move(active_set)) {
   values_ = current_;
+  CHECK_LT(permutation_size(), 20)
+    << "Permutation indexes use a memory buffer of size N * 2^N";
   radix_index_to_raw_index_ = GetRadixIndexToRawIndex(permutation_size());
 }
 
