@@ -38,7 +38,7 @@ void Base::AddPredicatesCumulative() {
 
   for (int i = 0; i < 9; ++i) {
     if (i % 3 == 0) {
-      cols = {0};
+      cols = {i};
       continue;
     }
 
