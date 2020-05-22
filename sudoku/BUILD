@@ -88,8 +88,6 @@ cc_test(
 	"283196754" +
 	"651347829" +
 	"497528136",
-	# TODO(keith@monkeynova.com): There's a bug if this is set to true.
-	"--puzzle_prune_pair_class_iterators_mode_pair=false",
     ],
     tags = ["benchmark", "slowbenchmark"],
     deps = [

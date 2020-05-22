@@ -109,7 +109,11 @@ void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
       }
     }
     Advance(/*dist=*/delta);
-    delta = div;
+    if (active_set_.is_trivial()) {
+      delta = div;
+    } else {
+      delta = div - (position_ % div);
+    }
   } while (!current_.empty() && current_[value_skip.value_index] == value);
 }
 
