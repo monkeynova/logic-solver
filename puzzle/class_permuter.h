@@ -17,6 +17,9 @@ class ClassPermuter {
     struct ValueSkip {
       int value_index;
     };
+    static_assert(sizeof(ValueSkip) < 16,
+		  "ValueSkip is assumed to be small enough for pass-by-value "
+		  "semantics.");
 
     AdvancerBase(const ClassPermuter* permuter, ActiveSet active_set);
 
