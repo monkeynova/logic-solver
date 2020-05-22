@@ -26,17 +26,14 @@ ActiveSet::ActiveSet(const absl::flat_hash_set<int>& positions,
     : ActiveSet(SortFlatHashSet(positions), max_position) {}
 
 ActiveSet::ActiveSet(const std::vector<int>& positions, int max_position) {
-  int last_p = -1;
   for (auto p : positions) {
     if (p < 0) continue;
-    DCHECK_LT(last_p, p);
     if (p >= max_position) break;
-    AddBlock(false, p - last_p - 1);
+    AddBlock(false, p - total());
     Add(true);
-    last_p = p;
   }
-  if (last_p < max_position - 1) {
-    AddBlock(false, max_position - last_p - 1);
+  if (total() < max_position) {
+    AddBlock(false, max_position - total());
   }
   DoneAdding();
 }
@@ -162,7 +159,7 @@ void ActiveSet::Add(bool match) {
 }
 
 void ActiveSet::AddBlock(bool match, int size) {
-  CHECK(building_) << "Add called after building";
+  CHECK(building_) << "AddBlock called after building";
   if (size == 0) return;
 
   total_ += size;
@@ -180,6 +177,7 @@ void ActiveSet::AddBlock(bool match, int size) {
 }
 
 void ActiveSet::DoneAdding() {
+  CHECK(building_) << "DoneAdding called twice";
   building_ = false;
   if (matches_.empty()) {
     CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
@@ -228,6 +226,7 @@ int ActiveSet::ConsumeFalseBlock() {
 }
 
 bool ActiveSet::DiscardBlock(int block_size) {
+  CHECK(!building_) << "ConsumeFalseBlock called while still building";
   if (matches_.empty()) return true;
 
   while (block_size > 0) {

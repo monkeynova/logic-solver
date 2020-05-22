@@ -63,6 +63,18 @@ TEST(ActiveSet, ConsumeNextAlternating) {
   }
 }
 
+TEST(ActiveSet, DiscardFirstBlock) {
+  ActiveSet set;
+  for (int i = 0; i < 40; ++i) {
+    set.Add(i & 1);
+  }
+  set.DoneAdding();
+  EXPECT_EQ(set.DiscardBlock(20), (19 & 1));
+  for (int i = 20; i < 40; ++i) {
+    EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
+  }
+}
+
 TEST(ActiveSet, DiscardBlockAlternating) {
   ActiveSet set;
   for (int i = 0; i < 40; ++i) {
