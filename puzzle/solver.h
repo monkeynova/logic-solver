@@ -49,10 +49,16 @@ class Solver {
                              std::move(class_int_restrict_list)));
   }
 
+  // TODO(keith@monkeynova.com): Allowing a restrict list of entry_ids here
+  // could also allow faster ClassPermuter advancement.
+  // Note the implementation of skipping currently interacts with ActiveSet to
+  // not guarantee that precedeing entries don't change which means that for
+  // a pair of Ids used (like Sudoku box constraints), one can't just use
+  // the max of the two ids used as a single entry_id.
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     std::vector<int> class_int_restrict_list = {}) {
     AddFilter(SolutionFilter(std::move(name), predicate,
-                             std::move(class_int_restrict_list)));
+			     std::move(class_int_restrict_list)));
   }
 
   int test_calls() const { return test_calls_; }
