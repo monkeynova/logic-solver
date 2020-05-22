@@ -23,9 +23,9 @@ int main(int argc, char** argv) {
     ::puzzle::Solution answer = line_board->Solve();
     if (answer.IsValid()) {
       absl::Time done = absl::Now();
-      std::cout << "Out: " << ::sudoku::LineBoard::ToString(answer)
-                << " (" << 1e-3 * ((done - start) / absl::Milliseconds(1)) << "s)"
-		<< std::endl;
+      std::cout << "Out: " << ::sudoku::LineBoard::ToString(answer) << " ("
+                << 1e-3 * ((done - start) / absl::Milliseconds(1)) << "s)"
+                << std::endl;
     } else {
       LOG(ERROR) << "No answer found";
       exit_code = 1;

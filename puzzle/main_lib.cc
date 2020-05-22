@@ -20,21 +20,21 @@ static void StripGflags(int* argc, char*** argv) {
       std::string this_flag(this_arg.data(), this_arg.length());
       size_t flag_end = this_arg.find("=");
       if (flag_end != this_arg.npos) {
-	this_flag.resize(flag_end);
-	// Single argv flag+value.
-	if (gflags::GetCommandLineFlagInfo(this_flag.c_str(), &flag_info)) {
-	  argv_to_remove = 1;
-	}
+        this_flag.resize(flag_end);
+        // Single argv flag+value.
+        if (gflags::GetCommandLineFlagInfo(this_flag.c_str(), &flag_info)) {
+          argv_to_remove = 1;
+        }
       } else {
-	// Maybe pair flag+value.
-	if (gflags::GetCommandLineFlagInfo(this_flag.c_str(), &flag_info)) {
-	  argv_to_remove = flag_info.type == "bool" ? 1 : 2;
-	}
+        // Maybe pair flag+value.
+        if (gflags::GetCommandLineFlagInfo(this_flag.c_str(), &flag_info)) {
+          argv_to_remove = flag_info.type == "bool" ? 1 : 2;
+        }
       }
     }
     if (argv_to_remove > 0) {
       for (int j = i; j < *argc - argv_to_remove; ++j) {
-	(*argv)[j] = (*argv)[j + argv_to_remove];
+        (*argv)[j] = (*argv)[j + argv_to_remove];
       }
       *argc -= argv_to_remove;
     }

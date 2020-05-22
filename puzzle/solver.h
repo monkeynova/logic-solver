@@ -58,7 +58,7 @@ class Solver {
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     std::vector<int> class_int_restrict_list = {}) {
     AddFilter(SolutionFilter(std::move(name), predicate,
-			     std::move(class_int_restrict_list)));
+                             std::move(class_int_restrict_list)));
   }
 
   int test_calls() const { return test_calls_; }

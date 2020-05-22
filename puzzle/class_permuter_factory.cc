@@ -14,13 +14,13 @@ enum class ClassPermuterType {
 
 ABSL_FLAG(ClassPermuterType, puzzle_class_permuter_type,
           ClassPermuterType::kFactorialRadixDeleteTracking,
-	  "Specifies the algorithm to use for computing all class "
-	  "permutations. The algorithm choice affects the performance of "
-	  "calculating the permutations as well as the ordering in which "
-	  "permutations are produced, which in turn can further affect "
-	  "the performance of filtering behaviors. Value values are "
-	  "\"factorial_radix\", \"delete_tracking\", and "
-	  "\"steinhaus_johnson_trotter\".");
+          "Specifies the algorithm to use for computing all class "
+          "permutations. The algorithm choice affects the performance of "
+          "calculating the permutations as well as the ordering in which "
+          "permutations are produced, which in turn can further affect "
+          "the performance of filtering behaviors. Value values are "
+          "\"factorial_radix\", \"delete_tracking\", and "
+          "\"steinhaus_johnson_trotter\".");
 
 std::string AbslUnparseFlag(ClassPermuterType class_permuter_type) {
   switch (class_permuter_type) {

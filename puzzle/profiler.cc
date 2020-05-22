@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include "absl/flags/flag.h"
-#include "absl/time/time.h"
 #include "absl/memory/memory.h"
+#include "absl/time/time.h"
 
 ABSL_FLAG(int, puzzle_max_profile_calls, std::numeric_limits<int>::max(),
           "Maximum number of iterations before giving up in profiler. "
@@ -41,8 +41,8 @@ class AbslTimeProfiler : public Profiler {
 
     double permutations_per_milli = (position - last_position_) / delta;
     std::cout << std::setprecision(3) << "\033[1K\rTrying "
-              << (100 * position / count) << "%, effective="
-	      << permutations_per_milli
+              << (100 * position / count)
+              << "%, effective=" << permutations_per_milli
               << "Kp/ms true=" << (test_calls() / full_delta) << "Kp/ms"
               << std::flush;
     last_ = now;
