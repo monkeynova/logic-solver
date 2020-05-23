@@ -46,8 +46,11 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
   }
 };
 
-std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadix(
-    const Descriptor* d = nullptr, int class_int = 0);
+class MakeClassPermuterFactorialRadix {
+ public:
+  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d = nullptr,
+                                            int class_int = 0);
+};
 
 }  // namespace puzzle
 

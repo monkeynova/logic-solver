@@ -60,11 +60,11 @@ std::unique_ptr<ClassPermuter> MakeClassPermuter(const Descriptor* d,
                                                  int class_int) {
   switch (absl::GetFlag(FLAGS_puzzle_class_permuter_type)) {
     case ClassPermuterType::kFactorialRadix:
-      return MakeClassPermuterFactorialRadix(d, class_int);
+      return MakeClassPermuterFactorialRadix()(d, class_int);
     case ClassPermuterType::kFactorialRadixDeleteTracking:
-      return MakeClassPermuterFactorialRadixDeleteTracking(d, class_int);
+      return MakeClassPermuterFactorialRadixDeleteTracking()(d, class_int);
     case ClassPermuterType::kSteinhausJohnsonTrotter:
-      return MakeClassPermuterSteinhausJohnsonTrotter(d, class_int);
+      return MakeClassPermuterSteinhausJohnsonTrotter()(d, class_int);
     case ClassPermuterType::kUnknown:
         // Fallthrough intended.
         ;

@@ -46,8 +46,11 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
   }
 };
 
-std::unique_ptr<ClassPermuter> MakeClassPermuterSteinhausJohnsonTrotter(
-    const Descriptor* d = nullptr, int class_int = 0);
+class MakeClassPermuterSteinhausJohnsonTrotter {
+ public:
+  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d = nullptr,
+                                            int class_int = 0);
+};
 
 }  // namespace puzzle
 

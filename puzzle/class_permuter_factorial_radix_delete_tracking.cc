@@ -144,8 +144,9 @@ std::unique_ptr<ClassPermuter> MakeSizedInstance<0>(int permutation_size,
   return nullptr;
 }
 
-std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadixDeleteTracking(
-    const Descriptor* d, int class_int) {
+std::unique_ptr<ClassPermuter>
+MakeClassPermuterFactorialRadixDeleteTracking::operator()(const Descriptor* d,
+                                                          int class_int) {
   return MakeSizedInstance<kMaxStorageSize>(d->Values().size(), d, class_int);
 }
 

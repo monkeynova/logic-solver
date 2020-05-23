@@ -187,6 +187,7 @@ class ClassPermuter {
 
   iterator end() const { return iterator(); }
 
+  int permutation_size() const { return values_.size(); }
   double permutation_count() const { return permutation_count_; }
 
   const Descriptor* descriptor() const { return descriptor_; }

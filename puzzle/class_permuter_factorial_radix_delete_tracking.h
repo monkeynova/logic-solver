@@ -61,8 +61,11 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
   }
 };
 
-std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadixDeleteTracking(
-    const Descriptor* d = nullptr, int class_int = 0);
+class MakeClassPermuterFactorialRadixDeleteTracking {
+ public:
+  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d = nullptr,
+                                            int class_int = 0);
+};
 
 }  // namespace puzzle
 

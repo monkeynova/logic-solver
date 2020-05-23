@@ -17,30 +17,10 @@ namespace puzzle {
 template <typename T>
 class ClassPermuterTest : public ::testing::Test {};
 
-class MakeSteinhausJohnsonTrotter {
- public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
-    return MakeClassPermuterSteinhausJohnsonTrotter(d);
-  }
-};
-
-class MakeFactorialRadix {
- public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
-    return MakeClassPermuterFactorialRadix(d);
-  }
-};
-
-class MakeFactorialRadixDeleteTracking {
- public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
-    return MakeClassPermuterFactorialRadixDeleteTracking(d);
-  }
-};
-
 using ClassPermuterTypes =
-    ::testing::Types<MakeSteinhausJohnsonTrotter, MakeFactorialRadix,
-                     MakeFactorialRadixDeleteTracking>;
+    ::testing::Types<MakeClassPermuterSteinhausJohnsonTrotter,
+                     MakeClassPermuterFactorialRadix,
+                     MakeClassPermuterFactorialRadixDeleteTracking>;
 TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {

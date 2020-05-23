@@ -9,57 +9,41 @@
 
 namespace puzzle {
 
-class MakeSteinhausJohnsonTrotter {
- public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
-    return MakeClassPermuterSteinhausJohnsonTrotter(d);
-  }
-};
-
-class MakeFactorialRadix {
- public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
-    return MakeClassPermuterFactorialRadix(d);
-  }
-};
-
-class MakeFactorialRadixDeleteTracking {
- public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
-    return MakeClassPermuterFactorialRadixDeleteTracking(d);
-  }
-};
-
-template <typename MakePermuterType, int depth>
+template <typename MakeClassPermuterPermuterType, int depth>
 static void BM_Permuter(benchmark::State& state) {
+  IntRangeDescriptor d(1, depth);
+  auto p = MakeClassPermuterPermuterType()(&d);
   for (auto _ : state) {
-    IntRangeDescriptor d(1, depth);
-    auto p = MakePermuterType()(&d);
     for (auto it = p->begin(); it != p->end(); ++it) /* no-op */
       ;
   }
 }
 
-BENCHMARK_TEMPLATE(BM_Permuter, MakeSteinhausJohnsonTrotter, 3);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeSteinhausJohnsonTrotter, 5);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeSteinhausJohnsonTrotter, 7);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeSteinhausJohnsonTrotter, 9);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadix, 3);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadix, 5);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadix, 7);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadix, 9);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadixDeleteTracking, 3);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadixDeleteTracking, 5);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadixDeleteTracking, 7);
-BENCHMARK_TEMPLATE(BM_Permuter, MakeFactorialRadixDeleteTracking, 9);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterSteinhausJohnsonTrotter, 3);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterSteinhausJohnsonTrotter, 5);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterSteinhausJohnsonTrotter, 7);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterSteinhausJohnsonTrotter, 9);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadix, 3);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadix, 5);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadix, 7);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadix, 9);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadixDeleteTracking,
+                   3);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadixDeleteTracking,
+                   5);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadixDeleteTracking,
+                   7);
+BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadixDeleteTracking,
+                   9);
 
-template <typename MakePermuterType, int depth, int crop_column, int crop_value>
+template <typename MakeClassPermuterPermuterType, int depth, int crop_column,
+          int crop_value>
 static void BM_PermuterActiveSet1InN(benchmark::State& state) {
   ActiveSet set;
 
   // Build ActiveSet.
   IntRangeDescriptor d(1, depth);
-  auto p = MakePermuterType()(&d);
+  auto p = MakeClassPermuterPermuterType()(&d);
   for (auto it = p->begin(); it != p->end(); ++it) {
     set.Add((*it)[crop_column] == crop_value);
   }
@@ -75,54 +59,62 @@ static void BM_PermuterActiveSet1InN(benchmark::State& state) {
   }
 }
 
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 7, 0,
-                   0);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 7, 0,
-                   8);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 7, 0,
-                   7);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 7, 0,
-                   1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 7, 3,
-                   3);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 9, 0,
-                   9);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 9, 0,
-                   1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeSteinhausJohnsonTrotter, 9, 5,
-                   5);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 7, 0, 0);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 7, 0, 8);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 7, 0, 7);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 7, 0, 1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 7, 3, 3);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 9, 0, 9);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 9, 0, 1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadix, 9, 5, 5);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   7, 0, 0);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   7, 0, 8);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   7, 0, 7);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   7, 0, 1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   7, 3, 3);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   9, 0, 9);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   9, 0, 1);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeFactorialRadixDeleteTracking,
-                   9, 5, 5);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 0, 0);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 0, 8);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 0, 7);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 3, 3);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 9, 0, 9);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 9, 0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterSteinhausJohnsonTrotter, 9, 5, 5);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 7,
+                   0, 0);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 7,
+                   0, 8);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 7,
+                   0, 7);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 7,
+                   0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 7,
+                   3, 3);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 9,
+                   0, 9);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 9,
+                   0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN, MakeClassPermuterFactorialRadix, 9,
+                   5, 5);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 0, 0);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 0, 8);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 0, 7);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 3, 3);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 9, 0, 9);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 9, 0, 1);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 9, 5, 5);
 
-template <typename MakePermuterType, int depth, int every_n>
+template <typename MakeClassPermuterPermuterType, int depth, int every_n>
 static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   ActiveSet set;
 
   // Build ActiveSet.
   IntRangeDescriptor d(1, depth);
-  auto p = MakePermuterType()(&d);
+  auto p = MakeClassPermuterPermuterType()(&d);
   int i = 0;
   for (auto it = p->begin(); it != p->end(); ++it) {
     set.Add(i % every_n == 0);
@@ -140,29 +132,29 @@ static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   }
 }
 
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeSteinhausJohnsonTrotter,
-                   7, 1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeSteinhausJohnsonTrotter,
-                   7, 1000000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeSteinhausJohnsonTrotter,
-                   9, 1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeSteinhausJohnsonTrotter,
-                   9, 1000000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeFactorialRadix, 7,
-                   1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeFactorialRadix, 7,
-                   1000000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeFactorialRadix, 9,
-                   1000);
-BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity, MakeFactorialRadix, 9,
-                   1000000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
-                   MakeFactorialRadixDeleteTracking, 7, 1000);
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 1000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
-                   MakeFactorialRadixDeleteTracking, 7, 1000000);
+                   MakeClassPermuterSteinhausJohnsonTrotter, 7, 1000000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
-                   MakeFactorialRadixDeleteTracking, 9, 1000);
+                   MakeClassPermuterSteinhausJohnsonTrotter, 9, 1000);
 BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
-                   MakeFactorialRadixDeleteTracking, 9, 1000000);
+                   MakeClassPermuterSteinhausJohnsonTrotter, 9, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadix, 7, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadix, 7, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadix, 9, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadix, 9, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 7, 1000000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 9, 1000);
+BENCHMARK_TEMPLATE(BM_PermuterActiveSetSelectivity,
+                   MakeClassPermuterFactorialRadixDeleteTracking, 9, 1000000);
 
 }  // namespace puzzle
