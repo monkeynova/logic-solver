@@ -11,12 +11,12 @@
 namespace puzzle {
 
 TEST(ValueSkipToActiveSet, FiveElements) {
-  IntRangeDescriptor d(0, 4);
+  IntRangeDescriptor d(1, 5);
   std::unique_ptr<ClassPermuter> permuter = MakeClassPermuter(&d);
   ValueSkipToActiveSet vs2as(permuter.get());
 
   for (int position : {0, 1, 2, 3, 4}) {
-    for (int value : {0, 1, 2, 3, 4}) {
+    for (int value : {1, 2, 3, 4, 5}) {
       ActiveSet as = vs2as.value_skip_set(position, value);
       int loops = 0;
       for (auto it = permuter->begin(as); it != permuter->end(); ++it) {
@@ -24,6 +24,15 @@ TEST(ValueSkipToActiveSet, FiveElements) {
         ++loops;
       }
       EXPECT_EQ(loops, (5 - 1) * 4 * 3 * 2 * 1);
+    }
+    for (int value : {0, 6}) {
+      ActiveSet as = vs2as.value_skip_set(position, value);
+      int loops = 0;
+      for (auto it = permuter->begin(as); it != permuter->end(); ++it) {
+        EXPECT_NE((*it)[position], value);
+        ++loops;
+      }
+      EXPECT_EQ(loops, 5 * 4 * 3 * 2 * 1);
     }
   }
 }

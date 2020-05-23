@@ -10,6 +10,15 @@ namespace puzzle {
 
 class ActiveSet {
  public:
+  static const ActiveSet& Empty() {
+    static ActiveSet empty = []() {
+      ActiveSet ret;
+      ret.DoneAdding();
+      return ret;
+    }();
+    return empty;
+  }
+
   ActiveSet() = default;
 
   // Constructs an ActiveSet such that each value contained in 'positions'

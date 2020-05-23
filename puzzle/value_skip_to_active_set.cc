@@ -2,7 +2,8 @@
 
 namespace puzzle {
 
-ValueSkipToActiveSet::ValueSkipToActiveSet(const ClassPermuter* class_permuter) {
+ValueSkipToActiveSet::ValueSkipToActiveSet(
+    const ClassPermuter* class_permuter) {
   active_set_.resize(class_permuter->permutation_size());
   for (int i = 0; i < class_permuter->permutation_size(); ++i) {
     for (int value : class_permuter->values()) {
@@ -13,7 +14,7 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(const ClassPermuter* class_permuter) 
   for (auto it = class_permuter->begin(); it != class_permuter->end(); ++it) {
     for (int i = 0; i < it->size(); ++i) {
       CHECK(active_set_[i].contains((*it)[i]))
-	<< "{" << absl::StrJoin(*it, ",") << "}; " << i;
+          << "{" << absl::StrJoin(*it, ",") << "}; " << i;
       ActiveSet& to_add = active_set_[i][(*it)[i]];
       to_add.AddBlock(true, it.position() - to_add.total());
       to_add.Add(false);

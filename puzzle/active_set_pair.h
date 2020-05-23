@@ -12,14 +12,7 @@ class ActiveSetPair {
 
   const ActiveSet& Find(int a_val) const {
     auto it = b_given_a_.find(a_val);
-    if (it == b_given_a_.end()) {
-      static ActiveSet empty = []() {
-        ActiveSet ret;
-        ret.DoneAdding();
-        return ret;
-      }();
-      return empty;
-    }
+    if (it == b_given_a_.end()) return ActiveSet::Empty();
     return it->second;
   }
 

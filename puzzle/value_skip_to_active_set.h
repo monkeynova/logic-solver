@@ -12,14 +12,17 @@ class ValueSkipToActiveSet {
   explicit ValueSkipToActiveSet(const ClassPermuter* class_permuter);
 
   const ActiveSet& value_skip_set(int position, int value) {
-    return active_set_[position][value];
+    if (position >= active_set_.size()) return ActiveSet::Empty();
+    auto it = active_set_[position].find(value);
+    if (it == active_set_[position].end()) return ActiveSet::Empty();
+    return it->second;
   }
 
  private:
   // TODO(keith@monkeynova.com): flat_hash_map allows IntRangeDescriptor to
   // return non-0-indexed values, but costs about 2x the CPU to construct
   // these ActiveSets on the benchmark.
- std::vector<absl::flat_hash_map<int, ActiveSet>> active_set_;
+  std::vector<absl::flat_hash_map<int, ActiveSet>> active_set_;
 };
 
 }  // namespace puzzle
