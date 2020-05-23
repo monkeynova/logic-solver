@@ -1,7 +1,13 @@
 #include "puzzle/filter_to_active_set.h"
 
 #include "absl/container/flat_hash_set.h"
+#include "absl/flags/flag.h"
 #include "puzzle/all_match.h"
+
+ABSL_FLAG(bool, puzzle_value_skip_to_active_set, false,
+          "If true, uses ValueSkipToActiveSet to restrict iterations through "
+          "ClassPermuter iterations (rather than the default += ValueSkip "
+          "implementation). Currently only builds, but does not use the data.");
 
 namespace puzzle {
 
@@ -54,15 +60,33 @@ FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor)
   solution_ = mutable_solution_.TestableSolution();
 }
 
+void FilterToActiveSet::SetupPermuter(const ClassPermuter* class_permuter) {
+  if (!absl::GetFlag(FLAGS_puzzle_value_skip_to_active_set)) return;
+
+  const Descriptor* d = class_permuter->descriptor();
+  if (value_skip_to_active_set_[d] == nullptr) {
+    value_skip_to_active_set_[d] =
+        absl::make_unique<ValueSkipToActiveSet>(class_permuter);
+  }
+}
+
+void FilterToActiveSet::SetupBuild(
+    const ClassPermuter* class_permuter,
+    const std::vector<SolutionFilter>& predicates) {
+  SetupPermuter(class_permuter);
+  int class_int = class_permuter->class_int();
+  for (const auto& p : predicates) {
+    CHECK_EQ(p.classes().size(), 1);
+    CHECK_EQ(p.classes()[0], class_int);
+  }
+}
+
 template <>
 void FilterToActiveSet::Build<
     FilterToActiveSet::SingleClassBuild::kPassThrough>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
-  for (const auto& p : predicates) {
-    CHECK_EQ(p.classes().size(), 1);
-    CHECK_EQ(p.classes()[0], class_permuter->class_int());
-  }
+  SetupBuild(class_permuter, predicates);
   ActiveSet active_set;
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
                                                        Entry::kBadId};
@@ -104,8 +128,12 @@ void FilterToActiveSet::Build<
 }
 
 void FilterToActiveSet::SetupPairBuild(
-    int class_a, int class_b,
-    const std::vector<SolutionFilter>& predicates) const {
+    const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
+    const std::vector<SolutionFilter>& predicates) {
+  SetupPermuter(permuter_a);
+  SetupPermuter(permuter_b);
+  int class_a = permuter_a->class_int();
+  int class_b = permuter_b->class_int();
   for (const auto& p : predicates) {
     CHECK_EQ(p.classes().size(), 2);
     CHECK(p.classes()[0] == class_a || p.classes()[0] == class_b);
@@ -119,9 +147,9 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates,
     FilterToActiveSet::PairClassMode pair_class_mode) {
+  SetupPairBuild(permuter_a, permuter_b, predicates);
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
-  SetupPairBuild(class_a, class_b, predicates);
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
@@ -216,9 +244,9 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates,
     FilterToActiveSet::PairClassMode pair_class_mode) {
+  SetupPairBuild(permuter_a, permuter_b, predicates);
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
-  SetupPairBuild(class_a, class_b, predicates);
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
   ActiveSet active_set_a = ActiveSet();
@@ -283,9 +311,9 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates,
     FilterToActiveSet::PairClassMode pair_class_mode) {
+  SetupPairBuild(permuter_a, permuter_b, predicates);
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
-  SetupPairBuild(class_a, class_b, predicates);
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
   Solution solution = mutable_solution_.TestableSolution();

@@ -75,7 +75,9 @@ cc_library(
         ":mutable_solution",
         ":solution",
         ":solution_filter",
+        ":value_skip_to_active_set",
         "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/flags:flag",
     ],
 )
 

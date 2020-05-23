@@ -6,6 +6,7 @@
 #include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_filter.h"
+#include "puzzle/value_skip_to_active_set.h"
 
 namespace puzzle {
 
@@ -73,8 +74,14 @@ class FilterToActiveSet {
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
-  void SetupPairBuild(int class_a, int class_b,
-                      const std::vector<SolutionFilter>& predicates) const;
+  void SetupBuild(const ClassPermuter* permuter,
+                  const std::vector<SolutionFilter>& predicates);
+
+  void SetupPairBuild(const ClassPermuter* permuter_a,
+                      const ClassPermuter* permuter_b,
+                      const std::vector<SolutionFilter>& predicates);
+
+  void SetupPermuter(const ClassPermuter* permuter);
 
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;
@@ -82,6 +89,9 @@ class FilterToActiveSet {
   // active_set_pairs_[class_a][class_b][a_val] stores the ActiveSet for
   // class_b given class_a is at position a_val.
   std::vector<std::vector<ActiveSetPair>> active_set_pairs_;
+
+  absl::flat_hash_map<const Descriptor*, std::unique_ptr<ValueSkipToActiveSet>>
+      value_skip_to_active_set_;
 
   MutableSolution mutable_solution_;
   Solution solution_;  // Bound to mutable_solution_;
