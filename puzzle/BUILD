@@ -102,7 +102,27 @@ cc_test(
         ":solution_filter",
         ":test_main",
     ]
-)   
+)
+
+cc_library(
+    name = "value_skip_to_active_set",
+    hdrs = ["value_skip_to_active_set.h"],
+    srcs = ["value_skip_to_active_set.cc"],
+    deps = [
+        ":active_set",
+        ":class_permuter",
+    ],
+)
+
+cc_test(
+    name = "value_skip_to_active_set_test",
+    srcs = ["value_skip_to_active_set_test.cc"],
+    deps = [
+        ":class_permuter_factory",
+        ":test_main",
+        ":value_skip_to_active_set",
+    ],
+)
 
 cc_library(
     name = "benchmark_main",
