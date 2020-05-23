@@ -31,10 +31,7 @@ TEST(ValueSkipToActiveSet, FiveElements) {
 template <typename MakePermuterType>
 static void BM_ValueSkipToActiveSet(benchmark::State& state) {
   int depth = state.range(0);
-  // TODO(keith@monkeynova.com): ValueSkip's "value" from an IntRangeDescriptor
-  // is the translated value, which means we can't use it to index (even though
-  // we do).
-  IntRangeDescriptor d(0, depth - 1);
+  IntRangeDescriptor d(1, depth);
   std::unique_ptr<ClassPermuter> permuter = MakeClassPermuter(&d);
   for (auto _ : state) {
     ValueSkipToActiveSet vs2as(permuter.get());
