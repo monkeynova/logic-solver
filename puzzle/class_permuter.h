@@ -188,7 +188,7 @@ class ClassPermuter {
   iterator end() const { return iterator(); }
 
   int permutation_size() const { return values_.size(); }
-  double permutation_count() const { return permutation_count_; }
+  int permutation_count() const { return permutation_count_; }
 
   const Descriptor* descriptor() const { return descriptor_; }
   const std::vector<int>& values() const { return values_; }
@@ -208,10 +208,10 @@ class ClassPermuter {
   std::string DebugString() const;
 
  private:
-  static double PermutationCount(const Descriptor* d);
+  static int PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
   std::vector<int> values_;
-  double permutation_count_;
+  int permutation_count_;
   int class_int_;
   ActiveSet active_set_;
 };

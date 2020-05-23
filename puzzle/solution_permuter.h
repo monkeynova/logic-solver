@@ -17,7 +17,7 @@ class SolutionPermuter {
 
     virtual ~AdvancerBase() {}
 
-    virtual double position() const = 0;
+    virtual int64_t position() const = 0;
     virtual double completion() const = 0;
     virtual void Advance() = 0;
 
@@ -31,7 +31,7 @@ class SolutionPermuter {
   class iterator {
    public:
     typedef std::forward_iterator_tag iterator_category;
-    typedef int difference_type;
+    typedef int64_t difference_type;
     typedef Solution value_type;
     typedef Solution& reference;
     typedef Solution* pointer;
@@ -57,7 +57,7 @@ class SolutionPermuter {
       return *this;
     }
 
-    double position() const { return advancer_->position(); }
+    int64_t position() const { return advancer_->position(); }
     double completion() const { return advancer_->completion(); }
 
    private:

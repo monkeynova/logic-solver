@@ -17,7 +17,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;
 
-    double position() const override;
+    int64_t position() const override;
     double completion() const override;
 
    private:
@@ -46,7 +46,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
     return iterator(absl::make_unique<Advancer>(this, nullptr));
   }
 
-  double permutation_count() const;
+  int64_t permutation_count() const;
   const ClassPermuter* class_permuter(int class_int) const {
     return class_permuters_[class_int].get();
   }

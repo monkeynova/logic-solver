@@ -174,8 +174,8 @@ void FilteredSolutionPermuter::Advancer::Advance() {
   }
 }
 
-double FilteredSolutionPermuter::Advancer::position() const {
-  double position = 0;
+int64_t FilteredSolutionPermuter::Advancer::position() const {
+  int64_t position = 0;
 
   for (auto& class_permuter : permuter_->class_permuters_) {
     position *= class_permuter->permutation_count();
@@ -186,7 +186,7 @@ double FilteredSolutionPermuter::Advancer::position() const {
 }
 
 double FilteredSolutionPermuter::Advancer::completion() const {
-  return position() / permuter_->permutation_count();
+  return 1.0 * position() / permuter_->permutation_count();
 }
 
 FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
@@ -406,8 +406,8 @@ void FilteredSolutionPermuter::ReorderEvaluation() {
                  });
 }
 
-double FilteredSolutionPermuter::permutation_count() const {
-  double count = 1;
+int64_t FilteredSolutionPermuter::permutation_count() const {
+  int64_t count = 1;
   for (const auto& permuter : class_permuters_) {
     count *= permuter->permutation_count();
   }
