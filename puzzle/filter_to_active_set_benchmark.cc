@@ -1,6 +1,6 @@
 #include "benchmark/benchmark.h"
-#include "puzzle/active_set_builder.h"
 #include "puzzle/class_permuter_factory.h"
+#include "puzzle/filter_to_active_set.h"
 #include "puzzle/solution_filter.h"
 
 namespace puzzle {
@@ -16,7 +16,7 @@ struct SetupState {
                                      kClassIntA)),
         permuter_b(MakeClassPermuter(descriptor.AllClassValues(kClassIntB),
                                      kClassIntB)) {
-    ActiveSetBuilder single_class_builder(&descriptor);
+    FilterToActiveSet single_class_builder(&descriptor);
     single_class_builder.Build(permuter_a.get(), {MakeFilterA()});
     permuter_a->set_active_set(single_class_builder.active_set(kClassIntA));
     single_class_builder.Build(permuter_b.get(), {MakeFilterB()});
@@ -78,42 +78,42 @@ struct SetupState {
   std::unique_ptr<ClassPermuter> permuter_b;
 };
 
-template <ActiveSetBuilder::PairClassImpl pair_class_impl,
-          ActiveSetBuilder::PairClassMode pair_class_mode>
+template <FilterToActiveSet::PairClassImpl pair_class_impl,
+          FilterToActiveSet::PairClassMode pair_class_mode>
 static void BM_Pair(benchmark::State& state) {
   SetupState setup(state.range(0));
 
   for (auto _ : state) {
-    ActiveSetBuilder builder(&setup.descriptor);
+    FilterToActiveSet builder(&setup.descriptor);
     builder.Build<pair_class_impl>(setup.permuter_a.get(),
                                    setup.permuter_b.get(), setup.predicates,
                                    pair_class_mode);
   }
 }
 
-BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPairSet,
-                   ActiveSetBuilder::PairClassMode::kSingleton)
+BENCHMARK_TEMPLATE(BM_Pair, FilterToActiveSet::PairClassImpl::kPairSet,
+                   FilterToActiveSet::PairClassMode::kSingleton)
     ->Arg(5)
     ->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPassThroughA,
-                   ActiveSetBuilder::PairClassMode::kSingleton)
+BENCHMARK_TEMPLATE(BM_Pair, FilterToActiveSet::PairClassImpl::kPassThroughA,
+                   FilterToActiveSet::PairClassMode::kSingleton)
     ->Arg(5)
     ->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kBackAndForth,
-                   ActiveSetBuilder::PairClassMode::kSingleton)
+BENCHMARK_TEMPLATE(BM_Pair, FilterToActiveSet::PairClassImpl::kBackAndForth,
+                   FilterToActiveSet::PairClassMode::kSingleton)
     ->Arg(5)
     ->Arg(7);
 
-BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPairSet,
-                   ActiveSetBuilder::PairClassMode::kMakePairs)
+BENCHMARK_TEMPLATE(BM_Pair, FilterToActiveSet::PairClassImpl::kPairSet,
+                   FilterToActiveSet::PairClassMode::kMakePairs)
     ->Arg(5)
     ->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kPassThroughA,
-                   ActiveSetBuilder::PairClassMode::kMakePairs)
+BENCHMARK_TEMPLATE(BM_Pair, FilterToActiveSet::PairClassImpl::kPassThroughA,
+                   FilterToActiveSet::PairClassMode::kMakePairs)
     ->Arg(5)
     ->Arg(7);
-BENCHMARK_TEMPLATE(BM_Pair, ActiveSetBuilder::PairClassImpl::kBackAndForth,
-                   ActiveSetBuilder::PairClassMode::kMakePairs)
+BENCHMARK_TEMPLATE(BM_Pair, FilterToActiveSet::PairClassImpl::kBackAndForth,
+                   FilterToActiveSet::PairClassMode::kMakePairs)
     ->Arg(5)
     ->Arg(7);
 

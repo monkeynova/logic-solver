@@ -1,5 +1,5 @@
-#ifndef PUZZLE_ACTIVE_SET_BUILDER_H_
-#define PUZZLE_ACTIVE_SET_BUILDER_H_
+#ifndef PUZZLE_FILTER_TO_ACTIVE_SET_H_
+#define PUZZLE_FILTER_TO_ACTIVE_SET_H_
 
 #include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
@@ -9,7 +9,7 @@
 
 namespace puzzle {
 
-class ActiveSetBuilder {
+class FilterToActiveSet {
  public:
   enum class SingleClassBuild {
     kPassThrough = 0,
@@ -25,7 +25,7 @@ class ActiveSetBuilder {
     kPairSet = 2,
   };
 
-  explicit ActiveSetBuilder(const EntryDescriptor* entry_descriptor);
+  explicit FilterToActiveSet(const EntryDescriptor* entry_descriptor);
 
   const ActiveSet& active_set(int class_int) const {
     DCHECK_LT(static_cast<size_t>(class_int), active_sets_.size());
@@ -88,12 +88,12 @@ class ActiveSetBuilder {
 };
 
 std::ostream& operator<<(std::ostream& out,
-                         ActiveSetBuilder::SingleClassBuild val);
+                         FilterToActiveSet::SingleClassBuild val);
 std::ostream& operator<<(std::ostream& out,
-                         ActiveSetBuilder::PairClassMode val);
+                         FilterToActiveSet::PairClassMode val);
 std::ostream& operator<<(std::ostream& out,
-                         ActiveSetBuilder::PairClassImpl val);
+                         FilterToActiveSet::PairClassImpl val);
 
 }  // namespace puzzle
 
-#endif  //  PUZZLE_ACTIVE_SET_BUILDER_H_
+#endif  //  PUZZLE_FILTER_TO_ACTIVE_SET_H_

@@ -1,4 +1,4 @@
-#include "puzzle/active_set_builder.h"
+#include "puzzle/filter_to_active_set.h"
 
 #include "absl/container/flat_hash_set.h"
 #include "puzzle/all_match.h"
@@ -6,41 +6,41 @@
 namespace puzzle {
 
 std::ostream& operator<<(std::ostream& out,
-                         ActiveSetBuilder::SingleClassBuild val) {
+                         FilterToActiveSet::SingleClassBuild val) {
   switch (val) {
-    case ActiveSetBuilder::SingleClassBuild::kPassThrough:
+    case FilterToActiveSet::SingleClassBuild::kPassThrough:
       return out << "kPassThrough";
-    case ActiveSetBuilder::SingleClassBuild::kPositionSet:
+    case FilterToActiveSet::SingleClassBuild::kPositionSet:
       return out << "kPositionSet";
   }
   return out << "Unknown SingleClassBuild(" << static_cast<int>(val) << ")";
 }
 
 std::ostream& operator<<(std::ostream& out,
-                         ActiveSetBuilder::PairClassMode val) {
+                         FilterToActiveSet::PairClassMode val) {
   switch (val) {
-    case ActiveSetBuilder::PairClassMode::kSingleton:
+    case FilterToActiveSet::PairClassMode::kSingleton:
       return out << "kSingleton";
-    case ActiveSetBuilder::PairClassMode::kMakePairs:
+    case FilterToActiveSet::PairClassMode::kMakePairs:
       return out << "kMakePairs";
   }
   return out << "Unknown PairClassMode(" << static_cast<int>(val) << ")";
 }
 
 std::ostream& operator<<(std::ostream& out,
-                         ActiveSetBuilder::PairClassImpl val) {
+                         FilterToActiveSet::PairClassImpl val) {
   switch (val) {
-    case ActiveSetBuilder::PairClassImpl::kPassThroughA:
+    case FilterToActiveSet::PairClassImpl::kPassThroughA:
       return out << "kPassThroughA";
-    case ActiveSetBuilder::PairClassImpl::kBackAndForth:
+    case FilterToActiveSet::PairClassImpl::kBackAndForth:
       return out << "kBackAndForth";
-    case ActiveSetBuilder::PairClassImpl::kPairSet:
+    case FilterToActiveSet::PairClassImpl::kPairSet:
       return out << "kPairSet";
   }
   return out << "Unknown PairClassImpl(" << static_cast<int>(val) << ")";
 }
 
-ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
+FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor)
     : active_sets_(
           entry_descriptor == nullptr ? 0 : entry_descriptor->num_classes()),
       mutable_solution_(entry_descriptor) {
@@ -55,7 +55,8 @@ ActiveSetBuilder::ActiveSetBuilder(const EntryDescriptor* entry_descriptor)
 }
 
 template <>
-void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
+void FilterToActiveSet::Build<
+    FilterToActiveSet::SingleClassBuild::kPassThrough>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
   for (const auto& p : predicates) {
@@ -80,7 +81,8 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPassThrough>(
 }
 
 template <>
-void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
+void FilterToActiveSet::Build<
+    FilterToActiveSet::SingleClassBuild::kPositionSet>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
   for (const auto& p : predicates) {
@@ -101,7 +103,7 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::SingleClassBuild::kPositionSet>(
       ActiveSet(a_matches, class_permuter->permutation_count());
 }
 
-void ActiveSetBuilder::SetupPairBuild(
+void FilterToActiveSet::SetupPairBuild(
     int class_a, int class_b,
     const std::vector<SolutionFilter>& predicates) const {
   for (const auto& p : predicates) {
@@ -113,10 +115,10 @@ void ActiveSetBuilder::SetupPairBuild(
 }
 
 template <>
-void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
+void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates,
-    ActiveSetBuilder::PairClassMode pair_class_mode) {
+    FilterToActiveSet::PairClassMode pair_class_mode) {
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   SetupPairBuild(class_a, class_b, predicates);
@@ -210,10 +212,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kBackAndForth>(
 }
 
 template <>
-void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
+void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates,
-    ActiveSetBuilder::PairClassMode pair_class_mode) {
+    FilterToActiveSet::PairClassMode pair_class_mode) {
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   SetupPairBuild(class_a, class_b, predicates);
@@ -277,10 +279,10 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPassThroughA>(
 }
 
 template <>
-void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
+void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates,
-    ActiveSetBuilder::PairClassMode pair_class_mode) {
+    FilterToActiveSet::PairClassMode pair_class_mode) {
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   SetupPairBuild(class_a, class_b, predicates);
@@ -336,9 +338,9 @@ void ActiveSetBuilder::Build<ActiveSetBuilder::PairClassImpl::kPairSet>(
   }
 }
 
-void ActiveSetBuilder::Build(SingleClassBuild single_class_build,
-                             const ClassPermuter* class_permuter,
-                             const std::vector<SolutionFilter>& predicates) {
+void FilterToActiveSet::Build(SingleClassBuild single_class_build,
+                              const ClassPermuter* class_permuter,
+                              const std::vector<SolutionFilter>& predicates) {
   switch (single_class_build) {
     case SingleClassBuild::kPassThrough:
       Build<SingleClassBuild::kPassThrough>(class_permuter, predicates);
@@ -352,11 +354,11 @@ void ActiveSetBuilder::Build(SingleClassBuild single_class_build,
   }
 }
 
-void ActiveSetBuilder::Build(PairClassImpl pair_class_impl,
-                             const ClassPermuter* permuter_a,
-                             const ClassPermuter* permuter_b,
-                             const std::vector<SolutionFilter>& predicates,
-                             PairClassMode pair_class_mode) {
+void FilterToActiveSet::Build(PairClassImpl pair_class_impl,
+                              const ClassPermuter* permuter_a,
+                              const ClassPermuter* permuter_b,
+                              const std::vector<SolutionFilter>& predicates,
+                              PairClassMode pair_class_mode) {
   switch (pair_class_impl) {
     case PairClassImpl::kPairSet:
       Build<PairClassImpl::kPairSet>(permuter_a, permuter_b, predicates,

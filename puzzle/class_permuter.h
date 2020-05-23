@@ -63,8 +63,7 @@ class ClassPermuter {
         : AdvancerBase(permuter, active_set),
           current_span_(absl::MakeSpan(current_)) {
       DCHECK_EQ(kStorageSize, permuter->values().size());
-      memcpy(current_, permuter->values().data(),
-             sizeof(current_));
+      memcpy(current_, permuter->values().data(), sizeof(current_));
     }
 
     const absl::Span<const int>& current() const final { return current_span_; }
@@ -173,7 +172,7 @@ class ClassPermuter {
 
   explicit ClassPermuter(const Descriptor* d, int class_int)
       : descriptor_(d),
-	values_(d->Values()),
+        values_(d->Values()),
         permutation_count_(PermutationCount(d)),
         class_int_(class_int) {
     active_set_.DoneAdding();

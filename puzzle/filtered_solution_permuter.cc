@@ -3,9 +3,9 @@
 #include "absl/flags/flag.h"
 #include "glog/logging.h"
 #include "puzzle/active_set.h"
-#include "puzzle/active_set_builder.h"
 #include "puzzle/all_match.h"
 #include "puzzle/class_permuter_factory.h"
+#include "puzzle/filter_to_active_set.h"
 
 ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
           "If specfied, class iterators will be pruned based on single "
@@ -70,7 +70,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
       permuter_->class_predicates_[class_int];
 
   if (iterators_[class_int] == class_permuter->end()) {
-    const ActiveSetBuilder* builder = permuter_->active_set_builder_.get();
+    const FilterToActiveSet* builder = permuter_->filter_to_active_set_.get();
     ActiveSet build = builder->active_set(class_int);
     if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
       double start_selectivity = build.Selectivity();
@@ -210,7 +210,8 @@ bool FilteredSolutionPermuter::AddFilter(SolutionFilter solution_filter) {
 void FilteredSolutionPermuter::Prepare() {
   CHECK(!prepared_);
   prepared_ = true;
-  active_set_builder_ = absl::make_unique<ActiveSetBuilder>(entry_descriptor_);
+  filter_to_active_set_ =
+      absl::make_unique<FilterToActiveSet>(entry_descriptor_);
 
   std::vector<int> class_order = entry_descriptor_->AllClasses()->Values();
 
@@ -313,12 +314,13 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter->class_int();
-    active_set_builder_->Build(class_permuter.get(),
-                               single_class_predicates[class_int]);
+    filter_to_active_set_->Build(class_permuter.get(),
+                                 single_class_predicates[class_int]);
     VLOG(2) << "Selectivity (" << class_permuter->class_int()
             << "): " << class_permuter->Selectivity() << " => "
-            << active_set_builder_->active_set(class_int).Selectivity();
-    class_permuter->set_active_set(active_set_builder_->active_set(class_int));
+            << filter_to_active_set_->active_set(class_int).Selectivity();
+    class_permuter->set_active_set(
+        filter_to_active_set_->active_set(class_int));
   }
 
   if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {
@@ -330,14 +332,14 @@ void FilteredSolutionPermuter::BuildActiveSets(
   bool cardinality_reduced = true;
   bool need_final =
       absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair);
-  ActiveSetBuilder::PairClassMode pair_class_mode =
-      ActiveSetBuilder::PairClassMode::kSingleton;
+  FilterToActiveSet::PairClassMode pair_class_mode =
+      FilterToActiveSet::PairClassMode::kSingleton;
   while (cardinality_reduced || need_final) {
     if (!cardinality_reduced) {
       // After cardinality settles, run one more time with make_pairs on the
       // smallest N^2 required.
       need_final = false;
-      pair_class_mode = ActiveSetBuilder::PairClassMode::kMakePairs;
+      pair_class_mode = FilterToActiveSet::PairClassMode::kMakePairs;
       VLOG(1) << "Running one more pass to generate pairs";
     }
     cardinality_reduced = false;
@@ -356,12 +358,12 @@ void FilteredSolutionPermuter::BuildActiveSets(
                                                  permuter_b->class_int())];
         if (filters.empty()) continue;
 
-        active_set_builder_->Build(permuter_a, permuter_b, filters,
-                                   pair_class_mode);
+        filter_to_active_set_->Build(permuter_a, permuter_b, filters,
+                                     pair_class_mode);
         const ActiveSet& new_a =
-            active_set_builder_->active_set(permuter_a->class_int());
+            filter_to_active_set_->active_set(permuter_a->class_int());
         const ActiveSet& new_b =
-            active_set_builder_->active_set(permuter_b->class_int());
+            filter_to_active_set_->active_set(permuter_b->class_int());
         VLOG(2) << "Selectivity (" << permuter_a->class_int() << ", "
                 << permuter_b->class_int() << "): ("
                 << permuter_a->Selectivity() << ", "

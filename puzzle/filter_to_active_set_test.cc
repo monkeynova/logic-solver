@@ -1,4 +1,4 @@
-#include "puzzle/active_set_builder.h"
+#include "puzzle/filter_to_active_set.h"
 
 #include <iostream>
 
@@ -21,15 +21,17 @@ using ::testing::UnorderedElementsAreArray;
 namespace puzzle {
 
 class SinglePermuterTest
-    : public ::testing::TestWithParam<ActiveSetBuilder::SingleClassBuild> {
+    : public ::testing::TestWithParam<FilterToActiveSet::SingleClassBuild> {
  public:
-  ActiveSetBuilder::SingleClassBuild single_class_build() { return GetParam(); }
+  FilterToActiveSet::SingleClassBuild single_class_build() {
+    return GetParam();
+  }
 };
 
 INSTANTIATE_TEST_SUITE_P(
     Instantiation, SinglePermuterTest,
-    testing::Values(ActiveSetBuilder::SingleClassBuild::kPassThrough,
-                    ActiveSetBuilder::SingleClassBuild::kPositionSet));
+    testing::Values(FilterToActiveSet::SingleClassBuild::kPassThrough,
+                    FilterToActiveSet::SingleClassBuild::kPositionSet));
 
 TEST_P(SinglePermuterTest, Simple) {
   IntRangeDescriptor id_descriptor(0, 2);
@@ -39,7 +41,7 @@ TEST_P(SinglePermuterTest, Simple) {
   IntRangeDescriptor class_descriptor(3, 5);
   entry_descriptor.SetClass(kClassInt, "test class", &class_descriptor);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> p(
       MakeClassPermuter(&class_descriptor, kClassInt));
@@ -110,7 +112,7 @@ TEST_P(SinglePermuterTest, ExistingSet) {
   IntRangeDescriptor class_descriptor(3, 5);
   entry_descriptor.SetClass(kClassInt, "test class", &class_descriptor);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> p(
       MakeClassPermuter(&class_descriptor, kClassInt));
@@ -143,16 +145,16 @@ TEST_P(SinglePermuterTest, ExistingSet) {
 }
 
 class PairPermuterTest
-    : public ::testing::TestWithParam<ActiveSetBuilder::PairClassImpl> {
+    : public ::testing::TestWithParam<FilterToActiveSet::PairClassImpl> {
  public:
-  ActiveSetBuilder::PairClassImpl pair_class_impl() { return GetParam(); }
+  FilterToActiveSet::PairClassImpl pair_class_impl() { return GetParam(); }
 };
 
 INSTANTIATE_TEST_SUITE_P(
     Instantiation, PairPermuterTest,
-    testing::Values(ActiveSetBuilder::PairClassImpl::kPairSet,
-                    ActiveSetBuilder::PairClassImpl::kBackAndForth,
-                    ActiveSetBuilder::PairClassImpl::kPassThroughA));
+    testing::Values(FilterToActiveSet::PairClassImpl::kPairSet,
+                    FilterToActiveSet::PairClassImpl::kBackAndForth,
+                    FilterToActiveSet::PairClassImpl::kPassThroughA));
 
 TEST_P(PairPermuterTest, Simple) {
   IntRangeDescriptor id_descriptor(0, 2);
@@ -165,7 +167,7 @@ TEST_P(PairPermuterTest, Simple) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -234,7 +236,7 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -315,7 +317,7 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -396,7 +398,7 @@ TEST_P(PairPermuterTest, MakePairs) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -438,7 +440,7 @@ TEST_P(PairPermuterTest, MakePairs) {
                    {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
-                ActiveSetBuilder::PairClassMode::kMakePairs);
+                FilterToActiveSet::PairClassMode::kMakePairs);
 
   EXPECT_THAT(
       builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_not_3, kClassIntB)
@@ -470,7 +472,7 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -513,7 +515,7 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
                    {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
-                ActiveSetBuilder::PairClassMode::kMakePairs);
+                FilterToActiveSet::PairClassMode::kMakePairs);
 
   EXPECT_THAT(
       builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_not_3, kClassIntB)
@@ -545,7 +547,7 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   IntRangeDescriptor class_descriptor_b(3, 5);
   entry_descriptor.SetClass(kClassIntB, "class b", &class_descriptor_b);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -589,7 +591,7 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
                    {kClassIntA, kClassIntB});
 
   builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
-                ActiveSetBuilder::PairClassMode::kMakePairs);
+                FilterToActiveSet::PairClassMode::kMakePairs);
 
   EXPECT_THAT(
       builder.active_set_pair(kClassIntA, /*a_val=*/a_0_is_5, kClassIntB)
@@ -626,7 +628,7 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   IntRangeDescriptor class_descriptor_c(3, 5);
   entry_descriptor.SetClass(kClassIntC, "class c", &class_descriptor_c);
 
-  ActiveSetBuilder builder(&entry_descriptor);
+  FilterToActiveSet builder(&entry_descriptor);
 
   std::unique_ptr<ClassPermuter> permuter_a(
       MakeClassPermuter(&class_descriptor_a, kClassIntA));
@@ -662,19 +664,19 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   for (const auto& loop : {1, 2, 3}) {
     std::ignore = loop;
     builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {a_b},
-                  ActiveSetBuilder::PairClassMode::kMakePairs);
+                  FilterToActiveSet::PairClassMode::kMakePairs);
 
     permuter_a->set_active_set(builder.active_set(kClassIntA));
     permuter_b->set_active_set(builder.active_set(kClassIntB));
 
     builder.Build(pair_class_impl(), permuter_b.get(), permuter_c.get(), {b_c},
-                  ActiveSetBuilder::PairClassMode::kMakePairs);
+                  FilterToActiveSet::PairClassMode::kMakePairs);
 
     permuter_b->set_active_set(builder.active_set(kClassIntB));
     permuter_c->set_active_set(builder.active_set(kClassIntC));
 
     builder.Build(pair_class_impl(), permuter_c.get(), permuter_a.get(), {c_a},
-                  ActiveSetBuilder::PairClassMode::kMakePairs);
+                  FilterToActiveSet::PairClassMode::kMakePairs);
 
     permuter_c->set_active_set(builder.active_set(kClassIntC));
     permuter_a->set_active_set(builder.active_set(kClassIntA));

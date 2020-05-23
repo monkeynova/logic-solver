@@ -64,9 +64,9 @@ cc_test(
 )   
 
 cc_library(
-    name = "active_set_builder",
-    hdrs = ["active_set_builder.h"],
-    srcs = ["active_set_builder.cc"],
+    name = "filter_to_active_set",
+    hdrs = ["filter_to_active_set.h"],
+    srcs = ["filter_to_active_set.cc"],
     deps = [
         ":active_set",
 	":active_set_pair",
@@ -80,11 +80,11 @@ cc_library(
 )
 
 cc_binary(
-    name = "active_set_builder_benchmark",
-    srcs = ["active_set_builder_benchmark.cc"],
+    name = "filter_to_active_set_benchmark",
+    srcs = ["filter_to_active_set_benchmark.cc"],
     tags = ["benchmark"],
     deps = [
-        ":active_set_builder",
+        ":filter_to_active_set",
 	":benchmark_main",
         ":class_permuter_factory",
         ":solution_filter",
@@ -93,10 +93,10 @@ cc_binary(
 )
 
 cc_test(
-    name = "active_set_builder_test",
-    srcs = ["active_set_builder_test.cc"],
+    name = "filter_to_active_set_test",
+    srcs = ["filter_to_active_set_test.cc"],
     deps = [
-        ":active_set_builder",
+        ":filter_to_active_set",
         ":class_permuter_factory",
         ":mutable_solution",
         ":solution_filter",
@@ -136,7 +136,7 @@ cc_library(
     hdrs = ["filtered_solution_permuter.h"],
     srcs = ["filtered_solution_permuter.cc"],
     deps = [
-        ":active_set_builder",
+        ":filter_to_active_set",
         ":all_match",
         ":class_permuter",
         ":class_permuter_factory",

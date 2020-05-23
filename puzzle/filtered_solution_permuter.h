@@ -2,8 +2,8 @@
 #define PUZZLE_FILTERED_SOLUTION_PERMUTER_H
 
 #include "absl/memory/memory.h"
-#include "puzzle/active_set_builder.h"
 #include "puzzle/class_permuter.h"
+#include "puzzle/filter_to_active_set.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
@@ -98,7 +98,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   // after filling class_int.
   std::vector<std::vector<SolutionFilter>> class_predicates_;
 
-  std::unique_ptr<ActiveSetBuilder> active_set_builder_;
+  std::unique_ptr<FilterToActiveSet> filter_to_active_set_;
 
   friend Advancer;
 };
