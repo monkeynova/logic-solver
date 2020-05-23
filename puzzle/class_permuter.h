@@ -38,7 +38,7 @@ class ClassPermuter {
     const ActiveSet& active_set() const { return active_set_; }
 
     int class_int() const { return class_int_; }
-    int permutation_size() const { return permutation_size_; }
+    virtual int permutation_size() const = 0;
     int permutation_count() const { return permutation_count_; }
 
    protected:
@@ -50,9 +50,6 @@ class ClassPermuter {
     ActiveSet active_set_;
 
    private:
-    // The number of elements being permuted.
-    int permutation_size_;
-
     // The number of permutations iterated (permutation_size_!).
     int permutation_count_;
 
@@ -65,8 +62,8 @@ class ClassPermuter {
     AdvancerStaticStorage(const ClassPermuter* permuter, ActiveSet active_set)
         : AdvancerBase(permuter, active_set),
           current_span_(absl::MakeSpan(current_)) {
-      DCHECK_EQ(kStorageSize, permuter->descriptor()->Values().size());
-      memcpy(current_, permuter->descriptor()->Values().data(),
+      DCHECK_EQ(kStorageSize, permuter->values().size());
+      memcpy(current_, permuter->values().data(),
              sizeof(current_));
     }
 
@@ -86,6 +83,8 @@ class ClassPermuter {
         }
       }
     }
+
+    int permutation_size() const final { return kStorageSize; }
 
    protected:
     // The cached current value of iteration.
@@ -174,6 +173,7 @@ class ClassPermuter {
 
   explicit ClassPermuter(const Descriptor* d, int class_int)
       : descriptor_(d),
+	values_(d->Values()),
         permutation_count_(PermutationCount(d)),
         class_int_(class_int) {
     active_set_.DoneAdding();
@@ -191,6 +191,7 @@ class ClassPermuter {
   double permutation_count() const { return permutation_count_; }
 
   const Descriptor* descriptor() const { return descriptor_; }
+  const std::vector<int>& values() const { return values_; }
 
   int class_int() const { return class_int_; }
 
@@ -209,6 +210,7 @@ class ClassPermuter {
  private:
   static double PermutationCount(const Descriptor* d);
   const Descriptor* descriptor_;
+  std::vector<int> values_;
   double permutation_count_;
   int class_int_;
   ActiveSet active_set_;

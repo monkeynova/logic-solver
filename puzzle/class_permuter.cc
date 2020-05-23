@@ -6,7 +6,6 @@ ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
                                           ActiveSet active_set)
     : position_(0),
       active_set_(std::move(active_set)),
-      permutation_size_(permuter->descriptor()->Values().size()),
       permutation_count_(permuter->permutation_count()),
       class_int_(permuter->class_int()) {}
 
