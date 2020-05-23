@@ -2,30 +2,62 @@
 
 namespace puzzle {
 
-ClassPermuterFactorialRadix::Advancer::Advancer(
+template <int kStorageSize>
+ClassPermuterFactorialRadix<kStorageSize>::Advancer::Advancer(
     const ClassPermuterFactorialRadix* permuter, ActiveSet active_set)
-    : AdvancerBase(permuter, std::move(active_set)) {
-  values_ = permuter->descriptor()->Values();
+    : Base(permuter, std::move(active_set)) {
+  DCHECK_EQ(kStorageSize, permuter->descriptor()->Values().size());
+  memcpy(values_, permuter->descriptor()->Values().data(), sizeof(values_));
 }
 
-void ClassPermuterFactorialRadix::Advancer::Advance(int dist) {
-  position_ += dist;
-  if (position_ >= permutation_count()) {
-    position_ = permutation_count();
-    current_span_ = absl::Span<const int>();
+template <int kStorageSize>
+void ClassPermuterFactorialRadix<kStorageSize>::Advancer::AdvanceDelta(
+    int dist) {
+  Base::position_ += dist;
+  if (Base::position_ >= Base::permutation_count()) {
+    Base::position_ = Base::permutation_count();
+    Base::current_span_ = absl::Span<const int>();
   } else {
-    int tmp = position_;
-    for (size_t i = 0; i < permutation_size(); ++i) {
-      current_[i] = values_[i];
+    int tmp = Base::position_;
+    for (size_t i = 0; i < kStorageSize; ++i) {
+      Base::current_[i] = values_[i];
     }
-    for (size_t i = 0; tmp && i < permutation_size(); ++i) {
-      int next = tmp % (permutation_size() - i);
-      tmp /= (permutation_size() - i);
-      std::swap(current_[i], current_[i + next]);
+    for (size_t i = 0; tmp && i < kStorageSize; ++i) {
+      int next = tmp % (kStorageSize - i);
+      tmp /= (kStorageSize - i);
+      std::swap(Base::current_[i], Base::current_[i + next]);
     }
   }
 }
 
-void ClassPermuterFactorialRadix::Advancer::Advance() { Advance(/*dist=*/1); }
+template <int kStorageSize>
+void ClassPermuterFactorialRadix<kStorageSize>::Advancer::Advance() {
+  AdvanceDelta(/*dist=*/1);
+}
+
+static constexpr int kMaxStorageSize = 32;
+
+template <int kStorageSize>
+static std::unique_ptr<ClassPermuter> MakeSizedInstance(int permutation_size,
+                                                        const Descriptor* d,
+                                                        int class_int) {
+  if (permutation_size == kStorageSize) {
+    return absl::make_unique<ClassPermuterFactorialRadix<kStorageSize>>(
+        d, class_int);
+  }
+  return MakeSizedInstance<kStorageSize - 1>(permutation_size, d, class_int);
+}
+
+template <>
+std::unique_ptr<ClassPermuter> MakeSizedInstance<0>(int permutation_size,
+                                                    const Descriptor* d,
+                                                    int class_int) {
+  return nullptr;
+}
+
+std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadix(
+    const Descriptor* d, int class_int) {
+  return MakeSizedInstance<kMaxStorageSize>(d->Values().size(), d, class_int);
+}
 
 }  // namespace puzzle

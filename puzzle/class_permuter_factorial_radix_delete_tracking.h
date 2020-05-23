@@ -15,10 +15,14 @@ using RadixIndexToRawIndex = std::vector<std::vector<int>>;
 // This implementation is O(class_size^2) turning a position into a
 // permutation but does allows a single position advance for
 // Advance(ValueSkip).
+template <int kStorageSize>
 class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
  public:
-  class Advancer final : public AdvancerBase {
+  class Advancer final : public AdvancerStaticStorage<kStorageSize> {
    public:
+    using ValueSkip = AdvancerBase::ValueSkip;
+    using Base = AdvancerStaticStorage<kStorageSize>;
+
     Advancer(const ClassPermuterFactorialRadixDeleteTracking* permuter,
              ActiveSet active_set);
 
@@ -27,21 +31,21 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
     }
 
     void Advance() override;
-    void Advance(int dist) override;
-    void Advance(ValueSkip value_skip) override;
+    void AdvanceDelta(int dist) override;
+    void AdvanceSkip(ValueSkip value_skip) override;
 
    private:
     // Copy of the values being permuted, stored in order from the values in
     // permuter().
-    StorageVector values_;
+    int values_[kStorageSize];
 
     // Memory based data structure to turn an O(N^2) delete with replacement
     // into an O(N) one.
     RadixIndexToRawIndex* radix_index_to_raw_index_;
   };
 
-  explicit ClassPermuterFactorialRadixDeleteTracking(
-      const Descriptor* d = nullptr, int class_int = 0)
+  explicit ClassPermuterFactorialRadixDeleteTracking(const Descriptor* d,
+                                                     int class_int)
       : ClassPermuter(d, class_int) {}
 
   ClassPermuterFactorialRadixDeleteTracking(
@@ -56,6 +60,9 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
     return iterator(absl::make_unique<Advancer>(this, std::move(active_set)));
   }
 };
+
+std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadixDeleteTracking(
+    const Descriptor* d = nullptr, int class_int = 0);
 
 }  // namespace puzzle
 

@@ -28,12 +28,12 @@ class ClassPermuter {
     void Prepare();
 
     virtual void Advance() = 0;
-    virtual void Advance(int dist) = 0;
-    virtual void Advance(ValueSkip value_skip);
+    virtual void AdvanceDelta(int dist) = 0;
+    virtual void AdvanceSkip(ValueSkip value_skip) = 0;
 
     void AdvanceWithSkip();
 
-    const absl::Span<const int>& current() const { return current_span_; }
+    virtual const absl::Span<const int>& current() const = 0;
     int position() const { return position_; }
     const ActiveSet& active_set() const { return active_set_; }
 
@@ -42,16 +42,6 @@ class ClassPermuter {
     int permutation_count() const { return permutation_count_; }
 
    protected:
-    using StorageVector = std::vector<int>;
-
-    // The cached current value of iteration.
-    // TODO(keith@monkeynova.com): current_ and other fields could be statically
-    // allocated when we construct the Advancer avoiding a few layers of
-    // indirection and complexity.
-    StorageVector current_;
-
-    absl::Span<const int> current_span_;
-
     // Position in the iteration. Integer from 1 to number of permutations.
     // Represents the position independent of skipped values from 'active_set'.
     int position_;
@@ -67,6 +57,41 @@ class ClassPermuter {
     int permutation_count_;
 
     int class_int_;
+  };
+
+  template <int kStorageSize>
+  class AdvancerStaticStorage : public AdvancerBase {
+   public:
+    AdvancerStaticStorage(const ClassPermuter* permuter, ActiveSet active_set)
+        : AdvancerBase(permuter, active_set),
+          current_span_(absl::MakeSpan(current_)) {
+      DCHECK_EQ(kStorageSize, permuter->descriptor()->Values().size());
+      memcpy(current_, permuter->descriptor()->Values().data(),
+             sizeof(current_));
+    }
+
+    const absl::Span<const int>& current() const final { return current_span_; }
+
+    void AdvanceSkip(ValueSkip value_skip) override {
+      int value = current_[value_skip.value_index];
+      if (active_set_.is_trivial()) {
+        while (!current_span_.empty() &&
+               current_[value_skip.value_index] == value) {
+          Advance();
+        }
+      } else {
+        while (!current_span_.empty() &&
+               current_[value_skip.value_index] == value) {
+          AdvanceWithSkip();
+        }
+      }
+    }
+
+   protected:
+    // The cached current value of iteration.
+    int current_[kStorageSize];
+
+    absl::Span<const int> current_span_;
   };
 
   class iterator {
@@ -124,7 +149,7 @@ class ClassPermuter {
       if (value_skip.value_index == Entry::kBadId) {
         return ++*this;
       }
-      advancer_->Advance(value_skip);
+      advancer_->AdvanceSkip(value_skip);
       return *this;
     }
 

@@ -75,7 +75,7 @@ TEST_P(SinglePermuterTest, Simple) {
   for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
     EXPECT_TRUE(vector_history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(3));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
@@ -84,7 +84,7 @@ TEST_P(SinglePermuterTest, Simple) {
   for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
     EXPECT_TRUE(vector_history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(4));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }
@@ -93,7 +93,7 @@ TEST_P(SinglePermuterTest, Simple) {
   for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_TRUE(position_history.insert(it.position()).second) << it.position();
     EXPECT_TRUE(vector_history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT((*it)[0], Eq(5));
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
   }

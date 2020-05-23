@@ -9,10 +9,13 @@ namespace puzzle {
 // ({0..8} * 8! + {0..7} * 7! + ... {0..1} * 1! + {0} * 0!).
 // This implementation is O(class_size) turning a position into a permutation
 // but does not allow seeking to a position for Advance(ValueSkip).
+template <int kStorageSize>
 class ClassPermuterFactorialRadix final : public ClassPermuter {
  public:
-  class Advancer final : public AdvancerBase {
+  class Advancer final : public AdvancerStaticStorage<kStorageSize> {
    public:
+    using Base = AdvancerStaticStorage<kStorageSize>;
+
     Advancer(const ClassPermuterFactorialRadix* permuter, ActiveSet active_set);
 
     std::unique_ptr<AdvancerBase> Clone() const override {
@@ -20,16 +23,15 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
     }
 
     void Advance() override;
-    void Advance(int dist) override;
+    void AdvanceDelta(int dist) override;
 
    private:
     // Copy of the values being permuted, stored in order from the values in
     // permuter().
-    StorageVector values_;
+    int values_[kStorageSize];
   };
 
-  explicit ClassPermuterFactorialRadix(const Descriptor* d = nullptr,
-                                       int class_int = 0)
+  explicit ClassPermuterFactorialRadix(const Descriptor* d, int class_int)
       : ClassPermuter(d, class_int) {}
 
   ClassPermuterFactorialRadix(ClassPermuterFactorialRadix&&) = default;
@@ -43,6 +45,9 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
     return iterator(absl::make_unique<Advancer>(this, std::move(active_set)));
   }
 };
+
+std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadix(
+    const Descriptor* d = nullptr, int class_int = 0);
 
 }  // namespace puzzle
 

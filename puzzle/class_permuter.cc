@@ -4,9 +4,7 @@ namespace puzzle {
 
 ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
                                           ActiveSet active_set)
-    : current_(permuter->descriptor()->Values()),
-      current_span_(absl::MakeSpan(current_)),
-      position_(0),
+    : position_(0),
       active_set_(std::move(active_set)),
       permutation_size_(permuter->descriptor()->Values().size()),
       permutation_count_(permuter->permutation_count()),
@@ -14,29 +12,16 @@ ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter,
 
 void ClassPermuter::AdvancerBase::Prepare() {
   if (!active_set_.is_trivial()) {
-    Advance(active_set_.ConsumeFalseBlock());
+    AdvanceDelta(active_set_.ConsumeFalseBlock());
     CHECK(active_set_.ConsumeNext())
         << "ConsumeNext returned false after ConsumeFalseBlock";
   }
 }
 
 void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
-  Advance(active_set_.ConsumeFalseBlock() + 1);
+  AdvanceDelta(active_set_.ConsumeFalseBlock() + 1);
   CHECK(active_set_.ConsumeNext())
       << "ConsumeNext returned false after ConsumeFalseBlock";
-}
-
-void ClassPermuter::AdvancerBase::Advance(ValueSkip value_skip) {
-  int value = current_[value_skip.value_index];
-  if (active_set_.is_trivial()) {
-    while (!current_span_.empty() && current_[value_skip.value_index] == value) {
-      Advance();
-    }
-  } else {
-    while (!current_span_.empty() && current_[value_skip.value_index] == value) {
-      AdvanceWithSkip();
-    }
-  }
 }
 
 // static
@@ -52,11 +37,10 @@ double ClassPermuter::PermutationCount(const Descriptor* d) {
 }
 
 std::string ClassPermuter::DebugString() const {
-  return absl::StrJoin(
-      *this, ", ",
-      [](std::string* out, absl::Span<const int> v) {
-        absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
-      });
+  return absl::StrJoin(*this, ", ",
+                       [](std::string* out, absl::Span<const int> v) {
+                         absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
+                       });
 }
 
 }  // namespace puzzle

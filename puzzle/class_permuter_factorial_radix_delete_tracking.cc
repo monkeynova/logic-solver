@@ -4,6 +4,8 @@
 
 namespace puzzle {
 
+static constexpr int kMaxStorageSize = 20;
+
 // Global container/cache for `radix_index_to_raw_index_`. Keyed on the  number
 // of items in the permutation.
 // This is a non-trivial amount of memory to use and failure to share the
@@ -47,44 +49,49 @@ static RadixIndexToRawIndex* GetRadixIndexToRawIndex(int max_pos) {
   return max_pos_to_radix_index_to_raw_index_[max_pos].get();
 }
 
-ClassPermuterFactorialRadixDeleteTracking::Advancer::Advancer(
+template <int kStorageSize>
+ClassPermuterFactorialRadixDeleteTracking<kStorageSize>::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter,
     ActiveSet active_set)
-    : AdvancerBase(permuter, std::move(active_set)) {
-  values_ = current_;
-  CHECK_LT(permutation_size(), 20)
+    : Base(permuter, std::move(active_set)) {
+  memcpy(values_, Base::current_, sizeof(values_));
+  DCHECK_LT(kStorageSize, kMaxStorageSize)
       << "Permutation indexes use a memory buffer of size N * 2^N";
-  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(permutation_size());
+  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(kStorageSize);
 }
 
-void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(int dist) {
-  position_ += dist;
-  if (position_ >= permutation_count()) {
-    position_ = permutation_count();
-    current_span_ = absl::Span<const int>();
+template <int kStorageSize>
+void ClassPermuterFactorialRadixDeleteTracking<
+    kStorageSize>::Advancer::AdvanceDelta(int dist) {
+  Base::position_ += dist;
+  if (Base::position_ >= Base::permutation_count()) {
+    Base::position_ = Base::permutation_count();
+    Base::current_span_ = absl::Span<const int>();
   } else {
-    int mod = permutation_size();
-    int div = permutation_count() / mod;
+    int mod = kStorageSize;
+    int div = Base::permutation_count() / mod;
     int deleted = 0;
-    DCHECK_LT(permutation_size(), 32)
+    DCHECK_LT(kStorageSize, kMaxStorageSize)
         << "Permutation indexes must be useable as a bit vector";
-    for (size_t i = 0; i < permutation_size() - 1; ++i) {
+    for (size_t i = 0; i < kStorageSize - 1; ++i) {
       const int next =
-          (*radix_index_to_raw_index_)[(position_ / div) % mod][deleted];
-      DCHECK_LT(next, permutation_size());
-      current_[i] = values_[next];
+          (*radix_index_to_raw_index_)[(Base::position_ / div) % mod][deleted];
+      DCHECK_LT(next, kStorageSize);
+      Base::current_[i] = values_[next];
       deleted |= (1 << next);
       --mod;
       div /= mod;
     }
     const int next = (*radix_index_to_raw_index_)[0][deleted];
     DCHECK_GE(next, 0);
-    current_[permutation_size() - 1] = values_[next];
+    Base::current_[kStorageSize - 1] = values_[next];
   }
 }
 
-void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance() {
-  Advance(/*dist=*/1);
+template <int kStorageSize>
+void ClassPermuterFactorialRadixDeleteTracking<
+    kStorageSize>::Advancer::Advance() {
+  AdvanceDelta(/*dist=*/1);
 }
 
 static int factorial(int n) {
@@ -95,26 +102,51 @@ static int factorial(int n) {
   return ret;
 }
 
-void ClassPermuterFactorialRadixDeleteTracking::Advancer::Advance(
-    ValueSkip value_skip) {
-  int value = current_[value_skip.value_index];
-  int div = factorial(permutation_size() - value_skip.value_index - 1);
-  int delta = div - (position_ % div);
+template <int kStorageSize>
+void ClassPermuterFactorialRadixDeleteTracking<
+    kStorageSize>::Advancer::AdvanceSkip(ValueSkip value_skip) {
+  int value = Base::current_[value_skip.value_index];
+  int div = factorial(kStorageSize - value_skip.value_index - 1);
+  int delta = div - (Base::position_ % div);
   do {
-    if (!active_set_.is_trivial()) {
-      if (!active_set_.DiscardBlock(delta)) {
-        delta += active_set_.ConsumeFalseBlock() + 1;
-        CHECK(active_set_.ConsumeNext())
+    if (!Base::active_set_.is_trivial()) {
+      if (!Base::active_set_.DiscardBlock(delta)) {
+        delta += Base::active_set_.ConsumeFalseBlock() + 1;
+        CHECK(Base::active_set_.ConsumeNext())
             << "ConsumeNext returned false after ConsumeFalseBlock";
       }
     }
-    Advance(/*dist=*/delta);
-    if (active_set_.is_trivial()) {
+    AdvanceDelta(/*dist=*/delta);
+    if (Base::active_set_.is_trivial()) {
       delta = div;
     } else {
-      delta = div - (position_ % div);
+      delta = div - (Base::position_ % div);
     }
-  } while (!current_span_.empty() && current_[value_skip.value_index] == value);
+  } while (!Base::current_span_.empty() &&
+           Base::current_[value_skip.value_index] == value);
+}
+
+template <int kStorageSize>
+static std::unique_ptr<ClassPermuter> MakeSizedInstance(int permutation_size,
+                                                        const Descriptor* d,
+                                                        int class_int) {
+  if (permutation_size == kStorageSize) {
+    return absl::make_unique<
+        ClassPermuterFactorialRadixDeleteTracking<kStorageSize>>(d, class_int);
+  }
+  return MakeSizedInstance<kStorageSize - 1>(permutation_size, d, class_int);
+}
+
+template <>
+std::unique_ptr<ClassPermuter> MakeSizedInstance<0>(int permutation_size,
+                                                    const Descriptor* d,
+                                                    int class_int) {
+  return nullptr;
+}
+
+std::unique_ptr<ClassPermuter> MakeClassPermuterFactorialRadixDeleteTracking(
+    const Descriptor* d, int class_int) {
+  return MakeSizedInstance<kMaxStorageSize>(d->Values().size(), d, class_int);
 }
 
 }  // namespace puzzle

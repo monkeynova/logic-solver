@@ -6,10 +6,13 @@
 namespace puzzle {
 
 // https://en.wikipedia.org/wiki/Steinhaus%E2%80%93Johnson%E2%80%93Trotter_algorithm
+template <int kStorageSize>
 class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
  public:
-  class Advancer final : public AdvancerBase {
+  class Advancer final : public AdvancerStaticStorage<kStorageSize> {
    public:
+    using Base = AdvancerStaticStorage<kStorageSize>;
+
     Advancer(const ClassPermuterSteinhausJohnsonTrotter* permuter,
              ActiveSet active_set);
 
@@ -18,16 +21,16 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
     }
 
     void Advance() override;
-    void Advance(int dist) override;
+    void AdvanceDelta(int dist) override;
 
    private:
-    StorageVector index_;
-    StorageVector direction_;
+    int index_[kStorageSize];
+    int direction_[kStorageSize];
     int next_from_;
   };
 
-  explicit ClassPermuterSteinhausJohnsonTrotter(const Descriptor* d = nullptr,
-                                                int class_int = 0)
+  explicit ClassPermuterSteinhausJohnsonTrotter(const Descriptor* d,
+                                                int class_int)
       : ClassPermuter(d, class_int) {}
 
   ClassPermuterSteinhausJohnsonTrotter(ClassPermuterSteinhausJohnsonTrotter&&) =
@@ -42,6 +45,9 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
     return iterator(absl::make_unique<Advancer>(this, std::move(active_set)));
   }
 };
+
+std::unique_ptr<ClassPermuter> MakeClassPermuterSteinhausJohnsonTrotter(
+    const Descriptor* d = nullptr, int class_int = 0);
 
 }  // namespace puzzle
 

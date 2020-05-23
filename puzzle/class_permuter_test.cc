@@ -17,23 +17,43 @@ namespace puzzle {
 template <typename T>
 class ClassPermuterTest : public ::testing::Test {};
 
+class MakeSteinhausJohnsonTrotter {
+ public:
+  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
+    return MakeClassPermuterSteinhausJohnsonTrotter(d);
+  }
+};
+
+class MakeFactorialRadix {
+ public:
+  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
+    return MakeClassPermuterFactorialRadix(d);
+  }
+};
+
+class MakeFactorialRadixDeleteTracking {
+ public:
+  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d) {
+    return MakeClassPermuterFactorialRadixDeleteTracking(d);
+  }
+};
+
 using ClassPermuterTypes =
-    ::testing::Types<ClassPermuterSteinhausJohnsonTrotter,
-                     ClassPermuterFactorialRadix,
-                     ClassPermuterFactorialRadixDeleteTracking>;
+    ::testing::Types<MakeSteinhausJohnsonTrotter, MakeFactorialRadix,
+                     MakeFactorialRadixDeleteTracking>;
 TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
   IntRangeDescriptor d(3, 5);
-  TypeParam p(&d);
-  EXPECT_THAT(p.permutation_count(), 6);
+  auto p = TypeParam()(&d);
+  EXPECT_THAT(p->permutation_count(), 6);
 
   std::set<std::vector<int>> history;
   int position = 0;
-  for (auto it = p.begin(); it != p.end(); ++it) {
+  for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -42,15 +62,15 @@ TYPED_TEST(ClassPermuterTest, ThreeElements) {
 
 TYPED_TEST(ClassPermuterTest, FiveElements) {
   IntRangeDescriptor d(3, 7);
-  TypeParam p(&d);
-  EXPECT_THAT(p.permutation_count(), 120);
+  auto p = TypeParam()(&d);
+  EXPECT_THAT(p->permutation_count(), 120);
 
   std::set<std::vector<int>> history;
   int position = 0;
-  for (auto it = p.begin(); it != p.end(); ++it) {
+  for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5, 6, 7));
     ++position;
   }
@@ -59,8 +79,8 @@ TYPED_TEST(ClassPermuterTest, FiveElements) {
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   IntRangeDescriptor d(3, 5);
-  TypeParam p(&d);
-  EXPECT_THAT(p.permutation_count(), 6);
+  auto p = TypeParam()(&d);
+  EXPECT_THAT(p->permutation_count(), 6);
 
   ActiveSet active_set_first;
   ActiveSet active_set_last;
@@ -73,22 +93,22 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
 
   std::set<std::vector<int>> history;
   int position = 0;
-  p.set_active_set(std::move(active_set_first));
-  for (auto it = p.begin(); it != p.end(); ++it) {
+  p->set_active_set(std::move(active_set_first));
+  for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
   EXPECT_THAT(position, 3);
 
   position = 0;
-  p.set_active_set(std::move(active_set_last));
-  for (auto it = p.begin(); it != p.end(); ++it) {
+  p->set_active_set(std::move(active_set_last));
+  for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), position + 3);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -97,8 +117,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   IntRangeDescriptor d(3, 5);
-  TypeParam p(&d);
-  EXPECT_THAT(p.permutation_count(), 6);
+  auto p = TypeParam()(&d);
+  EXPECT_THAT(p->permutation_count(), 6);
 
   ActiveSet active_set_odd;
   ActiveSet active_set_even;
@@ -111,22 +131,22 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
 
   std::set<std::vector<int>> history;
   int position = 0;
-  p.set_active_set(std::move(active_set_even));
-  for (auto it = p.begin(); it != p.end(); ++it) {
+  p->set_active_set(std::move(active_set_even));
+  for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
   EXPECT_THAT(position, 3);
 
   position = 0;
-  p.set_active_set(std::move(active_set_odd));
-  for (auto it = p.begin(); it != p.end(); ++it) {
+  p->set_active_set(std::move(active_set_odd));
+  for (auto it = p->begin(); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -135,8 +155,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   IntRangeDescriptor d(3, 5);
-  TypeParam p(&d);
-  EXPECT_THAT(p.permutation_count(), 6);
+  auto p = TypeParam()(&d);
+  EXPECT_THAT(p->permutation_count(), 6);
 
   ActiveSet active_set_odd;
   ActiveSet active_set_even;
@@ -149,20 +169,20 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
 
   std::set<std::vector<int>> history;
   int position = 0;
-  for (auto it = p.begin(active_set_even); it != p.end(); ++it) {
+  for (auto it = p->begin(active_set_even); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
   EXPECT_THAT(position, 3);
 
   position = 0;
-  for (auto it = p.begin(active_set_odd); it != p.end(); ++it) {
+  for (auto it = p->begin(active_set_odd); it != p->end(); ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
-      << absl::StrJoin(*it, ", ");
+        << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
   }
@@ -172,13 +192,13 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
 TYPED_TEST(ClassPermuterTest, ValueSkip) {
   constexpr int permuter_size = 9;
   IntRangeDescriptor d(1, permuter_size);
-  TypeParam p(&d);
-  const int permutations = p.permutation_count();
+  auto p = TypeParam()(&d);
+  const int permutations = p->permutation_count();
 
   for (int value_index = 0; value_index < permuter_size; ++value_index) {
     int loop_count = 0;
     int last_val = -1;
-    for (auto it = p.begin(); it != p.end();
+    for (auto it = p->begin(); it != p->end();
          it += {.value_index = value_index}) {
       EXPECT_NE(last_val, (*it)[value_index]);
       last_val = (*it)[value_index];
@@ -193,11 +213,11 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
 TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
   constexpr int permuter_size = 9;
   IntRangeDescriptor d(1, permuter_size);
-  TypeParam p(&d);
-  const int permutations = p.permutation_count();
+  auto p = TypeParam()(&d);
+  const int permutations = p->permutation_count();
 
   int loop_count = 0;
-  for (auto it = p.begin(); it != p.end();
+  for (auto it = p->begin(); it != p->end();
        it += {.value_index = Entry::kBadId}) {
     ++loop_count;
   }
@@ -207,25 +227,25 @@ TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
 TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   constexpr int permuter_size = 4;
   IntRangeDescriptor d(1, permuter_size);
-  TypeParam p(&d);
+  auto p = TypeParam()(&d);
 
   ActiveSet only_three_in_position_one;
-  for (const auto& permutation : p) {
+  for (const auto& permutation : *p) {
     only_three_in_position_one.Add(permutation[1] == 3);
   }
   only_three_in_position_one.DoneAdding();
   EXPECT_EQ(only_three_in_position_one.matches(), 6);
 
-  p.set_active_set(only_three_in_position_one);
+  p->set_active_set(only_three_in_position_one);
   int loop_count = 0;
-  for (const auto& permutation : p) {
+  for (const auto& permutation : *p) {
     std::ignore = permutation;
     ++loop_count;
   }
   EXPECT_EQ(loop_count, only_three_in_position_one.matches());
 
   loop_count = 0;
-  for (auto it = p.begin(); it != p.end(); it += {.value_index = 1}) {
+  for (auto it = p->begin(); it != p->end(); it += {.value_index = 1}) {
     EXPECT_EQ((*it)[1], 3);
     ++loop_count;
   }
