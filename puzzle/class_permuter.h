@@ -194,9 +194,6 @@ class ClassPermuter {
         class_int_(class_int) {}
   virtual ~ClassPermuter() {}
 
-  // TODO(keith): This copy of active_set_ is likely the cause of malloc
-  // showing up on profiles. We should clean up the model to avoid needing
-  // a data copy here.
   virtual iterator begin() const = 0;
 
   iterator end() const { return iterator(); }

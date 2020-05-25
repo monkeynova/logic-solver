@@ -28,9 +28,6 @@ class Solver {
                                name_descriptor);
   }
 
-  // TODO(keith@monkeynova.com): Entry::Predicate rules have the structure
-  // required to crop results in a single ClassPermuter if implemented a
-  // skip function. That could be a significant speed up.
   // TODO(keith@monkeynova.com): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
 
