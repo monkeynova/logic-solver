@@ -62,14 +62,14 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSet active_set_first;
-  ActiveSet active_set_last;
+  ActiveSetBuilder builder_first;
+  ActiveSetBuilder builder_last;
   for (int i = 0; i < 6; ++i) {
-    active_set_first.Add(i < 3);
-    active_set_last.Add(i >= 3);
+    builder_first.Add(i < 3);
+    builder_last.Add(i >= 3);
   }
-  active_set_first.DoneAdding();
-  active_set_last.DoneAdding();
+  ActiveSet active_set_first = builder_first.DoneAdding();
+  ActiveSet active_set_last = builder_last.DoneAdding();
 
   std::set<std::vector<int>> history;
   int position = 0;
@@ -100,14 +100,14 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSet active_set_odd;
-  ActiveSet active_set_even;
+  ActiveSetBuilder builder_odd;
+  ActiveSetBuilder builder_even;
   for (int i = 0; i < 6; ++i) {
-    active_set_odd.Add(i & 1);
-    active_set_even.Add(!(i & 1));
+    builder_odd.Add(i & 1);
+    builder_even.Add(!(i & 1));
   }
-  active_set_odd.DoneAdding();
-  active_set_even.DoneAdding();
+  ActiveSet active_set_odd = builder_odd.DoneAdding();
+  ActiveSet active_set_even = builder_even.DoneAdding();
 
   std::set<std::vector<int>> history;
   int position = 0;
@@ -138,14 +138,14 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSet active_set_odd;
-  ActiveSet active_set_even;
+  ActiveSetBuilder builder_odd;
+  ActiveSetBuilder builder_even;
   for (int i = 0; i < 6; ++i) {
-    active_set_odd.Add(i & 1);
-    active_set_even.Add(!(i & 1));
+    builder_odd.Add(i & 1);
+    builder_even.Add(!(i & 1));
   }
-  active_set_odd.DoneAdding();
-  active_set_even.DoneAdding();
+  ActiveSet active_set_odd = builder_odd.DoneAdding();
+  ActiveSet active_set_even = builder_even.DoneAdding();
 
   std::set<std::vector<int>> history;
   int position = 0;
@@ -211,11 +211,11 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   IntRangeDescriptor d(1, permuter_size);
   auto p = TypeParam()(&d);
 
-  ActiveSet only_three_in_position_one;
+  ActiveSetBuilder builder;
   for (const auto& permutation : *p) {
-    only_three_in_position_one.Add(permutation[1] == 3);
+    builder.Add(permutation[1] == 3);
   }
-  only_three_in_position_one.DoneAdding();
+  ActiveSet only_three_in_position_one = builder.DoneAdding();
   EXPECT_EQ(only_three_in_position_one.matches(), 6);
 
   int loop_count = 0;

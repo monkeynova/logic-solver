@@ -11,23 +11,9 @@ namespace puzzle {
 class ActiveSet {
  public:
   static const ActiveSet& trivial() {
-    static ActiveSet trivial = []() {
-      ActiveSet ret;
-      ret.DoneAdding();
-      return ret;
-    }();
+    static ActiveSet trivial = []() { return ActiveSet(); }();
     return trivial;
   }
-
-  ActiveSet() = default;
-
-  // Constructs an ActiveSet such that each value contained in 'positions'
-  // returns 'true' and every other value in [0, 'max_position') returns false.
-  ActiveSet(const absl::flat_hash_set<int>& positions, int max_position);
-  // Same as flat_hash_set form, except positions is required to be sorted.
-  ActiveSet(const std::vector<int>& positions, int max_position);
-  ActiveSet(const std::initializer_list<int>& positions, int max_position)
-      : ActiveSet(absl::flat_hash_set<int>(positions), max_position) {}
 
   // Copy and move constructors preserve the add/consume phase of the
   // ActiveSet.
@@ -57,18 +43,6 @@ class ActiveSet {
 
   std::string DebugValues() const;
 
-  // Adds a new boolean value to the current ActiveSet. Must not be called
-  // after DoneAdding is called.
-  void Add(bool match);
-
-  // Adds 'size' enties of 'value'. Equivalent to:
-  // for (int i = 0; i < size; ++i) Add(value);
-  void AddBlock(bool value, int size);
-
-  // Called to indicate that the add phase is over and the consume phase
-  // may not begin. Must be called before ConsumeNext.
-  void DoneAdding();
-
   // Returns whether or not to skip the current record and advances index
   // structures through matches_.
   // Must be called after DoneAdding is called.
@@ -92,6 +66,8 @@ class ActiveSet {
   }
 
  private:
+  ActiveSet() = default;
+
   // Thar be dragons here.
   // 'matches_' is a vector of ints representing runs of boolean conditions.
   // The first element corresponds to a run of "true" (i.e. should return)
@@ -99,11 +75,6 @@ class ActiveSet {
   // previous run.
   // To start a run with "false", insert a 0 record at the first position.
   std::vector<int> matches_;
-
-  // Internal state to verify that Add*, DoneAdding, Consume* are called in
-  // that order. True means Add* calls are allowed while Consume* calls are
-  // not.
-  bool building_ = true;
 
   // Indicates the current matching value. During the add phases indicates
   // the state of the current accumulating run. During the consume phase
@@ -122,6 +93,40 @@ class ActiveSet {
   // The total number of boolean values contained within this ActiveSet.
   // Immutable after DoneAdding is called.
   int total_ = 0;
+
+  friend class ActiveSetBuilder;
+};
+
+class ActiveSetBuilder {
+ public:
+  ActiveSetBuilder() = default;
+
+  // Constructs an ActiveSet such that each value contained in 'positions'
+  // returns 'true' and every other value in [0, 'max_position') returns false.
+  static ActiveSet FromPositions(const absl::flat_hash_set<int>& positions,
+                                 int max_position);
+  // Same as flat_hash_set form, except positions is required to be sorted.
+  static ActiveSet FromPositions(const std::vector<int>& positions,
+                                 int max_position);
+  static ActiveSet FromPositions(const std::initializer_list<int>& positions,
+                                 int max_position);
+
+  // Adds a new boolean value to the current ActiveSet. Must not be called
+  // after DoneAdding is called.
+  void Add(bool match);
+
+  // Adds 'size' enties of 'value'. Equivalent to:
+  // for (int i = 0; i < size; ++i) Add(value);
+  void AddBlock(bool value, int size);
+
+  // Returns the ActiveSet constructed by calls to Add and AddBlock. It is
+  // undefined behavior to call more than once.
+  ActiveSet DoneAdding();
+
+  int total() { return set_.total(); }
+
+ private:
+  ActiveSet set_;
 };
 
 }  // namespace puzzle

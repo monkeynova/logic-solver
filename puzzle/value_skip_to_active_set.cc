@@ -4,28 +4,35 @@ namespace puzzle {
 
 ValueSkipToActiveSet::ValueSkipToActiveSet(
     const ClassPermuter* class_permuter) {
-  active_set_.resize(class_permuter->permutation_size());
+  std::vector<absl::flat_hash_map<int, ActiveSetBuilder>> builders;
+
+  builders.resize(class_permuter->permutation_size());
   for (int i = 0; i < class_permuter->permutation_size(); ++i) {
     for (int value : class_permuter->values()) {
-      active_set_[i][value] = ActiveSet();
+      builders[i][value] = ActiveSetBuilder();
     }
   }
 
   for (auto it = class_permuter->begin(); it != class_permuter->end(); ++it) {
     for (int i = 0; i < it->size(); ++i) {
-      CHECK(active_set_[i].contains((*it)[i]))
+      auto to_add_it = builders[i].find((*it)[i]);
+      CHECK(to_add_it != builders[i].end())
           << "{" << absl::StrJoin(*it, ",") << "}; " << i;
-      ActiveSet& to_add = active_set_[i][(*it)[i]];
+      ActiveSetBuilder& to_add = to_add_it->second;
       to_add.AddBlock(true, it.position() - to_add.total());
       to_add.Add(false);
     }
   }
-  for (auto& to_finish_set : active_set_) {
-    for (auto& pair : to_finish_set) {
-      ActiveSet& to_finish = pair.second;
+
+  active_set_.resize(class_permuter->permutation_size());
+  for (int i = 0; i < class_permuter->permutation_size(); ++i) {
+    for (int value : class_permuter->values()) {
+      auto to_finish_it = builders[i].find(value);
+      CHECK(to_finish_it != builders[i].end()) << i << ", " << value;
+      ActiveSetBuilder& to_finish = to_finish_it->second;
       to_finish.AddBlock(
           true, class_permuter->permutation_count() - to_finish.total());
-      to_finish.DoneAdding();
+      active_set_[i].emplace(value, to_finish.DoneAdding());
     }
   }
 }

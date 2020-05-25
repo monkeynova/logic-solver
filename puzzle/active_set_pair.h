@@ -17,7 +17,7 @@ class ActiveSetPair {
   }
 
   void Assign(int a_val, ActiveSet a_b_set) {
-    b_given_a_[a_val] = std::move(a_b_set);
+    b_given_a_.emplace(a_val, std::move(a_b_set));
   }
 
  private:

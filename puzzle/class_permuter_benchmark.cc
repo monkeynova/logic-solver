@@ -39,15 +39,15 @@ BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadixDeleteTracking,
 template <typename MakeClassPermuterPermuterType, int depth, int crop_column,
           int crop_value>
 static void BM_PermuterActiveSet1InN(benchmark::State& state) {
-  ActiveSet set;
+  ActiveSetBuilder builder;
 
   // Build ActiveSet.
   IntRangeDescriptor d(1, depth);
   auto p = MakeClassPermuterPermuterType()(&d);
   for (auto it = p->begin(); it != p->end(); ++it) {
-    set.Add((*it)[crop_column] == crop_value);
+    builder.Add((*it)[crop_column] == crop_value);
   }
-  set.DoneAdding();
+  ActiveSet set = builder.DoneAdding();
   state.SetLabel(absl::Substitute("{$0: C($1)=$2}: $3", depth, crop_column,
                                   crop_value, set.Selectivity()));
 
@@ -110,17 +110,17 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
 
 template <typename MakeClassPermuterPermuterType, int depth, int every_n>
 static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
-  ActiveSet set;
+  ActiveSetBuilder builder;
 
   // Build ActiveSet.
   IntRangeDescriptor d(1, depth);
   auto p = MakeClassPermuterPermuterType()(&d);
   int i = 0;
   for (auto it = p->begin(); it != p->end(); ++it) {
-    set.Add(i % every_n == 0);
+    builder.Add(i % every_n == 0);
     ++i;
   }
-  set.DoneAdding();
+  ActiveSet set = builder.DoneAdding();
   state.SetLabel(
       absl::Substitute("{$0: S=$1}: $2", depth, every_n, set.Selectivity()));
 

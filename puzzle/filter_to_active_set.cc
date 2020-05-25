@@ -95,21 +95,20 @@ void FilterToActiveSet::Build<
     const std::vector<SolutionFilter>& predicates) {
   SetupBuild(class_permuter, predicates);
   int class_int = class_permuter->class_int();
-  ActiveSet active_set;
+  ActiveSetBuilder builder;
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
                                                        Entry::kBadId};
   for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != class_permuter->end(); it += value_skip) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates, solution_, &value_skip)) {
-      active_set.AddBlock(false, it.position() - active_set.total());
-      active_set.Add(true);
+      builder.AddBlock(false, it.position() - builder.total());
+      builder.Add(true);
     }
   }
-  active_set.AddBlock(false,
-                      class_permuter->permutation_count() - active_set.total());
-  active_set.DoneAdding();
-  active_sets_[class_int] = active_set;
+  builder.AddBlock(false,
+                   class_permuter->permutation_count() - builder.total());
+  active_sets_[class_int] = builder.DoneAdding();
 }
 
 template <>
@@ -129,8 +128,8 @@ void FilterToActiveSet::Build<
       a_matches.push_back(it.position());
     }
   }
-  active_sets_[class_int] =
-      ActiveSet(a_matches, class_permuter->permutation_count());
+  active_sets_[class_int] = ActiveSetBuilder::FromPositions(
+      a_matches, class_permuter->permutation_count());
 }
 
 void FilterToActiveSet::SetupPairBuild(
@@ -161,12 +160,12 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
   {
-    ActiveSet active_set_b = ActiveSet();
+    ActiveSetBuilder builder_b;
 
     for (auto it_b = permuter_b->begin().WithActiveSet(active_sets_[class_b]);
          it_b != permuter_b->end(); ++it_b) {
       mutable_solution_.SetClass(it_b);
-      ActiveSet b_a_set;
+      ActiveSetBuilder b_a_builder;
       bool any_of_b = false;
       ClassPermuter::iterator::ValueSkip value_skip_a = {.value_index =
                                                              Entry::kBadId};
@@ -179,36 +178,34 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           any_of_b = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
-            b_a_set.AddBlock(false, it_a.position() - b_a_set.total());
-            b_a_set.Add(true);
+            b_a_builder.AddBlock(false, it_a.position() - b_a_builder.total());
+            b_a_builder.Add(true);
           }
         }
       }
       if (any_of_b) {
-        active_set_b.AddBlock(false, it_b.position() - active_set_b.total());
-        active_set_b.Add(true);
+        builder_b.AddBlock(false, it_b.position() - builder_b.total());
+        builder_b.Add(true);
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-        b_a_set.AddBlock(false,
-                         permuter_a->permutation_count() - b_a_set.total());
-        b_a_set.DoneAdding();
-        b_a_pair.Assign(it_b.position(), std::move(b_a_set));
+        b_a_builder.AddBlock(
+            false, permuter_a->permutation_count() - b_a_builder.total());
+        b_a_pair.Assign(it_b.position(), b_a_builder.DoneAdding());
       }
     }
 
-    active_set_b.AddBlock(
-        false, permuter_b->permutation_count() - active_set_b.total());
-    active_set_b.DoneAdding();
-    active_sets_[class_b] = std::move(active_set_b);
+    builder_b.AddBlock(false,
+                       permuter_b->permutation_count() - builder_b.total());
+    active_sets_[class_b] = builder_b.DoneAdding();
   }
   {
-    ActiveSet active_set_a = ActiveSet();
+    ActiveSetBuilder builder_a;
 
     for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
          it_a != permuter_a->end(); ++it_a) {
       mutable_solution_.SetClass(it_a);
       bool any_of_a = false;
-      ActiveSet a_b_set;
+      ActiveSetBuilder a_b_builder;
       ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                              Entry::kBadId};
       for (auto it_b = permuter_b->begin()
@@ -220,27 +217,25 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           any_of_a = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
-            a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
-            a_b_set.Add(true);
+            a_b_builder.AddBlock(false, it_b.position() - a_b_builder.total());
+            a_b_builder.Add(true);
           }
         }
       }
       if (any_of_a) {
-        active_set_a.AddBlock(false, it_a.position() - active_set_a.total());
-        active_set_a.Add(true);
+        builder_a.AddBlock(false, it_a.position() - builder_a.total());
+        builder_a.Add(true);
       }
       if (pair_class_mode == PairClassMode::kMakePairs) {
-        a_b_set.AddBlock(false,
-                         permuter_b->permutation_count() - a_b_set.total());
-        a_b_set.DoneAdding();
-        a_b_pair.Assign(it_a.position(), std::move(a_b_set));
+        a_b_builder.AddBlock(
+            false, permuter_b->permutation_count() - a_b_builder.total());
+        a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
       }
     }
 
-    active_set_a.AddBlock(
-        false, permuter_a->permutation_count() - active_set_a.total());
-    active_set_a.DoneAdding();
-    active_sets_[class_a] = std::move(active_set_a);
+    builder_a.AddBlock(false,
+                       permuter_a->permutation_count() - builder_a.total());
+    active_sets_[class_a] = builder_a.DoneAdding();
   }
 }
 
@@ -254,7 +249,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
-  ActiveSet active_set_a = ActiveSet();
+  ActiveSetBuilder builder_a;
   absl::flat_hash_set<int> b_match_positions;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_a_match_positions;
 
@@ -262,7 +257,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
        it_a != permuter_a->end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
     bool any_of_a = false;
-    ActiveSet a_b_set;
+    ActiveSetBuilder a_b_builder;
     ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                            Entry::kBadId};
     for (auto it_b = permuter_b->begin()
@@ -279,35 +274,34 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
         any_of_a = true;
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {
-          a_b_set.AddBlock(false, it_b.position() - a_b_set.total());
-          a_b_set.Add(true);
+          a_b_builder.AddBlock(false, it_b.position() - a_b_builder.total());
+          a_b_builder.Add(true);
           b_a_match_positions[it_b.position()].insert(it_a.position());
         }
       }
     }
     if (pair_class_mode == PairClassMode::kMakePairs) {
-      a_b_set.AddBlock(false,
-                       permuter_b->permutation_count() - a_b_set.total());
-      a_b_set.DoneAdding();
-      a_b_pair.Assign(it_a.position(), std::move(a_b_set));
+      a_b_builder.AddBlock(
+          false, permuter_b->permutation_count() - a_b_builder.total());
+      a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
     }
     if (any_of_a) {
-      active_set_a.AddBlock(false, it_a.position() - active_set_a.total());
-      active_set_a.Add(true);
+      builder_a.AddBlock(false, it_a.position() - builder_a.total());
+      builder_a.Add(true);
     }
   }
 
-  active_set_a.AddBlock(false,
-                        permuter_a->permutation_count() - active_set_a.total());
-  active_set_a.DoneAdding();
-  active_sets_[class_a] = std::move(active_set_a);
-  active_sets_[class_b] =
-      ActiveSet(b_match_positions, permuter_b->permutation_count());
+  builder_a.AddBlock(false,
+                     permuter_a->permutation_count() - builder_a.total());
+  active_sets_[class_a] = builder_a.DoneAdding();
+  active_sets_[class_b] = ActiveSetBuilder::FromPositions(
+      b_match_positions, permuter_b->permutation_count());
   if (pair_class_mode == PairClassMode::kMakePairs) {
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
       const absl::flat_hash_set<int>& a_set = pair.second;
-      b_a_pair.Assign(b_val, ActiveSet(a_set, permuter_a->permutation_count()));
+      b_a_pair.Assign(b_val, ActiveSetBuilder::FromPositions(
+                                 a_set, permuter_a->permutation_count()));
     }
   }
 }
@@ -355,20 +349,22 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
     }
   }
 
-  active_sets_[class_a] =
-      ActiveSet(a_match_positions, permuter_a->permutation_count());
-  active_sets_[class_b] =
-      ActiveSet(b_match_positions, permuter_b->permutation_count());
+  active_sets_[class_a] = ActiveSetBuilder::FromPositions(
+      a_match_positions, permuter_a->permutation_count());
+  active_sets_[class_b] = ActiveSetBuilder::FromPositions(
+      b_match_positions, permuter_b->permutation_count());
   if (pair_class_mode == PairClassMode::kMakePairs) {
     for (const auto& pair : a_b_match_positions) {
       const int a_val = pair.first;
       const absl::flat_hash_set<int>& b_set = pair.second;
-      a_b_pair.Assign(a_val, ActiveSet(b_set, permuter_b->permutation_count()));
+      a_b_pair.Assign(a_val, ActiveSetBuilder::FromPositions(
+                                 b_set, permuter_b->permutation_count()));
     }
     for (const auto& pair : b_a_match_positions) {
       const int b_val = pair.first;
       const absl::flat_hash_set<int>& a_set = pair.second;
-      b_a_pair.Assign(b_val, ActiveSet(a_set, permuter_a->permutation_count()));
+      b_a_pair.Assign(b_val, ActiveSetBuilder::FromPositions(
+                                 a_set, permuter_a->permutation_count()));
     }
   }
 }

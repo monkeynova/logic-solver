@@ -21,21 +21,32 @@ std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
 
 }  // namespace
 
-ActiveSet::ActiveSet(const absl::flat_hash_set<int>& positions,
-                     int max_position)
-    : ActiveSet(SortFlatHashSet(positions), max_position) {}
+// static
+ActiveSet ActiveSetBuilder::FromPositions(
+    const absl::flat_hash_set<int>& positions, int max_position) {
+  return FromPositions(SortFlatHashSet(positions), max_position);
+}
 
-ActiveSet::ActiveSet(const std::vector<int>& positions, int max_position) {
+// static
+ActiveSet ActiveSetBuilder::FromPositions(
+    const std::initializer_list<int>& positions, int max_position) {
+  return FromPositions(absl::flat_hash_set<int>(positions), max_position);
+}
+
+// static
+ActiveSet ActiveSetBuilder::FromPositions(const std::vector<int>& positions,
+                                          int max_position) {
+  ActiveSetBuilder builder;
   for (auto p : positions) {
     if (p < 0) continue;
     if (p >= max_position) break;
-    AddBlock(false, p - total());
-    Add(true);
+    builder.AddBlock(false, p - builder.total());
+    builder.Add(true);
   }
-  if (total() < max_position) {
-    AddBlock(false, max_position - total());
+  if (builder.total() < max_position) {
+    builder.AddBlock(false, max_position - builder.total());
   }
-  DoneAdding();
+  return builder.DoneAdding();
 }
 
 struct ActiveSetIterator {
@@ -67,9 +78,6 @@ struct ActiveSetIterator {
 };
 
 ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
-  CHECK(!building_) << "Intersect called during building";
-  CHECK(!other.building_) << "Intersect called with an unbuilt ActiveSet";
-
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
@@ -79,7 +87,7 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
           << ")";
 
-  ActiveSet intersection;
+  ActiveSetBuilder intersection;
   while (this_iterator.more() && other_iterator.more()) {
     VLOG(3) << "Intersect NextBlock="
             << (this_iterator.value() ? "true" : "false") << "/\\"
@@ -128,73 +136,67 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
     other_iterator.Advance(next_run_size);
   }
 
-  intersection.total_ = std::max(total_, other.total_);
+  const int intersection_total = std::max(total_, other.total_);
+  intersection.AddBlock(false, intersection_total - intersection.total() - 1);
   // Mark done and update self.
-  intersection.DoneAdding();
-  VLOG(3) << "Intersect == " << intersection.DebugString();
-  return intersection;
+  return intersection.DoneAdding();
 }
 
 std::string ActiveSet::DebugString() const {
-  return absl::StrCat("{", (building_ ? "[building]" : "[built]"), " ",
-                      (current_value_ ? "match" : "skip"), " ",
-                      matches_position_, " {", absl::StrJoin(matches_, ", "),
-                      "}}");
+  return absl::StrCat("{", (current_value_ ? "match" : "skip"), " ",
+                      matches_position_, " (of ", total_, ") {",
+                      absl::StrJoin(matches_, ", "), "}}");
 }
 
-void ActiveSet::Add(bool match) {
-  CHECK(building_) << "Add called after building";
-
-  ++total_;
+void ActiveSetBuilder::Add(bool match) {
+  ++set_.total_;
   if (match) {
-    ++matches_count_;
+    ++set_.matches_count_;
   }
 
-  if (match == current_value_) {
-    ++matches_position_;
+  if (match == set_.current_value_) {
+    ++set_.matches_position_;
   } else {
-    matches_.push_back(matches_position_);
-    current_value_ = match;
-    matches_position_ = 1;
+    set_.matches_.push_back(set_.matches_position_);
+    set_.current_value_ = match;
+    set_.matches_position_ = 1;
   }
 }
 
-void ActiveSet::AddBlock(bool match, int size) {
-  CHECK(building_) << "AddBlock called after building";
-  if (size == 0) return;
+void ActiveSetBuilder::AddBlock(bool match, int size) {
+  if (size <= 0) return;
 
-  total_ += size;
+  set_.total_ += size;
   if (match) {
-    matches_count_ += size;
+    set_.matches_count_ += size;
   }
 
-  if (match == current_value_) {
-    matches_position_ += size;
+  if (match == set_.current_value_) {
+    set_.matches_position_ += size;
   } else {
-    matches_.push_back(matches_position_);
-    current_value_ = match;
-    matches_position_ = size;
+    set_.matches_.push_back(set_.matches_position_);
+    set_.current_value_ = match;
+    set_.matches_position_ = size;
   }
 }
 
-void ActiveSet::DoneAdding() {
-  CHECK(building_) << "DoneAdding called twice";
-  building_ = false;
-  if (matches_.empty()) {
-    CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
+ActiveSet ActiveSetBuilder::DoneAdding() {
+  if (set_.matches_.empty()) {
+    CHECK(set_.current_value_)
+        << "skip_match shouldn't be false if skips is empty";
     // As a special case, if all entries are "true", we don't make matches_ so
     // the ActiveSet remains 'trivial'.
-    matches_position_ = 0;
-    return;
+    set_.matches_position_ = 0;
+    return std::move(set_);
   }
-  matches_.push_back(matches_position_);
-  current_value_ = true;
-  matches_position_ = 0;
+  set_.matches_.push_back(set_.matches_position_);
+  set_.current_value_ = true;
+  set_.matches_position_ = 0;
+
+  return std::move(set_);
 }
 
 bool ActiveSet::ConsumeNext() {
-  CHECK(!building_) << "ConsumeNext called while still building";
-
   if (matches_.empty()) return true;
   if (matches_position_ >= static_cast<int>(matches_.size())) return true;
 
@@ -208,8 +210,6 @@ bool ActiveSet::ConsumeNext() {
 }
 
 int ActiveSet::ConsumeFalseBlock() {
-  CHECK(!building_) << "ConsumeFalseBlock called while still building";
-
   if (matches_.empty()) return 0;
   if (matches_position_ >= static_cast<int>(matches_.size())) return 0;
 
@@ -227,7 +227,6 @@ int ActiveSet::ConsumeFalseBlock() {
 }
 
 bool ActiveSet::DiscardBlock(int block_size) {
-  CHECK(!building_) << "ConsumeFalseBlock called while still building";
   if (matches_.empty()) return true;
 
   while (block_size > 0) {
