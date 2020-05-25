@@ -76,6 +76,11 @@ class FilterToActiveSet {
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
+  // Advances `it` based on `value_skip`.
+  void Advance(const ValueSkipToActiveSet* vs2as,
+               ClassPermuter::iterator::ValueSkip value_skip,
+               ClassPermuter::iterator& it) const;
+
   void SetupBuild(const ClassPermuter* permuter,
                   const std::vector<SolutionFilter>& predicates);
 

@@ -39,10 +39,14 @@ class ClassPermuter {
     virtual int permutation_size() const = 0;
     int permutation_count() const { return permutation_count_; }
 
+    // Intersects the current active set with the new addition. If this
+    // intersection invalidates the current record, advances the iterator to
+    // the next matching record. Returns whether or not the iterator was
+    // advanced.
     // TODO(keith@monkeynova.com): This requires a copy because it needs to
     // consume from the front to align the intersection. A better iterator
     // model on ActiveSet would reduce the requirement for a copy here.
-    void WithActiveSet(ActiveSet active_set);
+    bool WithActiveSet(ActiveSet active_set);
 
     double Selectivity() const { return active_set_.Selectivity(); }
 
@@ -73,7 +77,10 @@ class ClassPermuter {
     // Explicity copy constructor so current_span_ points to this->current
     // rather than other.current, which would be the default implementation.
     AdvancerStaticStorage(const AdvancerStaticStorage<kStorageSize>& other)
-        : AdvancerBase(other), current_span_(absl::MakeSpan(current_)) {
+        : AdvancerBase(other),
+          current_span_(  // Preserve is_end().
+              other.current_span_.empty() ? absl::Span<const int>()
+                                          : absl::MakeSpan(current_)) {
       memcpy(current_, other.current_, sizeof(current_));
     }
 
@@ -165,9 +172,13 @@ class ClassPermuter {
     }
     int class_int() const { return advancer_->class_int(); }
 
-    iterator& WithActiveSet(const ActiveSet& active_set) {
+    iterator& WithActiveSet(const ActiveSet& active_set,
+                            bool* was_advanced_out = nullptr) {
       if (!active_set.is_trivial()) {
-        advancer_->WithActiveSet(active_set);
+        const bool was_advanced = advancer_->WithActiveSet(active_set);
+        if (was_advanced_out != nullptr) {
+          *was_advanced_out = was_advanced;
+        }
       }
       return *this;
     }

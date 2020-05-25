@@ -8,7 +8,7 @@ ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter)
       permutation_count_(permuter->permutation_count()),
       class_int_(permuter->class_int()) {}
 
-void ClassPermuter::AdvancerBase::WithActiveSet(ActiveSet other) {
+bool ClassPermuter::AdvancerBase::WithActiveSet(ActiveSet other) {
   bool new_value_matches = other.DiscardBlock(position_ + 1);
   active_set_.Intersect(other);
   if (!new_value_matches) {
@@ -16,6 +16,9 @@ void ClassPermuter::AdvancerBase::WithActiveSet(ActiveSet other) {
     CHECK(active_set_.ConsumeNext())
         << "ConsumeNext returned false after ConsumeFalseBlock";
   }
+  // Return whether or not the iterator was advanced because it was
+  // invalidated.
+  return !new_value_matches;
 }
 
 void ClassPermuter::AdvancerBase::AdvanceWithSkip() {

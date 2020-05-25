@@ -234,4 +234,86 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   EXPECT_EQ(loop_count, 1);
 }
 
+TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
+  constexpr int permuter_size = 4;
+  IntRangeDescriptor d(1, permuter_size);
+  auto p = TypeParam()(&d);
+
+  ActiveSetBuilder builder;
+  builder.AddBlock(false, p->permutation_count());
+  ActiveSet set = builder.DoneAdding();
+
+  bool was_advanced;
+  auto it = p->begin().WithActiveSet(set, &was_advanced);
+  EXPECT_TRUE(was_advanced);
+  EXPECT_TRUE(it == p->end())
+      << it.position() << ": " << absl::StrJoin(*it, ",");
+}
+
+TYPED_TEST(ClassPermuterTest, FullActiveSet) {
+  constexpr int permuter_size = 4;
+  IntRangeDescriptor d(1, permuter_size);
+  auto p = TypeParam()(&d);
+
+  ActiveSetBuilder builder;
+  builder.AddBlock(true, p->permutation_count());
+  ActiveSet set = builder.DoneAdding();
+
+  int loop_count = 0;
+  bool was_advanced;
+  auto it = p->begin().WithActiveSet(set, &was_advanced);
+  EXPECT_FALSE(was_advanced);
+  for (; it != p->end(); ++it) {
+    ++loop_count;
+  }
+  EXPECT_EQ(loop_count, p->permutation_count());
+}
+
+TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
+  constexpr int permuter_size = 4;
+  IntRangeDescriptor d(1, permuter_size);
+  auto p = TypeParam()(&d);
+
+  ActiveSetBuilder builder;
+  builder.AddBlock(false, p->permutation_count());
+  ActiveSet set = builder.DoneAdding();
+
+  int loop_count = 0;
+  for (auto it = p->begin(); it != p->end();) {
+    ++loop_count;
+    if (loop_count == 4) {
+      bool was_advanced;
+      it.WithActiveSet(set, &was_advanced);
+      EXPECT_TRUE(was_advanced);
+    } else {
+      ++it;
+    }
+  }
+  EXPECT_EQ(loop_count, 4);
+}
+
+TYPED_TEST(ClassPermuterTest, ActiveSetMidIteration) {
+  constexpr int permuter_size = 4;
+  IntRangeDescriptor d(1, permuter_size);
+  auto p = TypeParam()(&d);
+
+  ActiveSetBuilder builder;
+  builder.AddBlock(false, p->permutation_count() * 3 / 4);
+  builder.AddBlock(true, p->permutation_count() / 4);
+  ActiveSet set = builder.DoneAdding();
+
+  int loop_count = 0;
+  for (auto it = p->begin(); it != p->end();) {
+    ++loop_count;
+    if (loop_count == p->permutation_count() / 4) {
+      bool was_advanced;
+      it.WithActiveSet(set, &was_advanced);
+      EXPECT_TRUE(was_advanced);
+    } else {
+      ++it;
+    }
+  }
+  EXPECT_EQ(loop_count, p->permutation_count() / 2);
+}
+
 }  // namespace puzzle

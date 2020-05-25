@@ -11,11 +11,18 @@ class ValueSkipToActiveSet {
  public:
   explicit ValueSkipToActiveSet(const ClassPermuter* class_permuter);
 
-  const ActiveSet& value_skip_set(int position, int value) {
+  const ActiveSet& value_skip_set(int position, int value) const {
     if (position >= active_set_.size()) return ActiveSet::trivial();
     auto it = active_set_[position].find(value);
     if (it == active_set_[position].end()) return ActiveSet::trivial();
     return it->second;
+  }
+
+  const ActiveSet& value_skip_set(
+      const ClassPermuter::iterator& it,
+      ClassPermuter::iterator::ValueSkip value_skip) const {
+    return value_skip_set(/*position=*/value_skip.value_index,
+                          /*value=*/(*it)[value_skip.value_index]);
   }
 
  private:
