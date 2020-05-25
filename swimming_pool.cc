@@ -52,7 +52,6 @@ void SwimmingPoolProblem::AddRulePredicates() {
         const puzzle::Entry& betty = s.Id(BETTY);
         const puzzle::Entry& from_uk = s.Find(
             [](const puzzle::Entry& e) { return e.Class(COUNTRY) == UK; });
-        // TODO(petersk): Split this into 3 separate predicates.
         return IsNextTo(betty, from_uk) && betty.Class(STYLE) != BUTTERFLY &&
                from_uk.Class(STYLE) != BUTTERFLY;
       },
@@ -90,8 +89,6 @@ void SwimmingPoolProblem::AddRulePredicates() {
       "4. The Freestyler is next to both Daisy and the American "
       "swimmer.",
       [](const puzzle::Solution& s) {
-        // TODO(petersk): Split into 2 rules, and add disjoint
-        // conditions on entries.
         return IsNextTo(s.Id(DAISY), s.Find([](const puzzle::Entry& e) {
                  return e.Class(STYLE) == FREESTYLE;
                })) &&
