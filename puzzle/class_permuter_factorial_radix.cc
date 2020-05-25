@@ -4,8 +4,8 @@ namespace puzzle {
 
 template <int kStorageSize>
 ClassPermuterFactorialRadix<kStorageSize>::Advancer::Advancer(
-    const ClassPermuterFactorialRadix* permuter, ActiveSet active_set)
-    : Base(permuter, std::move(active_set)) {
+    const ClassPermuterFactorialRadix* permuter)
+    : Base(permuter) {
   DCHECK_EQ(kStorageSize, permuter->descriptor()->Values().size());
   memcpy(values_, permuter->descriptor()->Values().data(), sizeof(values_));
 }

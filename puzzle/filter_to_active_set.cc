@@ -48,8 +48,10 @@ std::ostream& operator<<(std::ostream& out,
 
 FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor)
     : active_sets_(
-          entry_descriptor == nullptr ? 0 : entry_descriptor->num_classes()),
-      mutable_solution_(entry_descriptor) {
+          entry_descriptor == nullptr ? 0 : entry_descriptor->num_classes(),
+          ActiveSet::trivial()),
+      mutable_solution_(entry_descriptor),
+      solution_(mutable_solution_.TestableSolution()) {
   if (entry_descriptor != nullptr) {
     int num_classes = entry_descriptor->num_classes();
     active_set_pairs_.resize(num_classes);
@@ -57,8 +59,13 @@ FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor)
       active_set_pairs_[i].resize(num_classes);
     }
   }
-  solution_ = mutable_solution_.TestableSolution();
 }
+
+FilterToActiveSet::FilterToActiveSet(const FilterToActiveSet& other)
+    : active_sets_(other.active_sets_),
+      active_set_pairs_(other.active_set_pairs_),
+      mutable_solution_(other.solution_.descriptor()),
+      solution_(mutable_solution_.TestableSolution()) {}
 
 void FilterToActiveSet::SetupPermuter(const ClassPermuter* class_permuter) {
   if (!absl::GetFlag(FLAGS_puzzle_value_skip_to_active_set)) return;
@@ -87,11 +94,12 @@ void FilterToActiveSet::Build<
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
   SetupBuild(class_permuter, predicates);
+  int class_int = class_permuter->class_int();
   ActiveSet active_set;
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
                                                        Entry::kBadId};
-  for (auto it = class_permuter->begin(); it != class_permuter->end();
-       it += value_skip) {
+  for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
+       it != class_permuter->end(); it += value_skip) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates, solution_, &value_skip)) {
       active_set.AddBlock(false, it.position() - active_set.total());
@@ -101,7 +109,7 @@ void FilterToActiveSet::Build<
   active_set.AddBlock(false,
                       class_permuter->permutation_count() - active_set.total());
   active_set.DoneAdding();
-  active_sets_[class_permuter->class_int()] = active_set;
+  active_sets_[class_int] = active_set;
 }
 
 template <>
@@ -109,21 +117,19 @@ void FilterToActiveSet::Build<
     FilterToActiveSet::SingleClassBuild::kPositionSet>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
-  for (const auto& p : predicates) {
-    CHECK_EQ(p.classes().size(), 1);
-    CHECK_EQ(p.classes()[0], class_permuter->class_int());
-  }
+  SetupBuild(class_permuter, predicates);
+  int class_int = class_permuter->class_int();
   std::vector<int> a_matches;
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
                                                        Entry::kBadId};
-  for (auto it = class_permuter->begin(); it != class_permuter->end();
-       it += value_skip) {
+  for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
+       it != class_permuter->end(); it += value_skip) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates, solution_, &value_skip)) {
       a_matches.push_back(it.position());
     }
   }
-  active_sets_[class_permuter->class_int()] =
+  active_sets_[class_int] =
       ActiveSet(a_matches, class_permuter->permutation_count());
 }
 
@@ -157,16 +163,17 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
   {
     ActiveSet active_set_b = ActiveSet();
 
-    for (auto it_b = permuter_b->begin(); it_b != permuter_b->end(); ++it_b) {
+    for (auto it_b = permuter_b->begin().WithActiveSet(active_sets_[class_b]);
+         it_b != permuter_b->end(); ++it_b) {
       mutable_solution_.SetClass(it_b);
       ActiveSet b_a_set;
       bool any_of_b = false;
-      ActiveSet source_a =
-          permuter_a->active_set().Intersection(b_a_pair.Find(it_b.position()));
       ClassPermuter::iterator::ValueSkip value_skip_a = {.value_index =
                                                              Entry::kBadId};
-      for (auto it_a = permuter_a->begin(source_a); it_a != permuter_a->end();
-           it_a += value_skip_a) {
+      for (auto it_a = permuter_a->begin()
+                           .WithActiveSet(active_sets_[class_a])
+                           .WithActiveSet(b_a_pair.Find(it_b.position()));
+           it_a != permuter_a->end(); it_a += value_skip_a) {
         mutable_solution_.SetClass(it_a);
         if (AllMatch(predicates, solution_, &value_skip_a)) {
           any_of_b = true;
@@ -197,19 +204,17 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
   {
     ActiveSet active_set_a = ActiveSet();
 
-    ActiveSet base_b_iteration =
-        permuter_b->active_set().Intersection(active_sets_[class_b]);
-
-    for (auto it_a = permuter_a->begin(); it_a != permuter_a->end(); ++it_a) {
+    for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
+         it_a != permuter_a->end(); ++it_a) {
       mutable_solution_.SetClass(it_a);
       bool any_of_a = false;
       ActiveSet a_b_set;
-      ActiveSet source_b =
-          base_b_iteration.Intersection(a_b_pair.Find(it_a.position()));
       ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                              Entry::kBadId};
-      for (auto it_b = permuter_b->begin(source_b); it_b != permuter_b->end();
-           it_b += value_skip_b) {
+      for (auto it_b = permuter_b->begin()
+                           .WithActiveSet(active_sets_[class_b])
+                           .WithActiveSet(a_b_pair.Find(it_a.position()));
+           it_b != permuter_b->end(); it_b += value_skip_b) {
         mutable_solution_.SetClass(it_b);
         if (AllMatch(predicates, solution_, &value_skip_b)) {
           any_of_a = true;
@@ -253,16 +258,17 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
   absl::flat_hash_set<int> b_match_positions;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_a_match_positions;
 
-  for (auto it_a = permuter_a->begin(); it_a != permuter_a->end(); ++it_a) {
+  for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
+       it_a != permuter_a->end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
     bool any_of_a = false;
     ActiveSet a_b_set;
-    ActiveSet source_b =
-        permuter_b->active_set().Intersection(a_b_pair.Find(it_a.position()));
     ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                            Entry::kBadId};
-    for (auto it_b = permuter_b->begin(source_b); it_b != permuter_b->end();
-         it_b += value_skip_b) {
+    for (auto it_b = permuter_b->begin()
+                         .WithActiveSet(active_sets_[class_b])
+                         .WithActiveSet(a_b_pair.Find(it_a.position()));
+         it_b != permuter_b->end(); it_b += value_skip_b) {
       if (pair_class_mode == PairClassMode::kSingleton && any_of_a &&
           b_match_positions.find(it_b.position()) != b_match_positions.end()) {
         // Already added both pieces.
@@ -322,14 +328,15 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
   absl::flat_hash_map<int, absl::flat_hash_set<int>> a_b_match_positions;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_a_match_positions;
 
-  for (auto it_a = permuter_a->begin(); it_a != permuter_a->end(); ++it_a) {
+  for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
+       it_a != permuter_a->end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
-    ActiveSet source_b =
-        permuter_b->active_set().Intersection(a_b_pair.Find(it_a.position()));
     ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                            Entry::kBadId};
-    for (auto it_b = permuter_b->begin(source_b); it_b != permuter_b->end();
-         it_b += value_skip_b) {
+    for (auto it_b = permuter_b->begin()
+                         .WithActiveSet(active_sets_[class_b])
+                         .WithActiveSet(a_b_pair.Find(it_a.position()));
+         it_b != permuter_b->end(); it_b += value_skip_b) {
       if (pair_class_mode == PairClassMode::kSingleton &&
           a_match_positions.count(it_a.position()) > 0 &&
           b_match_positions.count(it_b.position()) > 0) {

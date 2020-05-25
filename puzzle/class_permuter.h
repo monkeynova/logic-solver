@@ -19,13 +19,11 @@ class ClassPermuter {
                   "ValueSkip is assumed to be small enough for pass-by-value "
                   "semantics.");
 
-    AdvancerBase(const ClassPermuter* permuter, ActiveSet active_set);
+    explicit AdvancerBase(const ClassPermuter* permuter);
 
     virtual std::unique_ptr<AdvancerBase> Clone() const = 0;
 
     virtual ~AdvancerBase() {}
-
-    void Prepare();
 
     virtual void Advance() = 0;
     virtual void AdvanceDelta(int dist) = 0;
@@ -40,6 +38,13 @@ class ClassPermuter {
     int class_int() const { return class_int_; }
     virtual int permutation_size() const = 0;
     int permutation_count() const { return permutation_count_; }
+
+    // TODO(keith@monkeynova.com): This requires a copy because it needs to
+    // consume from the front to align the intersection. A better iterator
+    // model on ActiveSet would reduce the requirement for a copy here.
+    void WithActiveSet(ActiveSet active_set);
+
+    double Selectivity() const { return active_set_.Selectivity(); }
 
    protected:
     // Position in the iteration. Integer from 1 to number of permutations.
@@ -59,11 +64,17 @@ class ClassPermuter {
   template <int kStorageSize>
   class AdvancerStaticStorage : public AdvancerBase {
    public:
-    AdvancerStaticStorage(const ClassPermuter* permuter, ActiveSet active_set)
-        : AdvancerBase(permuter, active_set),
-          current_span_(absl::MakeSpan(current_)) {
+    AdvancerStaticStorage(const ClassPermuter* permuter)
+        : AdvancerBase(permuter), current_span_(absl::MakeSpan(current_)) {
       DCHECK_EQ(kStorageSize, permuter->values().size());
       memcpy(current_, permuter->values().data(), sizeof(current_));
+    }
+
+    // Explicity copy constructor so current_span_ points to this->current
+    // rather than other.current, which would be the default implementation.
+    AdvancerStaticStorage(const AdvancerStaticStorage<kStorageSize>& other)
+        : AdvancerBase(other), current_span_(absl::MakeSpan(current_)) {
+      memcpy(current_, other.current_, sizeof(current_));
     }
 
     const absl::Span<const int>& current() const final { return current_span_; }
@@ -106,14 +117,11 @@ class ClassPermuter {
     typedef const absl::Span<const int>* const_pointer;
 
     explicit iterator(std::unique_ptr<AdvancerBase> advancer = nullptr)
-        : advancer_(std::move(advancer)) {
-      if (advancer_ != nullptr) advancer_->Prepare();
-    }
+        : advancer_(std::move(advancer)) {}
 
     iterator(const iterator& other) : iterator(other.advancer_->Clone()) {}
     iterator& operator=(const iterator& other) {
       advancer_ = other.advancer_->Clone();
-      if (advancer_ != nullptr) advancer_->Prepare();
       return *this;
     }
 
@@ -157,6 +165,15 @@ class ClassPermuter {
     }
     int class_int() const { return advancer_->class_int(); }
 
+    iterator& WithActiveSet(const ActiveSet& active_set) {
+      if (!active_set.is_trivial()) {
+	advancer_->WithActiveSet(active_set);
+      }
+      return *this;
+    }
+
+    double Selectivity() const { return advancer_->Selectivity(); }
+
    private:
     bool is_end() const {
       return advancer_ == nullptr || advancer_->current().empty();
@@ -174,16 +191,13 @@ class ClassPermuter {
       : descriptor_(d),
         values_(d->Values()),
         permutation_count_(PermutationCount(d)),
-        class_int_(class_int) {
-    active_set_.DoneAdding();
-  }
+        class_int_(class_int) {}
   virtual ~ClassPermuter() {}
 
   // TODO(keith): This copy of active_set_ is likely the cause of malloc
   // showing up on profiles. We should clean up the model to avoid needing
   // a data copy here.
   virtual iterator begin() const = 0;
-  virtual iterator begin(ActiveSet active_set) const = 0;
 
   iterator end() const { return iterator(); }
 
@@ -195,16 +209,6 @@ class ClassPermuter {
 
   int class_int() const { return class_int_; }
 
-  // TODO(keith@monkeynova.com): Materialize full permutation if ActiveSet is
-  // selective enough.
-  void set_active_set(ActiveSet active_set) {
-    active_set_ = std::move(active_set);
-  }
-
-  const ActiveSet& active_set() const { return active_set_; }
-
-  double Selectivity() const { return active_set_.Selectivity(); }
-
   std::string DebugString() const;
 
  private:
@@ -213,7 +217,6 @@ class ClassPermuter {
   std::vector<int> values_;
   int permutation_count_;
   int class_int_;
-  ActiveSet active_set_;
 };
 
 inline std::ostream& operator<<(std::ostream& out,

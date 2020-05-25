@@ -15,7 +15,7 @@ ABSL_FLAG(bool, puzzle_prune_pair_class_iterators, true,
           "If specfied, class iterators will be pruned based on pair "
           "class predicates that are present.");
 
-ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, true,
+ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, false,
           "If specified pairwise iterators will be pruned with contextual "
           "pruning (that is, pairwise iterators will store, for each value "
           "of one iterator, the appropriate active sets for the other "
@@ -85,7 +85,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
       pair_selectivity_reduction_[class_int] =
           build.Selectivity() / start_selectivity;
     }
-    iterators_[class_int] = class_permuter->begin(std::move(build));
+    iterators_[class_int] = class_permuter->begin().WithActiveSet(build);
   }
 
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
@@ -148,7 +148,8 @@ void FilteredSolutionPermuter::Advancer::Advance() {
     int class_int = (*it)->class_int();
 
     if (iterators_[class_int] == (*it)->end()) {
-      iterators_[class_int] = (*it)->begin();
+      iterators_[class_int] = (*it)->begin().WithActiveSet(
+          permuter_->filter_to_active_set_->active_set(class_int));
     }
 
     ++iterators_[class_int];
@@ -253,6 +254,9 @@ void FilteredSolutionPermuter::Prepare() {
 
   if (VLOG_IS_ON(1)) {
     for (const auto& permuter : class_permuters_) {
+      double selectivity =
+          filter_to_active_set_->active_set(permuter->class_int())
+              .Selectivity();
       const std::string predicate_name =
           class_predicates_[permuter->class_int()].empty()
               ? "<noop>"
@@ -262,8 +266,8 @@ void FilteredSolutionPermuter::Prepare() {
                       absl::StrAppend(out, filter.name());
                     });
       VLOG(1) << "Predicates at " << permuter->class_int() << " ("
-              << permuter->Selectivity() << "="
-              << permuter->Selectivity() * permuter->permutation_count()
+              << selectivity << "="
+              << selectivity * permuter->permutation_count()
               << "): " << class_predicates_[permuter->class_int()].size()
               << ": " << predicate_name;
     }
@@ -314,13 +318,13 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter->class_int();
+    double old_selectivity =
+        filter_to_active_set_->active_set(class_int).Selectivity();
     filter_to_active_set_->Build(class_permuter.get(),
                                  single_class_predicates[class_int]);
     VLOG(2) << "Selectivity (" << class_permuter->class_int()
-            << "): " << class_permuter->Selectivity() << " => "
+            << "): " << old_selectivity << " => "
             << filter_to_active_set_->active_set(class_int).Selectivity();
-    class_permuter->set_active_set(
-        filter_to_active_set_->active_set(class_int));
   }
 
   if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {
@@ -358,6 +362,12 @@ void FilteredSolutionPermuter::BuildActiveSets(
                                                  permuter_b->class_int())];
         if (filters.empty()) continue;
 
+        double old_a_selectivity =
+            filter_to_active_set_->active_set(permuter_a->class_int())
+                .Selectivity();
+        double old_b_selectivity =
+            filter_to_active_set_->active_set(permuter_b->class_int())
+                .Selectivity();
         filter_to_active_set_->Build(permuter_a, permuter_b, filters,
                                      pair_class_mode);
         const ActiveSet& new_a =
@@ -365,18 +375,15 @@ void FilteredSolutionPermuter::BuildActiveSets(
         const ActiveSet& new_b =
             filter_to_active_set_->active_set(permuter_b->class_int());
         VLOG(2) << "Selectivity (" << permuter_a->class_int() << ", "
-                << permuter_b->class_int() << "): ("
-                << permuter_a->Selectivity() << ", "
-                << permuter_b->Selectivity() << ") => (" << new_a.Selectivity()
+                << permuter_b->class_int() << "): (" << old_a_selectivity
+                << ", " << old_b_selectivity << ") => (" << new_a.Selectivity()
                 << ", " << new_b.Selectivity() << ")";
-        if (permuter_a->Selectivity() > new_a.Selectivity()) {
+        if (old_a_selectivity > new_a.Selectivity()) {
           cardinality_reduced = true;
         }
-        if (permuter_b->Selectivity() > new_b.Selectivity()) {
+        if (old_b_selectivity > new_b.Selectivity()) {
           cardinality_reduced = true;
         }
-        permuter_a->set_active_set(new_a);
-        permuter_b->set_active_set(new_b);
       }
     }
 
@@ -391,19 +398,27 @@ void FilteredSolutionPermuter::ReorderEvaluation() {
     return;
   }
 
-  std::sort(class_permuters_.begin(), class_permuters_.end(),
-            [](const std::unique_ptr<ClassPermuter>& a,
-               const std::unique_ptr<ClassPermuter>& b) {
-              return a->Selectivity() < b->Selectivity();
-            });
+  std::sort(
+      class_permuters_.begin(), class_permuters_.end(),
+      [this](const std::unique_ptr<ClassPermuter>& a,
+             const std::unique_ptr<ClassPermuter>& b) {
+        double a_selectivity =
+            filter_to_active_set_->active_set(a->class_int()).Selectivity();
+        double b_selectivity =
+            filter_to_active_set_->active_set(b->class_int()).Selectivity();
+        return a_selectivity < b_selectivity;
+      });
 
   VLOG(1) << "Reordered to: "
-          << absl::StrJoin(
-                 class_permuters_, ", ",
-                 [](std::string* out, const std::unique_ptr<ClassPermuter>& a) {
-                   absl::StrAppend(out, "(", a->class_int(), ",",
-                                   a->Selectivity(), ")");
-                 });
+          << absl::StrJoin(class_permuters_, ", ",
+                           [this](std::string* out,
+                                  const std::unique_ptr<ClassPermuter>& a) {
+                             absl::StrAppend(out, "(", a->class_int(), ",",
+                                             filter_to_active_set_
+                                                 ->active_set(a->class_int())
+                                                 .Selectivity(),
+                                             ")");
+                           });
 }
 
 int64_t FilteredSolutionPermuter::permutation_count() const {

@@ -73,10 +73,10 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
 
   std::set<std::vector<int>> history;
   int position = 0;
-  p->set_active_set(std::move(active_set_first));
-  for (auto it = p->begin(); it != p->end(); ++it) {
+  for (auto it = p->begin().WithActiveSet(active_set_first); it != p->end();
+       ++it) {
     EXPECT_THAT(it.position(), position);
-    EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
+    EXPECT_TRUE(history.emplace((*it).begin(), (*it).end()).second)
         << absl::StrJoin(*it, ", ");
     EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
     ++position;
@@ -84,8 +84,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   EXPECT_THAT(position, 3);
 
   position = 0;
-  p->set_active_set(std::move(active_set_last));
-  for (auto it = p->begin(); it != p->end(); ++it) {
+  for (auto it = p->begin().WithActiveSet(active_set_last); it != p->end();
+       ++it) {
     EXPECT_THAT(it.position(), position + 3);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
@@ -111,8 +111,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
 
   std::set<std::vector<int>> history;
   int position = 0;
-  p->set_active_set(std::move(active_set_even));
-  for (auto it = p->begin(); it != p->end(); ++it) {
+  for (auto it = p->begin().WithActiveSet(active_set_even); it != p->end();
+       ++it) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
@@ -122,8 +122,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   EXPECT_THAT(position, 3);
 
   position = 0;
-  p->set_active_set(std::move(active_set_odd));
-  for (auto it = p->begin(); it != p->end(); ++it) {
+  for (auto it = p->begin().WithActiveSet(active_set_odd); it != p->end();
+       ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
@@ -149,7 +149,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
 
   std::set<std::vector<int>> history;
   int position = 0;
-  for (auto it = p->begin(active_set_even); it != p->end(); ++it) {
+  for (auto it = p->begin().WithActiveSet(active_set_even); it != p->end();
+       ++it) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
@@ -159,7 +160,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   EXPECT_THAT(position, 3);
 
   position = 0;
-  for (auto it = p->begin(active_set_odd); it != p->end(); ++it) {
+  for (auto it = p->begin().WithActiveSet(active_set_odd); it != p->end();
+       ++it) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
@@ -216,16 +218,16 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   only_three_in_position_one.DoneAdding();
   EXPECT_EQ(only_three_in_position_one.matches(), 6);
 
-  p->set_active_set(only_three_in_position_one);
   int loop_count = 0;
-  for (const auto& permutation : *p) {
-    std::ignore = permutation;
+  for (auto it = p->begin().WithActiveSet(only_three_in_position_one);
+       it != p->end(); ++it) {
     ++loop_count;
   }
   EXPECT_EQ(loop_count, only_three_in_position_one.matches());
 
   loop_count = 0;
-  for (auto it = p->begin(); it != p->end(); it += {.value_index = 1}) {
+  for (auto it = p->begin().WithActiveSet(only_three_in_position_one);
+       it != p->end(); it += {.value_index = 1}) {
     EXPECT_EQ((*it)[1], 3);
     ++loop_count;
   }

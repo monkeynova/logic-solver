@@ -23,8 +23,8 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
     using ValueSkip = AdvancerBase::ValueSkip;
     using Base = AdvancerStaticStorage<kStorageSize>;
 
-    Advancer(const ClassPermuterFactorialRadixDeleteTracking* permuter,
-             ActiveSet active_set);
+    explicit Advancer(
+        const ClassPermuterFactorialRadixDeleteTracking* permuter);
 
     std::unique_ptr<AdvancerBase> Clone() const override {
       return absl::make_unique<Advancer>(*this);
@@ -54,10 +54,7 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
       ClassPermuterFactorialRadixDeleteTracking&&) = default;
 
   iterator begin() const override {
-    return iterator(absl::make_unique<Advancer>(this, active_set()));
-  }
-  iterator begin(ActiveSet active_set) const override {
-    return iterator(absl::make_unique<Advancer>(this, std::move(active_set)));
+    return iterator(absl::make_unique<Advancer>(this));
   }
 };
 

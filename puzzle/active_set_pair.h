@@ -12,7 +12,7 @@ class ActiveSetPair {
 
   const ActiveSet& Find(int a_val) const {
     auto it = b_given_a_.find(a_val);
-    if (it == b_given_a_.end()) return ActiveSet::Empty();
+    if (it == b_given_a_.end()) return ActiveSet::trivial();
     return it->second;
   }
 

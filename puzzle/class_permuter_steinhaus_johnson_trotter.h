@@ -13,8 +13,7 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
    public:
     using Base = AdvancerStaticStorage<kStorageSize>;
 
-    Advancer(const ClassPermuterSteinhausJohnsonTrotter* permuter,
-             ActiveSet active_set);
+    Advancer(const ClassPermuterSteinhausJohnsonTrotter* permuter);
 
     std::unique_ptr<AdvancerBase> Clone() const override {
       return absl::make_unique<Advancer>(*this);
@@ -39,10 +38,7 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
       ClassPermuterSteinhausJohnsonTrotter&&) = default;
 
   iterator begin() const override {
-    return iterator(absl::make_unique<Advancer>(this, active_set()));
-  }
-  iterator begin(ActiveSet active_set) const override {
-    return iterator(absl::make_unique<Advancer>(this, std::move(active_set)));
+    return iterator(absl::make_unique<Advancer>(this));
   }
 };
 

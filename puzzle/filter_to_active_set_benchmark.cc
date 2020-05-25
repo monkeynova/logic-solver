@@ -15,12 +15,10 @@ struct SetupState {
         permuter_a(MakeClassPermuter(descriptor.AllClassValues(kClassIntA),
                                      kClassIntA)),
         permuter_b(MakeClassPermuter(descriptor.AllClassValues(kClassIntB),
-                                     kClassIntB)) {
-    FilterToActiveSet single_class_builder(&descriptor);
+                                     kClassIntB)),
+        single_class_builder(&descriptor) {
     single_class_builder.Build(permuter_a.get(), {MakeFilterA()});
-    permuter_a->set_active_set(single_class_builder.active_set(kClassIntA));
     single_class_builder.Build(permuter_b.get(), {MakeFilterB()});
-    permuter_b->set_active_set(single_class_builder.active_set(kClassIntB));
   }
 
   static EntryDescriptor MakeDescriptor(
@@ -76,6 +74,7 @@ struct SetupState {
   std::vector<SolutionFilter> predicates;
   std::unique_ptr<ClassPermuter> permuter_a;
   std::unique_ptr<ClassPermuter> permuter_b;
+  FilterToActiveSet single_class_builder;
 };
 
 template <FilterToActiveSet::PairClassImpl pair_class_impl,
@@ -84,7 +83,7 @@ static void BM_Pair(benchmark::State& state) {
   SetupState setup(state.range(0));
 
   for (auto _ : state) {
-    FilterToActiveSet builder(&setup.descriptor);
+    FilterToActiveSet builder = setup.single_class_builder;
     builder.Build<pair_class_impl>(setup.permuter_a.get(),
                                    setup.permuter_b.get(), setup.predicates,
                                    pair_class_mode);

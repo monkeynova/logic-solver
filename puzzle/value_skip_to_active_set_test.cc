@@ -19,7 +19,7 @@ TEST(ValueSkipToActiveSet, FiveElements) {
     for (int value : {1, 2, 3, 4, 5}) {
       ActiveSet as = vs2as.value_skip_set(position, value);
       int loops = 0;
-      for (auto it = permuter->begin(as); it != permuter->end(); ++it) {
+      for (auto it = permuter->begin().WithActiveSet(as); it != permuter->end(); ++it) {
         EXPECT_NE((*it)[position], value);
         ++loops;
       }
@@ -28,7 +28,7 @@ TEST(ValueSkipToActiveSet, FiveElements) {
     for (int value : {0, 6}) {
       ActiveSet as = vs2as.value_skip_set(position, value);
       int loops = 0;
-      for (auto it = permuter->begin(as); it != permuter->end(); ++it) {
+      for (auto it = permuter->begin().WithActiveSet(as); it != permuter->end(); ++it) {
         EXPECT_NE((*it)[position], value);
         ++loops;
       }

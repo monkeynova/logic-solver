@@ -51,9 +51,8 @@ static RadixIndexToRawIndex* GetRadixIndexToRawIndex(int max_pos) {
 
 template <int kStorageSize>
 ClassPermuterFactorialRadixDeleteTracking<kStorageSize>::Advancer::Advancer(
-    const ClassPermuterFactorialRadixDeleteTracking* permuter,
-    ActiveSet active_set)
-    : Base(permuter, std::move(active_set)) {
+    const ClassPermuterFactorialRadixDeleteTracking* permuter)
+    : Base(permuter) {
   memcpy(values_, Base::current_, sizeof(values_));
   DCHECK_LT(kStorageSize, kMaxStorageSize)
       << "Permutation indexes use a memory buffer of size N * 2^N";

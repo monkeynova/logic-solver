@@ -10,13 +10,13 @@ namespace puzzle {
 
 class ActiveSet {
  public:
-  static const ActiveSet& Empty() {
-    static ActiveSet empty = []() {
+  static const ActiveSet& trivial() {
+    static ActiveSet trivial = []() {
       ActiveSet ret;
       ret.DoneAdding();
       return ret;
     }();
-    return empty;
+    return trivial;
   }
 
   ActiveSet() = default;
@@ -44,7 +44,11 @@ class ActiveSet {
   ActiveSet Intersection(const ActiveSet& other) const;
   void Intersect(const ActiveSet& other) {
     if (other.is_trivial()) return;
-    *this = Intersection(other);
+
+    if (is_trivial())
+      *this = other;
+    else
+      *this = Intersection(other);
   }
 
   std::vector<int> EnabledValues() const;

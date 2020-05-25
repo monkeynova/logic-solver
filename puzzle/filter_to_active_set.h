@@ -28,6 +28,8 @@ class FilterToActiveSet {
 
   explicit FilterToActiveSet(const EntryDescriptor* entry_descriptor);
 
+  FilterToActiveSet(const FilterToActiveSet& other);
+
   const ActiveSet& active_set(int class_int) const {
     DCHECK_LT(static_cast<size_t>(class_int), active_sets_.size());
     return active_sets_[class_int];

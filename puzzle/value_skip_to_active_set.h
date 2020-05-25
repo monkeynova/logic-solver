@@ -12,9 +12,9 @@ class ValueSkipToActiveSet {
   explicit ValueSkipToActiveSet(const ClassPermuter* class_permuter);
 
   const ActiveSet& value_skip_set(int position, int value) {
-    if (position >= active_set_.size()) return ActiveSet::Empty();
+    if (position >= active_set_.size()) return ActiveSet::trivial();
     auto it = active_set_[position].find(value);
-    if (it == active_set_[position].end()) return ActiveSet::Empty();
+    if (it == active_set_[position].end()) return ActiveSet::trivial();
     return it->second;
   }
 

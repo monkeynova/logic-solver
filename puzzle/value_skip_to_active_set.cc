@@ -11,8 +11,7 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
     }
   }
 
-  for (auto it = class_permuter->begin(ActiveSet::Empty());
-       it != class_permuter->end(); ++it) {
+  for (auto it = class_permuter->begin(); it != class_permuter->end(); ++it) {
     for (int i = 0; i < it->size(); ++i) {
       CHECK(active_set_[i].contains((*it)[i]))
           << "{" << absl::StrJoin(*it, ",") << "}; " << i;

@@ -4,8 +4,8 @@ namespace puzzle {
 
 template <int kStorageSize>
 ClassPermuterSteinhausJohnsonTrotter<kStorageSize>::Advancer::Advancer(
-    const ClassPermuterSteinhausJohnsonTrotter* permuter, ActiveSet active_set)
-    : Base(permuter, std::move(active_set)) {
+    const ClassPermuterSteinhausJohnsonTrotter* permuter)
+    : Base(permuter) {
   for (size_t i = 0; i < kStorageSize; ++i) {
     index_[i] = i;
     direction_[i] = i == 0 ? 0 : -1;

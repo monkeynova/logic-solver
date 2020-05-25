@@ -71,6 +71,7 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   CHECK(!other.building_) << "Intersect called with an unbuilt ActiveSet";
 
   if (other.is_trivial()) return *this;
+  if (is_trivial()) return other;
 
   ActiveSetIterator this_iterator(matches_);
   ActiveSetIterator other_iterator(other.matches_);
