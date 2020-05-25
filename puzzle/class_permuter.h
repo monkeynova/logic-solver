@@ -167,7 +167,7 @@ class ClassPermuter {
 
     iterator& WithActiveSet(const ActiveSet& active_set) {
       if (!active_set.is_trivial()) {
-	advancer_->WithActiveSet(active_set);
+        advancer_->WithActiveSet(active_set);
       }
       return *this;
     }
