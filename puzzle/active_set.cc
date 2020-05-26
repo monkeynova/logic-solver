@@ -50,8 +50,8 @@ ActiveSet ActiveSetBuilder::FromPositions(const std::vector<int>& positions,
 }
 
 struct ActiveSetIterator {
-  explicit ActiveSetIterator(const std::vector<int>& matches)
-      : matches_(matches) {}
+  ActiveSetIterator(absl::Span<const int> matches, bool value)
+      : matches_(matches), value_(value) {}
 
   bool value() const { return value_; }
 
@@ -71,8 +71,8 @@ struct ActiveSetIterator {
   }
 
  private:
-  const std::vector<int>& matches_;
-  bool value_ = true;
+  absl::Span<const int> matches_;
+  bool value_;
   int match_position_ = 0;
   int run_position_ = 0;
 };
@@ -81,8 +81,11 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
-  ActiveSetIterator this_iterator(matches_);
-  ActiveSetIterator other_iterator(other.matches_);
+  ActiveSetIterator this_iterator(
+      absl::MakeSpan(matches_).subspan(matches_position_), current_value_);
+  ActiveSetIterator other_iterator(
+      absl::MakeSpan(other.matches_).subspan(other.matches_position_),
+      other.current_value_);
 
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
           << ")";
@@ -137,9 +140,10 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   }
 
   const int intersection_total = std::max(total_, other.total_);
-  intersection.AddBlock(false, intersection_total - intersection.total() - 1);
-  // Mark done and update self.
-  return intersection.DoneAdding();
+  intersection.AddBlock(false, intersection_total - intersection.total());
+  ActiveSet ret = intersection.DoneAdding();
+  ret.offset_ = offset_;
+  return ret;
 }
 
 std::string ActiveSet::DebugString() const {
@@ -197,7 +201,10 @@ ActiveSet ActiveSetBuilder::DoneAdding() {
 }
 
 bool ActiveSet::ConsumeNext() {
-  if (matches_.empty()) return true;
+  if (matches_.empty()) {
+    if (offset_ < total_) ++offset_;
+    return true;
+  }
   if (matches_position_ >= static_cast<int>(matches_.size())) return true;
 
   if (matches_[matches_position_] == 0) {
@@ -205,6 +212,7 @@ bool ActiveSet::ConsumeNext() {
     ++matches_position_;
     if (matches_position_ >= static_cast<int>(matches_.size())) return true;
   }
+  ++offset_;
   --matches_[matches_position_];
   return current_value_;
 }
@@ -223,6 +231,7 @@ int ActiveSet::ConsumeFalseBlock() {
   int ret = matches_[matches_position_];
   ++matches_position_;
   current_value_ = true;
+  offset_ += ret;
   return ret;
 }
 
@@ -238,6 +247,7 @@ bool ActiveSet::DiscardBlock(int block_size) {
     int delta = std::min(matches_[matches_position_], block_size);
     matches_[matches_position_] -= delta;
     block_size -= delta;
+    offset_ += delta;
   }
   return current_value_;
 }
@@ -245,7 +255,7 @@ bool ActiveSet::DiscardBlock(int block_size) {
 std::vector<int> ActiveSet::EnabledValues() const {
   ActiveSet copy = *this;
   std::vector<int> ret;
-  for (int i = 0; i < copy.total(); ++i) {
+  for (int i = copy.offset_; i < copy.total_; ++i) {
     if (copy.ConsumeNext()) {
       ret.push_back(i);
     }

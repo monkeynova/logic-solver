@@ -102,7 +102,7 @@ void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
   bool was_advanced;
   it.WithActiveSet(vs2as->value_skip_set(it, value_skip), &was_advanced);
   CHECK(was_advanced)
-    << "Skipping the current value should advance the iterator";
+      << "Skipping the current value should advance the iterator";
   if (!was_advanced) {
     ++it;
   }

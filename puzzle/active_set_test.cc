@@ -69,8 +69,9 @@ TEST(ActiveSet, DiscardFirstBlock) {
     builder.Add(i & 1);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
+  EXPECT_EQ(set.offset(), 0);
   EXPECT_EQ(set.DiscardBlock(20), (19 & 1));
+  EXPECT_EQ(set.offset(), 20);
   for (int i = 20; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
   }
@@ -82,11 +83,12 @@ TEST(ActiveSet, DiscardBlockAlternating) {
     builder.Add(i & 1);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   for (int i = 0; i < 15; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
   }
+  EXPECT_EQ(set.offset(), 15);
   EXPECT_EQ(set.DiscardBlock(20), (34 & 1));
+  EXPECT_EQ(set.offset(), 35);
   for (int i = 35; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
   }
@@ -98,7 +100,6 @@ TEST(ActiveSet, ConsumeNextStreaks) {
     builder.Add(i & 4);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   for (int i = 0; i < 40; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
   }
@@ -110,7 +111,6 @@ TEST(ActiveSet, DiscardBlockStreaks) {
     builder.Add(i & 4);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   for (int i = 0; i < 10; ++i) {
     EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
   }
@@ -126,9 +126,10 @@ TEST(ActiveSet, ConsumeFalseBlockFalse) {
     builder.Add(false);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   EXPECT_THAT(set.ConsumeFalseBlock(), 40) << set.DebugString();
+  EXPECT_EQ(set.offset(), 40);
   EXPECT_THAT(set.ConsumeFalseBlock(), 0) << set.DebugString();
+  EXPECT_EQ(set.offset(), 40);
 }
 
 TEST(ActiveSet, ConsumeFalseBlockTrue) {
@@ -137,7 +138,6 @@ TEST(ActiveSet, ConsumeFalseBlockTrue) {
     builder.Add(true);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   EXPECT_THAT(set.ConsumeFalseBlock(), 0);
 }
 
@@ -147,7 +147,6 @@ TEST(ActiveSet, ConsumeFalseBlockStreaks) {
     builder.Add(i & 4);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   for (int i = 0; i < 40; ++i) {
     const int delta = set.ConsumeFalseBlock();
     ASSERT_THAT(delta, AnyOf(0, 4));
@@ -164,7 +163,6 @@ TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
     builder.Add(!(i & 4));
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   for (int i = 0; i < 40; ++i) {
     const int delta = set.ConsumeFalseBlock();
     ASSERT_THAT(delta, AnyOf(0, 4));
@@ -181,7 +179,6 @@ TEST(ActiveSet, ConsumeFalseBlockAlternating) {
     builder.Add(i & 1);
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   for (int i = 0; i < 40; ++i) {
     const int delta = set.ConsumeFalseBlock();
     EXPECT_THAT(delta, AnyOf(0, 1));
@@ -198,7 +195,6 @@ TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
     builder.Add(!(i & 1));
   }
   ActiveSet set = builder.DoneAdding();
-  ;
   LOG(INFO) << set.DebugString();
   for (int i = 0; i < 40; ++i) {
     const int delta = set.ConsumeFalseBlock();
@@ -218,6 +214,21 @@ TEST(ActiveSet, EnabledValues) {
     EXPECT_THAT(ActiveSetBuilder::FromPositions(test, 4).EnabledValues(),
                 ElementsAreArray(test));
   }
+}
+
+TEST(ActiveSet, EnabledValuesMultipleCalls) {
+  ActiveSet set = ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 4);
+  EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
+  EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
+}
+
+TEST(ActiveSet, EnabledValuesAfterConsume) {
+  ActiveSet set = ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 4);
+  EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
+  LOG(INFO) << set.offset();
+  set.ConsumeNext();
+  LOG(INFO) << set.offset();
+  EXPECT_THAT(set.EnabledValues(), ElementsAre(1, 2, 3));
 }
 
 TEST(ActiveSet, SetConstruction) {
@@ -266,19 +277,30 @@ TEST(ActiveSet, SetConstuctionSpards) {
               ElementsAre(5, 10));
 }
 
-void TestIntersection(const std::vector<int>& set_a,
-                      const std::vector<int>& set_b, int max_position_a,
-                      int max_position_b) {
+void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
+                      int max_position_a, int max_position_b) {
   ActiveSet a = ActiveSetBuilder::FromPositions(set_a, max_position_a);
   ActiveSet b = ActiveSetBuilder::FromPositions(set_b, max_position_b);
-  std::vector<int> intersection;
+  std::vector<int> full_intersection;
   std::set_intersection(set_a.begin(), set_a.end(), set_b.begin(), set_b.end(),
-                        std::back_inserter(intersection));
+                        std::back_inserter(full_intersection));
+  absl::Span<int> intersection = absl::MakeSpan(full_intersection);
 
-  EXPECT_THAT(a.Intersection(b).EnabledValues(),
-              ElementsAreArray(intersection));
-  EXPECT_THAT(b.Intersection(a).EnabledValues(),
-              ElementsAreArray(intersection));
+  for (int i = 0; i < std::min(max_position_a, max_position_b); ++i) {
+    EXPECT_THAT(a.Intersection(b).EnabledValues(),
+                ElementsAreArray(intersection))
+        << "Offset: " << i << "; " << a.DebugString() << "; "
+        << b.DebugString();
+    EXPECT_THAT(b.Intersection(a).EnabledValues(),
+                ElementsAreArray(intersection))
+        << "Offset: " << i << "; " << a.DebugString() << "; "
+        << b.DebugString();
+    a.ConsumeNext();
+    b.ConsumeNext();
+    while (!intersection.empty() && intersection[0] <= i) {
+      intersection = intersection.subspan(1);
+    }
+  }
 }
 
 TEST(ActiveSet, IntersectionFull) { TestIntersection({0, 1}, {0, 1}, 2, 2); }

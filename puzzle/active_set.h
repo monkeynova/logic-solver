@@ -60,6 +60,7 @@ class ActiveSet {
   bool is_trivial() const { return matches_.empty(); }
   int matches() const { return matches_count_; }
   int total() const { return total_; }
+  int offset() const { return offset_; }
   double Selectivity() const {
     if (is_trivial()) return 1.0;
     return static_cast<double>(matches()) / total();
@@ -93,6 +94,9 @@ class ActiveSet {
   // The total number of boolean values contained within this ActiveSet.
   // Immutable after DoneAdding is called.
   int total_ = 0;
+
+  // The number of results consumed so far from this ActiveSet.
+  int offset_ = 0;
 
   friend class ActiveSetBuilder;
 };
