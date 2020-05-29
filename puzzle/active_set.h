@@ -99,6 +99,38 @@ class ActiveSet {
   int offset_ = 0;
 
   friend class ActiveSetBuilder;
+  friend class ActiveSetIterator;
+};
+
+class ActiveSetIterator {
+ public:
+  explicit ActiveSetIterator(const ActiveSet& active_set)
+    : matches_(absl::MakeSpan(active_set.matches_)
+	           .subspan(active_set.matches_position_)),
+      value_(active_set.current_value_) {}
+
+  bool value() const { return value_; }
+
+  bool more() const {
+    return match_position_ < static_cast<int>(matches_.size());
+  }
+
+  int run_size() const { return matches_[match_position_] - run_position_; }
+
+  void Advance(int n) {
+    run_position_ += n;
+    while (more() && run_position_ >= matches_[match_position_]) {
+      run_position_ -= matches_[match_position_];
+      ++match_position_;
+      value_ = !value_;
+    }
+  }
+
+ private:
+  absl::Span<const int> matches_;
+  bool value_;
+  int match_position_ = 0;
+  int run_position_ = 0;
 };
 
 class ActiveSetBuilder {

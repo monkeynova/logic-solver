@@ -49,43 +49,12 @@ ActiveSet ActiveSetBuilder::FromPositions(const std::vector<int>& positions,
   return builder.DoneAdding();
 }
 
-struct ActiveSetIterator {
-  ActiveSetIterator(absl::Span<const int> matches, bool value)
-      : matches_(matches), value_(value) {}
-
-  bool value() const { return value_; }
-
-  bool more() const {
-    return match_position_ < static_cast<int>(matches_.size());
-  }
-
-  int run_size() const { return matches_[match_position_] - run_position_; }
-
-  void Advance(int n) {
-    run_position_ += n;
-    while (more() && run_position_ >= matches_[match_position_]) {
-      run_position_ -= matches_[match_position_];
-      ++match_position_;
-      value_ = !value_;
-    }
-  }
-
- private:
-  absl::Span<const int> matches_;
-  bool value_;
-  int match_position_ = 0;
-  int run_position_ = 0;
-};
-
 ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
-  ActiveSetIterator this_iterator(
-      absl::MakeSpan(matches_).subspan(matches_position_), current_value_);
-  ActiveSetIterator other_iterator(
-      absl::MakeSpan(other.matches_).subspan(other.matches_position_),
-      other.current_value_);
+  ActiveSetIterator this_iterator(*this);
+  ActiveSetIterator other_iterator(other);
 
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
           << ")";
