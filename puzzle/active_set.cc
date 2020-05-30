@@ -40,11 +40,11 @@ ActiveSet ActiveSetBuilder::FromPositions(const std::vector<int>& positions,
   for (auto p : positions) {
     if (p < 0) continue;
     if (p >= max_position) break;
-    builder.AddBlock(false, p - builder.total());
+    builder.AddBlockTo(false, p);
     builder.Add(true);
   }
   if (builder.total() < max_position) {
-    builder.AddBlock(false, max_position - builder.total());
+    builder.AddBlockTo(false, max_position);
   }
   return builder.DoneAdding();
 }
@@ -109,9 +109,8 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   }
 
   const int intersection_total = std::max(total_, other.total_);
-  intersection.AddBlock(false, intersection_total - intersection.total());
-  ActiveSet ret = intersection.DoneAdding();
-  return ret;
+  intersection.AddBlockTo(false, intersection_total);
+  return intersection.DoneAdding();
 }
 
 std::string ActiveSet::DebugString() const {

@@ -134,9 +134,15 @@ class ActiveSetBuilder {
   // after DoneAdding is called.
   void Add(bool match);
 
-  // Adds 'size' enties of 'value'. Equivalent to:
+  // Adds `size` enties of `value`. Equivalent to:
   // for (int i = 0; i < size; ++i) Add(value);
   void AddBlock(bool value, int size);
+
+  // Adds entites of `value` until `total()` is `position`. Note the fence-post
+  // here. The value at `position` is left unset.
+  void AddBlockTo(bool value, int position) {
+    AddBlock(value, position - total());
+  }
 
   // Returns the ActiveSet constructed by calls to Add and AddBlock. It is
   // undefined behavior to call more than once.

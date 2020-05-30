@@ -19,7 +19,7 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
       CHECK(to_add_it != builders[i].end())
           << "{" << absl::StrJoin(*it, ",") << "}; " << i;
       ActiveSetBuilder& to_add = to_add_it->second;
-      to_add.AddBlock(true, it.position() - to_add.total());
+      to_add.AddBlockTo(true, it.position());
       to_add.Add(false);
     }
   }
@@ -30,8 +30,7 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
       auto to_finish_it = builders[i].find(value);
       CHECK(to_finish_it != builders[i].end()) << i << ", " << value;
       ActiveSetBuilder& to_finish = to_finish_it->second;
-      to_finish.AddBlock(
-          true, class_permuter->permutation_count() - to_finish.total());
+      to_finish.AddBlockTo(true, class_permuter->permutation_count());
       active_set_[i].emplace(value, to_finish.DoneAdding());
     }
   }
