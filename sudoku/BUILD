@@ -99,13 +99,15 @@ cc_test(
     ]
 )
 
-# Not a test target because I don't want it run with blaze test ... given
-# it doesn't finish.
-cc_binary(
+cc_test(
     name = "single_line_empty_test",
-    testonly = 1,
     srcs = ["single_line_test.cc"],
     args = [
+        # This is a worst-case benchmark for prune_pair_class_iterators
+        # without any single class filters to prune the space, so we
+        # disable the pair pruning for usual testing, but can enable it
+        # to benchmark pair pruning behavior.
+        "--puzzle_prune_pair_class_iterators=false",
         "--sudoku_line_board=" +
         "........." +
         "........." +
@@ -116,16 +118,18 @@ cc_binary(
         "........." +
         "........." +
         ".........",
+        # Since we have no contraints, all valid sudoku solutions are
+        # returnable, this is the first one given the iteration model used.
         "--sudoku_line_answer=" +
-        "........." +
-        "........." +
-        "........." +
-        "........." +
-        "........." +
-        "........." +
-        "........." +
-        "........." +
-        "........."
+        "147238569" +
+	"258169347" +
+	"369457128" +
+	"471382695" +
+	"582691473" +
+	"693574281" +
+	"714823956" +
+	"825916734" +
+	"936745812",
     ],
     tags = ["benchmark", "slowbenchmark"],
     deps = [
