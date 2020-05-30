@@ -28,7 +28,7 @@ class Solver {
                                name_descriptor);
   }
 
-  // TODO(keith@monkeynova.com): Check class_int_restrict_list with a dummy
+  // TODO(@monkeynova): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
 
   void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
@@ -46,7 +46,7 @@ class Solver {
                              std::move(class_int_restrict_list)));
   }
 
-  // TODO(keith@monkeynova.com): Allowing a restrict list of entry_ids here
+  // TODO(@monkeynova): Allowing a restrict list of entry_ids here
   // could also allow faster ClassPermuter advancement.
   // Note the implementation of skipping currently interacts with ActiveSet to
   // not guarantee that precedeing entries don't change which means that for

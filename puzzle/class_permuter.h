@@ -155,7 +155,7 @@ class ClassPermuter {
     }
 
     // Advance until the value of `current_[value_skip.value_index]` changes.
-    // TODO(keith@monkeynova.com): The details of permutation iteration are
+    // TODO(@monkeynova): The details of permutation iteration are
     // putting the iteration reduction to a permutation of size 9 between 1-4x
     // when skipping at a single value_index through the full permutation. If
     // our goal is to skip all permutations with a specific (index, value) pair,

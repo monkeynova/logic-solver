@@ -15,7 +15,7 @@ ABSL_FLAG(bool, puzzle_prune_pair_class_iterators, true,
           "If specfied, class iterators will be pruned based on pair "
           "class predicates that are present.");
 
-// TODO(keith@monkeynova.com): Enabling this flags results in failed tests with
+// TODO(@monkeynova): Enabling this flags results in failed tests with
 // results returned that did not pass the filters.
 ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, false,
           "If specified pairwise iterators will be pruned with contextual "
@@ -73,7 +73,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
 
   if (iterators_[class_int] == class_permuter->end()) {
     const FilterToActiveSet* builder = permuter_->filter_to_active_set_.get();
-    // TODO(keith@monkeynova.com): Rather than building the intersection of the
+    // TODO(@monkeynova): Rather than building the intersection of the
     // active set and sending it in at once, we should be able to use the
     // WithActiveSet model repeatedly and reduce the complexity of this code.
     ActiveSet build = builder->active_set(class_int);
@@ -201,7 +201,7 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
 
 bool FilteredSolutionPermuter::AddFilter(SolutionFilter solution_filter) {
   CHECK(!prepared_);
-  // TODO(keith@monkeynova.com): Maybe test for full sized list as well.
+  // TODO(@monkeynova): Maybe test for full sized list as well.
   if (solution_filter.classes().empty()) {
     // No reason to store the predicate here as we require a full solution to
     // evaluate the predicate.

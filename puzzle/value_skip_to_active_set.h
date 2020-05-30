@@ -26,7 +26,7 @@ class ValueSkipToActiveSet {
   }
 
  private:
-  // TODO(keith@monkeynova.com): flat_hash_map allows IntRangeDescriptor to
+  // TODO(@monkeynova): flat_hash_map allows IntRangeDescriptor to
   // return non-0-indexed values, but costs about 2x the CPU to construct
   // these ActiveSets on the benchmark.
   std::vector<absl::flat_hash_map<int, ActiveSet>> active_set_;

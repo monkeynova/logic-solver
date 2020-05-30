@@ -9,7 +9,7 @@
 namespace puzzle {
 
 // Terrible hack to try make gflags and absl sort of play nice.
-// TODO(keith@monkeynova.com): Rip this out when absl::log obviates the need for
+// TODO(@monkeynova): Rip this out when absl::log obviates the need for
 // gflags.
 static void StripGflags(int* argc, char*** argv) {
   for (int i = 1; i < *argc; ++i) {

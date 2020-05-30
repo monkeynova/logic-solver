@@ -26,7 +26,7 @@ class MutableSolution {
 
   Solution TestableSolution() { return Solution(descriptor_, &entries_); }
 
-  // TODO(keith@monkeynova.com): Allow a MutableSolution to bind to class
+  // TODO(@monkeynova): Allow a MutableSolution to bind to class
   // permuters and pull values from them directly avoiding this push model.
   void SetClass(const ClassPermuter::iterator& it) {
     for (unsigned int j = 0; j < it->size(); ++j) {

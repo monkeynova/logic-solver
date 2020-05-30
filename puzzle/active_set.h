@@ -15,7 +15,7 @@ class ActiveSetIterator {
     // ActiveSet may be constructed with an empty first record (it uses this
     // to indicate a false record to start), so skip that if present and
     // negate value.
-    // TODO(keith@monkeynova.com): Move this logic to ActiveSet construction.
+    // TODO(@monkeynova): Move this logic to ActiveSet construction.
     if (!matches_.empty() && matches_[0] == 0) {
       value_ = !value_;
       ++match_position_;

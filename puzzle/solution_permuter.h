@@ -70,7 +70,7 @@ class SolutionPermuter {
   virtual bool AddFilter(SolutionFilter solution_filter) { return false; }
 
   // EntryDescriptor is not valid before this call.
-  // TODO(keith@monkeynova.com): Fix this awful interface.
+  // TODO(@monkeynova): Fix this awful interface.
   virtual void Prepare() = 0;
 
   virtual iterator begin() const = 0;
