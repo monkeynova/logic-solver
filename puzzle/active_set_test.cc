@@ -36,8 +36,9 @@ TEST(ActiveSet, ConsumeNextAllTrue) {
     builder.Add(true);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 3; ++i) {
-    EXPECT_TRUE(set.ConsumeNext());
+  ActiveSetIterator it = set.Iterator();
+  for (int i = 0; i < 3; ++i, it.Advance(1)) {
+    EXPECT_TRUE(it.value()) << i;
   }
 }
 
@@ -47,8 +48,9 @@ TEST(ActiveSet, ConsumeNextAllFalse) {
     builder.Add(false);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 3; ++i) {
-    EXPECT_FALSE(set.ConsumeNext());
+  ActiveSetIterator it = set.Iterator();
+  for (int i = 0; i < 3; ++i, it.Advance(1)) {
+    EXPECT_FALSE(it.value()) << i;
   }
 }
 
@@ -58,8 +60,9 @@ TEST(ActiveSet, ConsumeNextAlternating) {
     builder.Add(i & 1);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
+  ActiveSetIterator it = set.Iterator();
+  for (int i = 0; i < 40; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(i & 1));
   }
 }
 
@@ -69,11 +72,12 @@ TEST(ActiveSet, DiscardFirstBlock) {
     builder.Add(i & 1);
   }
   ActiveSet set = builder.DoneAdding();
-  EXPECT_EQ(set.offset(), 0);
-  EXPECT_EQ(set.DiscardBlock(20), (19 & 1));
-  EXPECT_EQ(set.offset(), 20);
-  for (int i = 20; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
+  ActiveSetIterator it = set.Iterator();
+  EXPECT_EQ(it.offset(), 0);
+  it.Advance(20);
+  EXPECT_EQ(it.offset(), 20);
+  for (int i = 20; i < 40; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(i & 1));
   }
 }
 
@@ -83,14 +87,15 @@ TEST(ActiveSet, DiscardBlockAlternating) {
     builder.Add(i & 1);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 15; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
+  ActiveSetIterator it = set.Iterator();
+  for (int i = 0; i < 15; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(i & 1)) << i;
   }
-  EXPECT_EQ(set.offset(), 15);
-  EXPECT_EQ(set.DiscardBlock(20), (34 & 1));
-  EXPECT_EQ(set.offset(), 35);
-  for (int i = 35; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(i & 1));
+  EXPECT_EQ(it.offset(), 15);
+  it.Advance(20);
+  EXPECT_EQ(it.offset(), 35);
+  for (int i = 35; i < 40; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(i & 1));
   }
 }
 
@@ -100,8 +105,9 @@ TEST(ActiveSet, ConsumeNextStreaks) {
     builder.Add(i & 4);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
+  ActiveSetIterator it = set.Iterator();
+  for (int i = 0; i < 40; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(!!(i & 4)));
   }
 }
 
@@ -111,98 +117,64 @@ TEST(ActiveSet, DiscardBlockStreaks) {
     builder.Add(i & 4);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 10; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
+  ActiveSetIterator it = set.Iterator();
+  for (int i = 0; i < 10; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(!!(i & 4)));
   }
-  EXPECT_EQ(set.DiscardBlock(20), !!(29 & 4));
-  for (int i = 30; i < 40; ++i) {
-    EXPECT_THAT(set.ConsumeNext(), Eq(!!(i & 4)));
+  it.Advance(20);
+  EXPECT_EQ(it.value(), !!(29 & 4));
+  for (int i = 30; i < 40; ++i, it.Advance(1)) {
+    EXPECT_THAT(it.value(), Eq(!!(i & 4)));
   }
 }
 
-TEST(ActiveSet, ConsumeFalseBlockFalse) {
+TEST(ActiveSet, RunSizeBlockFalse) {
   ActiveSetBuilder builder;
   for (int i = 0; i < 40; ++i) {
     builder.Add(false);
   }
   ActiveSet set = builder.DoneAdding();
-  EXPECT_THAT(set.ConsumeFalseBlock(), 40) << set.DebugString();
-  EXPECT_EQ(set.offset(), 40);
-  EXPECT_THAT(set.ConsumeFalseBlock(), 0) << set.DebugString();
-  EXPECT_EQ(set.offset(), 40);
+  ActiveSetIterator it = set.Iterator();
+  EXPECT_THAT(it.run_size(), 40) << set.DebugString();
+  EXPECT_EQ(it.value(), false);
 }
 
-TEST(ActiveSet, ConsumeFalseBlockTrue) {
+TEST(ActiveSet, RunSizeBlockTrue) {
   ActiveSetBuilder builder;
   for (int i = 0; i < 40; ++i) {
     builder.Add(true);
   }
   ActiveSet set = builder.DoneAdding();
-  EXPECT_THAT(set.ConsumeFalseBlock(), 0);
+  ActiveSetIterator it = set.Iterator();
+  EXPECT_THAT(it.run_size(), 40) << set.DebugString();
+  EXPECT_EQ(it.value(), true);
 }
 
-TEST(ActiveSet, ConsumeFalseBlockStreaks) {
+TEST(ActiveSet, RunSizeBlockStreaks) {
   ActiveSetBuilder builder;
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 40; ++i) {
-    const int delta = set.ConsumeFalseBlock();
-    ASSERT_THAT(delta, AnyOf(0, 4));
-    i += delta;
-    if (i >= 40) break;
-    EXPECT_THAT(!!(i & 4), true);
-    EXPECT_THAT(set.ConsumeNext(), true) << set.DebugString();
+  ActiveSetIterator it = set.Iterator();
+  while (it.more()) {
+    EXPECT_EQ(it.run_size(), 4);
+    EXPECT_EQ(it.value(), !!(it.offset() & 4));
+    it.Advance(it.run_size());
   }
 }
 
-TEST(ActiveSet, ConsumeFalseBlockStreaksTrueFirst) {
+TEST(ActiveSet, RunSizeBlockStreaksTrueFirst) {
   ActiveSetBuilder builder;
   for (int i = 0; i < 40; ++i) {
     builder.Add(!(i & 4));
   }
   ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 40; ++i) {
-    const int delta = set.ConsumeFalseBlock();
-    ASSERT_THAT(delta, AnyOf(0, 4));
-    i += delta;
-    if (i >= 40) break;
-    EXPECT_THAT(!(i & 4), true);
-    EXPECT_THAT(set.ConsumeNext(), true) << set.DebugString();
-  }
-}
-
-TEST(ActiveSet, ConsumeFalseBlockAlternating) {
-  ActiveSetBuilder builder;
-  for (int i = 0; i < 40; ++i) {
-    builder.Add(i & 1);
-  }
-  ActiveSet set = builder.DoneAdding();
-  for (int i = 0; i < 40; ++i) {
-    const int delta = set.ConsumeFalseBlock();
-    EXPECT_THAT(delta, AnyOf(0, 1));
-    i += delta;
-    if (i >= 40) break;
-    EXPECT_THAT(!!(i & 1), true);
-    EXPECT_THAT(set.ConsumeNext(), true);
-  }
-}
-
-TEST(ActiveSet, ConsumeFalseBlockAlternatingTrueFirst) {
-  ActiveSetBuilder builder;
-  for (int i = 0; i < 40; ++i) {
-    builder.Add(!(i & 1));
-  }
-  ActiveSet set = builder.DoneAdding();
-  LOG(INFO) << set.DebugString();
-  for (int i = 0; i < 40; ++i) {
-    const int delta = set.ConsumeFalseBlock();
-    EXPECT_THAT(delta, AnyOf(0, 1));
-    i += delta;
-    if (i >= 40) break;
-    EXPECT_THAT(!(i & 1), true);
-    EXPECT_THAT(set.ConsumeNext(), true) << i << ": " << set.DebugString();
+  ActiveSetIterator it = set.Iterator();
+  while (it.more()) {
+    EXPECT_EQ(it.run_size(), 4);
+    it.Advance(it.run_size());
+    EXPECT_EQ(it.value(), !(it.offset() & 4));
   }
 }
 
@@ -212,7 +184,8 @@ TEST(ActiveSet, EnabledValues) {
 
   for (const auto test : test_cases) {
     EXPECT_THAT(ActiveSetBuilder::FromPositions(test, 4).EnabledValues(),
-                ElementsAreArray(test));
+                ElementsAreArray(test))
+        << "{" << absl::StrJoin(test, ",") << "}";
   }
 }
 
@@ -220,15 +193,6 @@ TEST(ActiveSet, EnabledValuesMultipleCalls) {
   ActiveSet set = ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 4);
   EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
   EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
-}
-
-TEST(ActiveSet, EnabledValuesAfterConsume) {
-  ActiveSet set = ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 4);
-  EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
-  LOG(INFO) << set.offset();
-  set.ConsumeNext();
-  LOG(INFO) << set.offset();
-  EXPECT_THAT(set.EnabledValues(), ElementsAre(1, 2, 3));
 }
 
 TEST(ActiveSet, SetConstruction) {
@@ -286,21 +250,10 @@ void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
                         std::back_inserter(full_intersection));
   absl::Span<int> intersection = absl::MakeSpan(full_intersection);
 
-  for (int i = 0; i < std::min(max_position_a, max_position_b); ++i) {
-    EXPECT_THAT(a.Intersection(b).EnabledValues(),
-                ElementsAreArray(intersection))
-        << "Offset: " << i << "; " << a.DebugString() << "; "
-        << b.DebugString();
-    EXPECT_THAT(b.Intersection(a).EnabledValues(),
-                ElementsAreArray(intersection))
-        << "Offset: " << i << "; " << a.DebugString() << "; "
-        << b.DebugString();
-    a.ConsumeNext();
-    b.ConsumeNext();
-    while (!intersection.empty() && intersection[0] <= i) {
-      intersection = intersection.subspan(1);
-    }
-  }
+  EXPECT_THAT(a.Intersection(b).EnabledValues(), ElementsAreArray(intersection))
+      << a.DebugString() << "; " << b.DebugString();
+  EXPECT_THAT(b.Intersection(a).EnabledValues(), ElementsAreArray(intersection))
+      << a.DebugString() << "; " << b.DebugString();
 }
 
 TEST(ActiveSet, IntersectionFull) { TestIntersection({0, 1}, {0, 1}, 2, 2); }

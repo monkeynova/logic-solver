@@ -8,6 +8,46 @@
 
 namespace puzzle {
 
+class ActiveSetIterator {
+ public:
+  ActiveSetIterator(absl::Span<const int> matches, bool value, int total)
+      : matches_(matches), value_(value), total_(total) {
+    // ActiveSet may be constructed with an empty first record (it uses this
+    // to indicate a false record to start), so skip that if present and
+    // negate value.
+    // TODO(keith@monkeynova.com): Move this logic to ActiveSet construction.
+    if (!matches_.empty() && matches_[0] == 0) {
+      value_ = !value_;
+      ++match_position_;
+    }
+  }
+
+  int offset() const { return offset_; }
+  int total() const { return total_; }
+
+  bool value() const { return value_; }
+
+  bool more() const { return offset() < total(); }
+
+  int run_size() const {
+    if (match_position_ >= matches_.size()) return total() - offset();
+    return matches_[match_position_] - run_position_;
+  }
+
+  // Moves the iterator the next 'block_size' values.
+  void Advance(int n);
+
+  std::string DebugString() const;
+
+ private:
+  absl::Span<const int> matches_;
+  bool value_;
+  int match_position_ = 0;
+  int run_position_ = 0;
+  int offset_ = 0;
+  int total_ = 0;
+};
+
 class ActiveSet {
  public:
   static const ActiveSet& trivial() {
@@ -43,27 +83,18 @@ class ActiveSet {
 
   std::string DebugValues() const;
 
-  // Returns whether or not to skip the current record and advances index
-  // structures through matches_.
-  // Must be called after DoneAdding is called.
-  bool ConsumeNext();
-
-  // Consumes the next run of false records and returns the number of records
-  // consumed.
-  // Must be called after DoneAdding is called.
-  int ConsumeFalseBlock();
-
-  // Consumes the next 'block_size' values and returns the last value from the
-  // block.
-  bool DiscardBlock(int block_size);
-
   bool is_trivial() const { return matches_.empty(); }
   int matches() const { return matches_count_; }
   int total() const { return total_; }
-  int offset() const { return offset_; }
   double Selectivity() const {
     if (is_trivial()) return 1.0;
     return static_cast<double>(matches()) / total();
+  }
+
+  ActiveSetIterator Iterator() const {
+    return ActiveSetIterator(
+        absl::MakeSpan(matches_).subspan(matches_position_), current_value_,
+        total_);
   }
 
  private:
@@ -95,42 +126,7 @@ class ActiveSet {
   // Immutable after DoneAdding is called.
   int total_ = 0;
 
-  // The number of results consumed so far from this ActiveSet.
-  int offset_ = 0;
-
   friend class ActiveSetBuilder;
-  friend class ActiveSetIterator;
-};
-
-class ActiveSetIterator {
- public:
-  explicit ActiveSetIterator(const ActiveSet& active_set)
-    : matches_(absl::MakeSpan(active_set.matches_)
-	           .subspan(active_set.matches_position_)),
-      value_(active_set.current_value_) {}
-
-  bool value() const { return value_; }
-
-  bool more() const {
-    return match_position_ < static_cast<int>(matches_.size());
-  }
-
-  int run_size() const { return matches_[match_position_] - run_position_; }
-
-  void Advance(int n) {
-    run_position_ += n;
-    while (more() && run_position_ >= matches_[match_position_]) {
-      run_position_ -= matches_[match_position_];
-      ++match_position_;
-      value_ = !value_;
-    }
-  }
-
- private:
-  absl::Span<const int> matches_;
-  bool value_;
-  int match_position_ = 0;
-  int run_position_ = 0;
 };
 
 class ActiveSetBuilder {

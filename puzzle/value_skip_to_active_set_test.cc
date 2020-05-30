@@ -21,20 +21,22 @@ TEST(ValueSkipToActiveSet, FiveElements) {
       int loops = 0;
       for (auto it = permuter->begin().WithActiveSet(as); it != permuter->end();
            ++it) {
-        EXPECT_NE((*it)[position], value);
+        EXPECT_NE((*it)[position], value)
+            << "Position: " << position << "; iteration: " << it.position();
         ++loops;
       }
-      EXPECT_EQ(loops, (5 - 1) * 4 * 3 * 2 * 1);
+      EXPECT_EQ(loops, (5 - 1) * 4 * 3 * 2 * 1) << "Value: " << value;
     }
     for (int value : {0, 6}) {
       ActiveSet as = vs2as.value_skip_set(position, value);
       int loops = 0;
       for (auto it = permuter->begin().WithActiveSet(as); it != permuter->end();
            ++it) {
-        EXPECT_NE((*it)[position], value);
+        EXPECT_NE((*it)[position], value)
+            << "Position: " << position << "; iteration: " << it.position();
         ++loops;
       }
-      EXPECT_EQ(loops, 5 * 4 * 3 * 2 * 1);
+      EXPECT_EQ(loops, 5 * 4 * 3 * 2 * 1) << "Value: " << value;
     }
   }
 }

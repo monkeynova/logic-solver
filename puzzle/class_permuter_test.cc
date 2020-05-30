@@ -84,8 +84,10 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   EXPECT_THAT(position, 3);
 
   position = 0;
+  LOG(INFO) << active_set_last.DebugValues();
   for (auto it = p->begin().WithActiveSet(active_set_last); it != p->end();
        ++it) {
+    LOG(INFO) << "  " << it.position();
     EXPECT_THAT(it.position(), position + 3);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");

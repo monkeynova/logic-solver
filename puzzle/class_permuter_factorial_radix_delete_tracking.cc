@@ -109,10 +109,15 @@ void ClassPermuterFactorialRadixDeleteTracking<
   int delta = div - (Base::position_ % div);
   do {
     if (!Base::active_set_.is_trivial()) {
-      if (!Base::active_set_.DiscardBlock(delta)) {
-        delta += Base::active_set_.ConsumeFalseBlock() + 1;
-        CHECK(Base::active_set_.ConsumeNext())
-            << "ConsumeNext returned false after ConsumeFalseBlock";
+      Base::active_set_it_.Advance(delta);
+      if (!Base::active_set_it_.value()) {
+        delta += Base::active_set_it_.run_size();
+        Base::active_set_it_.Advance(Base::active_set_it_.run_size());
+        DCHECK(Base::active_set_it_.value())
+            << "Value returned false after advancing past false block: it("
+            << Base::active_set_it_.offset() << " of "
+            << Base::active_set_it_.total()
+            << "): " << Base::active_set_.DebugValues();
       }
     }
     AdvanceDelta(/*dist=*/delta);

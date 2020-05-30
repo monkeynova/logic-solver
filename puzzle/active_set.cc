@@ -53,8 +53,8 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
-  ActiveSetIterator this_iterator(*this);
-  ActiveSetIterator other_iterator(other);
+  ActiveSetIterator this_iterator = Iterator();
+  ActiveSetIterator other_iterator = other.Iterator();
 
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
           << ")";
@@ -111,7 +111,6 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   const int intersection_total = std::max(total_, other.total_);
   intersection.AddBlock(false, intersection_total - intersection.total());
   ActiveSet ret = intersection.DoneAdding();
-  ret.offset_ = offset_;
   return ret;
 }
 
@@ -169,65 +168,54 @@ ActiveSet ActiveSetBuilder::DoneAdding() {
   return std::move(set_);
 }
 
-bool ActiveSet::ConsumeNext() {
-  if (matches_.empty()) {
-    if (offset_ < total_) ++offset_;
-    return true;
-  }
-  if (matches_position_ >= static_cast<int>(matches_.size())) return true;
-
-  if (matches_[matches_position_] == 0) {
-    current_value_ = !current_value_;
-    ++matches_position_;
-    if (matches_position_ >= static_cast<int>(matches_.size())) return true;
-  }
-  ++offset_;
-  --matches_[matches_position_];
-  return current_value_;
+std::string ActiveSetIterator::DebugString() const {
+  return absl::StrCat("offset: ", offset_, "; ", "total: ", total_, "; ",
+                      "value: ", value_, "; ",
+                      "match_position: ", match_position_, "; ",
+                      "run_position: ", run_position_, "; ", "matches: {",
+                      absl::StrJoin(matches_, ","), "}");
 }
 
-int ActiveSet::ConsumeFalseBlock() {
-  if (matches_.empty()) return 0;
-  if (matches_position_ >= static_cast<int>(matches_.size())) return 0;
-
-  if (matches_[matches_position_] == 0) {
-    current_value_ = !current_value_;
-    ++matches_position_;
-    if (matches_position_ >= static_cast<int>(matches_.size())) return 0;
-  }
-  if (current_value_) return 0;
-
-  int ret = matches_[matches_position_];
-  ++matches_position_;
-  current_value_ = true;
-  offset_ += ret;
-  return ret;
-}
-
-bool ActiveSet::DiscardBlock(int block_size) {
-  if (matches_.empty()) return true;
-
-  while (block_size > 0) {
-    if (matches_[matches_position_] == 0) {
-      current_value_ = !current_value_;
-      ++matches_position_;
-      if (matches_position_ >= static_cast<int>(matches_.size())) return true;
+void ActiveSetIterator::Advance(int n) {
+  DCHECK(match_position_ >= matches_.size() ||
+         run_position_ != matches_[match_position_])
+      << DebugString();
+  while (n > 0 && match_position_ < matches_.size()) {
+    int delta = matches_[match_position_] - run_position_;
+    if (n >= delta) {
+      n -= delta;
+      offset_ += delta;
+      ++match_position_;
+      run_position_ = 0;
+      value_ = !value_;
+    } else {
+      run_position_ += n;
+      offset_ += n;
+      n = 0;
     }
-    int delta = std::min(matches_[matches_position_], block_size);
-    matches_[matches_position_] -= delta;
-    block_size -= delta;
-    offset_ += delta;
   }
-  return current_value_;
+  if (n > 0) {
+    offset_ = std::min(total_, offset_ + n);
+  }
+  if (match_position_ >= matches_.size()) {
+    value_ = true;
+  }
+  DCHECK(match_position_ >= matches_.size() ||
+         run_position_ != matches_[match_position_])
+      << DebugString();
 }
 
 std::vector<int> ActiveSet::EnabledValues() const {
-  ActiveSet copy = *this;
+  ActiveSetIterator it = Iterator();
   std::vector<int> ret;
-  for (int i = copy.offset_; i < copy.total_; ++i) {
-    if (copy.ConsumeNext()) {
-      ret.push_back(i);
+  while (it.more()) {
+    int run_size = it.run_size();
+    if (it.value()) {
+      for (int i = 0; i < run_size; ++i) {
+        ret.push_back(i + it.offset());
+      }
     }
+    it.Advance(run_size);
   }
   return ret;
 }

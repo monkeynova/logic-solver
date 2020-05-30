@@ -21,6 +21,10 @@ class ClassPermuter {
 
     explicit AdvancerBase(const ClassPermuter* permuter);
 
+    // Non-default copy constructor to maintain `active_set_it_` as a reference
+    // to `active_set_`.
+    AdvancerBase(const AdvancerBase& other);
+
     virtual std::unique_ptr<AdvancerBase> Clone() const = 0;
 
     virtual ~AdvancerBase() {}
@@ -43,10 +47,7 @@ class ClassPermuter {
     // intersection invalidates the current record, advances the iterator to
     // the next matching record. Returns whether or not the iterator was
     // advanced.
-    // TODO(keith@monkeynova.com): This requires a copy because it needs to
-    // consume from the front to align the intersection. A better iterator
-    // model on ActiveSet would reduce the requirement for a copy here.
-    bool WithActiveSet(ActiveSet active_set);
+    bool WithActiveSet(const ActiveSet& active_set);
 
     double Selectivity() const { return active_set_.Selectivity(); }
 
@@ -57,6 +58,7 @@ class ClassPermuter {
 
     // Representation of the subset of the permutations to return.
     ActiveSet active_set_;
+    ActiveSetIterator active_set_it_;
 
    private:
     // The number of permutations iterated (permutation_size_!).
