@@ -31,8 +31,8 @@ class SolutionFilter {
                  std::vector<int> classes)
       : name_(std::move(name)), solution_p_(p), classes_(std::move(classes)) {}
 
-  SolutionFilter(std::string name, int entry_id, Entry::Predicate p,
-                 std::vector<int> classes)
+  SolutionFilter(std::string name, Entry::Predicate p, std::vector<int> classes,
+                 int entry_id)
       : name_(std::move(name)),
         solution_p_(
             [entry_id, p](const Solution& s) { return p(s.Id(entry_id)); }),

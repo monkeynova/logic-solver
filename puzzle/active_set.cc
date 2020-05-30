@@ -152,8 +152,7 @@ void ActiveSetBuilder::AddBlock(bool match, int size) {
 
 ActiveSet ActiveSetBuilder::DoneAdding() {
   if (set_.matches_.empty()) {
-    CHECK(current_value_)
-        << "skip_match shouldn't be false if skips is empty";
+    CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
     // As a special case, if all entries are "true", we don't make matches_ so
     // the ActiveSet remains 'trivial'.
     matches_position_ = 0;

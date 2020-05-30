@@ -34,16 +34,16 @@ class Solver {
   void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
                             std::vector<int> class_int_restrict_list = {}) {
     for (const int entry_id : entry_descriptor_.AllIds()->Values()) {
-      AddSpecificEntryPredicate(name, entry_id, predicate,
-                                class_int_restrict_list);
+      AddSpecificEntryPredicate(name, predicate, class_int_restrict_list,
+                                entry_id);
     }
   }
 
-  void AddSpecificEntryPredicate(
-      std::string name, int entry_id, Entry::Predicate predicate,
-      std::vector<int> class_int_restrict_list = {}) {
-    AddFilter(SolutionFilter(std::move(name), entry_id, predicate,
-                             std::move(class_int_restrict_list)));
+  void AddSpecificEntryPredicate(std::string name, Entry::Predicate predicate,
+                                 std::vector<int> class_int_restrict_list,
+                                 int entry_id) {
+    AddFilter(SolutionFilter(std::move(name), predicate,
+                             std::move(class_int_restrict_list), entry_id));
   }
 
   // TODO(@monkeynova): Allowing a restrict list of entry_ids here

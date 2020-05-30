@@ -74,8 +74,9 @@ void SixFearsomeHeroes::AddGeneralPredicates() {
 
 void SixFearsomeHeroes::AddStatementPredicates() {
   AddSpecificEntryPredicate(
-      "1. Geordi ranks 2 at Tri-D Chess", GEORDI,
-      [](const puzzle::Entry& e) { return e.Class(TRID) == 2; }, {TRID});
+      "1. Geordi ranks 2 at Tri-D Chess",
+      [](const puzzle::Entry& e) { return e.Class(TRID) == 2; }, {TRID},
+      GEORDI);
 
   AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
                [](const puzzle::Solution& s) {
@@ -108,8 +109,9 @@ void SixFearsomeHeroes::AddStatementPredicates() {
                {HERO, FEAR});
 
   AddSpecificEntryPredicate(
-      "6. Data's hero is not Geordi.", DATA,
-      [](const puzzle::Entry& e) { return e.Class(HERO) != GEORDI; }, {HERO});
+      "6. Data's hero is not Geordi.",
+      [](const puzzle::Entry& e) { return e.Class(HERO) != GEORDI; }, {HERO},
+      DATA);
 
   AddPredicate("7. Data is the hero of Riker's hero.",
                [](const puzzle::Solution& s) {

@@ -78,13 +78,12 @@ void SwimmingPoolProblem::AddRulePredicates() {
   AddSpecificEntryPredicate(
       "3. Carol is not swimming Backstroke nor Dolphin. She is "
       "not Australian, and is not swiming in lates #2 nor #4.",
-      CAROL,
       [](const puzzle::Entry& e) {
         return e.Class(STYLE) != BACKSTROKE && e.Class(STYLE) != DOLPHIN &&
                e.Class(COUNTRY) != AUSTRALIA && e.Class(LANE) != 2 &&
                e.Class(LANE) != 4;
       },
-      {STYLE, COUNTRY, LANE});
+      {STYLE, COUNTRY, LANE}, CAROL);
   AddPredicate(
       "4. The Freestyler is next to both Daisy and the American "
       "swimmer.",
@@ -109,8 +108,8 @@ void SwimmingPoolProblem::AddRulePredicates() {
                },
                {COUNTRY, LANE});
   AddSpecificEntryPredicate(
-      "6. Daisy is not swimming in lane #2.", DAISY,
-      [](const puzzle::Entry& e) { return e.Class(LANE) != 2; }, {LANE});
+      "6. Daisy is not swimming in lane #2.",
+      [](const puzzle::Entry& e) { return e.Class(LANE) != 2; }, {LANE}, DAISY);
 }
 
 puzzle::Solution SwimmingPoolProblem::GetSolution() const {

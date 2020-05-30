@@ -11,8 +11,7 @@ namespace puzzle {
 class ActiveSetIterator {
  public:
   ActiveSetIterator(absl::Span<const int> matches, bool value, int total)
-      : matches_(matches), value_(value), total_(total) {
-  }
+      : matches_(matches), value_(value), total_(total) {}
 
   int offset() const { return offset_; }
   int total() const { return total_; }
@@ -88,8 +87,8 @@ class ActiveSet {
     // to indicate a false record to start), so skip that if present and
     // negate value.
     if (!matches_.empty() && matches_[0] == 0) {
-      return ActiveSetIterator(absl::MakeSpan(matches_).subspan(1),
-			       false, total_);
+      return ActiveSetIterator(absl::MakeSpan(matches_).subspan(1), false,
+                               total_);
     }
     return ActiveSetIterator(absl::MakeSpan(matches_), true, total_);
   }
@@ -158,7 +157,6 @@ class ActiveSetBuilder {
 
   // Indicates the length of the current accumlating run.
   int matches_position_ = 0;
-
 };
 
 }  // namespace puzzle

@@ -111,12 +111,12 @@ void Base::AddPredicatesPairwise() {
 }
 
 void Base::AddValuePredicate(int row, int col, int value) {
-  AddSpecificEntryPredicate(absl::StrCat("(", row, ",", col, ") = ", value),
-                            row - 1,
-                            [col, value](const puzzle::Entry& e) {
-                              return e.Class(col - 1) == value;
-                            },
-                            {col - 1});
+  AddSpecificEntryPredicate(
+      absl::StrCat("(", row, ",", col, ") = ", value),
+      [col, value](const puzzle::Entry& e) {
+        return e.Class(col - 1) == value;
+      },
+      {col - 1}, row - 1);
 }
 
 void Base::AddBoardPredicates(const Board& board) {

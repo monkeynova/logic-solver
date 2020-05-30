@@ -503,13 +503,12 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
   ASSERT_NE(b0_is_not_4, -1);
   ASSERT_EQ(b0_is_4.size(), 2);
 
-  SolutionFilter c("a is 3 and b is 4 for id 0",
-                   /*entry_id=*/0,
-                   [](const Entry& e) {
-                     return e.Class(kClassIntA) == 3 &&
-                            e.Class(kClassIntB) == 4;
-                   },
-                   {kClassIntA, kClassIntB});
+  SolutionFilter c(
+      "a is 3 and b is 4 for id 0",
+      [](const Entry& e) {
+        return e.Class(kClassIntA) == 3 && e.Class(kClassIntB) == 4;
+      },
+      {kClassIntA, kClassIntB}, /*entry_id=*/0);
 
   builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
                 FilterToActiveSet::PairClassMode::kMakePairs);

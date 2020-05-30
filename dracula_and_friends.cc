@@ -54,12 +54,11 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
   AddSpecificEntryPredicate(
       "2. Matei wasn't from Debrogea. He hated onions or ivy.",
       // Edit "He hated" probably should be "He hated neither".
-      MATEI,
       [](const puzzle::Entry& e) {
         if (e.Class(REGION) == DEBROGEA) return false;
         return e.Class(PLANTS) == ONION || e.Class(PLANTS) == IVY;
       },
-      {REGION, PLANTS});
+      {REGION, PLANTS}, MATEI);
   AddPredicate(
       "3. The vampire from Mutenia lived 100 years after the "
       "vampire who hated thornbrush.",
@@ -87,13 +86,12 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
   AddSpecificEntryPredicate(
       "5. Octavain either lived in the XVI century or hated "
       "thornbrush.",
-      OCTAVIAN,
       [](const puzzle::Entry& e) {
         const bool in_xvi = e.Class(CENTURY) == XVI;
         const bool hated_thornbrush = e.Class(PLANTS) == THORNBRUSH;
         return (in_xvi || hated_thornbrush) && !(in_xvi && hated_thornbrush);
       },
-      {PLANTS, CENTURY});
+      {PLANTS, CENTURY}, OCTAVIAN);
   AddPredicate("6. If Bogdan hated wolfsbane, then Matei lived in Buchovia.",
                [](const puzzle::Solution& s) {
                  if (s.Id(BOGDAN).Class(PLANTS) == WOLFSBANE) {
@@ -109,9 +107,9 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                },
                {CENTURY});
   AddSpecificEntryPredicate(
-      "8. Villagers didn't grow thornbrush against Dorian.", DORIAN,
+      "8. Villagers didn't grow thornbrush against Dorian.",
       [](const puzzle::Entry& e) { return e.Class(PLANTS) != THORNBRUSH; },
-      {PLANTS});
+      {PLANTS}, DORIAN);
   AddPredicate(
       "9. Chronicles of XVII century claimed that ivy was "
       "ineffective and that Debrogea was free from vamipres.",
