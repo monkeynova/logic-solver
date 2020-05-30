@@ -65,7 +65,7 @@ cc_test(
 )
 
 cc_test(
-    name = "single_line_test_empirical",
+    name = "single_line_empirical_test",
     srcs = ["single_line_test.cc"],
     args = [
         "--sudoku_line_board=" +
@@ -88,6 +88,44 @@ cc_test(
 	"283196754" +
 	"651347829" +
 	"497528136",
+    ],
+    tags = ["benchmark", "slowbenchmark"],
+    deps = [
+        ":line_board",
+	"@com_google_absl//absl/flags:flag",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
+        "//puzzle:test_main",
+    ]
+)
+
+# Not a test target because I don't want it run with blaze test ... given
+# it doesn't finish.
+cc_binary(
+    name = "single_line_empty_test",
+    testonly = 1,
+    srcs = ["single_line_test.cc"],
+    args = [
+        "--sudoku_line_board=" +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        ".........",
+        "--sudoku_line_answer=" +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........." +
+        "........."
     ],
     tags = ["benchmark", "slowbenchmark"],
     deps = [
