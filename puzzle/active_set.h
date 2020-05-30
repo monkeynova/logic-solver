@@ -12,14 +12,6 @@ class ActiveSetIterator {
  public:
   ActiveSetIterator(absl::Span<const int> matches, bool value, int total)
       : matches_(matches), value_(value), total_(total) {
-    // ActiveSet may be constructed with an empty first record (it uses this
-    // to indicate a false record to start), so skip that if present and
-    // negate value.
-    // TODO(@monkeynova): Move this logic to ActiveSet construction.
-    if (!matches_.empty() && matches_[0] == 0) {
-      value_ = !value_;
-      ++match_position_;
-    }
   }
 
   int offset() const { return offset_; }
@@ -92,9 +84,14 @@ class ActiveSet {
   }
 
   ActiveSetIterator Iterator() const {
-    return ActiveSetIterator(
-        absl::MakeSpan(matches_).subspan(matches_position_), current_value_,
-        total_);
+    // ActiveSet may be constructed with an empty first record (it uses this
+    // to indicate a false record to start), so skip that if present and
+    // negate value.
+    if (!matches_.empty() && matches_[0] == 0) {
+      return ActiveSetIterator(absl::MakeSpan(matches_).subspan(1),
+			       false, total_);
+    }
+    return ActiveSetIterator(absl::MakeSpan(matches_), true, total_);
   }
 
  private:
@@ -107,16 +104,6 @@ class ActiveSet {
   // previous run.
   // To start a run with "false", insert a 0 record at the first position.
   std::vector<int> matches_;
-
-  // Indicates the current matching value. During the add phases indicates
-  // the state of the current accumulating run. During the consume phase
-  // indicates the state of the current consuming run.
-  bool current_value_ = true;
-
-  // Indicates the length of the current accumlating run in the add phase.
-  // Indicates the index of the current consuming run in 'matches_' during
-  // the consume phase.
-  int matches_position_ = 0;
 
   // The total number of true values contained within this ActiveSet.
   // Immutable after DoneAdding is called.
@@ -159,6 +146,13 @@ class ActiveSetBuilder {
 
  private:
   ActiveSet set_;
+
+  // Indicates the state of the current accumulating run.
+  bool current_value_ = true;
+
+  // Indicates the length of the current accumlating run.
+  int matches_position_ = 0;
+
 };
 
 }  // namespace puzzle

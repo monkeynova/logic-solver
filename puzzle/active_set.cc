@@ -115,8 +115,7 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
 }
 
 std::string ActiveSet::DebugString() const {
-  return absl::StrCat("{", (current_value_ ? "match" : "skip"), " ",
-                      matches_position_, " (of ", total_, ") {",
+  return absl::StrCat("{total:", total_, "; matchs: {",
                       absl::StrJoin(matches_, ", "), "}}");
 }
 
@@ -126,12 +125,12 @@ void ActiveSetBuilder::Add(bool match) {
     ++set_.matches_count_;
   }
 
-  if (match == set_.current_value_) {
-    ++set_.matches_position_;
+  if (match == current_value_) {
+    ++matches_position_;
   } else {
-    set_.matches_.push_back(set_.matches_position_);
-    set_.current_value_ = match;
-    set_.matches_position_ = 1;
+    set_.matches_.push_back(matches_position_);
+    current_value_ = match;
+    matches_position_ = 1;
   }
 }
 
@@ -143,27 +142,27 @@ void ActiveSetBuilder::AddBlock(bool match, int size) {
     set_.matches_count_ += size;
   }
 
-  if (match == set_.current_value_) {
-    set_.matches_position_ += size;
+  if (match == current_value_) {
+    matches_position_ += size;
   } else {
-    set_.matches_.push_back(set_.matches_position_);
-    set_.current_value_ = match;
-    set_.matches_position_ = size;
+    set_.matches_.push_back(matches_position_);
+    current_value_ = match;
+    matches_position_ = size;
   }
 }
 
 ActiveSet ActiveSetBuilder::DoneAdding() {
   if (set_.matches_.empty()) {
-    CHECK(set_.current_value_)
+    CHECK(current_value_)
         << "skip_match shouldn't be false if skips is empty";
     // As a special case, if all entries are "true", we don't make matches_ so
     // the ActiveSet remains 'trivial'.
-    set_.matches_position_ = 0;
+    matches_position_ = 0;
     return std::move(set_);
   }
-  set_.matches_.push_back(set_.matches_position_);
-  set_.current_value_ = true;
-  set_.matches_position_ = 0;
+  set_.matches_.push_back(matches_position_);
+  current_value_ = true;
+  matches_position_ = 0;
 
   return std::move(set_);
 }
