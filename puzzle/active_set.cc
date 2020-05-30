@@ -71,12 +71,12 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
       next_run_value = true;
       next_run_size =
           std::min(this_iterator.run_size(), other_iterator.run_size());
-    } else if (!this_iterator.value()) {
-      // Single false, it dictactes length.
-      next_run_size = this_iterator.run_size();
-    } else if (!other_iterator.value()) {
-      // Single false, it dictactes length.
+    } else if (this_iterator.value()) {
+      // Single false (other since this is true), it dictactes length.
       next_run_size = other_iterator.run_size();
+    } else if (other_iterator.value()) {
+      // Single false (this since other is true), it dictactes length.
+      next_run_size = this_iterator.run_size();
     } else {
       // Both false, so false for run-length max.
       next_run_size =
