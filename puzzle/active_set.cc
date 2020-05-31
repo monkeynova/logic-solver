@@ -123,11 +123,11 @@ void ActiveSetBuilder::Add(bool match) {
   }
 
   if (match == current_value_) {
-    ++matches_position_;
+    ++run_size_;
   } else {
-    set_.matches_.push_back(matches_position_);
+    set_.matches_.push_back(run_size_);
     current_value_ = match;
-    matches_position_ = 1;
+    run_size_ = 1;
   }
 }
 
@@ -140,11 +140,11 @@ void ActiveSetBuilder::AddBlock(bool match, int size) {
   }
 
   if (match == current_value_) {
-    matches_position_ += size;
+    run_size_ += size;
   } else {
-    set_.matches_.push_back(matches_position_);
+    set_.matches_.push_back(run_size_);
     current_value_ = match;
-    matches_position_ = size;
+    run_size_ = size;
   }
 }
 
@@ -157,7 +157,7 @@ ActiveSet ActiveSetBuilder::DoneAdding() {
     // the ActiveSet remains 'trivial'.
     return std::move(set_);
   }
-  set_.matches_.push_back(matches_position_);
+  set_.matches_.push_back(run_size_);
 
   return std::move(set_);
 }

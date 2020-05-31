@@ -152,12 +152,13 @@ class ActiveSetBuilder {
  private:
   ActiveSet set_;
 
-  // Indicates the state of the current accumulating run.
+  // The boolean value of the current accumulating run.
   bool current_value_ = true;
 
-  // Indicates the length of the current accumlating run.
-  int matches_position_ = 0;
+  // The length of the current accumlating run.
+  int run_size_ = 0;
 
+  // The total number of elements added to this builder.
   int offset_ = 0;
 };
 
