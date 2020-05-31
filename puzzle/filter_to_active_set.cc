@@ -115,7 +115,7 @@ void FilterToActiveSet::Build<
     const std::vector<SolutionFilter>& predicates) {
   SetupBuild(class_permuter, predicates);
   int class_int = class_permuter->class_int();
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(class_permuter->permutation_count());
   ValueSkipToActiveSet* vs2as =
       value_skip_to_active_set_[class_permuter->descriptor()].get();
 
@@ -188,12 +188,12 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
   {
-    ActiveSetBuilder builder_b;
+    ActiveSetBuilder builder_b(permuter_b->permutation_count());
 
     for (auto it_b = permuter_b->begin().WithActiveSet(active_sets_[class_b]);
          it_b != permuter_b->end(); ++it_b) {
       mutable_solution_.SetClass(it_b);
-      ActiveSetBuilder b_a_builder;
+      ActiveSetBuilder b_a_builder(permuter_a->permutation_count());
       bool any_of_b = false;
       ClassPermuter::iterator::ValueSkip value_skip_a = {.value_index =
                                                              Entry::kBadId};
@@ -225,13 +225,13 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     active_sets_[class_b] = builder_b.DoneAdding();
   }
   {
-    ActiveSetBuilder builder_a;
+    ActiveSetBuilder builder_a(permuter_a->permutation_count());
 
     for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
          it_a != permuter_a->end(); ++it_a) {
       mutable_solution_.SetClass(it_a);
       bool any_of_a = false;
-      ActiveSetBuilder a_b_builder;
+      ActiveSetBuilder a_b_builder(permuter_b->permutation_count());
       ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                              Entry::kBadId};
       for (auto it_b = permuter_b->begin()
@@ -273,7 +273,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
-  ActiveSetBuilder builder_a;
+  ActiveSetBuilder builder_a(permuter_a->permutation_count());
   absl::flat_hash_set<int> b_match_positions;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> b_a_match_positions;
   ValueSkipToActiveSet* vs2as_b =
@@ -283,7 +283,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
        it_a != permuter_a->end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
     bool any_of_a = false;
-    ActiveSetBuilder a_b_builder;
+    ActiveSetBuilder a_b_builder(permuter_b->permutation_count());
     ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                            Entry::kBadId};
     for (auto it_b = permuter_b->begin()

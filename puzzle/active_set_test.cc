@@ -19,19 +19,19 @@ TEST(ActiveSet, EmptyIsTrivial) {
 }
 
 TEST(ActiveSet, SingleFalseIsNotTrivial) {
-  ActiveSetBuilder single_false;
+  ActiveSetBuilder single_false(1);
   single_false.Add(false);
   EXPECT_FALSE(single_false.DoneAdding().is_trivial());
 }
 
 TEST(ActiveSet, SingleTrueIsNotTrivial) {
-  ActiveSetBuilder single_true;
+  ActiveSetBuilder single_true(1);
   single_true.Add(true);
   EXPECT_TRUE(single_true.DoneAdding().is_trivial());
 }
 
 TEST(ActiveSet, ConsumeNextAllTrue) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(3);
   for (int i = 0; i < 3; ++i) {
     builder.Add(true);
   }
@@ -43,7 +43,7 @@ TEST(ActiveSet, ConsumeNextAllTrue) {
 }
 
 TEST(ActiveSet, ConsumeNextAllFalse) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(3);
   for (int i = 0; i < 3; ++i) {
     builder.Add(false);
   }
@@ -55,7 +55,7 @@ TEST(ActiveSet, ConsumeNextAllFalse) {
 }
 
 TEST(ActiveSet, ConsumeNextAlternating) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 1);
   }
@@ -67,7 +67,7 @@ TEST(ActiveSet, ConsumeNextAlternating) {
 }
 
 TEST(ActiveSet, DiscardFirstBlock) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 1);
   }
@@ -82,7 +82,7 @@ TEST(ActiveSet, DiscardFirstBlock) {
 }
 
 TEST(ActiveSet, DiscardBlockAlternating) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 1);
   }
@@ -100,7 +100,7 @@ TEST(ActiveSet, DiscardBlockAlternating) {
 }
 
 TEST(ActiveSet, ConsumeNextStreaks) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
@@ -112,7 +112,7 @@ TEST(ActiveSet, ConsumeNextStreaks) {
 }
 
 TEST(ActiveSet, DiscardBlockStreaks) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
@@ -129,7 +129,7 @@ TEST(ActiveSet, DiscardBlockStreaks) {
 }
 
 TEST(ActiveSet, RunSizeBlockFalse) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(false);
   }
@@ -140,7 +140,7 @@ TEST(ActiveSet, RunSizeBlockFalse) {
 }
 
 TEST(ActiveSet, RunSizeBlockTrue) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(true);
   }
@@ -151,7 +151,7 @@ TEST(ActiveSet, RunSizeBlockTrue) {
 }
 
 TEST(ActiveSet, RunSizeBlockStreaks) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
@@ -165,7 +165,7 @@ TEST(ActiveSet, RunSizeBlockStreaks) {
 }
 
 TEST(ActiveSet, RunSizeBlockStreaksTrueFirst) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(!(i & 4));
   }

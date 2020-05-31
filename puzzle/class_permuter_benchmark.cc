@@ -39,11 +39,11 @@ BENCHMARK_TEMPLATE(BM_Permuter, MakeClassPermuterFactorialRadixDeleteTracking,
 template <typename MakeClassPermuterPermuterType, int depth, int crop_column,
           int crop_value>
 static void BM_PermuterActiveSet1InN(benchmark::State& state) {
-  ActiveSetBuilder builder;
-
   // Build ActiveSet.
   IntRangeDescriptor d(1, depth);
   auto p = MakeClassPermuterPermuterType()(&d);
+
+  ActiveSetBuilder builder(p->permutation_count());
   for (auto it = p->begin(); it != p->end(); ++it) {
     builder.Add((*it)[crop_column] == crop_value);
   }
@@ -110,11 +110,11 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
 
 template <typename MakeClassPermuterPermuterType, int depth, int every_n>
 static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
-  ActiveSetBuilder builder;
-
   // Build ActiveSet.
   IntRangeDescriptor d(1, depth);
   auto p = MakeClassPermuterPermuterType()(&d);
+
+  ActiveSetBuilder builder(p->permutation_count());
   int i = 0;
   for (auto it = p->begin(); it != p->end(); ++it) {
     builder.Add(i % every_n == 0);

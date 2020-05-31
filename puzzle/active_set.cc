@@ -36,16 +36,14 @@ ActiveSet ActiveSetBuilder::FromPositions(
 // static
 ActiveSet ActiveSetBuilder::FromPositions(const std::vector<int>& positions,
                                           int max_position) {
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(max_position);
   for (auto p : positions) {
     if (p < 0) continue;
     if (p >= max_position) break;
     builder.AddBlockTo(false, p);
     builder.Add(true);
   }
-  if (builder.total() < max_position) {
-    builder.AddBlockTo(false, max_position);
-  }
+  builder.AddBlockTo(false, max_position);
   return builder.DoneAdding();
 }
 
@@ -59,7 +57,7 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
           << ")";
 
-  ActiveSetBuilder intersection;
+  ActiveSetBuilder intersection(std::max(total(), other.total()));
   while (this_iterator.more() && other_iterator.more()) {
     VLOG(3) << "Intersect NextBlock="
             << (this_iterator.value() ? "true" : "false") << "/\\"
@@ -108,7 +106,7 @@ ActiveSet ActiveSet::Intersection(const ActiveSet& other) const {
     other_iterator.Advance(next_run_size);
   }
 
-  const int intersection_total = std::max(total_, other.total_);
+  const int intersection_total = std::max(total(), other.total());
   intersection.AddBlockTo(false, intersection_total);
   return intersection.DoneAdding();
 }
@@ -119,7 +117,7 @@ std::string ActiveSet::DebugString() const {
 }
 
 void ActiveSetBuilder::Add(bool match) {
-  ++set_.total_;
+  ++offset_;
   if (match) {
     ++set_.matches_count_;
   }
@@ -136,7 +134,7 @@ void ActiveSetBuilder::Add(bool match) {
 void ActiveSetBuilder::AddBlock(bool match, int size) {
   if (size <= 0) return;
 
-  set_.total_ += size;
+  offset_ += size;
   if (match) {
     set_.matches_count_ += size;
   }
@@ -151,16 +149,15 @@ void ActiveSetBuilder::AddBlock(bool match, int size) {
 }
 
 ActiveSet ActiveSetBuilder::DoneAdding() {
+  CHECK_EQ(offset_, set_.total_);
+
   if (set_.matches_.empty()) {
     CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
     // As a special case, if all entries are "true", we don't make matches_ so
     // the ActiveSet remains 'trivial'.
-    matches_position_ = 0;
     return std::move(set_);
   }
   set_.matches_.push_back(matches_position_);
-  current_value_ = true;
-  matches_position_ = 0;
 
   return std::move(set_);
 }

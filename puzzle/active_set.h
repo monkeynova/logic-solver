@@ -105,11 +105,9 @@ class ActiveSet {
   std::vector<int> matches_;
 
   // The total number of true values contained within this ActiveSet.
-  // Immutable after DoneAdding is called.
   int matches_count_ = 0;
 
   // The total number of boolean values contained within this ActiveSet.
-  // Immutable after DoneAdding is called.
   int total_ = 0;
 
   friend class ActiveSetBuilder;
@@ -117,7 +115,9 @@ class ActiveSet {
 
 class ActiveSetBuilder {
  public:
-  ActiveSetBuilder() = default;
+  explicit ActiveSetBuilder(int total) {
+    set_.total_ = total;
+  }
 
   // Constructs an ActiveSet such that each value contained in 'positions'
   // returns 'true' and every other value in [0, 'max_position') returns false.
@@ -140,7 +140,7 @@ class ActiveSetBuilder {
   // Adds entites of `value` until `total()` is `position`. Note the fence-post
   // here. The value at `position` is left unset.
   void AddBlockTo(bool value, int position) {
-    AddBlock(value, position - total());
+    AddBlock(value, position - offset_);
   }
 
   // Returns the ActiveSet constructed by calls to Add and AddBlock. It is
@@ -157,6 +157,8 @@ class ActiveSetBuilder {
 
   // Indicates the length of the current accumlating run.
   int matches_position_ = 0;
+
+  int offset_ = 0;
 };
 
 }  // namespace puzzle

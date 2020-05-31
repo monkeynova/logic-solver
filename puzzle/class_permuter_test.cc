@@ -62,8 +62,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSetBuilder builder_first;
-  ActiveSetBuilder builder_last;
+  ActiveSetBuilder builder_first(6);
+  ActiveSetBuilder builder_last(6);
   for (int i = 0; i < 6; ++i) {
     builder_first.Add(i < 3);
     builder_last.Add(i >= 3);
@@ -102,8 +102,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSetBuilder builder_odd;
-  ActiveSetBuilder builder_even;
+  ActiveSetBuilder builder_odd(6);
+  ActiveSetBuilder builder_even(6);
   for (int i = 0; i < 6; ++i) {
     builder_odd.Add(i & 1);
     builder_even.Add(!(i & 1));
@@ -140,8 +140,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSetBuilder builder_odd;
-  ActiveSetBuilder builder_even;
+  ActiveSetBuilder builder_odd(6);
+  ActiveSetBuilder builder_even(6);
   for (int i = 0; i < 6; ++i) {
     builder_odd.Add(i & 1);
     builder_even.Add(!(i & 1));
@@ -213,7 +213,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   IntRangeDescriptor d(1, permuter_size);
   auto p = TypeParam()(&d);
 
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(p->permutation_count());
   for (const auto& permutation : *p) {
     builder.Add(permutation[1] == 3);
   }
@@ -241,7 +241,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
   IntRangeDescriptor d(1, permuter_size);
   auto p = TypeParam()(&d);
 
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count());
   ActiveSet set = builder.DoneAdding();
 
@@ -257,7 +257,7 @@ TYPED_TEST(ClassPermuterTest, FullActiveSet) {
   IntRangeDescriptor d(1, permuter_size);
   auto p = TypeParam()(&d);
 
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(true, p->permutation_count());
   ActiveSet set = builder.DoneAdding();
 
@@ -276,7 +276,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
   IntRangeDescriptor d(1, permuter_size);
   auto p = TypeParam()(&d);
 
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count());
   ActiveSet set = builder.DoneAdding();
 
@@ -299,7 +299,7 @@ TYPED_TEST(ClassPermuterTest, ActiveSetMidIteration) {
   IntRangeDescriptor d(1, permuter_size);
   auto p = TypeParam()(&d);
 
-  ActiveSetBuilder builder;
+  ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count() * 3 / 4);
   builder.AddBlock(true, p->permutation_count() / 4);
   ActiveSet set = builder.DoneAdding();
