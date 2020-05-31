@@ -120,7 +120,7 @@ std::string ActiveSetBitVector::DebugString() const {
 
 void ActiveSetBitVectorBuilder::Add(bool match) {
   DCHECK_LT(offset_, set_.total_);
-  BitVector::SetBit(absl::MakeSpan(set_.matches_), offset_, match);
+  BitVector::SetBit(absl::MakeSpan(set_.matches_), match, offset_);
   ++offset_;
   if (match) {
     ++set_.matches_count_;
@@ -129,10 +129,13 @@ void ActiveSetBitVectorBuilder::Add(bool match) {
 
 void ActiveSetBitVectorBuilder::AddBlock(bool match, int size) {
   if (size <= 0) return;
+  DCHECK_LT(offset_, set_.total_);
 
-  // TODO(@monkeynova): Better algorithm.
-  for (int i = 0; i < size; ++i) {
-    Add(match);
+  BitVector::SetRange(absl::MakeSpan(set_.matches_), match, offset_,
+                      offset_ + size);
+  offset_ += size;
+  if (match) {
+    set_.matches_count_ += size;
   }
 }
 
@@ -147,14 +150,7 @@ std::string ActiveSetBitVectorIterator::DebugString() const {
 }
 
 int ActiveSetBitVectorIterator::run_size() const {
-  // TODO(@monkeynova): Better algorithm.
-  const bool current = BitVector::GetBit(matches_, offset_);
-  int run_size = 1;
-  for (; offset_ + run_size < total_ &&
-	 BitVector::GetBit(matches_, offset_ + run_size) == current; ++run_size) {
-    /* No-op*/
-  }
-  return run_size;
+  return BitVector::GetRange(matches_, offset_, total_);
 }
 
 std::vector<int> ActiveSetBitVector::EnabledValues() const {

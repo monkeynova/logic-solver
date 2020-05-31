@@ -180,8 +180,7 @@ TYPED_TEST(ActiveSetTest, RunSizeBlockStreaksTrueFirst) {
   typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
     EXPECT_EQ(it.run_size(), 4);
-    EXPECT_EQ(it.value(), !(it.offset() & 4))
-      << it.offset();
+    EXPECT_EQ(it.value(), !(it.offset() & 4)) << it.offset();
     it.Advance(it.run_size());
   }
   EXPECT_EQ(it.offset(), 40);

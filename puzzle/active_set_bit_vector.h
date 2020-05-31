@@ -15,23 +15,48 @@ class BitVector {
   using Word = uint32_t;
   static constexpr int kBitsPerWord = sizeof(Word) * 8;
 
-  static void SetBit(absl::Span<Word> span, int position, bool value) {
-    DCHECK_LT(position / kBitsPerWord, span.size());
+  static void SetBit(absl::Span<Word> span, bool value, int position) {
+    DCHECK_LT(position, span.size() * kBitsPerWord);
     const Word bit_index = position % kBitsPerWord;
     span[position / kBitsPerWord] =
-      (span[position / kBitsPerWord] & ~(1<<bit_index)) | (value << bit_index);
+        (span[position / kBitsPerWord] & ~(1 << bit_index)) |
+        (value << bit_index);
+  }
+
+  static void SetRange(absl::Span<Word> span, bool value, int start, int end) {
+    DCHECK_LT(start, span.size() * kBitsPerWord);
+    DCHECK_LT(end, span.size() * kBitsPerWord);
+    // TODO(@monkeynova): Better algorithm.
+    for (int i = start; i < end; ++i) {
+      SetBit(span, value, i);
+    }
   }
 
   static bool GetBit(absl::Span<const Word> span, int position) {
-    DCHECK_LT(position / kBitsPerWord, span.size());
+    DCHECK_LT(position, span.size() * kBitsPerWord);
     const Word bit_index = position % kBitsPerWord;
-    return span[position / kBitsPerWord] & (1<<bit_index);
+    return span[position / kBitsPerWord] & (1 << bit_index);
+  }
+
+  static int GetRange(absl::Span<const Word> span, int position, int max) {
+    DCHECK_LT(position, span.size() * kBitsPerWord);
+    DCHECK_LT(max, span.size() * kBitsPerWord);
+    // TODO(@monkeynova): Better algorithm.
+    const bool current = BitVector::GetBit(span, position);
+    int run_size = 1;
+    for (; position + run_size < max &&
+           BitVector::GetBit(span, position + run_size) == current;
+         ++run_size) {
+      /* No-op*/
+    }
+    return run_size;
   }
 };
-  
+
 class ActiveSetBitVectorIterator {
  public:
-  ActiveSetBitVectorIterator(absl::Span<const BitVector::Word> matches, int total)
+  ActiveSetBitVectorIterator(absl::Span<const BitVector::Word> matches,
+                             int total)
       : matches_(matches), total_(total) {}
 
   int offset() const { return offset_; }
@@ -43,9 +68,7 @@ class ActiveSetBitVectorIterator {
 
   int run_size() const;
 
-  void Advance(int n) {
-    offset_ += n;
-  }
+  void Advance(int n) { offset_ += n; }
 
   std::string DebugString() const;
 
@@ -130,7 +153,7 @@ class ActiveSetBitVectorBuilder {
   explicit ActiveSetBitVectorBuilder(int total) {
     set_.total_ = total;
     const int buf_size =
-      (total + BitVector::kBitsPerWord - 1) / BitVector::kBitsPerWord;
+        (total + BitVector::kBitsPerWord - 1) / BitVector::kBitsPerWord;
     set_.matches_.resize(buf_size);
   }
 
