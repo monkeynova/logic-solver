@@ -5,15 +5,15 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_r
 git_repository(
     name = "com_google_googletest",
     remote = "git://github.com/google/googletest.git",
-    commit = "dcc92d0ab6c4ce022162a23566d44f673251eee4",
-    shallow_since = "1587058390 -0400"
+    commit = "859bfe8981d6724c4ea06e73d29accd8588f3230",
+    shallow_since = "1590710132 -0400"
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "git://github.com/abseil/abseil-cpp.git",
-    commit = "cde2e2410e58c884b3bf5f67c6511e6266036249",
-    shallow_since = "1587747195 -0400"
+    commit = "2069dc796aa255f7c82861c6e83b82d001ceef4a",
+    shallow_since = "1590695889 -0400"
 )
 
 git_repository(
@@ -26,8 +26,8 @@ git_repository(
 git_repository(
     name = "com_google_protobuf",
     remote = "git://github.com/protocolbuffers/protobuf.git",
-    commit = "dddeed298bf84505f4d123a068f911025b351661",
-    shallow_since = "1587760575 -0400"
+    commit = "e492e5a4ef16f59010283befbde6112f1995fa0f",
+    shallow_since = "1590782758 -0700"
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -37,20 +37,20 @@ protobuf_deps()
 git_repository(
     name = "com_google_protobuf_cc",
     remote = "git://github.com/protocolobuffers/protobuf.git",
-    commit = "422053f3bcb39cac483d2769e936c473e7c8bcdb",
+    commit = "e492e5a4ef16f59010283befbde6112f1995fa0f",
 )
 
 git_repository(
     name = "com_google_benchmark",
     remote = "git://github.com/google/benchmark.git",
-    commit = "56898e9a92fba537671d5462df9c5ef2ea6a823a",
-    shallow_since = "1587640759 +0300"
+    commit = "6746c65bcfa49110bfe6642b8a47735637817be4",
+    shallow_since = "1590654786 +0100"
 )
 
 git_repository(
     name = "com_google_tcmalloc",
     remote = "git://github.com/google/tcmalloc.git",
-    commit = "9c5390e25c8612332251983d30ca6501bce9d41f",
+    commit = "bceab40c239be18a947fd37281bd20a378717f69",
     shallow_since = "1588365663 -0700"
 )
 
@@ -64,6 +64,6 @@ new_git_repository(
 git_repository(
     name = "com_google_glog",
     remote = "git://github.com/google/glog.git",
-    commit = "3ba8976592274bc1f907c402ce22558011d6fc5e",
-    shallow_since = "1585127859 +0100",
+    commit = "0a2e5931bd5ff22fd3bf8999eb8ce776f159cda6",
+    shallow_since = "1589330215 +0900"
 )
