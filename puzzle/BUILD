@@ -27,12 +27,32 @@ cc_library(
 cc_library(
     name = "active_set",
     hdrs = ["active_set.h"],
-    srcs = ["active_set.cc"],
+    deps = [
+        ":active_set_bit_vector",
+        ":active_set_run_length",
+    ],
+)
+
+cc_library(
+    name = "active_set_bit_vector",
+    hdrs = ["active_set_bit_vector.h"],
+    srcs = ["active_set_bit_vector.cc"],
     deps = [
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
 	"@com_google_glog//:glog",
-    ],    
+    ],
+)
+
+cc_library(
+    name = "active_set_run_length",
+    hdrs = ["active_set_run_length.h"],
+    srcs = ["active_set_run_length.cc"],
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
+	"@com_google_glog//:glog",
+    ],
 )
 
 cc_test(

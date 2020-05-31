@@ -14,65 +14,73 @@ using ::testing::Eq;
 
 namespace puzzle {
 
-TEST(ActiveSet, EmptyIsTrivial) {
+template <typename T>
+class ActiveSetTest : public ::testing::Test {};
+
+using ActiveSetTypes =
+    ::testing::Types<ActiveSetRunLength,
+                     ActiveSetBitVector>;
+TYPED_TEST_SUITE(ActiveSetTest, ActiveSetTypes);
+
+TYPED_TEST(ActiveSetTest, EmptyIsTrivial) {
   EXPECT_TRUE(ActiveSet::trivial().is_trivial());
 }
 
-TEST(ActiveSet, SingleFalseIsNotTrivial) {
-  ActiveSetBuilder single_false(1);
+TYPED_TEST(ActiveSetTest, SingleFalseIsNotTrivial) {
+  typename TypeParam::Builder single_false(1);
   single_false.Add(false);
   EXPECT_FALSE(single_false.DoneAdding().is_trivial());
 }
 
-TEST(ActiveSet, SingleTrueIsNotTrivial) {
-  ActiveSetBuilder single_true(1);
+TYPED_TEST(ActiveSetTest, SingleTrueIsNotTrivial) {
+  typename TypeParam::Builder single_true(1);
   single_true.Add(true);
   EXPECT_TRUE(single_true.DoneAdding().is_trivial());
 }
 
-TEST(ActiveSet, ConsumeNextAllTrue) {
-  ActiveSetBuilder builder(3);
+TYPED_TEST(ActiveSetTest, ConsumeNextAllTrue) {
+  typename TypeParam::Builder builder(3);
   for (int i = 0; i < 3; ++i) {
     builder.Add(true);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   for (int i = 0; i < 3; ++i, it.Advance(1)) {
     EXPECT_TRUE(it.value()) << i;
   }
 }
 
-TEST(ActiveSet, ConsumeNextAllFalse) {
-  ActiveSetBuilder builder(3);
+TYPED_TEST(ActiveSetTest, ConsumeNextAllFalse) {
+  typename TypeParam::Builder builder(3);
   for (int i = 0; i < 3; ++i) {
     builder.Add(false);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   for (int i = 0; i < 3; ++i, it.Advance(1)) {
     EXPECT_FALSE(it.value()) << i;
   }
 }
 
-TEST(ActiveSet, ConsumeNextAlternating) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, ConsumeNextAlternating) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 1);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   for (int i = 0; i < 40; ++i, it.Advance(1)) {
     EXPECT_THAT(it.value(), Eq(i & 1));
   }
 }
 
-TEST(ActiveSet, DiscardFirstBlock) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, DiscardFirstBlock) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 1);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   EXPECT_EQ(it.offset(), 0);
   it.Advance(20);
   EXPECT_EQ(it.offset(), 20);
@@ -81,13 +89,13 @@ TEST(ActiveSet, DiscardFirstBlock) {
   }
 }
 
-TEST(ActiveSet, DiscardBlockAlternating) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, DiscardBlockAlternating) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 1);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   for (int i = 0; i < 15; ++i, it.Advance(1)) {
     EXPECT_THAT(it.value(), Eq(i & 1)) << i;
   }
@@ -99,25 +107,25 @@ TEST(ActiveSet, DiscardBlockAlternating) {
   }
 }
 
-TEST(ActiveSet, ConsumeNextStreaks) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, ConsumeNextStreaks) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   for (int i = 0; i < 40; ++i, it.Advance(1)) {
     EXPECT_THAT(it.value(), Eq(!!(i & 4)));
   }
 }
 
-TEST(ActiveSet, DiscardBlockStreaks) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, DiscardBlockStreaks) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   for (int i = 0; i < 10; ++i, it.Advance(1)) {
     EXPECT_THAT(it.value(), Eq(!!(i & 4)));
   }
@@ -128,35 +136,35 @@ TEST(ActiveSet, DiscardBlockStreaks) {
   }
 }
 
-TEST(ActiveSet, RunSizeBlockFalse) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, RunSizeBlockFalse) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(false);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   EXPECT_THAT(it.run_size(), 40) << set.DebugString();
   EXPECT_EQ(it.value(), false);
 }
 
-TEST(ActiveSet, RunSizeBlockTrue) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, RunSizeBlockTrue) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(true);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   EXPECT_THAT(it.run_size(), 40) << set.DebugString();
   EXPECT_EQ(it.value(), true);
 }
 
-TEST(ActiveSet, RunSizeBlockStreaks) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, RunSizeBlockStreaks) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(i & 4);
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
     EXPECT_EQ(it.run_size(), 4);
     EXPECT_EQ(it.value(), !!(it.offset() & 4));
@@ -164,13 +172,13 @@ TEST(ActiveSet, RunSizeBlockStreaks) {
   }
 }
 
-TEST(ActiveSet, RunSizeBlockStreaksTrueFirst) {
-  ActiveSetBuilder builder(40);
+TYPED_TEST(ActiveSetTest, RunSizeBlockStreaksTrueFirst) {
+  typename TypeParam::Builder builder(40);
   for (int i = 0; i < 40; ++i) {
     builder.Add(!(i & 4));
   }
-  ActiveSet set = builder.DoneAdding();
-  ActiveSetIterator it = set.Iterator();
+  TypeParam set = builder.DoneAdding();
+  typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
     EXPECT_EQ(it.run_size(), 4);
     it.Advance(it.run_size());
@@ -178,73 +186,74 @@ TEST(ActiveSet, RunSizeBlockStreaksTrueFirst) {
   }
 }
 
-TEST(ActiveSet, EnabledValues) {
+TYPED_TEST(ActiveSetTest, EnabledValues) {
   std::vector<std::vector<int>> test_cases = {
       {0, 1, 2, 3}, {}, {1, 3}, {0, 2}, {0, 1}};
 
   for (const auto test : test_cases) {
-    EXPECT_THAT(ActiveSetBuilder::FromPositions(test, 4).EnabledValues(),
+    EXPECT_THAT(TypeParam::Builder::FromPositions(test, 4).EnabledValues(),
                 ElementsAreArray(test))
         << "{" << absl::StrJoin(test, ",") << "}";
   }
 }
 
-TEST(ActiveSet, EnabledValuesMultipleCalls) {
-  ActiveSet set = ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 4);
+TYPED_TEST(ActiveSetTest, EnabledValuesMultipleCalls) {
+  TypeParam set = TypeParam::Builder::FromPositions({0, 1, 2, 3}, 4);
   EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
   EXPECT_THAT(set.EnabledValues(), ElementsAre(0, 1, 2, 3));
 }
 
-TEST(ActiveSet, SetConstruction) {
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({0}, 1).EnabledValues(),
+TYPED_TEST(ActiveSetTest, SetConstruction) {
+  EXPECT_THAT(TypeParam::Builder::FromPositions({0}, 1).EnabledValues(),
               ElementsAre(0));
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({}, 1).EnabledValues(),
+  EXPECT_THAT(TypeParam::Builder::FromPositions({}, 1).EnabledValues(),
               ElementsAre());
   for (int i = 0; i < 4; ++i) {
-    EXPECT_THAT(ActiveSetBuilder::FromPositions({i}, 4).EnabledValues(),
+    EXPECT_THAT(TypeParam::Builder::FromPositions({i}, 4).EnabledValues(),
                 ElementsAre(i));
   }
   for (int i = 0; i < 5; ++i) {
     if (i == 5) continue;
-    EXPECT_THAT(ActiveSetBuilder::FromPositions({i, 5}, 9).EnabledValues(),
+    EXPECT_THAT(TypeParam::Builder::FromPositions({i, 5}, 9).EnabledValues(),
                 ElementsAre(i, 5));
   }
   for (int i = 6; i < 9; ++i) {
-    EXPECT_THAT(ActiveSetBuilder::FromPositions({i, 5}, 9).EnabledValues(),
+    EXPECT_THAT(TypeParam::Builder::FromPositions({i, 5}, 9).EnabledValues(),
                 ElementsAre(5, i));
   }
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({1, 3, 5, 7}, 9).EnabledValues(),
+  EXPECT_THAT(TypeParam::Builder::FromPositions({1, 3, 5, 7}, 9).EnabledValues(),
               ElementsAre(1, 3, 5, 7));
   EXPECT_THAT(
-      ActiveSetBuilder::FromPositions({0, 2, 4, 6, 8}, 9).EnabledValues(),
+      TypeParam::Builder::FromPositions({0, 2, 4, 6, 8}, 9).EnabledValues(),
       ElementsAre(0, 2, 4, 6, 8));
 }
 
-TEST(ActiveSet, SetConstuctionFullExact) {
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 4).EnabledValues(),
+TYPED_TEST(ActiveSetTest, SetConstuctionFullExact) {
+  EXPECT_THAT(TypeParam::Builder::FromPositions({0, 1, 2, 3}, 4).EnabledValues(),
               ElementsAre(0, 1, 2, 3));
 }
-TEST(ActiveSet, SetConstuctionEmptyEnd) {
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 5).EnabledValues(),
+TYPED_TEST(ActiveSetTest, SetConstuctionEmptyEnd) {
+  EXPECT_THAT(TypeParam::Builder::FromPositions({0, 1, 2, 3}, 5).EnabledValues(),
               ElementsAre(0, 1, 2, 3));
 }
-TEST(ActiveSet, SetConstuctionTruncate) {
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({0, 1, 2, 3}, 3).EnabledValues(),
+TYPED_TEST(ActiveSetTest, SetConstuctionTruncate) {
+  EXPECT_THAT(TypeParam::Builder::FromPositions({0, 1, 2, 3}, 3).EnabledValues(),
               ElementsAre(0, 1, 2));
 }
-TEST(ActiveSet, SetConstuctionNegative) {
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({-1, 1}, 2).EnabledValues(),
+TYPED_TEST(ActiveSetTest, SetConstuctionNegative) {
+  EXPECT_THAT(TypeParam::Builder::FromPositions({-1, 1}, 2).EnabledValues(),
               ElementsAre(1));
 }
-TEST(ActiveSet, SetConstuctionSpards) {
-  EXPECT_THAT(ActiveSetBuilder::FromPositions({5, 10}, 100).EnabledValues(),
+TYPED_TEST(ActiveSetTest, SetConstuctionSpards) {
+  EXPECT_THAT(TypeParam::Builder::FromPositions({5, 10}, 100).EnabledValues(),
               ElementsAre(5, 10));
 }
 
+template <typename TypeParam>
 void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
                       int max_position_a, int max_position_b) {
-  ActiveSet a = ActiveSetBuilder::FromPositions(set_a, max_position_a);
-  ActiveSet b = ActiveSetBuilder::FromPositions(set_b, max_position_b);
+  TypeParam a = TypeParam::Builder::FromPositions(set_a, max_position_a);
+  TypeParam b = TypeParam::Builder::FromPositions(set_b, max_position_b);
   std::vector<int> full_intersection;
   std::set_intersection(set_a.begin(), set_a.end(), set_b.begin(), set_b.end(),
                         std::back_inserter(full_intersection));
@@ -256,20 +265,20 @@ void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
       << a.DebugString() << "; " << b.DebugString();
 }
 
-TEST(ActiveSet, IntersectionFull) { TestIntersection({0, 1}, {0, 1}, 2, 2); }
-TEST(ActiveSet, IntersectionEmpty) { TestIntersection({0}, {1}, 2, 2); }
-TEST(ActiveSet, IntersectionSubset) {
-  TestIntersection({0, 1, 2, 3}, {2, 3}, 4, 4);
+TYPED_TEST(ActiveSetTest, IntersectionFull) { TestIntersection<TypeParam>({0, 1}, {0, 1}, 2, 2); }
+TYPED_TEST(ActiveSetTest, IntersectionEmpty) { TestIntersection<TypeParam>({0}, {1}, 2, 2); }
+TYPED_TEST(ActiveSetTest, IntersectionSubset) {
+  TestIntersection<TypeParam>({0, 1, 2, 3}, {2, 3}, 4, 4);
 }
-TEST(ActiveSet, IntersectionSparseRangePartialMatch) {
-  TestIntersection({2, 3, 5, 6, 8, 9}, {3, 5, 8}, 10, 10);
+TYPED_TEST(ActiveSetTest, IntersectionSparseRangePartialMatch) {
+  TestIntersection<TypeParam>({2, 3, 5, 6, 8, 9}, {3, 5, 8}, 10, 10);
 }
-TEST(ActiveSet, IntersectionSparseRangeEmpty) {
-  TestIntersection({2, 3, 5, 6, 8, 9}, {4, 7}, 10, 10);
+TYPED_TEST(ActiveSetTest, IntersectionSparseRangeEmpty) {
+  TestIntersection<TypeParam>({2, 3, 5, 6, 8, 9}, {4, 7}, 10, 10);
 }
 
-TEST(ActiveSet, Empirical) {
-  TestIntersection(
+TYPED_TEST(ActiveSetTest, Empirical) {
+  TestIntersection<TypeParam>(
       {0, 1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23},
       {3, 7, 11, 12, 13, 14, 15, 16, 17, 18, 19, 23}, 24, 24);
 }

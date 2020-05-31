@@ -5,14 +5,14 @@ namespace puzzle {
 ClassPermuter::AdvancerBase::AdvancerBase(const ClassPermuter* permuter)
     : position_(0),
       active_set_(ActiveSet::trivial()),
-      active_set_it_(active_set_.Iterator()),
+      active_set_it_(active_set_.GetIterator()),
       permutation_count_(permuter->permutation_count()),
       class_int_(permuter->class_int()) {}
 
 ClassPermuter::AdvancerBase::AdvancerBase(const AdvancerBase& other)
     : position_(other.position_),
       active_set_(other.active_set_),
-      active_set_it_(active_set_.Iterator()),
+      active_set_it_(active_set_.GetIterator()),
       permutation_count_(other.permutation_count_),
       class_int_(other.class_int_) {
   active_set_it_.Advance(other.active_set_it_.offset());
@@ -20,7 +20,7 @@ ClassPermuter::AdvancerBase::AdvancerBase(const AdvancerBase& other)
 
 bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
   active_set_.Intersect(other);
-  active_set_it_ = active_set_.Iterator();
+  active_set_it_ = active_set_.GetIterator();
   active_set_it_.Advance(position_);
   if (active_set_it_.value()) {
     // Newly intersected active_set still points to an enabled offset.
