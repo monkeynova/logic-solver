@@ -13,7 +13,7 @@ namespace puzzle {
 class Solver {
  public:
   Solver();
-  ~Solver() {}
+  ~Solver() = default;
 
   Solution Solve();
   std::vector<Solution> AllSolutions(int limit = -1);

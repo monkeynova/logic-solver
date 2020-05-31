@@ -15,9 +15,7 @@ ABSL_FLAG(bool, puzzle_prune_pair_class_iterators, true,
           "If specfied, class iterators will be pruned based on pair "
           "class predicates that are present.");
 
-// TODO(@monkeynova): Enabling this flags results in failed tests with
-// results returned that did not pass the filters.
-ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, false,
+ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, true,
           "If specified pairwise iterators will be pruned with contextual "
           "pruning (that is, pairwise iterators will store, for each value "
           "of one iterator, the appropriate active sets for the other "
@@ -305,7 +303,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
           std::make_pair(filter.classes()[1], filter.classes()[0]);
       pair_class_predicates[key1].push_back(filter);
       pair_class_predicates[key2].push_back(filter);
-      if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
+      if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators) ||
+	  !absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
         residual->push_back(filter);
       }
     } else {

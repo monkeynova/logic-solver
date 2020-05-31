@@ -108,6 +108,9 @@ cc_test(
         # disable the pair pruning for usual testing, but can enable it
         # to benchmark pair pruning behavior.
         "--puzzle_prune_pair_class_iterators=false",
+        # We also enable mode_pair to test that the combination of these two
+        # flags return valid results.
+        "--puzzle_prune_pair_class_iterators_mode_pair=true",
         "--sudoku_line_board=" +
         "........." +
         "........." +
