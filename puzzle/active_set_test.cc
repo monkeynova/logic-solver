@@ -6,6 +6,8 @@
 #include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "puzzle/active_set_bit_vector.h"
+#include "puzzle/active_set_run_length.h"
 
 using ::testing::AnyOf;
 using ::testing::ElementsAre;
