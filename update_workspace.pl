@@ -13,7 +13,7 @@ while ($workspace =~ m{git_repository\(([^)]+)\)}sg) {
     my $repository = $1;
     my %args = $repository =~ /([a-z]+)\s*=\s*\"(.*?)(?!<\")\"/g;
     
-    if ($args{remote} =~ m{https://github.com/(.*)\.git}) {
+    if ($args{remote} =~ m{git://github.com/(.*)\.git}) {
 	my $github_name = $1;
 	my $json_str = `curl https://api.github.com/repos/$github_name/commits/master`;
 	my $json = JSON::from_json($json_str);
