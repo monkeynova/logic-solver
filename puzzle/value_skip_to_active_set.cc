@@ -9,7 +9,8 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
   builders.resize(class_permuter->permutation_size());
   for (int i = 0; i < class_permuter->permutation_size(); ++i) {
     for (int value : class_permuter->values()) {
-      builders[i].emplace(value, ActiveSetBuilder(class_permuter->permutation_count()));
+      builders[i].emplace(
+          value, ActiveSetBuilder(class_permuter->permutation_count()));
     }
   }
 

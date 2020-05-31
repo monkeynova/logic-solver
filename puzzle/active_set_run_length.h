@@ -10,7 +10,8 @@ namespace puzzle {
 
 class ActiveSetRunLengthIterator {
  public:
-  ActiveSetRunLengthIterator(absl::Span<const int> matches, bool value, int total)
+  ActiveSetRunLengthIterator(absl::Span<const int> matches, bool value,
+                             int total)
       : matches_(matches), value_(value), total_(total) {}
 
   int offset() const { return offset_; }
@@ -41,7 +42,7 @@ class ActiveSetRunLengthIterator {
 
 // Forward declare for using ActiveSetRunLength::Builder.
 class ActiveSetRunLengthBuilder;
-  
+
 class ActiveSetRunLength {
  public:
   using Iterator = ActiveSetRunLengthIterator;
@@ -60,10 +61,10 @@ class ActiveSetRunLength {
   ActiveSetRunLength& operator=(ActiveSetRunLength&& other) = default;
 
   // Returns the intersections of the two active sets (that is, returns an
-  // ActiveSetRunLength which returns a true value for position if that value position
-  // corresponds to true values in both 'this' and 'other').
-  // If 'this' and 'other' have different lengths, the intersections behaves as
-  // though the shorter were padded with 'true' values to the longer.
+  // ActiveSetRunLength which returns a true value for position if that value
+  // position corresponds to true values in both 'this' and 'other'). If 'this'
+  // and 'other' have different lengths, the intersections behaves as though the
+  // shorter were padded with 'true' values to the longer.
   ActiveSetRunLength Intersection(const ActiveSetRunLength& other) const;
   void Intersect(const ActiveSetRunLength& other) {
     if (other.is_trivial()) return;
@@ -89,12 +90,12 @@ class ActiveSetRunLength {
   }
 
   ActiveSetRunLengthIterator GetIterator() const {
-    // ActiveSetRunLength may be constructed with an empty first record (it uses this
-    // to indicate a false record to start), so skip that if present and
+    // ActiveSetRunLength may be constructed with an empty first record (it uses
+    // this to indicate a false record to start), so skip that if present and
     // negate value.
     if (!matches_.empty() && matches_[0] == 0) {
-      return ActiveSetRunLengthIterator(absl::MakeSpan(matches_).subspan(1), false,
-                               total_);
+      return ActiveSetRunLengthIterator(absl::MakeSpan(matches_).subspan(1),
+                                        false, total_);
     }
     return ActiveSetRunLengthIterator(absl::MakeSpan(matches_), true, total_);
   }
@@ -113,7 +114,8 @@ class ActiveSetRunLength {
   // The total number of true values contained within this ActiveSetRunLength.
   int matches_count_ = 0;
 
-  // The total number of boolean values contained within this ActiveSetRunLength.
+  // The total number of boolean values contained within this
+  // ActiveSetRunLength.
   int total_ = 0;
 
   friend class ActiveSetRunLengthBuilder;
@@ -121,22 +123,21 @@ class ActiveSetRunLength {
 
 class ActiveSetRunLengthBuilder {
  public:
-  explicit ActiveSetRunLengthBuilder(int total) {
-    set_.total_ = total;
-  }
+  explicit ActiveSetRunLengthBuilder(int total) { set_.total_ = total; }
 
-  // Constructs an ActiveSetRunLength such that each value contained in 'positions'
-  // returns 'true' and every other value in [0, 'max_position') returns false.
-  static ActiveSetRunLength FromPositions(const absl::flat_hash_set<int>& positions,
-                                 int max_position);
+  // Constructs an ActiveSetRunLength such that each value contained in
+  // 'positions' returns 'true' and every other value in [0, 'max_position')
+  // returns false.
+  static ActiveSetRunLength FromPositions(
+      const absl::flat_hash_set<int>& positions, int max_position);
   // Same as flat_hash_set form, except positions is required to be sorted.
   static ActiveSetRunLength FromPositions(const std::vector<int>& positions,
-                                 int max_position);
-  static ActiveSetRunLength FromPositions(const std::initializer_list<int>& positions,
-                                 int max_position);
+                                          int max_position);
+  static ActiveSetRunLength FromPositions(
+      const std::initializer_list<int>& positions, int max_position);
 
-  // Adds a new boolean value to the current ActiveSetRunLength. Must not be called
-  // after DoneAdding is called.
+  // Adds a new boolean value to the current ActiveSetRunLength. Must not be
+  // called after DoneAdding is called.
   void Add(bool match);
 
   // Adds `size` enties of `value`. Equivalent to:
@@ -149,8 +150,8 @@ class ActiveSetRunLengthBuilder {
     AddBlock(value, position - offset_);
   }
 
-  // Returns the ActiveSetRunLength constructed by calls to Add and AddBlock. It is
-  // undefined behavior to call more than once.
+  // Returns the ActiveSetRunLength constructed by calls to Add and AddBlock. It
+  // is undefined behavior to call more than once.
   ActiveSetRunLength DoneAdding();
 
   int total() { return set_.total(); }

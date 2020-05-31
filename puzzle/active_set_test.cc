@@ -17,9 +17,7 @@ namespace puzzle {
 template <typename T>
 class ActiveSetTest : public ::testing::Test {};
 
-using ActiveSetTypes =
-    ::testing::Types<ActiveSetRunLength,
-                     ActiveSetBitVector>;
+using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetBitVector>;
 TYPED_TEST_SUITE(ActiveSetTest, ActiveSetTypes);
 
 TYPED_TEST(ActiveSetTest, EmptyIsTrivial) {
@@ -221,24 +219,28 @@ TYPED_TEST(ActiveSetTest, SetConstruction) {
     EXPECT_THAT(TypeParam::Builder::FromPositions({i, 5}, 9).EnabledValues(),
                 ElementsAre(5, i));
   }
-  EXPECT_THAT(TypeParam::Builder::FromPositions({1, 3, 5, 7}, 9).EnabledValues(),
-              ElementsAre(1, 3, 5, 7));
+  EXPECT_THAT(
+      TypeParam::Builder::FromPositions({1, 3, 5, 7}, 9).EnabledValues(),
+      ElementsAre(1, 3, 5, 7));
   EXPECT_THAT(
       TypeParam::Builder::FromPositions({0, 2, 4, 6, 8}, 9).EnabledValues(),
       ElementsAre(0, 2, 4, 6, 8));
 }
 
 TYPED_TEST(ActiveSetTest, SetConstuctionFullExact) {
-  EXPECT_THAT(TypeParam::Builder::FromPositions({0, 1, 2, 3}, 4).EnabledValues(),
-              ElementsAre(0, 1, 2, 3));
+  EXPECT_THAT(
+      TypeParam::Builder::FromPositions({0, 1, 2, 3}, 4).EnabledValues(),
+      ElementsAre(0, 1, 2, 3));
 }
 TYPED_TEST(ActiveSetTest, SetConstuctionEmptyEnd) {
-  EXPECT_THAT(TypeParam::Builder::FromPositions({0, 1, 2, 3}, 5).EnabledValues(),
-              ElementsAre(0, 1, 2, 3));
+  EXPECT_THAT(
+      TypeParam::Builder::FromPositions({0, 1, 2, 3}, 5).EnabledValues(),
+      ElementsAre(0, 1, 2, 3));
 }
 TYPED_TEST(ActiveSetTest, SetConstuctionTruncate) {
-  EXPECT_THAT(TypeParam::Builder::FromPositions({0, 1, 2, 3}, 3).EnabledValues(),
-              ElementsAre(0, 1, 2));
+  EXPECT_THAT(
+      TypeParam::Builder::FromPositions({0, 1, 2, 3}, 3).EnabledValues(),
+      ElementsAre(0, 1, 2));
 }
 TYPED_TEST(ActiveSetTest, SetConstuctionNegative) {
   EXPECT_THAT(TypeParam::Builder::FromPositions({-1, 1}, 2).EnabledValues(),
@@ -265,8 +267,12 @@ void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
       << a.DebugString() << "; " << b.DebugString();
 }
 
-TYPED_TEST(ActiveSetTest, IntersectionFull) { TestIntersection<TypeParam>({0, 1}, {0, 1}, 2, 2); }
-TYPED_TEST(ActiveSetTest, IntersectionEmpty) { TestIntersection<TypeParam>({0}, {1}, 2, 2); }
+TYPED_TEST(ActiveSetTest, IntersectionFull) {
+  TestIntersection<TypeParam>({0, 1}, {0, 1}, 2, 2);
+}
+TYPED_TEST(ActiveSetTest, IntersectionEmpty) {
+  TestIntersection<TypeParam>({0}, {1}, 2, 2);
+}
 TYPED_TEST(ActiveSetTest, IntersectionSubset) {
   TestIntersection<TypeParam>({0, 1, 2, 3}, {2, 3}, 4, 4);
 }

@@ -34,8 +34,8 @@ ActiveSetBitVector ActiveSetBitVectorBuilder::FromPositions(
 }
 
 // static
-ActiveSetBitVector ActiveSetBitVectorBuilder::FromPositions(const std::vector<int>& positions,
-                                          int max_position) {
+ActiveSetBitVector ActiveSetBitVectorBuilder::FromPositions(
+    const std::vector<int>& positions, int max_position) {
   ActiveSetBitVectorBuilder builder(max_position);
   for (auto p : positions) {
     if (p < 0) continue;
@@ -47,7 +47,8 @@ ActiveSetBitVector ActiveSetBitVectorBuilder::FromPositions(const std::vector<in
   return builder.DoneAdding();
 }
 
-ActiveSetBitVector ActiveSetBitVector::Intersection(const ActiveSetBitVector& other) const {
+ActiveSetBitVector ActiveSetBitVector::Intersection(
+    const ActiveSetBitVector& other) const {
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 

@@ -34,8 +34,8 @@ ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(
 }
 
 // static
-ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(const std::vector<int>& positions,
-                                          int max_position) {
+ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(
+    const std::vector<int>& positions, int max_position) {
   ActiveSetRunLengthBuilder builder(max_position);
   for (auto p : positions) {
     if (p < 0) continue;
@@ -47,7 +47,8 @@ ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(const std::vector<in
   return builder.DoneAdding();
 }
 
-ActiveSetRunLength ActiveSetRunLength::Intersection(const ActiveSetRunLength& other) const {
+ActiveSetRunLength ActiveSetRunLength::Intersection(
+    const ActiveSetRunLength& other) const {
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
