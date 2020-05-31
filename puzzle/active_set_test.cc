@@ -168,6 +168,7 @@ TYPED_TEST(ActiveSetTest, RunSizeBlockStreaks) {
     EXPECT_EQ(it.value(), !!(it.offset() & 4));
     it.Advance(it.run_size());
   }
+  EXPECT_EQ(it.offset(), 40);
 }
 
 TYPED_TEST(ActiveSetTest, RunSizeBlockStreaksTrueFirst) {
@@ -179,9 +180,11 @@ TYPED_TEST(ActiveSetTest, RunSizeBlockStreaksTrueFirst) {
   typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
     EXPECT_EQ(it.run_size(), 4);
+    EXPECT_EQ(it.value(), !(it.offset() & 4))
+      << it.offset();
     it.Advance(it.run_size());
-    EXPECT_EQ(it.value(), !(it.offset() & 4));
   }
+  EXPECT_EQ(it.offset(), 40);
 }
 
 TYPED_TEST(ActiveSetTest, EnabledValues) {

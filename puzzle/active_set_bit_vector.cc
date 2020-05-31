@@ -52,6 +52,7 @@ ActiveSetBitVector ActiveSetBitVector::Intersection(
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
+  // TODO(@monkeynova): This should be a big bitwise-OR.
   ActiveSetBitVectorIterator this_iterator = GetIterator();
   ActiveSetBitVectorIterator other_iterator = other.GetIterator();
 
@@ -113,91 +114,47 @@ ActiveSetBitVector ActiveSetBitVector::Intersection(
 }
 
 std::string ActiveSetBitVector::DebugString() const {
-  return absl::StrCat("{total:", total_, "; matchs: {",
+  return absl::StrCat("{total:", total_, "; matches: {",
                       absl::StrJoin(matches_, ", "), "}}");
 }
 
 void ActiveSetBitVectorBuilder::Add(bool match) {
+  DCHECK_LT(offset_, set_.total_);
+  BitVector::SetBit(absl::MakeSpan(set_.matches_), offset_, match);
   ++offset_;
   if (match) {
     ++set_.matches_count_;
-  }
-
-  if (match == current_value_) {
-    ++run_size_;
-  } else {
-    set_.matches_.push_back(run_size_);
-    current_value_ = match;
-    run_size_ = 1;
   }
 }
 
 void ActiveSetBitVectorBuilder::AddBlock(bool match, int size) {
   if (size <= 0) return;
 
-  offset_ += size;
-  if (match) {
-    set_.matches_count_ += size;
-  }
-
-  if (match == current_value_) {
-    run_size_ += size;
-  } else {
-    set_.matches_.push_back(run_size_);
-    current_value_ = match;
-    run_size_ = size;
+  // TODO(@monkeynova): Better algorithm.
+  for (int i = 0; i < size; ++i) {
+    Add(match);
   }
 }
 
 ActiveSetBitVector ActiveSetBitVectorBuilder::DoneAdding() {
   CHECK_EQ(offset_, set_.total_);
-
-  if (set_.matches_.empty()) {
-    CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
-    // As a special case, if all entries are "true", we don't make matches_ so
-    // the ActiveSetBitVector remains 'trivial'.
-    return std::move(set_);
-  }
-  set_.matches_.push_back(run_size_);
-
   return std::move(set_);
 }
 
 std::string ActiveSetBitVectorIterator::DebugString() const {
   return absl::StrCat("offset: ", offset_, "; ", "total: ", total_, "; ",
-                      "value: ", value_, "; ",
-                      "match_position: ", match_position_, "; ",
-                      "run_position: ", run_position_, "; ", "matches: {",
-                      absl::StrJoin(matches_, ","), "}");
+                      "matches: {", absl::StrJoin(matches_, ","), "}");
 }
 
-void ActiveSetBitVectorIterator::Advance(int n) {
-  DCHECK(match_position_ >= matches_.size() ||
-         run_position_ != matches_[match_position_])
-      << DebugString();
-  while (n > 0 && match_position_ < matches_.size()) {
-    int delta = matches_[match_position_] - run_position_;
-    if (n >= delta) {
-      n -= delta;
-      offset_ += delta;
-      ++match_position_;
-      run_position_ = 0;
-      value_ = !value_;
-    } else {
-      run_position_ += n;
-      offset_ += n;
-      n = 0;
-    }
+int ActiveSetBitVectorIterator::run_size() const {
+  // TODO(@monkeynova): Better algorithm.
+  const bool current = BitVector::GetBit(matches_, offset_);
+  int run_size = 1;
+  for (; offset_ + run_size < total_ &&
+	 BitVector::GetBit(matches_, offset_ + run_size) == current; ++run_size) {
+    /* No-op*/
   }
-  if (n > 0) {
-    offset_ = std::min(total_, offset_ + n);
-  }
-  if (match_position_ >= matches_.size()) {
-    value_ = true;
-  }
-  DCHECK(match_position_ >= matches_.size() ||
-         run_position_ != matches_[match_position_])
-      << DebugString();
+  return run_size;
 }
 
 std::vector<int> ActiveSetBitVector::EnabledValues() const {

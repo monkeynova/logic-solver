@@ -113,7 +113,7 @@ ActiveSetRunLength ActiveSetRunLength::Intersection(
 }
 
 std::string ActiveSetRunLength::DebugString() const {
-  return absl::StrCat("{total:", total_, "; matchs: {",
+  return absl::StrCat("{total:", total_, "; matches: {",
                       absl::StrJoin(matches_, ", "), "}}");
 }
 

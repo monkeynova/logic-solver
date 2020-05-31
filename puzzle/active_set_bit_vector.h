@@ -5,37 +5,52 @@
 #include <vector>
 
 #include "absl/container/flat_hash_set.h"
+#include "glog/logging.h"
 
 namespace puzzle {
 
+class BitVector {
+ public:
+  // TODO(@monkeynova): Move to a 64bit word.
+  using Word = uint32_t;
+  static constexpr int kBitsPerWord = sizeof(Word) * 8;
+
+  static void SetBit(absl::Span<Word> span, int position, bool value) {
+    DCHECK_LT(position / kBitsPerWord, span.size());
+    const Word bit_index = position % kBitsPerWord;
+    span[position / kBitsPerWord] =
+      (span[position / kBitsPerWord] & ~(1<<bit_index)) | (value << bit_index);
+  }
+
+  static bool GetBit(absl::Span<const Word> span, int position) {
+    DCHECK_LT(position / kBitsPerWord, span.size());
+    const Word bit_index = position % kBitsPerWord;
+    return span[position / kBitsPerWord] & (1<<bit_index);
+  }
+};
+  
 class ActiveSetBitVectorIterator {
  public:
-  ActiveSetBitVectorIterator(absl::Span<const int> matches, bool value,
-                             int total)
-      : matches_(matches), value_(value), total_(total) {}
+  ActiveSetBitVectorIterator(absl::Span<const BitVector::Word> matches, int total)
+      : matches_(matches), total_(total) {}
 
   int offset() const { return offset_; }
   int total() const { return total_; }
 
-  bool value() const { return value_; }
+  bool value() const { return BitVector::GetBit(matches_, offset_); }
 
   bool more() const { return offset() < total(); }
 
-  int run_size() const {
-    if (match_position_ >= matches_.size()) return total() - offset();
-    return matches_[match_position_] - run_position_;
-  }
+  int run_size() const;
 
-  // Moves the iterator the next 'block_size' values.
-  void Advance(int n);
+  void Advance(int n) {
+    offset_ += n;
+  }
 
   std::string DebugString() const;
 
  private:
-  absl::Span<const int> matches_;
-  bool value_;
-  int match_position_ = 0;
-  int run_position_ = 0;
+  absl::Span<const BitVector::Word> matches_;
   int offset_ = 0;
   int total_ = 0;
 };
@@ -81,7 +96,7 @@ class ActiveSetBitVector {
 
   std::string DebugValues() const;
 
-  bool is_trivial() const { return matches_.empty(); }
+  bool is_trivial() const { return matches_count_ == total_; }
   int matches() const { return matches_count_; }
   int total() const { return total_; }
   double Selectivity() const {
@@ -90,26 +105,15 @@ class ActiveSetBitVector {
   }
 
   ActiveSetBitVectorIterator GetIterator() const {
-    // ActiveSetBitVector may be constructed with an empty first record (it uses
-    // this to indicate a false record to start), so skip that if present and
-    // negate value.
-    if (!matches_.empty() && matches_[0] == 0) {
-      return ActiveSetBitVectorIterator(absl::MakeSpan(matches_).subspan(1),
-                                        false, total_);
-    }
-    return ActiveSetBitVectorIterator(absl::MakeSpan(matches_), true, total_);
+    return ActiveSetBitVectorIterator(absl::MakeSpan(matches_), total_);
   }
 
  private:
   ActiveSetBitVector() = default;
 
-  // Thar be dragons here.
-  // 'matches_' is a vector of ints representing runs of boolean conditions.
-  // The first element corresponds to a run of "true" (i.e. should return)
-  // permutations and each subsequent element negates the logic of the
-  // previous run.
-  // To start a run with "false", insert a 0 record at the first position.
-  std::vector<int> matches_;
+  // ...
+  // TODO(@monkeynova): Using a raw pointer could avoid 0-initialization costs.
+  std::vector<BitVector::Word> matches_;
 
   // The total number of true values contained within this ActiveSetBitVector.
   int matches_count_ = 0;
@@ -123,7 +127,12 @@ class ActiveSetBitVector {
 
 class ActiveSetBitVectorBuilder {
  public:
-  explicit ActiveSetBitVectorBuilder(int total) { set_.total_ = total; }
+  explicit ActiveSetBitVectorBuilder(int total) {
+    set_.total_ = total;
+    const int buf_size =
+      (total + BitVector::kBitsPerWord - 1) / BitVector::kBitsPerWord;
+    set_.matches_.resize(buf_size);
+  }
 
   // Constructs an ActiveSetBitVector such that each value contained in
   // 'positions' returns 'true' and every other value in [0, 'max_position')
@@ -158,12 +167,6 @@ class ActiveSetBitVectorBuilder {
 
  private:
   ActiveSetBitVector set_;
-
-  // The boolean value of the current accumulating run.
-  bool current_value_ = true;
-
-  // The length of the current accumlating run.
-  int run_size_ = 0;
 
   // The total number of elements added to this builder.
   int offset_ = 0;
