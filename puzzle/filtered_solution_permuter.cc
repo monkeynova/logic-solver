@@ -56,6 +56,27 @@ FilteredSolutionPermuter::Advancer::Advancer(
   }
 }
 
+void FilteredSolutionPermuter::Advancer::InitializeIterator(
+    const ClassPermuter* class_permuter, int class_position) {
+  const int class_int = class_permuter->class_int();
+  const FilterToActiveSet* builder = permuter_->filter_to_active_set_.get();
+  iterators_[class_int] =
+      class_permuter->begin().WithActiveSet(builder->active_set(class_int));
+  if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
+    double start_selectivity = iterators_[class_int].Selectivity();
+    for (int other_pos = 0; other_pos < class_position; ++other_pos) {
+      const ClassPermuter* other_permuter =
+          permuter_->class_permuters_[other_pos].get();
+      int other_class = other_permuter->class_int();
+      int other_val = iterators_[other_class].position();
+      iterators_[class_int].WithActiveSet(
+          builder->active_set_pair(other_class, other_val, class_int));
+    }
+    pair_selectivity_reduction_[class_int] =
+        iterators_[class_int].Selectivity() / start_selectivity;
+  }
+}
+
 bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
   if (static_cast<unsigned int>(class_position) >=
       permuter_->class_permuters_.size()) {
@@ -64,30 +85,14 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
 
   const ClassPermuter* class_permuter =
       permuter_->class_permuters_[class_position].get();
-  int class_int = class_permuter->class_int();
+  const int class_int = class_permuter->class_int();
+
+  if (iterators_[class_int] == class_permuter->end()) {
+    InitializeIterator(class_permuter, class_position);
+  }
 
   const std::vector<SolutionFilter>& solution_predicates =
       permuter_->class_predicates_[class_int];
-
-  if (iterators_[class_int] == class_permuter->end()) {
-    const FilterToActiveSet* builder = permuter_->filter_to_active_set_.get();
-    iterators_[class_int] =
-      class_permuter->begin().WithActiveSet(builder->active_set(class_int));
-    if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
-      double start_selectivity = iterators_[class_int].Selectivity();
-      for (int other_pos = 0; other_pos < class_position; ++other_pos) {
-        const ClassPermuter* other_permuter =
-            permuter_->class_permuters_[other_pos].get();
-        int other_class = other_permuter->class_int();
-        int other_val = iterators_[other_class].position();
-        iterators_[class_int].WithActiveSet(
-            builder->active_set_pair(other_class, other_val, class_int));
-      }
-      pair_selectivity_reduction_[class_int] =
-          iterators_[class_int].Selectivity() / start_selectivity;
-    }
-  }
-
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
                                                        Entry::kBadId};
   for (; iterators_[class_int] != class_permuter->end();
@@ -127,7 +132,7 @@ std::string FilteredSolutionPermuter::Advancer::IterationDebugString() const {
 
 bool FilteredSolutionPermuter::Advancer::NotePositionForProfiler(
     int class_position) {
-  VLOG(3) << "FindNextValid(" << class_position << ") ("
+  VLOG(3) << "FindNextVali(d" << class_position << ") ("
           << IterationDebugString() << ")";
 
   if (permuter_->profiler_ == nullptr) return false;
@@ -142,30 +147,26 @@ bool FilteredSolutionPermuter::Advancer::NotePositionForProfiler(
 }
 
 void FilteredSolutionPermuter::Advancer::Advance() {
-  bool at_end = true;
-  for (auto it = permuter_->class_permuters_.rbegin();
-       it != permuter_->class_permuters_.rend(); ++it) {
-    int class_int = (*it)->class_int();
+  bool found_value = false;
+  for (int class_position = permuter_->class_permuters_.size() - 1;
+       class_position >= 0; --class_position) {
+    const ClassPermuter* class_permuter =
+        permuter_->class_permuters_[class_position].get();
+    int class_int = class_permuter->class_int();
 
-    if (iterators_[class_int] == (*it)->end()) {
-      iterators_[class_int] = (*it)->begin().WithActiveSet(
-          permuter_->filter_to_active_set_->active_set(class_int));
+    if (iterators_[class_int] == class_permuter->end()) {
+      InitializeIterator(class_permuter, class_position);
+    } else {
+      ++iterators_[class_int];
     }
-
-    ++iterators_[class_int];
     mutable_solution_.SetClass(iterators_[class_int]);
 
-    bool carry = false;
-    if (iterators_[class_int] == (*it)->end()) {
-      carry = true;
-    }
-
-    if (!carry) {
-      at_end = false;
+    if (iterators_[class_int] != class_permuter->end()) {
+      found_value = true;
       break;
     }
   }
-  if (!at_end && FindNextValid(0)) {
+  if (found_value && FindNextValid(0)) {
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(position());
   } else {
@@ -301,7 +302,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
       pair_class_predicates[key1].push_back(filter);
       pair_class_predicates[key2].push_back(filter);
       if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators) ||
-	  !absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
+          !absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
         residual->push_back(filter);
       }
     } else {

@@ -33,6 +33,14 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
     std::string IterationDebugString() const;
 
+    // Initializes the iterator corresponding to `class_permuter` to begin
+    // iteration, while applying the appropriate ActiveSet filters.
+    // `class_position` specifies the position of `class_permuter` within
+    // `permuter_->permuters_` to apply pairwise ActiveSet filters if use of
+    // them is flag enabled.
+    void InitializeIterator(const ClassPermuter* class_permuter,
+                            int class_position);
+
     // If permuter_->profiler is not null, calls NotePosition and flushes a
     // status prompt to std::out. Returns true if the profiler signals an
     // early abort is indicated.
