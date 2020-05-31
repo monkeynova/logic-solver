@@ -71,24 +71,21 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
 
   if (iterators_[class_int] == class_permuter->end()) {
     const FilterToActiveSet* builder = permuter_->filter_to_active_set_.get();
-    // TODO(@monkeynova): Rather than building the intersection of the
-    // active set and sending it in at once, we should be able to use the
-    // WithActiveSet model repeatedly and reduce the complexity of this code.
-    ActiveSet build = builder->active_set(class_int);
+    iterators_[class_int] =
+      class_permuter->begin().WithActiveSet(builder->active_set(class_int));
     if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
-      double start_selectivity = build.Selectivity();
+      double start_selectivity = iterators_[class_int].Selectivity();
       for (int other_pos = 0; other_pos < class_position; ++other_pos) {
         const ClassPermuter* other_permuter =
             permuter_->class_permuters_[other_pos].get();
         int other_class = other_permuter->class_int();
         int other_val = iterators_[other_class].position();
-        build.Intersect(
+        iterators_[class_int].WithActiveSet(
             builder->active_set_pair(other_class, other_val, class_int));
       }
       pair_selectivity_reduction_[class_int] =
-          build.Selectivity() / start_selectivity;
+          iterators_[class_int].Selectivity() / start_selectivity;
     }
-    iterators_[class_int] = class_permuter->begin().WithActiveSet(build);
   }
 
   ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
