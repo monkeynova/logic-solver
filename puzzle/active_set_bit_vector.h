@@ -55,13 +55,33 @@ class BitVector {
   static int GetRange(absl::Span<const Word> span, int position, int max) {
     DCHECK_LT(position, span.size() * kBitsPerWord);
     DCHECK_LT(max, span.size() * kBitsPerWord);
-    // TODO(@monkeynova): Better algorithm.
-    const bool current = BitVector::GetBit(span, position);
-    int run_size = 1;
-    for (; position + run_size < max &&
-           BitVector::GetBit(span, position + run_size) == current;
-         ++run_size) {
-      /* No-op*/
+    int read_word = position / kBitsPerWord;
+    int end_word = max / kBitsPerWord;
+    const int start_bit = position % kBitsPerWord;
+    const bool is_run_set = span[read_word] & (1 << start_bit);
+    Word mask = kAllBitsSet << start_bit;
+    int run_size = -start_bit;
+    for (;read_word != end_word; ++read_word) {
+      Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
+      if (read_bits) {
+	while (!(read_bits & 1)) {
+	  read_bits >>= 1;
+	  ++run_size;
+	}
+	return run_size;
+      }
+      run_size += kBitsPerWord;
+      mask = kAllBitsSet;
+    }
+    mask &= ~(kAllBitsSet << (max % kBitsPerWord));
+    Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
+    if (read_bits) {
+      while (!(read_bits & 1)) {
+	read_bits >>= 1;
+	++run_size;
+      }
+    } else {
+      run_size += max % kBitsPerWord;
     }
     return run_size;
   }
