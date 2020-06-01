@@ -166,7 +166,7 @@ TYPED_TEST(ActiveSetTest, RunSizeBlockStreaks) {
   TypeParam set = builder.DoneAdding();
   typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
-    EXPECT_EQ(it.run_size(), 4);
+    EXPECT_EQ(it.run_size(), 4) << it.offset();
     EXPECT_EQ(it.value(), !!(it.offset() & 4));
     it.Advance(it.run_size());
   }
@@ -181,7 +181,7 @@ TYPED_TEST(ActiveSetTest, RunSizeBlockStreaksTrueFirst) {
   TypeParam set = builder.DoneAdding();
   typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
-    EXPECT_EQ(it.run_size(), 4);
+    EXPECT_EQ(it.run_size(), 4) << it.offset();
     EXPECT_EQ(it.value(), !(it.offset() & 4)) << it.offset();
     it.Advance(it.run_size());
   }

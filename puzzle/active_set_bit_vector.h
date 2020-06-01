@@ -12,23 +12,23 @@ namespace puzzle {
 class BitVector {
  public:
   // TODO(@monkeynova): Move to a 64bit word.
-  using Word = uint32_t;
-  static constexpr int kBitsPerWord = sizeof(Word) * 8;
-  static constexpr Word kAllBitsSet = 0xffffffff;
+  using Word = uint64_t;
+  static constexpr Word kBitsPerWord = sizeof(Word) * 8;
+  static constexpr Word kAllBitsSet = 0xffffffffffffffffull;
 
-  static void SetBit(absl::Span<Word> span, bool value, int position) {
+  static void SetBit(absl::Span<Word> span, bool value, Word position) {
     DCHECK_LT(position, span.size() * kBitsPerWord);
     const Word bit_index = position % kBitsPerWord;
     span[position / kBitsPerWord] =
-        (span[position / kBitsPerWord] & ~(1 << bit_index)) |
-        (value << bit_index);
+        (span[position / kBitsPerWord] & ~(1ull << bit_index)) |
+        (static_cast<uint64_t>(value) << bit_index);
   }
 
-  static void SetRange(absl::Span<Word> span, bool value, int start, int end) {
+  static void SetRange(absl::Span<Word> span, bool value, Word start, Word end) {
     DCHECK_LT(start, span.size() * kBitsPerWord);
     DCHECK_LT(end, span.size() * kBitsPerWord);
-    int write_word = start / kBitsPerWord;
-    int end_word = end / kBitsPerWord;
+    Word write_word = start / kBitsPerWord;
+    Word end_word = end / kBitsPerWord;
     Word mask = kAllBitsSet << (start % kBitsPerWord);
     for (; write_word != end_word; ++write_word) {
       if (value) {
@@ -46,21 +46,21 @@ class BitVector {
     }
   }
 
-  static bool GetBit(absl::Span<const Word> span, int position) {
+  static bool GetBit(absl::Span<const Word> span, Word position) {
     DCHECK_LT(position, span.size() * kBitsPerWord);
     const Word bit_index = position % kBitsPerWord;
-    return span[position / kBitsPerWord] & (1 << bit_index);
+    return span[position / kBitsPerWord] & (1ull << bit_index);
   }
 
-  static int GetRange(absl::Span<const Word> span, int position, int max) {
+  static int GetRange(absl::Span<const Word> span, Word position, Word max) {
     DCHECK_LT(position, span.size() * kBitsPerWord);
     DCHECK_LT(max, span.size() * kBitsPerWord);
-    int read_word = position / kBitsPerWord;
-    int end_word = max / kBitsPerWord;
-    const int start_bit = position % kBitsPerWord;
-    const bool is_run_set = span[read_word] & (1 << start_bit);
+    Word read_word = position / kBitsPerWord;
+    Word end_word = max / kBitsPerWord;
+    const Word start_bit = position % kBitsPerWord;
+    const bool is_run_set = span[read_word] & (1ull << start_bit);
     Word mask = kAllBitsSet << start_bit;
-    int run_size = -start_bit;
+    Word run_size = -start_bit;
     for (;read_word != end_word; ++read_word) {
       Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
       if (read_bits) {
