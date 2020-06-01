@@ -14,6 +14,7 @@ class BitVector {
   // TODO(@monkeynova): Move to a 64bit word.
   using Word = uint32_t;
   static constexpr int kBitsPerWord = sizeof(Word) * 8;
+  static constexpr Word kAllBitsSet = 0xffffffff;
 
   static void SetBit(absl::Span<Word> span, bool value, int position) {
     DCHECK_LT(position, span.size() * kBitsPerWord);
@@ -26,9 +27,22 @@ class BitVector {
   static void SetRange(absl::Span<Word> span, bool value, int start, int end) {
     DCHECK_LT(start, span.size() * kBitsPerWord);
     DCHECK_LT(end, span.size() * kBitsPerWord);
-    // TODO(@monkeynova): Better algorithm.
-    for (int i = start; i < end; ++i) {
-      SetBit(span, value, i);
+    int write_word = start / kBitsPerWord;
+    int end_word = end / kBitsPerWord;
+    Word mask = kAllBitsSet << (start % kBitsPerWord);
+    for (; write_word != end_word; ++write_word) {
+      if (value) {
+	span[write_word] |= mask;
+      } else {
+	span[write_word] &= ~mask;
+      }
+      mask = kAllBitsSet;
+    }
+    mask &= kAllBitsSet >> (kBitsPerWord - (end % kBitsPerWord));
+    if (value) {
+      span[write_word] |= mask;
+    } else {
+      span[write_word] &= ~mask;
     }
   }
 
