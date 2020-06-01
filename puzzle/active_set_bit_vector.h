@@ -64,10 +64,9 @@ class BitVector {
     for (;read_word != end_word; ++read_word) {
       Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
       if (read_bits) {
-	while (!(read_bits & 1)) {
-	  read_bits >>= 1;
-	  ++run_size;
-	}
+	static_assert(sizeof(Word) == 8,
+		      "ffs implementation calls uint64_t override");
+	run_size += __builtin_ffsll(read_bits) - 1;
 	return run_size;
       }
       run_size += kBitsPerWord;
@@ -76,10 +75,7 @@ class BitVector {
     mask &= ~(kAllBitsSet << (max % kBitsPerWord));
     Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
     if (read_bits) {
-      while (!(read_bits & 1)) {
-	read_bits >>= 1;
-	++run_size;
-      }
+      run_size += __builtin_ffsll(read_bits) - 1;
     } else {
       run_size += max % kBitsPerWord;
     }
