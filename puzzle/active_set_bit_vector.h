@@ -137,15 +137,12 @@ class ActiveSetBitVector {
   // position corresponds to true values in both 'this' and 'other'). If 'this'
   // and 'other' have different lengths, the intersections behaves as though the
   // shorter were padded with 'true' values to the longer.
-  ActiveSetBitVector Intersection(const ActiveSetBitVector& other) const;
-  void Intersect(const ActiveSetBitVector& other) {
-    if (other.is_trivial()) return;
-
-    if (is_trivial())
-      *this = other;
-    else
-      *this = Intersection(other);
+  ActiveSetBitVector Intersection(const ActiveSetBitVector& other) const {
+    ActiveSetBitVector ret = *this;
+    ret.Intersect(other);
+    return ret;
   }
+  void Intersect(const ActiveSetBitVector& other);
 
   std::vector<int> EnabledValues() const;
 

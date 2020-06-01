@@ -47,70 +47,19 @@ ActiveSetBitVector ActiveSetBitVectorBuilder::FromPositions(
   return builder.DoneAdding();
 }
 
-ActiveSetBitVector ActiveSetBitVector::Intersection(
-    const ActiveSetBitVector& other) const {
-  if (other.is_trivial()) return *this;
-  if (is_trivial()) return other;
-
-  // TODO(@monkeynova): This should be a big bitwise-OR.
-  ActiveSetBitVectorIterator this_iterator = GetIterator();
-  ActiveSetBitVectorIterator other_iterator = other.GetIterator();
-
-  VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
-          << ")";
-
-  ActiveSetBitVectorBuilder intersection(std::max(total(), other.total()));
-  while (this_iterator.more() && other_iterator.more()) {
-    VLOG(3) << "Intersect NextBlock="
-            << (this_iterator.value() ? "true" : "false") << "/\\"
-            << (other_iterator.value() ? "true" : "false");
-    bool next_run_value = false;
-    int next_run_size;
-    if (this_iterator.value() && other_iterator.value()) {
-      // Both true, so true for run-length min.
-      next_run_value = true;
-      next_run_size =
-          std::min(this_iterator.run_size(), other_iterator.run_size());
-    } else if (this_iterator.value()) {
-      // Single false (other since this is true), it dictactes length.
-      next_run_size = other_iterator.run_size();
-    } else if (other_iterator.value()) {
-      // Single false (this since other is true), it dictactes length.
-      next_run_size = this_iterator.run_size();
-    } else {
-      // Both false, so false for run-length max.
-      next_run_size =
-          std::max(this_iterator.run_size(), other_iterator.run_size());
+void ActiveSetBitVector::Intersect(const ActiveSetBitVector& other) {
+  if (other.is_trivial()) return;
+  if (is_trivial()) {
+    *this = other;
+    return;
+  }
+  if (total_ == other.total_) {
+    for (int i = 0; i < matches_.size(); ++i) {
+      matches_[i] &= other.matches_[i];
     }
-    // Store 'next_run_size' values of 'next_run_value'.
-    VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
-            << ", " << next_run_size << ")";
-    intersection.AddBlock(next_run_value, next_run_size);
-    this_iterator.Advance(next_run_size);
-    other_iterator.Advance(next_run_size);
+    return;
   }
-  while (this_iterator.more()) {
-    bool next_run_value = this_iterator.value();
-    int next_run_size = this_iterator.run_size();
-    // Store 'next_run_size' values of 'next_run_value'.
-    VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
-            << ", " << next_run_size << ")";
-    intersection.AddBlock(next_run_value, next_run_size);
-    this_iterator.Advance(next_run_size);
-  }
-  while (other_iterator.more()) {
-    bool next_run_value = other_iterator.value();
-    int next_run_size = other_iterator.run_size();
-    // Store 'next_run_size' values of 'next_run_value'.
-    VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
-            << ", " << next_run_size << ")";
-    intersection.AddBlock(next_run_value, next_run_size);
-    other_iterator.Advance(next_run_size);
-  }
-
-  const int intersection_total = std::max(total(), other.total());
-  intersection.AddBlockTo(false, intersection_total);
-  return intersection.DoneAdding();
+  CHECK(false) << "Mismatched lengths not supported";
 }
 
 std::string ActiveSetBitVector::DebugString() const {
