@@ -11,6 +11,10 @@ ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
           "If specfied, class iterators will be pruned based on single "
           "class predicates that are present.");
 
+ABSL_FLAG(bool, puzzle_prune_reorder_classes, true,
+          "If true, class iteration will be re-ordered from the default "
+          "based on effective scan rate.");
+
 ABSL_FLAG(bool, puzzle_prune_pair_class_iterators, true,
           "If specfied, class iterators will be pruned based on pair "
           "class predicates that are present.");
@@ -21,9 +25,9 @@ ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, true,
           "of one iterator, the appropriate active sets for the other "
           "iterator).");
 
-ABSL_FLAG(bool, puzzle_prune_reorder_classes, true,
-          "If true, class iteration will be re-ordered from the default "
-          "based on effective scan rate.");
+ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,
+          "If true, pairwise iterator pruning will always run with a mode of "
+          "kMakePairs.");
 
 namespace puzzle {
 
@@ -337,9 +341,12 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
   bool cardinality_reduced = true;
   bool need_final =
-      absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair);
+      absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair) &&
+      !absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs);
   FilterToActiveSet::PairClassMode pair_class_mode =
-      FilterToActiveSet::PairClassMode::kSingleton;
+      absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
+          ? FilterToActiveSet::PairClassMode::kMakePairs
+          : FilterToActiveSet::PairClassMode::kSingleton;
   while (cardinality_reduced || need_final) {
     if (!cardinality_reduced) {
       // After cardinality settles, run one more time with make_pairs on the
