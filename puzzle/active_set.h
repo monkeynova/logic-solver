@@ -17,7 +17,7 @@ using ActiveSet = ActiveSetRunLength;
 
 using ActiveSetIterator = ActiveSet::Iterator;
 using ActiveSetBuilder = ActiveSet::Builder;
- 
+
 }  // namespace puzzle
 
 #endif  // PUZZLE_ACTIVE_SET_H
