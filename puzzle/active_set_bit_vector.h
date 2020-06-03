@@ -96,7 +96,9 @@ class ActiveSetBitVectorIterator {
 
   bool more() const { return offset() < total(); }
 
-  int RunSize() const;
+  int RunSize() const {
+    return BitVector::GetRange(matches_, offset_, total_);
+  }
 
   void Advance(int n) { offset_ += n; }
 
