@@ -266,9 +266,11 @@ void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
   absl::Span<int> intersection = absl::MakeSpan(full_intersection);
 
   EXPECT_THAT(a.Intersection(b).EnabledValues(), ElementsAreArray(intersection))
-      << a.DebugString() << "; " << b.DebugString();
+      << a.DebugString() << " /\\ " << b.DebugString() << " = "
+      << a.Intersection(b).DebugString();
   EXPECT_THAT(b.Intersection(a).EnabledValues(), ElementsAreArray(intersection))
-      << a.DebugString() << "; " << b.DebugString();
+      << b.DebugString() << " /\\ " << a.DebugString() << " = "
+      << b.Intersection(a).DebugString();
 }
 
 TYPED_TEST(ActiveSetTest, IntersectionFull) {

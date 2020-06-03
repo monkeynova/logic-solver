@@ -11,55 +11,83 @@ namespace puzzle {
 
 class BitVector {
  public:
+  struct BitVectorDeleter {
+    void operator()(BitVector* bv) { free(bv); }
+  };
+
+  using UniquePtr = std::unique_ptr<BitVector, BitVectorDeleter>;
   using Word = uint64_t;
   static constexpr Word kBitsPerWord = sizeof(Word) * 8;
   static constexpr Word kAllBitsSet = 0xffffffffffffffffull;
 
-  static void SetBit(absl::Span<Word> span, bool value, Word position) {
-    DCHECK_LT(position, span.size() * kBitsPerWord);
+  static UniquePtr Make(Word num_bits) {
+    int num_words =
+        (num_bits + BitVector::kBitsPerWord - 1) / BitVector::kBitsPerWord;
+    BitVector* ret = static_cast<BitVector*>(
+        malloc(sizeof(BitVector) + num_words * sizeof(Word)));
+    ret->num_bits_ = num_bits;
+    ret->num_words_ = num_words;
+    return UniquePtr(ret);
+  }
+
+  UniquePtr Copy() {
+    UniquePtr ret = Make(num_bits_);
+    memcpy(ret->buf_, buf_, sizeof(Word) * num_words());
+    return ret;
+  }
+
+  int num_bits() const { return num_bits_; }
+  int num_words() const { return num_words_; }
+
+  void SetBit(bool value, Word position) {
+    DCHECK_LT(position, num_bits_);
     const Word bit_index = position % kBitsPerWord;
-    span[position / kBitsPerWord] =
-        (span[position / kBitsPerWord] & ~(1ull << bit_index)) |
+    buf_[position / kBitsPerWord] =
+        (buf_[position / kBitsPerWord] & ~(1ull << bit_index)) |
         (static_cast<uint64_t>(value) << bit_index);
   }
 
-  static void SetRange(absl::Span<Word> span, bool value, Word start,
-                       Word end);
+  void SetRange(bool value, Word start, Word end);
 
-  static bool GetBit(absl::Span<const Word> span, Word position) {
-    DCHECK_LT(position, span.size() * kBitsPerWord);
+  bool GetBit(Word position) const {
+    DCHECK_LT(position, num_bits_);
     const Word bit_index = position % kBitsPerWord;
-    return span[position / kBitsPerWord] & (1ull << bit_index);
+    return buf_[position / kBitsPerWord] & (1ull << bit_index);
   }
 
-  static int GetRange(absl::Span<const Word> span, Word position, Word max);
+  int GetRange(Word position) const;
+
+  void Intersect(const BitVector* other);
+
+  std::string DebugString() const;
+
+ private:
+  Word num_bits_;
+  Word num_words_;
+  Word buf_[];
 };
 
 class ActiveSetBitVectorIterator {
  public:
-  ActiveSetBitVectorIterator(absl::Span<const BitVector::Word> matches,
-                             int total)
-      : matches_(matches), total_(total) {}
+  explicit ActiveSetBitVectorIterator(const BitVector* matches)
+      : matches_(matches) {}
 
   int offset() const { return offset_; }
-  int total() const { return total_; }
+  int total() const { return matches_->num_bits(); }
 
-  bool value() const { return BitVector::GetBit(matches_, offset_); }
+  bool value() const { return matches_->GetBit(offset_); }
 
   bool more() const { return offset() < total(); }
 
-  int RunSize() const {
-    return BitVector::GetRange(matches_, offset_, total_);
-  }
+  int RunSize() const { return matches_->GetRange(offset_); }
 
   void Advance(int n) { offset_ += n; }
 
   std::string DebugString() const;
 
  private:
-  absl::Span<const BitVector::Word> matches_;
+  const BitVector* matches_;
   int offset_ = 0;
-  int total_ = 0;
 };
 
 // Forward declare for using ActiveSetBitVector::Builder.
@@ -77,8 +105,15 @@ class ActiveSetBitVector {
 
   // Copy and move constructors preserve the add/consume phase of the
   // ActiveSetBitVector.
-  ActiveSetBitVector(const ActiveSetBitVector& other) = default;
-  ActiveSetBitVector& operator=(const ActiveSetBitVector& other) = default;
+  ActiveSetBitVector(const ActiveSetBitVector& other) {
+    matches_count_ = other.matches_count_;
+    matches_ = other.matches_->Copy();
+  }
+  ActiveSetBitVector& operator=(const ActiveSetBitVector& other) {
+    matches_count_ = other.matches_count_;
+    matches_ = other.matches_->Copy();
+    return *this;
+  }
   ActiveSetBitVector(ActiveSetBitVector&& other) = default;
   ActiveSetBitVector& operator=(ActiveSetBitVector&& other) = default;
 
@@ -100,31 +135,26 @@ class ActiveSetBitVector {
 
   std::string DebugValues() const;
 
-  bool is_trivial() const { return matches_count_ == total_; }
+  bool is_trivial() const { return matches_count_ == total(); }
   int matches() const { return matches_count_; }
-  int total() const { return total_; }
+  int total() const { return matches_->num_bits(); }
   double Selectivity() const {
     if (is_trivial()) return 1.0;
     return static_cast<double>(matches()) / total();
   }
 
   ActiveSetBitVectorIterator GetIterator() const {
-    return ActiveSetBitVectorIterator(absl::MakeSpan(matches_), total_);
+    return ActiveSetBitVectorIterator(matches_.get());
   }
 
  private:
   ActiveSetBitVector() = default;
 
-  // ...
-  // TODO(@monkeynova): Using a raw pointer could avoid 0-initialization costs.
-  std::vector<BitVector::Word> matches_;
+  // Bit vector representation of the values in this set.
+  BitVector::UniquePtr matches_;
 
   // The total number of true values contained within this ActiveSetBitVector.
   int matches_count_ = 0;
-
-  // The total number of boolean values contained within this
-  // ActiveSetBitVector.
-  int total_ = 0;
 
   friend class ActiveSetBitVectorBuilder;
 };
@@ -132,10 +162,7 @@ class ActiveSetBitVector {
 class ActiveSetBitVectorBuilder {
  public:
   explicit ActiveSetBitVectorBuilder(int total) {
-    set_.total_ = total;
-    const int buf_size =
-        (total + BitVector::kBitsPerWord - 1) / BitVector::kBitsPerWord;
-    set_.matches_.resize(buf_size);
+    set_.matches_ = BitVector::Make(total);
   }
 
   // Constructs an ActiveSetBitVector such that each value contained in

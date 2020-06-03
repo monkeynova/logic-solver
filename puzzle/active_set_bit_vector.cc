@@ -21,59 +21,71 @@ std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
 
 }  // namespace
 
-// static
-void BitVector::SetRange(absl::Span<Word> span, bool value, Word start,
-			 Word end) {
-  DCHECK_LT(start, span.size() * kBitsPerWord);
-  DCHECK_LT(end, span.size() * kBitsPerWord);
+void BitVector::SetRange(bool value, Word start, Word end) {
+  DCHECK_LT(start, num_bits_);
+  DCHECK_LT(end, num_bits_);
   Word write_word = start / kBitsPerWord;
   Word end_word = end / kBitsPerWord;
   Word mask = kAllBitsSet << (start % kBitsPerWord);
   for (; write_word != end_word; ++write_word) {
     if (value) {
-      span[write_word] |= mask;
+      buf_[write_word] |= mask;
     } else {
-      span[write_word] &= ~mask;
+      buf_[write_word] &= ~mask;
     }
     mask = kAllBitsSet;
   }
   mask &= kAllBitsSet >> (kBitsPerWord - (end % kBitsPerWord));
   if (value) {
-    span[write_word] |= mask;
+    buf_[write_word] |= mask;
   } else {
-    span[write_word] &= ~mask;
+    buf_[write_word] &= ~mask;
   }
 }
 
-// static
-int BitVector::GetRange(absl::Span<const Word> span, Word position, Word max) {
-  DCHECK_LT(position, span.size() * kBitsPerWord);
-  DCHECK_LT(max, span.size() * kBitsPerWord);
+int BitVector::GetRange(Word position) const {
+  DCHECK_LT(position, num_bits_);
   Word read_word = position / kBitsPerWord;
-  Word end_word = max / kBitsPerWord;
+  Word end_word = num_bits_ / kBitsPerWord;
   const Word start_bit = position % kBitsPerWord;
-  const bool is_run_set = span[read_word] & (1ull << start_bit);
+  const bool is_run_set = buf_[read_word] & (1ull << start_bit);
   Word mask = kAllBitsSet << start_bit;
   Word run_size = -start_bit;
   for (; read_word != end_word; ++read_word) {
-    Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
+    Word read_bits = mask & (is_run_set ? ~buf_[read_word] : buf_[read_word]);
     if (read_bits) {
       static_assert(sizeof(Word) == 8,
-		    "ffs implementation calls uint64_t override");
+                    "ffs implementation calls uint64_t override");
       run_size += __builtin_ffsll(read_bits) - 1;
       return run_size;
     }
     run_size += kBitsPerWord;
     mask = kAllBitsSet;
   }
-  mask &= ~(kAllBitsSet << (max % kBitsPerWord));
-  Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
+  mask &= ~(kAllBitsSet << (num_bits_ % kBitsPerWord));
+  Word read_bits = mask & (is_run_set ? ~buf_[read_word] : buf_[read_word]);
   if (read_bits) {
     run_size += __builtin_ffsll(read_bits) - 1;
   } else {
-    run_size += max % kBitsPerWord;
+    run_size += num_bits_ % kBitsPerWord;
   }
   return run_size;
+}
+
+std::string BitVector::DebugString() const {
+  return absl::StrCat("num_bits: ", num_bits_, " {",
+                      absl::StrJoin(absl::MakeSpan(buf_, num_words()), ",",
+                                    [](std::string* out, const Word& v) {
+                                      absl::StrAppend(out, absl::Hex(v));
+                                    }),
+                      "}");
+}
+
+void BitVector::Intersect(const BitVector* other) {
+  CHECK_EQ(num_bits_, other->num_bits_) << "Mismatched lengths not supported";
+  for (int i = 0; i < num_words(); ++i) {
+    buf_[i] &= other->buf_[i];
+  }
 }
 
 // static
@@ -108,23 +120,16 @@ void ActiveSetBitVector::Intersect(const ActiveSetBitVector& other) {
     *this = other;
     return;
   }
-  if (total_ == other.total_) {
-    for (int i = 0; i < matches_.size(); ++i) {
-      matches_[i] &= other.matches_[i];
-    }
-    return;
-  }
-  CHECK(false) << "Mismatched lengths not supported";
+  matches_->Intersect(other.matches_.get());
 }
 
 std::string ActiveSetBitVector::DebugString() const {
-  return absl::StrCat("{total:", total_, "; matches: {",
-                      absl::StrJoin(matches_, ", "), "}}");
+  return matches_->DebugString();
 }
 
 void ActiveSetBitVectorBuilder::Add(bool match) {
-  DCHECK_LT(offset_, set_.total_);
-  BitVector::SetBit(absl::MakeSpan(set_.matches_), match, offset_);
+  DCHECK_LT(offset_, set_.total());
+  set_.matches_->SetBit(match, offset_);
   ++offset_;
   if (match) {
     ++set_.matches_count_;
@@ -133,10 +138,9 @@ void ActiveSetBitVectorBuilder::Add(bool match) {
 
 void ActiveSetBitVectorBuilder::AddBlock(bool match, int size) {
   if (size <= 0) return;
-  DCHECK_LT(offset_, set_.total_);
+  DCHECK_LT(offset_, set_.total());
 
-  BitVector::SetRange(absl::MakeSpan(set_.matches_), match, offset_,
-                      offset_ + size);
+  set_.matches_->SetRange(match, offset_, offset_ + size);
   offset_ += size;
   if (match) {
     set_.matches_count_ += size;
@@ -144,13 +148,13 @@ void ActiveSetBitVectorBuilder::AddBlock(bool match, int size) {
 }
 
 ActiveSetBitVector ActiveSetBitVectorBuilder::DoneAdding() {
-  CHECK_EQ(offset_, set_.total_);
+  CHECK_EQ(offset_, set_.total());
   return std::move(set_);
 }
 
 std::string ActiveSetBitVectorIterator::DebugString() const {
-  return absl::StrCat("offset: ", offset_, "; ", "total: ", total_, "; ",
-                      "matches: {", absl::StrJoin(matches_, ","), "}");
+  return absl::StrCat("offset: ", offset_, "; ",
+                      "matches: ", matches_->DebugString());
 }
 
 std::vector<int> ActiveSetBitVector::EnabledValues() const {
