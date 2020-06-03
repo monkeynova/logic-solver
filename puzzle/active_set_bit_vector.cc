@@ -22,6 +22,61 @@ std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
 }  // namespace
 
 // static
+void BitVector::SetRange(absl::Span<Word> span, bool value, Word start,
+			 Word end) {
+  DCHECK_LT(start, span.size() * kBitsPerWord);
+  DCHECK_LT(end, span.size() * kBitsPerWord);
+  Word write_word = start / kBitsPerWord;
+  Word end_word = end / kBitsPerWord;
+  Word mask = kAllBitsSet << (start % kBitsPerWord);
+  for (; write_word != end_word; ++write_word) {
+    if (value) {
+      span[write_word] |= mask;
+    } else {
+      span[write_word] &= ~mask;
+    }
+    mask = kAllBitsSet;
+  }
+  mask &= kAllBitsSet >> (kBitsPerWord - (end % kBitsPerWord));
+  if (value) {
+    span[write_word] |= mask;
+  } else {
+    span[write_word] &= ~mask;
+  }
+}
+
+// static
+int BitVector::GetRange(absl::Span<const Word> span, Word position, Word max) {
+  DCHECK_LT(position, span.size() * kBitsPerWord);
+  DCHECK_LT(max, span.size() * kBitsPerWord);
+  Word read_word = position / kBitsPerWord;
+  Word end_word = max / kBitsPerWord;
+  const Word start_bit = position % kBitsPerWord;
+  const bool is_run_set = span[read_word] & (1ull << start_bit);
+  Word mask = kAllBitsSet << start_bit;
+  Word run_size = -start_bit;
+  for (; read_word != end_word; ++read_word) {
+    Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
+    if (read_bits) {
+      static_assert(sizeof(Word) == 8,
+		    "ffs implementation calls uint64_t override");
+      run_size += __builtin_ffsll(read_bits) - 1;
+      return run_size;
+    }
+    run_size += kBitsPerWord;
+    mask = kAllBitsSet;
+  }
+  mask &= ~(kAllBitsSet << (max % kBitsPerWord));
+  Word read_bits = mask & (is_run_set ? ~span[read_word] : span[read_word]);
+  if (read_bits) {
+    run_size += __builtin_ffsll(read_bits) - 1;
+  } else {
+    run_size += max % kBitsPerWord;
+  }
+  return run_size;
+}
+
+// static
 ActiveSetBitVector ActiveSetBitVectorBuilder::FromPositions(
     const absl::flat_hash_set<int>& positions, int max_position) {
   return FromPositions(SortFlatHashSet(positions), max_position);
