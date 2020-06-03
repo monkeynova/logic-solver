@@ -11,7 +11,6 @@ namespace puzzle {
 
 class BitVector {
  public:
-  // TODO(@monkeynova): Move to a 64bit word.
   using Word = uint64_t;
   static constexpr Word kBitsPerWord = sizeof(Word) * 8;
   static constexpr Word kAllBitsSet = 0xffffffffffffffffull;
