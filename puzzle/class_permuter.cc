@@ -27,8 +27,8 @@ bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
     // Permtuer does not need to advance.
     return false;
   }
-  AdvanceDelta(active_set_it_.run_size());
-  active_set_it_.Advance(active_set_it_.run_size());
+  AdvanceDelta(active_set_it_.RunSize());
+  active_set_it_.Advance(active_set_it_.RunSize());
   DCHECK(active_set_it_.value())
       << "Value returned false after advancing past false block: it("
       << active_set_it_.offset() << " of " << active_set_it_.total()
@@ -42,9 +42,9 @@ void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
   int delta = 1;
   active_set_it_.Advance(delta);
   if (!active_set_it_.value()) {
-    DCHECK(active_set_it_.run_size() > 0) << "0 length false run";
-    delta += active_set_it_.run_size();
-    active_set_it_.Advance(active_set_it_.run_size());
+    DCHECK(active_set_it_.RunSize() > 0) << "0 length false run";
+    delta += active_set_it_.RunSize();
+    active_set_it_.Advance(active_set_it_.RunSize());
   }
   DCHECK(active_set_it_.value())
       << "Value returned false after advancing past false block: it("

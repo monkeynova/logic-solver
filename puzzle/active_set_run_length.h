@@ -21,7 +21,7 @@ class ActiveSetRunLengthIterator {
 
   bool more() const { return offset() < total(); }
 
-  int run_size() const {
+  int RunSize() const {
     if (match_position_ >= matches_.size()) return total() - offset();
     return matches_[match_position_] - run_position_;
   }

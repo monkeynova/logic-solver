@@ -69,17 +69,17 @@ ActiveSetRunLength ActiveSetRunLength::Intersection(
       // Both true, so true for run-length min.
       next_run_value = true;
       next_run_size =
-          std::min(this_iterator.run_size(), other_iterator.run_size());
+          std::min(this_iterator.RunSize(), other_iterator.RunSize());
     } else if (this_iterator.value()) {
       // Single false (other since this is true), it dictactes length.
-      next_run_size = other_iterator.run_size();
+      next_run_size = other_iterator.RunSize();
     } else if (other_iterator.value()) {
       // Single false (this since other is true), it dictactes length.
-      next_run_size = this_iterator.run_size();
+      next_run_size = this_iterator.RunSize();
     } else {
       // Both false, so false for run-length max.
       next_run_size =
-          std::max(this_iterator.run_size(), other_iterator.run_size());
+          std::max(this_iterator.RunSize(), other_iterator.RunSize());
     }
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
@@ -90,7 +90,7 @@ ActiveSetRunLength ActiveSetRunLength::Intersection(
   }
   while (this_iterator.more()) {
     bool next_run_value = this_iterator.value();
-    int next_run_size = this_iterator.run_size();
+    int next_run_size = this_iterator.RunSize();
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
             << ", " << next_run_size << ")";
@@ -99,7 +99,7 @@ ActiveSetRunLength ActiveSetRunLength::Intersection(
   }
   while (other_iterator.more()) {
     bool next_run_value = other_iterator.value();
-    int next_run_size = other_iterator.run_size();
+    int next_run_size = other_iterator.RunSize();
     // Store 'next_run_size' values of 'next_run_value'.
     VLOG(3) << "Intersect.AddBlock(" << (next_run_value ? "true" : "false")
             << ", " << next_run_size << ")";
@@ -204,7 +204,7 @@ std::vector<int> ActiveSetRunLength::EnabledValues() const {
   ActiveSetRunLengthIterator it = GetIterator();
   std::vector<int> ret;
   while (it.more()) {
-    int run_size = it.run_size();
+    int run_size = it.RunSize();
     if (it.value()) {
       for (int i = 0; i < run_size; ++i) {
         ret.push_back(i + it.offset());

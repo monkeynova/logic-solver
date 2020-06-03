@@ -98,7 +98,7 @@ std::string ActiveSetBitVectorIterator::DebugString() const {
                       "matches: {", absl::StrJoin(matches_, ","), "}");
 }
 
-int ActiveSetBitVectorIterator::run_size() const {
+int ActiveSetBitVectorIterator::RunSize() const {
   return BitVector::GetRange(matches_, offset_, total_);
 }
 
@@ -106,7 +106,7 @@ std::vector<int> ActiveSetBitVector::EnabledValues() const {
   ActiveSetBitVectorIterator it = GetIterator();
   std::vector<int> ret;
   while (it.more()) {
-    int run_size = it.run_size();
+    int run_size = it.RunSize();
     if (it.value()) {
       for (int i = 0; i < run_size; ++i) {
         ret.push_back(i + it.offset());

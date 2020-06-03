@@ -97,7 +97,7 @@ class ActiveSetBitVectorIterator {
 
   bool more() const { return offset() < total(); }
 
-  int run_size() const;
+  int RunSize() const;
 
   void Advance(int n) { offset_ += n; }
 

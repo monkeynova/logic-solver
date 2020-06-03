@@ -111,8 +111,8 @@ void ClassPermuterFactorialRadixDeleteTracking<
     if (!Base::active_set_.is_trivial()) {
       Base::active_set_it_.Advance(delta);
       if (!Base::active_set_it_.value()) {
-        delta += Base::active_set_it_.run_size();
-        Base::active_set_it_.Advance(Base::active_set_it_.run_size());
+        delta += Base::active_set_it_.RunSize();
+        Base::active_set_it_.Advance(Base::active_set_it_.RunSize());
         DCHECK(Base::active_set_it_.value())
             << "Value returned false after advancing past false block: it("
             << Base::active_set_it_.offset() << " of "
