@@ -99,7 +99,9 @@ class ActiveSetBitVector {
   using Builder = ActiveSetBitVectorBuilder;
 
   static const ActiveSetBitVector& trivial() {
-    static ActiveSetBitVector trivial = []() { return ActiveSetBitVector(); }();
+    static ActiveSetBitVector trivial = []() {
+      return ActiveSetBitVector(/*total=*/0);
+    }();
     return trivial;
   }
 
@@ -148,7 +150,7 @@ class ActiveSetBitVector {
   }
 
  private:
-  ActiveSetBitVector() = default;
+  explicit ActiveSetBitVector(int total) : matches_(BitVector::Make(total)) {}
 
   // Bit vector representation of the values in this set.
   BitVector::UniquePtr matches_;
@@ -161,9 +163,7 @@ class ActiveSetBitVector {
 
 class ActiveSetBitVectorBuilder {
  public:
-  explicit ActiveSetBitVectorBuilder(int total) {
-    set_.matches_ = BitVector::Make(total);
-  }
+  explicit ActiveSetBitVectorBuilder(int total) : set_(total) {}
 
   // Constructs an ActiveSetBitVector such that each value contained in
   // 'positions' returns 'true' and every other value in [0, 'max_position')

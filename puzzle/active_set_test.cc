@@ -23,7 +23,7 @@ using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetBitVector>;
 TYPED_TEST_SUITE(ActiveSetTest, ActiveSetTypes);
 
 TYPED_TEST(ActiveSetTest, EmptyIsTrivial) {
-  EXPECT_TRUE(ActiveSet::trivial().is_trivial());
+  EXPECT_TRUE(TypeParam::trivial().is_trivial());
 }
 
 TYPED_TEST(ActiveSetTest, SingleFalseIsNotTrivial) {
