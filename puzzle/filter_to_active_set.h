@@ -4,6 +4,7 @@
 #include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
+#include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_filter.h"
 #include "puzzle/value_skip_to_active_set.h"
@@ -26,7 +27,8 @@ class FilterToActiveSet {
     kPairSet = 2,
   };
 
-  explicit FilterToActiveSet(const EntryDescriptor* entry_descriptor);
+  FilterToActiveSet(const EntryDescriptor* entry_descriptor,
+                    Profiler* profiler = nullptr);
 
   FilterToActiveSet(const FilterToActiveSet& other);
 
@@ -102,6 +104,7 @@ class FilterToActiveSet {
 
   MutableSolution mutable_solution_;
   Solution solution_;  // Bound to mutable_solution_;
+  Profiler* profiler_;
 };
 
 std::ostream& operator<<(std::ostream& out,

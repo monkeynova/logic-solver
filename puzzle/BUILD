@@ -93,6 +93,7 @@ cc_library(
         ":all_match",
         ":class_permuter",
         ":mutable_solution",
+        ":profiler",
         ":solution",
         ":solution_filter",
         ":value_skip_to_active_set",

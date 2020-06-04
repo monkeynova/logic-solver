@@ -33,8 +33,8 @@ std::vector<Solution> Solver::AllSolutions(int limit) {
   for (auto it = solution_permuter_->begin(); it != solution_permuter_->end();
        ++it) {
     if (profiler_ != nullptr) {
-      profiler_->NotePosition(it->permutation_position(),
-                              it->permutation_count());
+      profiler_->NotePermutation(it->permutation_position(),
+                                 it->permutation_count());
     }
     ++test_calls_;
     if (AllMatch(on_solution_, *it)) {

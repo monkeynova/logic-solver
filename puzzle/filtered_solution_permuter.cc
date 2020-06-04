@@ -141,8 +141,8 @@ bool FilteredSolutionPermuter::Advancer::NotePositionForProfiler(
 
   if (permuter_->profiler_ == nullptr) return false;
 
-  if (permuter_->profiler_->NotePosition(position(),
-                                         permuter_->permutation_count())) {
+  if (permuter_->profiler_->NotePermutation(position(),
+                                            permuter_->permutation_count())) {
     std::cout << "; FindNextValid(" << class_position << ") ("
               << IterationDebugString() << ")" << std::flush;
   }
@@ -217,7 +217,7 @@ void FilteredSolutionPermuter::Prepare() {
   CHECK(!prepared_);
   prepared_ = true;
   filter_to_active_set_ =
-      absl::make_unique<FilterToActiveSet>(entry_descriptor_);
+      absl::make_unique<FilterToActiveSet>(entry_descriptor_, profiler_);
 
   std::vector<int> class_order = entry_descriptor_->AllClasses()->Values();
 

@@ -14,20 +14,22 @@ class Profiler {
   virtual bool Done() { return false; }
   virtual double Seconds() { return 0; }
 
-  bool NotePosition(double position, double count) {
-    if (++test_calls_ % 777 != 1) return false;
-    return NotePositionImpl(position, count);
+  bool NotePermutation(double position, double count) {
+    if (++permutations_ % 777 != 1) return false;
+    return NotePermutationImpl(position, count);
   }
 
  protected:
   Profiler() {}
 
-  virtual bool NotePositionImpl(double position, double count) { return false; }
+  virtual bool NotePermutationImpl(double position, double count) {
+    return false;
+  }
 
-  int test_calls() const { return test_calls_; }
+  int permutations() const { return permutations_; }
 
  private:
-  int test_calls_ = 0;
+  int permutations_ = 0;
 };
 
 }  // namespace puzzle

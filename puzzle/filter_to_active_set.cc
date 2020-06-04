@@ -46,12 +46,14 @@ std::ostream& operator<<(std::ostream& out,
   return out << "Unknown PairClassImpl(" << static_cast<int>(val) << ")";
 }
 
-FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor)
+FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor,
+                                     Profiler* profiler)
     : active_sets_(
           entry_descriptor == nullptr ? 0 : entry_descriptor->num_classes(),
           ActiveSet::trivial()),
       mutable_solution_(entry_descriptor),
-      solution_(mutable_solution_.TestableSolution()) {
+      solution_(mutable_solution_.TestableSolution()),
+      profiler_(profiler) {
   if (entry_descriptor != nullptr) {
     int num_classes = entry_descriptor->num_classes();
     active_set_pairs_.resize(num_classes);

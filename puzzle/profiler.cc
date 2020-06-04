@@ -29,10 +29,10 @@ class AbslTimeProfiler : public Profiler {
 
  private:
   bool Done() override {
-    return test_calls() > absl::GetFlag(FLAGS_puzzle_max_profile_calls);
+    return permutations() > absl::GetFlag(FLAGS_puzzle_max_profile_calls);
   }
 
-  bool NotePositionImpl(double position, double count) override {
+  bool NotePermutationImpl(double position, double count) override {
     absl::Time now = absl::Now();
     int delta = (now - last_) / absl::Microseconds(1);
     if (delta < 200) return false;
@@ -43,7 +43,7 @@ class AbslTimeProfiler : public Profiler {
     std::cout << std::setprecision(3) << "\033[1K\rTrying "
               << (100 * position / count)
               << "%, effective=" << permutations_per_milli
-              << "Kp/ms true=" << (test_calls() / full_delta) << "Kp/ms"
+              << "Kp/ms true=" << (permutations() / full_delta) << "Kp/ms"
               << std::flush;
     last_ = now;
     last_position_ = position;
