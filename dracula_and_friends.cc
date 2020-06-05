@@ -99,13 +99,15 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                  }
                  return true;
                },
-               {REGION, PLANTS});
-  AddPredicate("7. The vampire from XIV century wasn't Octavian nor Bogdan.",
-               [](const puzzle::Solution& s) {
-                 return s.Id(OCTAVIAN).Class(CENTURY) != XIV &&
-                        s.Id(BOGDAN).Class(CENTURY) != XIV;
-               },
-               {CENTURY});
+               {{REGION, MATEI}, {PLANTS, BOGDAN}});
+  AddSpecificEntryPredicate(
+      "7a. The vampire from XIV century wasn't Octavian nor Bogdan. (Octavian)",
+      [](const puzzle::Entry& e) { return e.Class(CENTURY) != XIV; }, {CENTURY},
+      OCTAVIAN);
+  AddSpecificEntryPredicate(
+      "7b. The vampire from XIV century wasn't Octavian nor Bogdan. (Bogdan)",
+      [](const puzzle::Entry& e) { return e.Class(CENTURY) != XIV; }, {CENTURY},
+      BOGDAN);
   AddSpecificEntryPredicate(
       "8. Villagers didn't grow thornbrush against Dorian.",
       [](const puzzle::Entry& e) { return e.Class(PLANTS) != THORNBRUSH; },
