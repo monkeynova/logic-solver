@@ -19,7 +19,7 @@ ABSL_FLAG(bool, puzzle_prune_pair_class_iterators, true,
           "If specfied, class iterators will be pruned based on pair "
           "class predicates that are present.");
 
-ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, true,
+ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, false,
           "If specified pairwise iterators will be pruned with contextual "
           "pruning (that is, pairwise iterators will store, for each value "
           "of one iterator, the appropriate active sets for the other "
