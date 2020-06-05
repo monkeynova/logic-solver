@@ -57,7 +57,9 @@ class BitVector {
 
   int GetRange(Word position) const;
 
-  void Intersect(const BitVector* other);
+  // Makes `this` contain only bits also stored in `other`. Returns the number
+  // of bits set in `this` after the intersection is performed.
+  int Intersect(const BitVector* other);
 
   std::string DebugString() const;
 

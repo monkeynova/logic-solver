@@ -268,9 +268,15 @@ void TestIntersection(std::vector<int> set_a, std::vector<int> set_b,
   EXPECT_THAT(a.Intersection(b).EnabledValues(), ElementsAreArray(intersection))
       << a.DebugString() << " /\\ " << b.DebugString() << " = "
       << a.Intersection(b).DebugString();
+  EXPECT_EQ(
+      a.Intersection(b).Selectivity(),
+      1.0 * intersection.size() / std::max(max_position_a, max_position_b));
   EXPECT_THAT(b.Intersection(a).EnabledValues(), ElementsAreArray(intersection))
       << b.DebugString() << " /\\ " << a.DebugString() << " = "
       << b.Intersection(a).DebugString();
+  EXPECT_EQ(
+      b.Intersection(a).Selectivity(),
+      1.0 * intersection.size() / std::max(max_position_a, max_position_b));
 }
 
 TYPED_TEST(ActiveSetTest, IntersectionFull) {

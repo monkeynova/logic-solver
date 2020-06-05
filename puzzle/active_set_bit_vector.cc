@@ -81,11 +81,19 @@ std::string BitVector::DebugString() const {
                       "}");
 }
 
-void BitVector::Intersect(const BitVector* other) {
+int BitVector::Intersect(const BitVector* other) {
   CHECK_EQ(num_bits_, other->num_bits_) << "Mismatched lengths not supported";
+  int ret = 0;
   for (int i = 0; i < num_words(); ++i) {
     buf_[i] &= other->buf_[i];
+    ret += __builtin_popcountll(buf_[i]);
   }
+  if (num_words() > 0 && (num_bits() % kBitsPerWord) != 0) {
+    // Don't count the bits in the last word past the end.
+    ret -= __builtin_popcountll(buf_[num_words() - 1] &
+                                (kAllBitsSet << (num_bits() % kBitsPerWord)));
+  }
+  return ret;
 }
 
 // static
@@ -120,7 +128,7 @@ void ActiveSetBitVector::Intersect(const ActiveSetBitVector& other) {
     *this = other;
     return;
   }
-  matches_->Intersect(other.matches_.get());
+  matches_count_ = matches_->Intersect(other.matches_.get());
 }
 
 std::string ActiveSetBitVector::DebugString() const {
