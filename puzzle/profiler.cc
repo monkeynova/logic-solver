@@ -32,7 +32,7 @@ class AbslTimeProfiler : public Profiler {
     return permutations() > absl::GetFlag(FLAGS_puzzle_max_profile_calls);
   }
 
-  bool NotePermutationImpl(double position, double count) override {
+  bool NotePermutationImpl(int64_t position, double count) override {
     absl::Time now = absl::Now();
     int delta = (now - last_) / absl::Microseconds(1);
     if (delta < 200) return false;

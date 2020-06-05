@@ -14,7 +14,7 @@ class Profiler {
   virtual bool Done() { return false; }
   virtual double Seconds() { return 0; }
 
-  bool NotePermutation(double position, double count) {
+  bool NotePermutation(int64_t position, double count) {
     if (++permutations_ % 777 != 1) return false;
     return NotePermutationImpl(position, count);
   }
@@ -22,7 +22,7 @@ class Profiler {
  protected:
   Profiler() {}
 
-  virtual bool NotePermutationImpl(double position, double count) {
+  virtual bool NotePermutationImpl(int64_t position, double count) {
     return false;
   }
 
