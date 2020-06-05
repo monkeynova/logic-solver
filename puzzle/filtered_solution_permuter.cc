@@ -34,7 +34,7 @@ namespace puzzle {
 static void OrderSolutionFiltersByEntryId(std::vector<SolutionFilter>* list) {
   std::sort(list->begin(), list->end(),
             [](const SolutionFilter& a, const SolutionFilter& b) {
-              return a.entry_id() < b.entry_id();
+              return a.entry_id(-1) < b.entry_id(-1);
             });
 }
 
@@ -103,7 +103,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
        iterators_[class_int] += value_skip) {
     mutable_solution_.SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (AllMatch(solution_predicates, current_, &value_skip) &&
+    if (AllMatch(solution_predicates, current_, class_int, &value_skip) &&
         FindNextValid(class_position + 1)) {
       return true;
     }

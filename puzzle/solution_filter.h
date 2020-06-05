@@ -49,7 +49,7 @@ class SolutionFilter {
   absl::string_view name() const { return name_; }
   const std::vector<int>& classes() const { return classes_; }
 
-  int entry_id() const { return entry_id_; }
+  int entry_id(int class_int) const { return entry_id_; }
 
  private:
   std::string name_;

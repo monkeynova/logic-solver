@@ -10,7 +10,7 @@
 namespace puzzle {
 
 inline bool AllMatch(const std::vector<SolutionFilter>& predicates,
-                     const Solution& solution,
+                     const Solution& solution, int class_int = -1,
                      ClassPermuter::iterator::ValueSkip* value_skip = nullptr) {
   if (value_skip == nullptr) {
     return std::all_of(
@@ -19,7 +19,7 @@ inline bool AllMatch(const std::vector<SolutionFilter>& predicates,
   }
   for (const SolutionFilter& filter : predicates) {
     if (!filter(solution)) {
-      value_skip->value_index = filter.entry_id();
+      value_skip->value_index = filter.entry_id(class_int);
       return false;
     }
   }

@@ -206,6 +206,13 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                            .WithActiveSet(active_sets_[class_a])
                            .WithActiveSet(b_a_pair.Find(it_b.position()));
            it_a != permuter_a->end(); Advance(vs2as_a, value_skip_a, it_a)) {
+        if (profiler_ != nullptr) {
+          profiler_->NotePrepare(
+              permuter_a->permutation_count() * it_b.position() +
+                  it_a.position(),
+              permuter_a->permutation_count() *
+                  permuter_b->permutation_count());
+        }
         mutable_solution_.SetClass(it_a);
         if (AllMatch(predicates, solution_, class_a, &value_skip_a)) {
           any_of_b = true;
@@ -243,6 +250,13 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                            .WithActiveSet(active_sets_[class_b])
                            .WithActiveSet(a_b_pair.Find(it_a.position()));
            it_b != permuter_b->end(); Advance(vs2as_b, value_skip_b, it_b)) {
+        if (profiler_ != nullptr) {
+          profiler_->NotePrepare(
+              permuter_b->permutation_count() * it_a.position() +
+                  it_b.position(),
+              permuter_b->permutation_count() *
+                  permuter_a->permutation_count());
+        }
         mutable_solution_.SetClass(it_b);
         if (AllMatch(predicates, solution_, class_b, &value_skip_b)) {
           any_of_a = true;
