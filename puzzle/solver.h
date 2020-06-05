@@ -31,6 +31,8 @@ class Solver {
   // TODO(@monkeynova): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
 
+  // Add predicate with the constraint that only class values found in
+  // `class_int_restrict_list` are used by this filter.
   void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
                             std::vector<int> class_int_restrict_list = {}) {
     for (const int entry_id : entry_descriptor_.AllIds()->Values()) {
@@ -46,16 +48,27 @@ class Solver {
                              std::move(class_int_restrict_list), entry_id));
   }
 
-  // TODO(@monkeynova): Allowing a restrict list of entry_ids here
-  // could also allow faster ClassPermuter advancement.
-  // Note the implementation of skipping currently interacts with ActiveSet to
-  // not guarantee that precedeing entries don't change which means that for
-  // a pair of Ids used (like Sudoku box constraints), one can't just use
-  // the max of the two ids used as a single entry_id.
+  // Add predicate with the constraint that only class values found in
+  // `class_int_restrict_list` are used by this filter.
   void AddPredicate(std::string name, Solution::Predicate predicate,
                     std::vector<int> class_int_restrict_list = {}) {
     AddFilter(SolutionFilter(std::move(name), predicate,
                              std::move(class_int_restrict_list)));
+  }
+  void AddPredicate(std::string name, Solution::Predicate predicate,
+                    std::initializer_list<int> class_int_restrict_list) {
+    AddPredicate(std::move(name), predicate,
+                 std::vector<int>(class_int_restrict_list));
+  }
+
+  // Add predicate with the constraint that only class values found in the
+  // keys of `class_to_entry` are used by this filter and that if a false
+  // value is found the correponding value represents and entry which may
+  // be skipped.
+  void AddPredicate(std::string name, Solution::Predicate predicate,
+                    absl::flat_hash_map<int, int> class_to_entry) {
+    AddFilter(
+        SolutionFilter(std::move(name), predicate, std::move(class_to_entry)));
   }
 
   int test_calls() const { return test_calls_; }

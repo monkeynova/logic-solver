@@ -104,7 +104,7 @@ void Base::AddPredicatesPairwise() {
               return s.Id(box_i_x).Class(box_i_y) !=
                      s.Id(box_j_x).Class(box_j_y);
             },
-            {box_i_y, box_j_y});
+            {{box_i_y, box_i_x}, {box_j_y, box_j_x}});
       }
     }
   }
