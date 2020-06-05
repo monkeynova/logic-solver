@@ -7,7 +7,7 @@
 ABSL_FLAG(bool, puzzle_value_skip_to_active_set, false,
           "If true, uses ValueSkipToActiveSet to restrict iterations through "
           "ClassPermuter iterations (rather than the default += ValueSkip "
-          "implementation). Currently only builds, but does not use the data.");
+          "implementation).");
 
 namespace puzzle {
 
