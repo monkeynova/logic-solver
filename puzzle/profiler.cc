@@ -6,6 +6,7 @@
 #include "absl/flags/flag.h"
 #include "absl/memory/memory.h"
 #include "absl/time/time.h"
+#include "glog/logging.h"
 
 ABSL_FLAG(int, puzzle_max_profile_calls, std::numeric_limits<int>::max(),
           "Maximum number of iterations before giving up in profiler. "
@@ -23,7 +24,8 @@ class AbslTimeProfiler : public Profiler {
  public:
   AbslTimeProfiler() : Profiler() {
     start_ = absl::Now();
-    last_ = start_;
+    last_permutation_ = start_;
+    last_prepare_ = start_;
   }
   ~AbslTimeProfiler() override { std::cout << "\033[1K\r" << std::flush; }
 
@@ -34,7 +36,7 @@ class AbslTimeProfiler : public Profiler {
 
   bool NotePermutationImpl(int64_t position, int64_t count) override {
     absl::Time now = absl::Now();
-    int delta = (now - last_) / absl::Microseconds(1);
+    int delta = (now - last_permutation_) / absl::Microseconds(1);
     if (delta < 200) return false;
 
     int full_delta = (now - start_) / absl::Microseconds(1);
@@ -45,19 +47,32 @@ class AbslTimeProfiler : public Profiler {
               << "%, effective=" << permutations_per_milli
               << "Kp/ms true=" << (permutations() / full_delta) << "Kp/ms"
               << std::flush;
-    last_ = now;
+    last_permutation_ = now;
     last_position_ = position;
     return true;
   }
 
-  void NoteFinish() override { last_ = absl::Now(); }
+  void NotePrepareImpl(int64_t position, int64_t count) override {
+    absl::Time now = absl::Now();
+    int delta = (now - last_prepare_) / absl::Milliseconds(1);
+    if (delta < 1000) return;
+
+    int full_delta = (now - start_) / absl::Milliseconds(1);
+    LOG(INFO) << "Prepare: " << position << "/" << count << " ("
+              << 100 * position / count
+              << "%); Rate=" << prepare_steps() / full_delta << "Kqps";
+    last_prepare_ = now;
+  }
+
+  void NoteFinish() override { last_permutation_ = absl::Now(); }
 
   double Seconds() override {
-    return 1e-3 * ((last_ - start_) / absl::Milliseconds(1));
+    return 1e-3 * ((last_permutation_ - start_) / absl::Milliseconds(1));
   }
 
   absl::Time start_;
-  absl::Time last_;
+  absl::Time last_permutation_;
+  absl::Time last_prepare_;
   double last_position_;
 };
 
