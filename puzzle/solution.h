@@ -200,7 +200,7 @@ class Solution {
   bool IsValid() const { return entries_ != nullptr; }
   const std::vector<Entry>& entries() const { return *entries_; }
   const Entry& Id(int id) const { return (*entries_)[id]; }
-  const Entry& Find(std::function<bool(const Entry&)> pred) const {
+  const Entry& Find(Entry::Predicate pred) const {
     for (const Entry& e : *entries_) {
       if (pred(e)) {
         return e;
