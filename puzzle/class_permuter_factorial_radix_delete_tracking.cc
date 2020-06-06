@@ -107,27 +107,29 @@ void ClassPermuterFactorialRadixDeleteTracking<
   int value = Base::current_[value_skip.value_index];
   int div = factorial(kStorageSize - value_skip.value_index - 1);
   int delta = div - (Base::position_ % div);
-  do {
-    if (!Base::active_set_.is_trivial()) {
+  if (Base::active_set_.is_trivial()) {
+    do {
+      AdvanceDelta(/*dist=*/delta);
+      delta = div;
+    } while (!Base::current_span_.empty() &&
+	     Base::current_[value_skip.value_index] == value);
+  } else {
+    do {
       Base::active_set_it_.Advance(delta);
       if (!Base::active_set_it_.value()) {
-        delta += Base::active_set_it_.RunSize();
-        Base::active_set_it_.Advance(Base::active_set_it_.RunSize());
-        DCHECK(Base::active_set_it_.value())
-            << "Value returned false after advancing past false block: it("
-            << Base::active_set_it_.offset() << " of "
-            << Base::active_set_it_.total()
-            << "): " << Base::active_set_.DebugValues();
+	delta += Base::active_set_it_.RunSize();
+	Base::active_set_it_.Advance(Base::active_set_it_.RunSize());
+	DCHECK(Base::active_set_it_.value())
+	  << "Value returned false after advancing past false block: it("
+	  << Base::active_set_it_.offset() << " of "
+	  << Base::active_set_it_.total()
+	  << "): " << Base::active_set_.DebugValues();
       }
-    }
-    AdvanceDelta(/*dist=*/delta);
-    if (Base::active_set_.is_trivial()) {
-      delta = div;
-    } else {
+      AdvanceDelta(/*dist=*/delta);
       delta = div - (Base::position_ % div);
-    }
-  } while (!Base::current_span_.empty() &&
-           Base::current_[value_skip.value_index] == value);
+    } while (!Base::current_span_.empty() &&
+	     Base::current_[value_skip.value_index] == value);
+  }
 }
 
 template <int kStorageSize>
