@@ -15,10 +15,6 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
 
     Advancer(const ClassPermuterSteinhausJohnsonTrotter* permuter);
 
-    std::unique_ptr<AdvancerBase> Clone() const override {
-      return absl::make_unique<Advancer>(*this);
-    }
-
     void Advance() override;
     void AdvanceDelta(int dist) override;
 

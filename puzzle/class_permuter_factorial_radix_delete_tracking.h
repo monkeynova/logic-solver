@@ -26,10 +26,6 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
     explicit Advancer(
         const ClassPermuterFactorialRadixDeleteTracking* permuter);
 
-    std::unique_ptr<AdvancerBase> Clone() const override {
-      return absl::make_unique<Advancer>(*this);
-    }
-
     void Advance() override;
     void AdvanceDelta(int dist) override;
     void AdvanceSkip(ValueSkip value_skip) override;

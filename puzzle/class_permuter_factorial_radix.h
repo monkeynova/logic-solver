@@ -18,10 +18,6 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
 
     explicit Advancer(const ClassPermuterFactorialRadix* permuter);
 
-    std::unique_ptr<AdvancerBase> Clone() const override {
-      return absl::make_unique<Advancer>(*this);
-    }
-
     void Advance() override;
     void AdvanceDelta(int dist) override;
 

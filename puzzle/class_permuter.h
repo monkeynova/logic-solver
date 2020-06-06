@@ -25,8 +25,6 @@ class ClassPermuter {
     // to `active_set_`.
     AdvancerBase(const AdvancerBase& other);
 
-    virtual std::unique_ptr<AdvancerBase> Clone() const = 0;
-
     virtual ~AdvancerBase() {}
 
     virtual void Advance() = 0;
@@ -128,11 +126,12 @@ class ClassPermuter {
     explicit iterator(std::unique_ptr<AdvancerBase> advancer = nullptr)
         : advancer_(std::move(advancer)) {}
 
-    iterator(const iterator& other) : iterator(other.advancer_->Clone()) {}
-    iterator& operator=(const iterator& other) {
-      advancer_ = other.advancer_->Clone();
-      return *this;
-    }
+    // Movable, but not copyable. Implicit copies were hard to track down while
+    // enabled, and noticably costly on profiles.
+    // Unfortunately this disallows absl::StrJoin(class_permuter, ","), but "que
+    // sera, sera".
+    iterator(const iterator&) = delete;
+    iterator& operator=(const iterator&) = delete;
 
     iterator(iterator&&) = default;
     iterator& operator=(iterator&&) = default;
@@ -174,15 +173,15 @@ class ClassPermuter {
     }
     int class_int() const { return advancer_->class_int(); }
 
-    iterator& WithActiveSet(const ActiveSet& active_set,
-                            bool* was_advanced_out = nullptr) {
+    iterator&& WithActiveSet(const ActiveSet& active_set,
+			     bool* was_advanced_out = nullptr) && {
       if (!active_set.is_trivial()) {
         const bool was_advanced = advancer_->WithActiveSet(active_set);
         if (was_advanced_out != nullptr) {
           *was_advanced_out = was_advanced;
         }
       }
-      return *this;
+      return std::move(*this);
     }
 
     double Selectivity() const { return advancer_->Selectivity(); }

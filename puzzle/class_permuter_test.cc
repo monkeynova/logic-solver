@@ -285,7 +285,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
     ++loop_count;
     if (loop_count == 4) {
       bool was_advanced;
-      it.WithActiveSet(set, &was_advanced);
+      it = std::move(it).WithActiveSet(set, &was_advanced);
       EXPECT_TRUE(was_advanced);
     } else {
       ++it;
@@ -309,7 +309,7 @@ TYPED_TEST(ClassPermuterTest, ActiveSetMidIteration) {
     ++loop_count;
     if (loop_count == p->permutation_count() / 4) {
       bool was_advanced;
-      it.WithActiveSet(set, &was_advanced);
+      it = std::move(it).WithActiveSet(set, &was_advanced);
       EXPECT_TRUE(was_advanced);
     } else {
       ++it;

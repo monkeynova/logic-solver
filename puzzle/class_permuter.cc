@@ -23,7 +23,7 @@ bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
   active_set_it_ = active_set_.GetIterator();
   active_set_it_.Advance(position_);
   if (active_set_it_.value()) {
-    // Newly intersected active_set still points to an enabled offset.
+    // Newly inAtersected active_set still points to an enabled offset.
     // Permtuer does not need to advance.
     return false;
   }
@@ -66,10 +66,12 @@ int ClassPermuter::PermutationCount(const Descriptor* d) {
 }
 
 std::string ClassPermuter::DebugString() const {
-  return absl::StrJoin(*this, ", ",
-                       [](std::string* out, absl::Span<const int> v) {
-                         absl::StrAppend(out, "{", absl::StrJoin(v, ","), "}");
-                       });
+  std::string ret;
+  for (const absl::Span<const int> v : *this) {
+    if (!ret.empty()) absl::StrAppend(&ret, ",");
+    absl::StrAppend(&ret, "{", absl::StrJoin(v, ","), "}");
+  }
+  return ret;
 }
 
 }  // namespace puzzle
