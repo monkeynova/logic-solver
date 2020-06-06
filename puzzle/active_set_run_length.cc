@@ -175,25 +175,29 @@ void ActiveSetRunLengthIterator::Advance(int n) {
   DCHECK(match_position_ >= matches_.size() ||
          run_position_ != matches_[match_position_])
       << DebugString();
-  while (n > 0 && match_position_ < matches_.size()) {
+  if (match_position_ == matches_.size()) {
+    offset_ = std::min(total_, offset_ + n);
+    return;
+  }
+  while (n > 0) {
     int delta = matches_[match_position_] - run_position_;
     if (n >= delta) {
       n -= delta;
       offset_ += delta;
-      ++match_position_;
       run_position_ = 0;
+      if (++match_position_ == matches_.size()) {
+	if (n > 0) {
+	  offset_ = std::min(total_, offset_ + n);
+	}
+	value_ = true;
+	break;
+      }
       value_ = !value_;
     } else {
       run_position_ += n;
       offset_ += n;
       n = 0;
     }
-  }
-  if (n > 0) {
-    offset_ = std::min(total_, offset_ + n);
-  }
-  if (match_position_ >= matches_.size()) {
-    value_ = true;
   }
   DCHECK(match_position_ >= matches_.size() ||
          run_position_ != matches_[match_position_])
