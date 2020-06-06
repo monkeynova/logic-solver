@@ -174,7 +174,7 @@ class ClassPermuter {
     int class_int() const { return advancer_->class_int(); }
 
     iterator&& WithActiveSet(const ActiveSet& active_set,
-			     bool* was_advanced_out = nullptr) && {
+                             bool* was_advanced_out = nullptr) && {
       if (!active_set.is_trivial()) {
         const bool was_advanced = advancer_->WithActiveSet(active_set);
         if (was_advanced_out != nullptr) {

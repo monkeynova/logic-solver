@@ -186,11 +186,11 @@ void ActiveSetRunLengthIterator::Advance(int n) {
       offset_ += delta;
       run_position_ = 0;
       if (++match_position_ == matches_.size()) {
-	if (n > 0) {
-	  offset_ = std::min(total_, offset_ + n);
-	}
-	value_ = true;
-	break;
+        if (n > 0) {
+          offset_ = std::min(total_, offset_ + n);
+        }
+        value_ = true;
+        break;
       }
       value_ = !value_;
     } else {

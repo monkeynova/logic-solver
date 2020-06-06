@@ -103,7 +103,8 @@ void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
   }
   bool was_advanced;
   double pre_selectivity = it.Selectivity();
-  it = std::move(it).WithActiveSet(vs2as->value_skip_set(it, value_skip), &was_advanced);
+  it = std::move(it).WithActiveSet(vs2as->value_skip_set(it, value_skip),
+                                   &was_advanced);
   VLOG(3) << pre_selectivity << " => " << it.Selectivity() << "; "
           << it.position() << "; " << value_skip.value_index;
   CHECK(was_advanced)

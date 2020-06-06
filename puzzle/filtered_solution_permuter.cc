@@ -73,8 +73,9 @@ void FilteredSolutionPermuter::Advancer::InitializeIterator(
           permuter_->class_permuters_[other_pos].get();
       int other_class = other_permuter->class_int();
       int other_val = iterators_[other_class].position();
-      iterators_[class_int] = std::move(iterators_[class_int]).WithActiveSet(
-          builder->active_set_pair(other_class, other_val, class_int));
+      iterators_[class_int] = std::move(iterators_[class_int])
+                                  .WithActiveSet(builder->active_set_pair(
+                                      other_class, other_val, class_int));
     }
     pair_selectivity_reduction_[class_int] =
         iterators_[class_int].Selectivity() / start_selectivity;
