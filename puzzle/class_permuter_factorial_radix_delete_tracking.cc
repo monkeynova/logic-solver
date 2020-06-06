@@ -107,12 +107,15 @@ void ClassPermuterFactorialRadixDeleteTracking<
   int value = Base::current_[value_skip.value_index];
   int div = factorial(kStorageSize - value_skip.value_index - 1);
   int delta = div - (Base::position_ % div);
+  auto still_on_value = [&]() {
+    return !Base::current_span_.empty() &&
+      Base::current_[value_skip.value_index] == value;
+  };
   if (Base::active_set_.is_trivial()) {
     do {
       AdvanceDelta(/*dist=*/delta);
       delta = div;
-    } while (!Base::current_span_.empty() &&
-	     Base::current_[value_skip.value_index] == value);
+    } while (still_on_value());
   } else {
     do {
       Base::active_set_it_.Advance(delta);
@@ -127,8 +130,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
       }
       AdvanceDelta(/*dist=*/delta);
       delta = div - (Base::position_ % div);
-    } while (!Base::current_span_.empty() &&
-	     Base::current_[value_skip.value_index] == value);
+    } while (still_on_value());
   }
 }
 
