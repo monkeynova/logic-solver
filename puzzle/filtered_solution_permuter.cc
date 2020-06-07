@@ -340,85 +340,100 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
   VLOG(1) << "Generating pair selectivities";
 
-  bool cardinality_reduced = true;
-  std::vector<int> cardinality_class_reduced(class_permuters_.size(), true);
-  bool need_final =
-      absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair) &&
-      !absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs);
   FilterToActiveSet::PairClassMode pair_class_mode =
       absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
           ? FilterToActiveSet::PairClassMode::kMakePairs
           : FilterToActiveSet::PairClassMode::kSingleton;
-  while (cardinality_reduced || need_final) {
-    if (!cardinality_reduced) {
-      // After cardinality settles, run one more time with make_pairs on the
-      // smallest N^2 required.
-      need_final = false;
-      pair_class_mode = FilterToActiveSet::PairClassMode::kMakePairs;
-      VLOG(1) << "Running one more pass to generate pairs";
+
+  struct ClassPair {
+    ClassPair(ClassPermuter* a, ClassPermuter* b,
+              const std::vector<SolutionFilter>* filters)
+        : a(a), b(b), filters(filters), computed(false) {}
+
+    void SetPairSelectivity(const FilterToActiveSet* filter_to_active_set) {
+      double a_selectivity =
+          filter_to_active_set->active_set(a->class_int()).Selectivity();
+      double b_selectivity =
+          filter_to_active_set->active_set(b->class_int()).Selectivity();
+      if (a_selectivity > b_selectivity) {
+        // Make `a` less selective than `b` for Build calls.
+        std::swap(a, b);
+      }
+      pair_selectivity = a_selectivity * b_selectivity;
     }
-    ReorderEvaluation();
 
-    std::vector<int> next_cardinality_class_reduced(class_permuters_.size(),
-                                                    false);
-
-    for (auto it_a = class_permuters_.begin(); it_a != class_permuters_.end();
-         ++it_a) {
-      ClassPermuter* permuter_a = it_a->get();
-      bool cardinality_a_reduced =
-          cardinality_class_reduced[permuter_a->class_int()];
-      for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
-        ClassPermuter* permuter_b = it_b->get();
-        CHECK(permuter_a->class_int() != permuter_b->class_int());
-        bool cardinality_b_reduced =
-            cardinality_class_reduced[permuter_b->class_int()];
-        if (pair_class_mode == FilterToActiveSet::PairClassMode::kSingleton &&
-            !cardinality_a_reduced && !cardinality_b_reduced) {
-          // Nothing changed on the last cycle for this pair, skip redoing
-          // redundant work.
-          // TODO(@monkeynova): Storing a priority queue of edges sorted on
-          // min(selectivity_a * selectivity_b) filtered on change could
-          // potentially be an improved stategy here.
-          continue;
-        }
-
-        std::vector<SolutionFilter>& filters =
-            pair_class_predicates[std::make_pair(permuter_a->class_int(),
-                                                 permuter_b->class_int())];
-        if (filters.empty()) continue;
-
-        double old_a_selectivity =
-            filter_to_active_set_->active_set(permuter_a->class_int())
-                .Selectivity();
-        double old_b_selectivity =
-            filter_to_active_set_->active_set(permuter_b->class_int())
-                .Selectivity();
-        filter_to_active_set_->Build(permuter_a, permuter_b, filters,
-                                     pair_class_mode);
-        const ActiveSet& new_a =
-            filter_to_active_set_->active_set(permuter_a->class_int());
-        const ActiveSet& new_b =
-            filter_to_active_set_->active_set(permuter_b->class_int());
-        VLOG(2) << "Selectivity (" << permuter_a->class_int() << ", "
-                << permuter_b->class_int() << "): (" << old_a_selectivity
-                << ", " << old_b_selectivity << ") => (" << new_a.Selectivity()
-                << ", " << new_b.Selectivity() << ")";
-        if (old_a_selectivity > new_a.Selectivity()) {
-          next_cardinality_class_reduced[permuter_a->class_int()] = true;
-        }
-        if (old_b_selectivity > new_b.Selectivity()) {
-          next_cardinality_class_reduced[permuter_b->class_int()] = true;
-        }
+    ClassPermuter* a;
+    ClassPermuter* b;
+    const std::vector<SolutionFilter>* filters;
+    double pair_selectivity;
+    bool computed;
+  };
+  struct ClassPairGreaterThan {
+    bool operator()(const ClassPair& a, const ClassPair& b) const {
+      if (a.computed ^ b.computed) {
+        // Computed is "greater than" non-computed.
+        return a.computed;
+      }
+      return a.pair_selectivity > b.pair_selectivity;
+    }
+  };
+  std::vector<ClassPair> pairs;
+  pairs.reserve(class_permuters_.size() * (class_permuters_.size() - 1) / 2);
+  for (auto it_a = class_permuters_.begin(); it_a != class_permuters_.end();
+       ++it_a) {
+    for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
+      CHECK((*it_a)->class_int() != (*it_b)->class_int());
+      auto filters_it = pair_class_predicates.find(
+          std::make_pair((*it_a)->class_int(), (*it_b)->class_int()));
+      if (filters_it != pair_class_predicates.end() &&
+          !filters_it->second.empty()) {
+        pairs.emplace_back(it_a->get(), it_b->get(), &filters_it->second);
+        pairs.back().SetPairSelectivity(filter_to_active_set_.get());
+        VLOG(2) << "Initial Selectivity (" << pairs.back().a->class_int()
+                << ", " << pairs.back().b->class_int()
+                << "): " << pairs.back().pair_selectivity;
       }
     }
+  }
 
-    cardinality_class_reduced = std::move(next_cardinality_class_reduced);
-    cardinality_reduced =
-        std::any_of(cardinality_class_reduced.begin(),
-                    cardinality_class_reduced.end(), [](bool b) { return b; });
+  if (pairs.empty()) return;
 
-    if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
-      CHECK(!(!need_final && cardinality_reduced));
+  VLOG(1) << "Pruning pairs: " << pairs.size();
+
+  std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
+  while (!pairs.begin()->computed) {
+    std::pop_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
+    ClassPair& pair = pairs.back();
+
+    double old_pair_selectivity = pair.pair_selectivity;
+    filter_to_active_set_->Build(pair.a, pair.b, *pair.filters,
+                                 pair_class_mode);
+    pair.SetPairSelectivity(filter_to_active_set_.get());
+    VLOG(2) << "Selectivity (" << pair.a->class_int() << ", "
+            << pair.b->class_int() << "): " << old_pair_selectivity << " => "
+            << pair.pair_selectivity;
+    pair.computed = true;
+    if (old_pair_selectivity > pair.pair_selectivity) {
+      for (ClassPair& to_update : pairs) {
+        if (to_update.a == pair.a || to_update.b == pair.a ||
+            to_update.a == pair.b || to_update.b == pair.b) {
+          pair.SetPairSelectivity(filter_to_active_set_.get());
+        }
+      }
+      std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
+    } else {
+      CHECK(old_pair_selectivity == pair.pair_selectivity);
+      std::push_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
+    }
+  }
+
+  if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair) &&
+      pair_class_mode != FilterToActiveSet::PairClassMode::kMakePairs) {
+    VLOG(1) << "Running one more pass to generate pairs";
+    for (ClassPair& pair : pairs) {
+      filter_to_active_set_->Build(
+          pair.a, pair.b, *pair.filters,
+          FilterToActiveSet::PairClassMode::kMakePairs);
     }
   }
 }
