@@ -417,7 +417,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
       for (ClassPair& to_update : pairs) {
         if ((to_update.a == pair.a || to_update.b == pair.a) ^
             (to_update.a == pair.b || to_update.b == pair.b)) {
-	  to_update.computed = false;
+          to_update.computed = false;
           to_update.SetPairSelectivity(filter_to_active_set_.get());
         }
       }
