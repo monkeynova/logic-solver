@@ -289,8 +289,6 @@ void FilteredSolutionPermuter::BuildActiveSets(
     return;
   }
 
-  VLOG(1) << "Generating singleton selectivities";
-
   std::vector<std::vector<SolutionFilter>> single_class_predicates;
   absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
       pair_class_predicates;
@@ -322,6 +320,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
   for (auto& pair_and_predicates : pair_class_predicates) {
     OrderSolutionFiltersByEntryId(&pair_and_predicates.second);
   }
+
+  VLOG(1) << "Generating singleton selectivities";
 
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter->class_int();
