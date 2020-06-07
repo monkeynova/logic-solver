@@ -417,7 +417,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
       for (ClassPair& to_update : pairs) {
         if (to_update.a == pair.a || to_update.b == pair.a ||
             to_update.a == pair.b || to_update.b == pair.b) {
-          pair.SetPairSelectivity(filter_to_active_set_.get());
+          to_update.SetPairSelectivity(filter_to_active_set_.get());
         }
       }
       std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
