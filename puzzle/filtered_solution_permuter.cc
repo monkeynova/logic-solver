@@ -341,6 +341,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
   VLOG(1) << "Generating pair selectivities";
 
   bool cardinality_reduced = true;
+  std::vector<int> cardinality_class_reduced(class_permuters_.size(), true);
   bool need_final =
       absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair) &&
       !absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs);
@@ -356,16 +357,30 @@ void FilteredSolutionPermuter::BuildActiveSets(
       pair_class_mode = FilterToActiveSet::PairClassMode::kMakePairs;
       VLOG(1) << "Running one more pass to generate pairs";
     }
-    cardinality_reduced = false;
-
     ReorderEvaluation();
+
+    std::vector<int> next_cardinality_class_reduced(class_permuters_.size(),
+                                                    false);
 
     for (auto it_a = class_permuters_.begin(); it_a != class_permuters_.end();
          ++it_a) {
       ClassPermuter* permuter_a = it_a->get();
+      bool cardinality_a_reduced =
+          cardinality_class_reduced[permuter_a->class_int()];
       for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
         ClassPermuter* permuter_b = it_b->get();
         CHECK(permuter_a->class_int() != permuter_b->class_int());
+        bool cardinality_b_reduced =
+            cardinality_class_reduced[permuter_b->class_int()];
+        if (pair_class_mode == FilterToActiveSet::PairClassMode::kSingleton &&
+            !cardinality_a_reduced && !cardinality_b_reduced) {
+          // Nothing changed on the last cycle for this pair, skip redoing
+          // redundant work.
+          // TODO(@monkeynova): Storing a priority queue of edges sorted on
+          // min(selectivity_a * selectivity_b) filtered on change could
+          // potentially be an improved stategy here.
+          continue;
+        }
 
         std::vector<SolutionFilter>& filters =
             pair_class_predicates[std::make_pair(permuter_a->class_int(),
@@ -389,13 +404,18 @@ void FilteredSolutionPermuter::BuildActiveSets(
                 << ", " << old_b_selectivity << ") => (" << new_a.Selectivity()
                 << ", " << new_b.Selectivity() << ")";
         if (old_a_selectivity > new_a.Selectivity()) {
-          cardinality_reduced = true;
+          next_cardinality_class_reduced[permuter_a->class_int()] = true;
         }
         if (old_b_selectivity > new_b.Selectivity()) {
-          cardinality_reduced = true;
+          next_cardinality_class_reduced[permuter_b->class_int()] = true;
         }
       }
     }
+
+    cardinality_class_reduced = std::move(next_cardinality_class_reduced);
+    cardinality_reduced =
+        std::any_of(cardinality_class_reduced.begin(),
+                    cardinality_class_reduced.end(), [](bool b) { return b; });
 
     if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
       CHECK(!(!need_final && cardinality_reduced));
