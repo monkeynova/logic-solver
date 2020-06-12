@@ -300,3 +300,20 @@ sudoku_test(
         ":nyt20181019hard_lib",
     ],
 )
+
+cc_library(
+    name = "killer_sudoku",
+    srcs = ["killer_sudoku.cc"],
+    hdrs = ["killer_sudoku.h"],
+    alwayslink = 1,
+    deps = [
+        ":base",
+    ],
+)
+
+sudoku_test(
+    name = "killer_sudoku_test",
+    deps = [
+        ":killer_sudoku",
+    ],
+)

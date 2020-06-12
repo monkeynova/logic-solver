@@ -166,6 +166,8 @@ Base::Board Base::ParseBoard(const absl::string_view board) {
   return ret;
 }
 
+void Base::InstanceSetup() { AddBoardPredicates(GetInstanceBoard()); }
+
 void Base::Setup() {
   puzzle::Descriptor* val_descriptor =
       AddDescriptor(new puzzle::IntRangeDescriptor(1, 9));
@@ -190,7 +192,7 @@ void Base::Setup() {
     return;
   }
 
-  AddBoardPredicates(GetInstanceBoard());
+  InstanceSetup();
 }
 
 }  // namespace sudoku

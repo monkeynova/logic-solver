@@ -20,6 +20,9 @@ class Base : public ::puzzle::Problem {
   virtual Board GetInstanceBoard() const = 0;
   virtual Board GetSolutionBoard() const = 0;
 
+ protected:
+  virtual void InstanceSetup();
+
  private:
   // ::puzzle::Problem methods. Final to prevent missing parts.
   void Setup() final;
