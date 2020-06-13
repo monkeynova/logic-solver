@@ -31,14 +31,21 @@ class KillerSudoku : public ::sudoku::Base {
     }
   };
 
+  struct Cage {
+    int expected_sum;
+    std::vector<Box> boxes;
+  };
+
   Board GetInstanceBoard() const override;
   Board GetSolutionBoard() const override;
+
+  std::vector<Cage> GetCages() const;
 
  protected:
   void InstanceSetup() override;
 
  private:
-  void AddSum(int expected_sum, std::vector<Box> boxes);
+  void AddCage(const Cage& cage);
 
   absl::flat_hash_set<Box> box_used_;
 };
