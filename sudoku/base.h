@@ -15,6 +15,24 @@ class Base : public ::puzzle::Problem {
  public:
   using Board = std::vector<std::vector<int>>;
 
+  struct Box {
+    int entry_id;
+    int class_id;
+
+    std::string DebugString() const {
+      return absl::StrCat("(", entry_id, ", ", class_id, ")");
+    }
+
+    template <typename H>
+    friend H AbslHashValue(H h, const Box& box) {
+      return H::combine(std::move(h), box.entry_id, box.class_id);
+    }
+
+    bool operator==(const Box& other) const {
+      return entry_id == other.entry_id && class_id == other.class_id;
+    }
+  };
+
   static Board ParseBoard(const absl::string_view board);
 
   virtual Board GetInstanceBoard() const = 0;
@@ -36,6 +54,10 @@ class Base : public ::puzzle::Problem {
   void AddPredicatesCumulative();
   void AddPredicatesPairwise();
 };
+
+inline std::ostream& operator<<(std::ostream& out, const Base::Box& box) {
+  return out << box.DebugString();
+}
 
 }  // namespace sudoku
 

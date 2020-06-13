@@ -13,31 +13,12 @@ constraints on sets of values (like sums) rather than some initial values.
  */
 class KillerSudoku : public ::sudoku::Base {
  public:
-  struct Box {
-    int entry_id;
-    int class_id;
-
-    std::string DebugString() const {
-      return absl::StrCat("(", entry_id, ", ", class_id, ")");
-    }
-
-    template <typename H>
-    friend H AbslHashValue(H h, const Box& box) {
-      return H::combine(std::move(h), box.entry_id, box.class_id);
-    }
-
-    bool operator==(const Box& other) const {
-      return entry_id == other.entry_id && class_id == other.class_id;
-    }
-  };
-
   struct Cage {
     int expected_sum;
     std::vector<Box> boxes;
   };
 
-  Board GetInstanceBoard() const override;
-  Board GetSolutionBoard() const override;
+  Board GetInstanceBoard() const override { return Board(); }
 
   virtual std::vector<Cage> GetCages() const = 0;
 
@@ -49,11 +30,6 @@ class KillerSudoku : public ::sudoku::Base {
 
   absl::flat_hash_set<Box> box_used_;
 };
-
-inline std::ostream& operator<<(std::ostream& out,
-                                const KillerSudoku::Box& box) {
-  return out << box.DebugString();
-}
 
 }  // namespace sudoku
 

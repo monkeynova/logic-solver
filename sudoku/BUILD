@@ -333,3 +333,36 @@ sudoku_test(
         ":conceptis_puzzles_lib",
     ],
 )
+
+cc_library(
+    name = "greater_than_sudoku",
+    srcs = ["greater_than_sudoku.cc"],
+    hdrs = ["greater_than_sudoku.h"],
+    deps = [
+        ":base",
+    ],
+)
+
+cc_library(
+    name = "ksogt20200601_lib",
+    srcs = ["ksogt20200601.cc"],
+    alwayslink = 1,
+    deps = [
+        ":greater_than_sudoku",
+    ],
+)
+
+cc_binary(
+    name = "ksogt20200601",
+    deps = [
+        ":ksogt20200601_lib",
+        "//puzzle:puzzle_main",
+    ],
+)
+
+sudoku_test(
+    name = "ksogt20200601_test",
+    deps = [
+        ":ksogt20200601_lib",
+    ],
+)

@@ -2,16 +2,6 @@
 
 namespace sudoku {
 
-Base::Board KillerSudoku::GetInstanceBoard() const { return Board(); }
-
-Base::Board KillerSudoku::GetSolutionBoard() const {
-  return {{8, 6, 3, 9, 7, 5, 2, 1, 4}, {1, 2, 7, 3, 4, 6, 9, 5, 8},
-          {4, 5, 9, 1, 8, 2, 3, 6, 7}, {3, 8, 5, 2, 6, 1, 7, 4, 9},
-          {7, 4, 6, 8, 5, 9, 1, 2, 3}, {9, 1, 2, 7, 3, 4, 6, 8, 5},
-          {2, 9, 4, 5, 1, 3, 8, 7, 6}, {5, 7, 1, 6, 9, 8, 4, 3, 2},
-          {6, 3, 8, 4, 2, 7, 5, 9, 1}};
-}
-
 void KillerSudoku::AddCage(const Cage& cage) {
   CHECK(!cage.boxes.empty());
   absl::flat_hash_map<int, int> class_to_entry;
