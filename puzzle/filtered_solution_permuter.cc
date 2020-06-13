@@ -368,6 +368,10 @@ void FilteredSolutionPermuter::BuildActiveSets(
     double pair_selectivity;
     bool computed;
   };
+  // TODO(@monkeynova): This metric currently is based on the worst-case
+  // cost of computing the pair-wise active sets (N^2 cost). But this is
+  // neither the expected cost of the computation (early exit), nor is
+  // that even the ideal metric which is the ROI on future compute reduction.
   struct ClassPairGreaterThan {
     bool operator()(const ClassPair& a, const ClassPair& b) const {
       if (a.computed ^ b.computed) {
@@ -410,8 +414,10 @@ void FilteredSolutionPermuter::BuildActiveSets(
                                  pair_class_mode);
     pair.SetPairSelectivity(filter_to_active_set_.get());
     VLOG(2) << "Selectivity (" << pair.a->class_int() << ", "
-            << pair.b->class_int() << "): " << old_pair_selectivity << " => "
-            << pair.pair_selectivity;
+            << pair.b->class_int() << "): "
+	    << static_cast<int>(
+		   100 * (1 - pair.pair_selectivity / old_pair_selectivity))
+	    << "%: " << old_pair_selectivity << " => " << pair.pair_selectivity;
     pair.computed = true;
     if (old_pair_selectivity > pair.pair_selectivity) {
       for (ClassPair& to_update : pairs) {
