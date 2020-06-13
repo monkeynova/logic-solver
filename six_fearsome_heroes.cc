@@ -42,10 +42,18 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 #include <memory>
 
 #include "puzzle/problem.h"
+#include "six_fearsome_heroes.pb.h"
 
 class SixFearsomeHeroes : public puzzle::Problem {
  private:
-  enum Who { PICARD = 0, RIKER = 1, TROI = 2, GEORDI = 3, DATA = 4, WORF = 5 };
+  enum Who {
+    PICARD = SixFearsomeHeroesInfo::Entry::PICARD,
+    RIKER = SixFearsomeHeroesInfo::Entry::RIKER,
+    TROI = SixFearsomeHeroesInfo::Entry::TROI,
+    GEORDI = SixFearsomeHeroesInfo::Entry::GEORDI,
+    DATA = SixFearsomeHeroesInfo::Entry::DATA,
+    WORF = SixFearsomeHeroesInfo::Entry::WORF
+  };
 
   enum Classes { HERO = 0, FEAR = 1, TRID = 2, FIZZBIN = 3 };
 
@@ -164,6 +172,15 @@ void SixFearsomeHeroes::AddStatementPredicates() {
 }
 
 puzzle::Solution SixFearsomeHeroes::GetSolution() const {
+  std::string result = R"PROTO(
+    entry { id: PICARD hero: DATA fear: TROI trid: 5 fizzbin: 2 }
+    entry { id: RIKER hero: PICARD fear: WORF trid: 3 fizzbin: 5 }
+    entry { id: TROI hero: WORF fear: RIKER trid: 1 fizzbin: 4 }
+    entry { id: GEORDI hero: RIKER fear: PICARD trid: 2 fizzbin: 3 }
+    entry { id: DATA hero: TROI fear: GEORDI trid: 4 fizzbin: 1 }
+    entry { id: WORF hero: GEORDI fear: DATA trid: 6 fizzbin: 6 }
+  )PROTO";
+
   std::vector<puzzle::Entry> entries;
   // Picard: hero=Data fear=Troi trid=5 fizzbin=2
   entries.emplace_back(PICARD, std::vector<int>{DATA, TROI, 5, 2},
@@ -193,15 +210,9 @@ puzzle::Solution SixFearsomeHeroes::GetSolution() const {
 }
 
 void SixFearsomeHeroes::Setup() {
-  puzzle::StringDescriptor* who_descriptor =
-      AddDescriptor(new puzzle::StringDescriptor());
-
-  who_descriptor->SetDescription(PICARD, "Picard");
-  who_descriptor->SetDescription(RIKER, "Riker");
-  who_descriptor->SetDescription(TROI, "Troi");
-  who_descriptor->SetDescription(GEORDI, "Geordi");
-  who_descriptor->SetDescription(DATA, "Data");
-  who_descriptor->SetDescription(WORF, "Worf");
+  puzzle::ProtoEnumDescriptor* who_descriptor =
+      AddDescriptor(new puzzle::ProtoEnumDescriptor(
+          SixFearsomeHeroesInfo::Entry::Who_descriptor()));
 
   SetIdentifiers(who_descriptor);
   AddClass(HERO, "hero", who_descriptor);

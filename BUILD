@@ -43,11 +43,22 @@ cc_binary(
     ]
 )
 
+cc_proto_library(
+    name = "six_fearsome_heroes_cc_proto",
+    deps = [":six_fearsome_heroes_proto"],
+)
+
+proto_library(
+    name = "six_fearsome_heroes_proto",
+    srcs = ["six_fearsome_heroes.proto"],
+)
+
 cc_library(
     name = "six_fearsome_heroes_lib",
     alwayslink = 1,
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
+	":six_fearsome_heroes_cc_proto",
         "//puzzle:problem",
     ]
 )

@@ -1,0 +1,23 @@
+syntax = "proto2";
+
+message SixFearsomeHeroesInfo {
+  message Entry {
+    enum Who {
+      PICARD = 0;
+      RIKER = 1;
+      TROI = 2;
+      GEORDI = 3;
+      DATA = 4;
+      WORF = 5;
+    }
+
+    optional Who id = 1;
+    optional Who hero = 2;
+    optional Who fear = 3;
+    optional int32 trid = 4 [default = 1];
+    optional int32 fizzbin = 5 [default = 1];
+  }
+
+  repeated Entry entry = 1;
+}
+
