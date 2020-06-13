@@ -39,7 +39,7 @@ class KillerSudoku : public ::sudoku::Base {
   Board GetInstanceBoard() const override;
   Board GetSolutionBoard() const override;
 
-  std::vector<Cage> GetCages() const;
+  virtual std::vector<Cage> GetCages() const = 0;
 
  protected:
   void InstanceSetup() override;
@@ -50,7 +50,8 @@ class KillerSudoku : public ::sudoku::Base {
   absl::flat_hash_set<Box> box_used_;
 };
 
-std::ostream& operator<<(std::ostream& out, const KillerSudoku::Box& box) {
+inline std::ostream& operator<<(std::ostream& out,
+                                const KillerSudoku::Box& box) {
   return out << box.DebugString();
 }
 

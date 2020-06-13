@@ -305,15 +305,31 @@ cc_library(
     name = "killer_sudoku",
     srcs = ["killer_sudoku.cc"],
     hdrs = ["killer_sudoku.h"],
-    alwayslink = 1,
     deps = [
         ":base",
     ],
 )
 
-sudoku_test(
-    name = "killer_sudoku_test",
+cc_library(
+    name = "conceptis_puzzles_lib",
+    srcs = ["conceptis_puzzles.cc"],
+    alwayslink = 1,
     deps = [
         ":killer_sudoku",
+    ],
+)
+
+cc_binary(
+    name = "conceptis_puzzles",
+    deps = [
+        ":conceptis_puzzles_lib",
+        "//puzzle:puzzle_main",
+    ],
+)
+
+sudoku_test(
+    name = "conceptis_puzzles_test",
+    deps = [
+        ":conceptis_puzzles_lib",
     ],
 )
