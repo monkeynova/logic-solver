@@ -395,7 +395,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
         pairs.back().SetPairSelectivity(filter_to_active_set_.get());
         VLOG(2) << "Initial Selectivity (" << pairs.back().a->class_int()
                 << ", " << pairs.back().b->class_int()
-                << "): " << pairs.back().pair_selectivity;
+                << "): " << pairs.back().pair_selectivity << " ("
+                << pairs.back().filters->size() << " filters)";
       }
     }
   }
@@ -415,9 +416,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
     pair.SetPairSelectivity(filter_to_active_set_.get());
     VLOG(2) << "Selectivity (" << pair.a->class_int() << ", "
             << pair.b->class_int() << "): "
-	    << static_cast<int>(
-		   100 * (1 - pair.pair_selectivity / old_pair_selectivity))
-	    << "%: " << old_pair_selectivity << " => " << pair.pair_selectivity;
+            << static_cast<int>(old_pair_selectivity / pair.pair_selectivity)
+            << "x: " << old_pair_selectivity << " => " << pair.pair_selectivity;
     pair.computed = true;
     if (old_pair_selectivity > pair.pair_selectivity) {
       for (ClassPair& to_update : pairs) {
