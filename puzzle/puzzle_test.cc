@@ -9,6 +9,10 @@
 #include "gtest/gtest.h"
 #include "puzzle/problem.h"
 
+ABSL_FLAG(bool, puzzle_test_unique, true,
+	  "If true (default), tests validate that the solution found is "
+	  "unique.");
+
 ABSL_DECLARE_FLAG(bool, puzzle_brute_force);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_class_iterator);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_reorder_classes);
@@ -24,6 +28,16 @@ TEST(Puzzle, RightAnswer) {
   puzzle::Solution expect = problem->GetSolution();
 
   EXPECT_EQ(got, expect);
+}
+
+TEST(Puzzle, UniqueAnswer) {
+  if (!absl::GetFlag(FLAGS_puzzle_test_unique)) return;
+
+  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
+  problem->Setup();
+
+  std::vector<puzzle::Solution> solutions = problem->AllSolutions(/*limit=*/2);
+  ASSERT_EQ(solutions.size(), 1);
 }
 
 static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,

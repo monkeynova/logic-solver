@@ -103,6 +103,9 @@ cc_test(
     name = "single_line_empty_test",
     srcs = ["single_line_test.cc"],
     args = [
+        # This test does not produce a unique answer given it can returna all
+        # valid sudoku solutions.
+        "--puzzle_test_unique=false",
         # This is a worst-case benchmark for prune_pair_class_iterators
         # without any single class filters to prune the space, so we
         # disable the pair pruning for usual testing, but can enable it
@@ -364,5 +367,10 @@ sudoku_test(
     name = "ksogt20200601_test",
     deps = [
         ":ksogt20200601_lib",
+    ],
+    args = [
+        # This test currently takes ~50s without the uniqueness proof. Leave it
+        # off of typical testing.
+        "--puzzle_test_unique=false",
     ],
 )

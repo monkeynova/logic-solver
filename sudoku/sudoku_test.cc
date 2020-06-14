@@ -9,6 +9,10 @@
 #include "gtest/gtest.h"
 #include "puzzle/problem.h"
 
+ABSL_FLAG(bool, puzzle_test_unique, true,
+	  "If true (default), tests validate that the solution found is "
+	  "unique.");
+	  
 ABSL_DECLARE_FLAG(std::string, sudoku_problem_setup);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair);
@@ -24,6 +28,16 @@ TEST(Puzzle, RightAnswer) {
   ASSERT_TRUE(got.IsValid());
 
   EXPECT_EQ(got, problem->GetSolution());
+}
+
+TEST(Puzzle, UniqueAnswer) {
+  if (!absl::GetFlag(FLAGS_puzzle_test_unique)) return;
+
+  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
+  problem->Setup();
+
+  std::vector<puzzle::Solution> solutions = problem->AllSolutions(/*limit=*/2);
+  ASSERT_EQ(solutions.size(), 1);
 }
 
 static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,

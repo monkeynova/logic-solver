@@ -8,6 +8,10 @@
 #include "gtest/gtest.h"
 #include "sudoku/line_board.h"
 
+ABSL_FLAG(bool, puzzle_test_unique, true,
+	  "If true (default), tests validate that the solution found is "
+	  "unique.");
+
 ABSL_FLAG(std::string, sudoku_line_board, "",
           "The sudoku problem to solve as a single line");
 
@@ -25,6 +29,19 @@ TEST(Puzzle, RightAnswer) {
 
   EXPECT_EQ(::sudoku::LineBoard::ToString(answer),
             absl::GetFlag(FLAGS_sudoku_line_answer));
+}
+
+TEST(Puzzle, UniqueAnswer) {
+  if (!absl::GetFlag(FLAGS_puzzle_test_unique)) return;
+
+  std::unique_ptr<::puzzle::Problem> line_board =
+      ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
+  ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
+  line_board->Setup();
+
+  std::vector<puzzle::Solution> solutions =
+      line_board->AllSolutions(/*limit=*/2);
+  ASSERT_EQ(solutions.size(), 1);
 }
 
 static void BM_Solver(benchmark::State& state) {
