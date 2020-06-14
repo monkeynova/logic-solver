@@ -200,7 +200,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
          it_b != permuter_b->end(); ++it_b) {
       mutable_solution_.SetClass(it_b);
       ActiveSetBuilder b_a_builder(permuter_a->permutation_count());
-      bool any_of_b = false;
+      bool any_of_a = false;
       ClassPermuter::iterator::ValueSkip value_skip_a = {.value_index =
                                                              Entry::kBadId};
       for (auto it_a = permuter_a->begin()
@@ -216,15 +216,15 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         }
         mutable_solution_.SetClass(it_a);
         if (AllMatch(predicates, solution_, class_a, &value_skip_a)) {
-          any_of_b = true;
+          any_of_a = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
             b_a_builder.AddBlockTo(false, it_a.position());
             b_a_builder.Add(true);
           }
-        }
+	}
       }
-      if (any_of_b) {
+      if (any_of_a) {
         builder_b.AddBlockTo(false, it_b.position());
         builder_b.Add(true);
       }
@@ -243,7 +243,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
          it_a != permuter_a->end(); ++it_a) {
       mutable_solution_.SetClass(it_a);
-      bool any_of_a = false;
+      bool any_of_b = false;
       ActiveSetBuilder a_b_builder(permuter_b->permutation_count());
       ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                              Entry::kBadId};
@@ -260,7 +260,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         }
         mutable_solution_.SetClass(it_b);
         if (AllMatch(predicates, solution_, class_b, &value_skip_b)) {
-          any_of_a = true;
+          any_of_b = true;
           if (pair_class_mode == PairClassMode::kSingleton) break;
           if (pair_class_mode == PairClassMode::kMakePairs) {
             a_b_builder.AddBlockTo(false, it_b.position());
@@ -268,7 +268,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           }
         }
       }
-      if (any_of_a) {
+      if (any_of_b) {
         builder_a.AddBlockTo(false, it_a.position());
         builder_a.Add(true);
       }
@@ -302,7 +302,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
   for (auto it_a = permuter_a->begin().WithActiveSet(active_sets_[class_a]);
        it_a != permuter_a->end(); ++it_a) {
     mutable_solution_.SetClass(it_a);
-    bool any_of_a = false;
+    bool any_of_b = false;
     ActiveSetBuilder a_b_builder(permuter_b->permutation_count());
     ClassPermuter::iterator::ValueSkip value_skip_b = {.value_index =
                                                            Entry::kBadId};
@@ -310,14 +310,14 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
                          .WithActiveSet(active_sets_[class_b])
                          .WithActiveSet(a_b_pair.Find(it_a.position()));
          it_b != permuter_b->end(); Advance(vs2as_b, value_skip_b, it_b)) {
-      if (pair_class_mode == PairClassMode::kSingleton && any_of_a &&
+      if (pair_class_mode == PairClassMode::kSingleton && any_of_b &&
           b_match_positions.find(it_b.position()) != b_match_positions.end()) {
         // Already added both pieces.
         continue;
       }
       mutable_solution_.SetClass(it_b);
       if (AllMatch(predicates, solution_, class_b, &value_skip_b)) {
-        any_of_a = true;
+        any_of_b = true;
         b_match_positions.insert(it_b.position());
         if (pair_class_mode == PairClassMode::kMakePairs) {
           a_b_builder.AddBlockTo(false, it_b.position());
@@ -330,7 +330,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
       a_b_builder.AddBlockTo(false, permuter_b->permutation_count());
       a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
     }
-    if (any_of_a) {
+    if (any_of_b) {
       builder_a.AddBlockTo(false, it_a.position());
       builder_a.Add(true);
     }
