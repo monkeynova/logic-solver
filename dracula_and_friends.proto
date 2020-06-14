@@ -1,38 +1,41 @@
 syntax = "proto2";
 
-package DraculaAndFriends;
-
-enum Who { 
-    BOGDAN = 0;
-    DORIAN = 1;
-    MATEI = 2;
-    OCTAVIAN = 3;
-}
+message DraculaAndFriendsInfo {
+  message Entry {
+    enum Who {
+        BOGDAN = 0;
+        DORIAN = 1;
+        MATEI = 2;
+        OCTAVIAN = 3;
+    }
     
-enum Region {
-    BUCOVINA = 0;
-    DEBROGEA = 1;
-    MUNTENIA = 2;
-    OLTENIA = 3;
-}
+    enum Region {
+        BUCOVINA = 0;
+        DEBROGEA = 1;
+        MUNTENIA = 2;
+        OLTENIA = 3;
+    }
 
-enum Plants {
-    IVY = 0;
-    ONION = 1;
-    THORNBRUSH = 2;
-    WOLFSBANE = 3;
-}
+    enum Plant {
+        IVY = 0;
+        ONION = 1;
+        THORNBRUSH = 2;
+        WOLFSBANE = 3;
+    }
 
-enum Century {
-     XIV = 0;
-     XV = 1;
-     XVI = 2;
-     XVII = 3;
-}
+    enum Century {
+         XIV = 0;
+         XV = 1;
+         XVI = 2;
+         XVII = 3;
+    }
 
-enum Classes {
-    REGION = 0;
-    PLANTS = 1;
-    CENTURY = 2;
+    optional Who id = 1;
+    optional Region region = 2;
+    optional Plant plant = 3;
+    optional Century century = 4;
+  }
+
+  repeated Entry entry = 1;
 }
 

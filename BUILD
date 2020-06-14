@@ -14,7 +14,7 @@ cc_library(
     alwayslink = 1,
     deps = [
         ":dracula_and_friends_cc_proto",
-        "//puzzle:problem",
+        "//puzzle:proto_problem",
     ]
 )
 

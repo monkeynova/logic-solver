@@ -25,21 +25,48 @@ MATEI: region=OLTENIA plants=ONION century=XVII
 OCTAVIAN: region=BUCOVINA plants=THORNBRUSH century=XV
 */
 #include "dracula_and_friends.pb.h"
-#include "puzzle/problem.h"
+#include "puzzle/proto_problem.h"
 
-using namespace DraculaAndFriends;
-
-class DraculaAndFriendsProblem : public puzzle::Problem {
+class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
  private:
-  void Setup() override;
-  puzzle::Solution GetSolution() const override;
+  enum Who {
+    BOGDAN = DraculaAndFriendsInfo::Entry::BOGDAN,
+    DORIAN = DraculaAndFriendsInfo::Entry::DORIAN,
+    MATEI = DraculaAndFriendsInfo::Entry::MATEI,
+    OCTAVIAN = DraculaAndFriendsInfo::Entry::OCTAVIAN
+  };
+  enum Region {
+    BUCOVINA = DraculaAndFriendsInfo::Entry::BUCOVINA,
+    DEBROGEA = DraculaAndFriendsInfo::Entry::DEBROGEA,
+    MUNTENIA = DraculaAndFriendsInfo::Entry::MUNTENIA,
+    OLTENIA = DraculaAndFriendsInfo::Entry::OLTENIA
+  };
+  enum Plant {
+    IVY = DraculaAndFriendsInfo::Entry::IVY,
+    ONION = DraculaAndFriendsInfo::Entry::ONION,
+    THORNBRUSH = DraculaAndFriendsInfo::Entry::THORNBRUSH,
+    WOLFSBANE = DraculaAndFriendsInfo::Entry::WOLFSBANE
+  };
+  enum Century {
+    XIV = DraculaAndFriendsInfo::Entry::XIV,
+    XV = DraculaAndFriendsInfo::Entry::XV,
+    XVI = DraculaAndFriendsInfo::Entry::XVI,
+    XVII = DraculaAndFriendsInfo::Entry::XVII,
+  };
+  enum Classes {
+    REGION = 0,
+    PLANT = 1,
+    CENTURY = 2,
+  };
 
-  void AddRulePredicates();
+  void AddPredicates() override;
+  const google::protobuf::Descriptor* problem_descriptor() const override {
+    return DraculaAndFriendsInfo::descriptor();
+  }
+  std::string solution_textproto() const override;
 };
 
-REGISTER_PROBLEM(DraculaAndFriendsProblem);
-
-void DraculaAndFriendsProblem::AddRulePredicates() {
+void DraculaAndFriendsProblem::AddPredicates() {
   AddPredicate(
       "1. One, and only one, of the vampires had the same initials "
       "of his name and of his birthplace.",
@@ -56,9 +83,9 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
       // Edit "He hated" probably should be "He hated neither".
       [](const puzzle::Entry& e) {
         if (e.Class(REGION) == DEBROGEA) return false;
-        return e.Class(PLANTS) == ONION || e.Class(PLANTS) == IVY;
+        return e.Class(PLANT) == ONION || e.Class(PLANT) == IVY;
       },
-      {REGION, PLANTS}, MATEI);
+      {REGION, PLANT}, MATEI);
   AddPredicate(
       "3. The vampire from Mutenia lived 100 years after the "
       "vampire who hated thornbrush.",
@@ -67,11 +94,11 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
                                       return e.Class(REGION) == MUNTENIA;
                                     }).Class(CENTURY);
         int hated_thornbrush_century = s.Find([](const puzzle::Entry& e) {
-                                          return e.Class(PLANTS) == THORNBRUSH;
+                                          return e.Class(PLANT) == THORNBRUSH;
                                         }).Class(CENTURY);
         return hated_thornbrush_century == from_mutenia_century - 1;
       },
-      {REGION, PLANTS, CENTURY});
+      {REGION, PLANT, CENTURY});
   AddPredicate(
       "4. 100 years after Dorian's death, another vamipre rised "
       "in Bucovina, but this wasn't Bogdan.",
@@ -88,18 +115,18 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
       "thornbrush.",
       [](const puzzle::Entry& e) {
         const bool in_xvi = e.Class(CENTURY) == XVI;
-        const bool hated_thornbrush = e.Class(PLANTS) == THORNBRUSH;
+        const bool hated_thornbrush = e.Class(PLANT) == THORNBRUSH;
         return (in_xvi || hated_thornbrush) && !(in_xvi && hated_thornbrush);
       },
-      {PLANTS, CENTURY}, OCTAVIAN);
+      {PLANT, CENTURY}, OCTAVIAN);
   AddPredicate("6. If Bogdan hated wolfsbane, then Matei lived in Buchovia.",
                [](const puzzle::Solution& s) {
-                 if (s.Id(BOGDAN).Class(PLANTS) == WOLFSBANE) {
+                 if (s.Id(BOGDAN).Class(PLANT) == WOLFSBANE) {
                    return s.Id(MATEI).Class(REGION) == BUCOVINA;
                  }
                  return true;
                },
-               {{REGION, MATEI}, {PLANTS, BOGDAN}});
+               {{REGION, MATEI}, {PLANT, BOGDAN}});
   AddSpecificEntryPredicate(
       "7a. The vampire from XIV century wasn't Octavian nor Bogdan. (Octavian)",
       [](const puzzle::Entry& e) { return e.Class(CENTURY) != XIV; }, {CENTURY},
@@ -110,50 +137,26 @@ void DraculaAndFriendsProblem::AddRulePredicates() {
       BOGDAN);
   AddSpecificEntryPredicate(
       "8. Villagers didn't grow thornbrush against Dorian.",
-      [](const puzzle::Entry& e) { return e.Class(PLANTS) != THORNBRUSH; },
-      {PLANTS}, DORIAN);
+      [](const puzzle::Entry& e) { return e.Class(PLANT) != THORNBRUSH; },
+      {PLANT}, DORIAN);
   AddPredicate(
       "9. Chronicles of XVII century claimed that ivy was "
       "ineffective and that Debrogea was free from vamipres.",
       [](const puzzle::Solution& s) {
         const puzzle::Entry& e = s.Find(
             [](const puzzle::Entry& e) { return e.Class(CENTURY) == XVII; });
-        return e.Class(PLANTS) != IVY && e.Class(REGION) != DEBROGEA;
+        return e.Class(PLANT) != IVY && e.Class(REGION) != DEBROGEA;
       },
-      {REGION, PLANTS, CENTURY});
+      {REGION, PLANT, CENTURY});
 }
 
-puzzle::Solution DraculaAndFriendsProblem::GetSolution() const {
-  std::vector<puzzle::Entry> entries;
-  // BOGDAN: region=MUNTENIA plants=IVY century=XVI
-  entries.emplace_back(BOGDAN, std::vector<int>{MUNTENIA, IVY, XVI},
-                       entry_descriptor());
-
-  // DORIAN: region=DEBROGEA plants=WOLFSBANE century=XIV
-  entries.emplace_back(DORIAN, std::vector<int>{DEBROGEA, WOLFSBANE, XIV},
-                       entry_descriptor());
-
-  // MATEI: region=OLTENIA plants=ONION century=XVII
-  entries.emplace_back(MATEI, std::vector<int>{OLTENIA, ONION, XVII},
-                       entry_descriptor());
-
-  // OCTAVIAN: region=BUCOVINA plants=THORNBRUSH century=XV
-  entries.emplace_back(OCTAVIAN, std::vector<int>{BUCOVINA, THORNBRUSH, XV},
-                       entry_descriptor());
-
-  return puzzle::Solution(entry_descriptor(), &entries).Clone();
+std::string DraculaAndFriendsProblem::solution_textproto() const {
+  return R"PROTO(
+    entry { id: BOGDAN region: MUNTENIA plant: IVY century: XVI }
+    entry { id: DORIAN region: DEBROGEA plant: WOLFSBANE century: XIV }
+    entry { id: MATEI region: OLTENIA plant: ONION century: XVII }
+    entry { id: OCTAVIAN region: BUCOVINA plant: THORNBRUSH century: XV }
+  )PROTO";
 }
 
-void DraculaAndFriendsProblem::Setup() {
-  SetIdentifiers(
-      AddDescriptor(new puzzle::ProtoEnumDescriptor(Who_descriptor())));
-  AddClass(REGION, "region",
-           AddDescriptor(new puzzle::ProtoEnumDescriptor(Region_descriptor())));
-  AddClass(PLANTS, "plants",
-           AddDescriptor(new puzzle::ProtoEnumDescriptor(Plants_descriptor())));
-  AddClass(
-      CENTURY, "century",
-      AddDescriptor(new puzzle::ProtoEnumDescriptor(Century_descriptor())));
-
-  AddRulePredicates();
-}
+REGISTER_PROBLEM(DraculaAndFriendsProblem);
