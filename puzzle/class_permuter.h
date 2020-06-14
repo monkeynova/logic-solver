@@ -25,7 +25,9 @@ class ClassPermuter {
     // to `active_set_`.
     AdvancerBase(const AdvancerBase& other);
 
-    virtual ~AdvancerBase() {}
+    virtual ~AdvancerBase() {
+      if (active_set_owned_) delete active_set_;
+    }
 
     virtual void Advance() = 0;
     virtual void AdvanceDelta(int dist) = 0;
@@ -35,7 +37,7 @@ class ClassPermuter {
 
     virtual const absl::Span<const int>& current() const = 0;
     int position() const { return position_; }
-    const ActiveSet& active_set() const { return active_set_; }
+    const ActiveSet& active_set() const { return *active_set_; }
 
     int class_int() const { return class_int_; }
     virtual int permutation_size() const = 0;
@@ -47,7 +49,7 @@ class ClassPermuter {
     // advanced.
     bool WithActiveSet(const ActiveSet& active_set);
 
-    double Selectivity() const { return active_set_.Selectivity(); }
+    double Selectivity() const { return active_set_->Selectivity(); }
 
    protected:
     // Position in the iteration. Integer from 1 to number of permutations.
@@ -55,10 +57,12 @@ class ClassPermuter {
     int position_;
 
     // Representation of the subset of the permutations to return.
-    ActiveSet active_set_;
+    const ActiveSet* active_set_;
     ActiveSetIterator active_set_it_;
 
    private:
+    bool active_set_owned_;
+
     // The number of permutations iterated (permutation_size_!).
     int permutation_count_;
 
@@ -88,7 +92,7 @@ class ClassPermuter {
 
     void AdvanceSkip(ValueSkip value_skip) override {
       int value = current_[value_skip.value_index];
-      if (active_set_.is_trivial()) {
+      if (active_set_->is_trivial()) {
         while (!current_span_.empty() &&
                current_[value_skip.value_index] == value) {
           Advance();
@@ -173,12 +177,17 @@ class ClassPermuter {
     }
     int class_int() const { return advancer_->class_int(); }
 
+    // Restricts this iterator to only return positions marked as true within
+    // `active_set`. Returns in `was_advanced` whether or not `active_set`
+    // invalidated the current location and the iterator was advanced to match.
+    // WARNING: A reference to `active_set` is saved and it must outlive this
+    // iterator.
     iterator&& WithActiveSet(const ActiveSet& active_set,
-                             bool* was_advanced_out = nullptr) && {
+                             bool* was_advanced = nullptr) && {
       if (!active_set.is_trivial()) {
-        const bool was_advanced = advancer_->WithActiveSet(active_set);
-        if (was_advanced_out != nullptr) {
-          *was_advanced_out = was_advanced;
+        const bool was_advanced_tmp = advancer_->WithActiveSet(active_set);
+        if (was_advanced != nullptr) {
+          *was_advanced = was_advanced_tmp;
         }
       }
       return std::move(*this);

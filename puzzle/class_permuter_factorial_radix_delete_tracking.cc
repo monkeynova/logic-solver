@@ -111,7 +111,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
     return !Base::current_span_.empty() &&
            Base::current_[value_skip.value_index] == value;
   };
-  if (Base::active_set_.is_trivial()) {
+  if (Base::active_set_->is_trivial()) {
     do {
       AdvanceDelta(/*dist=*/delta);
       delta = div;
@@ -126,7 +126,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
             << "Value returned false after advancing past false block: it("
             << Base::active_set_it_.offset() << " of "
             << Base::active_set_it_.total()
-            << "): " << Base::active_set_.DebugValues();
+            << "): " << Base::active_set_->DebugValues();
       }
       AdvanceDelta(/*dist=*/delta);
       delta = div - (Base::position_ % div);
