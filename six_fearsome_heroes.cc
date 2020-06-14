@@ -46,7 +46,9 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 
 class ProtoProblem : public ::puzzle::Problem {
  public:
-  virtual const google::protobuf::Descriptor* message_descriptor() const = 0;
+  void Setup() override;
+  virtual void AddPredicates() = 0;
+  virtual const google::protobuf::Descriptor* problem_descriptor() const = 0;
   virtual std::string solution_textproto() const = 0;
 };
 
@@ -63,16 +65,16 @@ class SixFearsomeHeroes : public ProtoProblem {
 
   enum Classes { HERO = 0, FEAR = 1, TRID = 2, FIZZBIN = 3 };
 
-  void Setup() override;
   puzzle::Solution GetSolution() const override;
 
   void AddGeneralPredicates();
   void AddStatementPredicates();
 
-  const google::protobuf::Descriptor* message_descriptor() const override {
+  const google::protobuf::Descriptor* problem_descriptor() const override {
     return SixFearsomeHeroesInfo::descriptor();
   }
   std::string solution_textproto() const override;
+  void AddPredicates() override;
 };
 
 REGISTER_PROBLEM(SixFearsomeHeroes);
@@ -222,22 +224,43 @@ puzzle::Solution SixFearsomeHeroes::GetSolution() const {
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
 
-void SixFearsomeHeroes::Setup() {
-  puzzle::Descriptor* who_descriptor =
-      AddDescriptor(new puzzle::ProtoEnumDescriptor(
-          SixFearsomeHeroesInfo::Entry::Who_descriptor()));
+void ProtoProblem::Setup() {
+  const google::protobuf::Descriptor* proto_descriptor = problem_descriptor();
+  CHECK_EQ(proto_descriptor->field_count(), 1);
+  const google::protobuf::FieldDescriptor* entry_field =
+      proto_descriptor->field(0);
+  CHECK_EQ(entry_field->label(),
+           google::protobuf::FieldDescriptor::Label::LABEL_REPEATED);
+  const google::protobuf::Descriptor* entry_descriptor =
+      entry_field->message_type();
+  CHECK(entry_descriptor != nullptr);
 
-  SetIdentifiers(who_descriptor);
-  AddClass(HERO, "hero", who_descriptor);
-  AddClass(FEAR, "fear", who_descriptor);
+  const google::protobuf::FieldDescriptor* id_field =
+      entry_descriptor->FindFieldByNumber(1);
+  CHECK(id_field != nullptr);
+  CHECK_EQ(id_field->name(), "id");
+  const google::protobuf::EnumDescriptor* id_enum = id_field->enum_type();
+  CHECK(id_enum != nullptr);
+  puzzle::Descriptor* id_descriptor =
+      AddDescriptor(new puzzle::ProtoEnumDescriptor(id_enum));
+  SetIdentifiers(id_descriptor);
 
-  puzzle::Descriptor* ranking_descriptor =
-      AddDescriptor(new puzzle::ProtoEnumDescriptor(
-          SixFearsomeHeroesInfo::Entry::Ranking_descriptor()));
+  for (int i = 0; i < entry_descriptor->field_count(); ++i) {
+    const google::protobuf::FieldDescriptor* field = entry_descriptor->field(i);
+    if (field->number() == 1) {
+      // Id descriptor.
+      continue;
+    }
+    const google::protobuf::EnumDescriptor* enum_type = field->enum_type();
+    CHECK(enum_type != nullptr);
+    puzzle::Descriptor* descriptor =
+        AddDescriptor(new puzzle::ProtoEnumDescriptor(enum_type));
+    AddClass(field->number() - 2, field->name(), descriptor);
+  }
+  AddPredicates();
+}
 
-  AddClass(TRID, "trid", ranking_descriptor);
-  AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
-
+void SixFearsomeHeroes::AddPredicates() {
   AddGeneralPredicates();
   AddStatementPredicates();
 }

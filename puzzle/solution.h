@@ -61,9 +61,7 @@ class StringDescriptor : public Descriptor {
     return "";
   }
 
-  std::vector<int> Values() const override {
-    return values_;
-  }
+  std::vector<int> Values() const override { return values_; }
 
  private:
   absl::flat_hash_map<int, std::string> names_;
