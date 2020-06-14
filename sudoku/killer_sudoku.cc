@@ -12,7 +12,9 @@ void KillerSudoku::AddCage(const Cage& cage) {
     if (it == class_to_entry.end()) {
       class_to_entry.emplace(box.class_id, box.entry_id);
     } else {
-      it->second = std::max(it->second, box.entry_id);
+      // If a predicate uses multiple entries for a class, there isn't a skip
+      // model that captures that.
+      it->second = puzzle::Entry::kBadId;
     }
   }
   AddPredicate(
