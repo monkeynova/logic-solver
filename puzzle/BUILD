@@ -292,6 +292,19 @@ cc_library(
 )
 
 cc_library(
+    name = "proto_problem",
+    hdrs = ["proto_problem.h"],
+    srcs = ["proto_problem.cc"],
+    deps = [
+        ":problem",
+	"@com_google_protobuf//:protobuf",
+    ],
+    visibility = [
+        "//visibility:public",
+    ]
+)
+
+cc_library(
     name = "solution",
     hdrs = ["solution.h"],
     srcs = ["solution.cc"],

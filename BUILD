@@ -59,8 +59,7 @@ cc_library(
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
 	":six_fearsome_heroes_cc_proto",
-        "//puzzle:problem",
-	"@com_google_protobuf//:protobuf",
+        "//puzzle:proto_problem",
     ]
 )
 
