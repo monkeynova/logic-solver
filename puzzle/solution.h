@@ -49,7 +49,12 @@ class StringDescriptor : public Descriptor {
   StringDescriptor() {}
   ~StringDescriptor() override {}
 
-  void SetDescription(int i, std::string d) { names_[i] = std::move(d); }
+  void SetDescription(int i, std::string d) {
+    auto pair = names_.emplace(i, std::move(d));
+    if (pair.second) {
+      values_.push_back(i);
+    }
+  }
   std::string DebugString(int i) const override {
     auto it = names_.find(i);
     if (it != names_.end()) return it->second;
@@ -57,16 +62,12 @@ class StringDescriptor : public Descriptor {
   }
 
   std::vector<int> Values() const override {
-    std::vector<int> ret;
-    ret.reserve(names_.size());
-    for (unsigned int i = 0; i < names_.size(); ++i) {
-      ret.push_back(i);
-    }
-    return ret;
+    return values_;
   }
 
  private:
   absl::flat_hash_map<int, std::string> names_;
+  std::vector<int> values_;
 };
 
 class ProtoEnumDescriptor : public StringDescriptor {

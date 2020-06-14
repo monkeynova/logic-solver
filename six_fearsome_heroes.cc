@@ -44,7 +44,13 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 #include "puzzle/problem.h"
 #include "six_fearsome_heroes.pb.h"
 
-class SixFearsomeHeroes : public puzzle::Problem {
+class ProtoProblem : public ::puzzle::Problem {
+ public:
+  virtual const google::protobuf::Descriptor* message_descriptor() const = 0;
+  virtual std::string solution_textproto() const = 0;
+};
+
+class SixFearsomeHeroes : public ProtoProblem {
  private:
   enum Who {
     PICARD = SixFearsomeHeroesInfo::Entry::PICARD,
@@ -62,6 +68,11 @@ class SixFearsomeHeroes : public puzzle::Problem {
 
   void AddGeneralPredicates();
   void AddStatementPredicates();
+
+  const google::protobuf::Descriptor* message_descriptor() const override {
+    return SixFearsomeHeroesInfo::descriptor();
+  }
+  std::string solution_textproto() const override;
 };
 
 REGISTER_PROBLEM(SixFearsomeHeroes);
@@ -171,8 +182,8 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       {TRID, FIZZBIN});
 }
 
-puzzle::Solution SixFearsomeHeroes::GetSolution() const {
-  std::string result = R"PROTO(
+std::string SixFearsomeHeroes::solution_textproto() const {
+  return R"PROTO(
     entry { id: PICARD hero: DATA fear: TROI trid: 5 fizzbin: 2 }
     entry { id: RIKER hero: PICARD fear: WORF trid: 3 fizzbin: 5 }
     entry { id: TROI hero: WORF fear: RIKER trid: 1 fizzbin: 4 }
@@ -180,7 +191,9 @@ puzzle::Solution SixFearsomeHeroes::GetSolution() const {
     entry { id: DATA hero: TROI fear: GEORDI trid: 4 fizzbin: 1 }
     entry { id: WORF hero: GEORDI fear: DATA trid: 6 fizzbin: 6 }
   )PROTO";
+}
 
+puzzle::Solution SixFearsomeHeroes::GetSolution() const {
   std::vector<puzzle::Entry> entries;
   // Picard: hero=Data fear=Troi trid=5 fizzbin=2
   entries.emplace_back(PICARD, std::vector<int>{DATA, TROI, 5, 2},
@@ -210,7 +223,7 @@ puzzle::Solution SixFearsomeHeroes::GetSolution() const {
 }
 
 void SixFearsomeHeroes::Setup() {
-  puzzle::ProtoEnumDescriptor* who_descriptor =
+  puzzle::Descriptor* who_descriptor =
       AddDescriptor(new puzzle::ProtoEnumDescriptor(
           SixFearsomeHeroesInfo::Entry::Who_descriptor()));
 
@@ -218,8 +231,9 @@ void SixFearsomeHeroes::Setup() {
   AddClass(HERO, "hero", who_descriptor);
   AddClass(FEAR, "fear", who_descriptor);
 
-  puzzle::IntRangeDescriptor* ranking_descriptor =
-      AddDescriptor(new puzzle::IntRangeDescriptor(1, 6));
+  puzzle::Descriptor* ranking_descriptor =
+      AddDescriptor(new puzzle::ProtoEnumDescriptor(
+          SixFearsomeHeroesInfo::Entry::Ranking_descriptor()));
 
   AddClass(TRID, "trid", ranking_descriptor);
   AddClass(FIZZBIN, "fizzbin", ranking_descriptor);
