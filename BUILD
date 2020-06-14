@@ -77,7 +77,7 @@ cc_library(
     alwayslink = 1,
     deps = [
         ":swimming_pool_cc_proto",
-        "//puzzle:problem",
+        "//puzzle:proto_problem",
     ]
 )
 

@@ -1,31 +1,41 @@
 syntax = "proto2";
 
-package SwimmingPool;
+message SwimmingPoolProblemInfo {
+  message Entry {
+    enum Who { 
+        BETTY = 0;
+        CAROL = 1;
+        DAISY = 2;
+        EMILY = 3;
+    }
 
-enum Who { 
-    BETTY = 0;
-    CAROL = 1;
-    DAISY = 2;
-    EMILY = 3;
-}
-    
-enum Style {
-    BACKSTROKE = 0;
-    BUTTERFLY = 1;
-    DOLPHIN = 2;
-    FREESTYLE = 3;
-}
+    enum Lane {
+      ONE = 1;
+      TWO = 2;
+      THREE = 3;
+      FOUR = 4;
+    }
 
-enum Country {
-    AUSTRALIA = 0;
-    CANADA = 1;
-    UK = 2;
-    USA = 3;
-}
+    enum Style {
+        BACKSTROKE = 0;
+        BUTTERFLY = 1;
+        DOLPHIN = 2;
+        FREESTYLE = 3;
+    }
 
-enum Classes{
-    LANE = 0;
-    COUNTRY = 1;
-    STYLE = 2;
+    enum Country {
+        AUSTRALIA = 0;
+        CANADA = 1;
+        UK = 2;
+        USA = 3;
+    }
+
+    optional Who id = 1;
+    optional Lane lane = 2;
+    optional Country country = 3;
+    optional Style style = 4;
+  }
+
+  repeated Entry entry = 1;
 }
 

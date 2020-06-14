@@ -1,6 +1,6 @@
 #include "puzzle/proto_problem.h"
 
-#include "google/protobuf/dynamic_message.h"	
+#include "google/protobuf/dynamic_message.h"
 #include "google/protobuf/text_format.h"
 
 namespace puzzle {
@@ -75,8 +75,7 @@ void ProtoProblem::Setup() {
   CHECK_EQ(id_field->name(), "id");
   const google::protobuf::EnumDescriptor* id_enum = id_field->enum_type();
   CHECK(id_enum != nullptr);
-  Descriptor* id_descriptor =
-      AddDescriptor(new ProtoEnumDescriptor(id_enum));
+  Descriptor* id_descriptor = AddDescriptor(new ProtoEnumDescriptor(id_enum));
   SetIdentifiers(id_descriptor);
 
   for (int i = 0; i < entry_descriptor->field_count(); ++i) {
@@ -86,8 +85,7 @@ void ProtoProblem::Setup() {
     }
     const google::protobuf::EnumDescriptor* enum_type = field->enum_type();
     CHECK(enum_type != nullptr);
-    Descriptor* descriptor =
-        AddDescriptor(new ProtoEnumDescriptor(enum_type));
+    Descriptor* descriptor = AddDescriptor(new ProtoEnumDescriptor(enum_type));
     // TODO(@monkeynova): -2 here takes the first non-id feild (2) and maps it
     // to the first class (0). This is an awful, hard-coded translation and a
     // better data model should be found.

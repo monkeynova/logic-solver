@@ -21,22 +21,40 @@ Carol: style=Butterfly country=CA lane=1
 Daisy: style=Backstroke country=AU lane=4
 Emily: style=Freestyle country=UK lane=3
  */
-#include "puzzle/problem.h"
+#include "puzzle/proto_problem.h"
 #include "swimming_pool.pb.h"
 
-using namespace SwimmingPool;
-
-class SwimmingPoolProblem : public puzzle::Problem {
+class SwimmingPoolProblem : public puzzle::ProtoProblem {
  private:
-  void Setup() override;
-  puzzle::Solution GetSolution() const override;
+  enum Who {
+    BETTY = SwimmingPoolProblemInfo::Entry::BETTY,
+    CAROL = SwimmingPoolProblemInfo::Entry::CAROL,
+    DAISY = SwimmingPoolProblemInfo::Entry::DAISY,
+    EMILY = SwimmingPoolProblemInfo::Entry::EMILY
+  };
+  enum Style {
+    BACKSTROKE = SwimmingPoolProblemInfo::Entry::BACKSTROKE,
+    BUTTERFLY = SwimmingPoolProblemInfo::Entry::BUTTERFLY,
+    DOLPHIN = SwimmingPoolProblemInfo::Entry::DOLPHIN,
+    FREESTYLE = SwimmingPoolProblemInfo::Entry::FREESTYLE
+  };
+  enum Country {
+    USA = SwimmingPoolProblemInfo::Entry::USA,
+    AUSTRALIA = SwimmingPoolProblemInfo::Entry::AUSTRALIA,
+    UK = SwimmingPoolProblemInfo::Entry::UK,
+    CANADA = SwimmingPoolProblemInfo::Entry::CANADA
+  };
+  enum Classes { LANE = 0, COUNTRY = 1, STYLE = 2 };
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
-  void AddRulePredicates();
-};
+  void AddPredicates() override;
 
-REGISTER_PROBLEM(SwimmingPoolProblem);
+  const google::protobuf::Descriptor* problem_descriptor() const override {
+    return SwimmingPoolProblemInfo::descriptor();
+  }
+  std::string solution_textproto() const override;
+};
 
 // static
 bool SwimmingPoolProblem::IsNextTo(const puzzle::Entry& a,
@@ -44,7 +62,7 @@ bool SwimmingPoolProblem::IsNextTo(const puzzle::Entry& a,
   return fabs(a.Class(LANE) - b.Class(LANE)) == 1;
 };
 
-void SwimmingPoolProblem::AddRulePredicates() {
+void SwimmingPoolProblem::AddPredicates() {
   AddPredicate(
       "1. Betty is swimming next to the athlete from the UK. "
       "Neither of them is swimming Butterfly.",
@@ -112,37 +130,13 @@ void SwimmingPoolProblem::AddRulePredicates() {
       [](const puzzle::Entry& e) { return e.Class(LANE) != 2; }, {LANE}, DAISY);
 }
 
-puzzle::Solution SwimmingPoolProblem::GetSolution() const {
-  std::vector<puzzle::Entry> entries;
-  // Betty: style=Dolphin country=US lane=2
-  entries.emplace_back(BETTY, std::vector<int>{2, USA, DOLPHIN},
-                       entry_descriptor());
-
-  // Carol: style=Butterfly country=CA lane=1
-  entries.emplace_back(CAROL, std::vector<int>{1, CANADA, BUTTERFLY},
-                       entry_descriptor());
-
-  // Daisy: style=Backstroke country=AU lane=4
-  entries.emplace_back(DAISY, std::vector<int>{4, AUSTRALIA, BACKSTROKE},
-                       entry_descriptor());
-
-  // Emily: style=Freestyle country=UK lane=3
-  entries.emplace_back(EMILY, std::vector<int>{3, UK, FREESTYLE},
-                       entry_descriptor());
-
-  return puzzle::Solution(entry_descriptor(), &entries).Clone();
+std::string SwimmingPoolProblem::solution_textproto() const {
+  return R"PROTO(
+    entry { id: BETTY lane: 2 country: USA style: DOLPHIN }
+    entry { id: CAROL lane: 1 country: CANADA style: BUTTERFLY }
+    entry { id: DAISY lane: 4 country: AUSTRALIA style: BACKSTROKE }
+    entry { id: EMILY lane: 3 country: UK style: FREESTYLE }
+  )PROTO";
 }
 
-void SwimmingPoolProblem::Setup() {
-  SetIdentifiers(
-      AddDescriptor(new puzzle::ProtoEnumDescriptor(Who_descriptor())));
-
-  AddClass(LANE, "lane", AddDescriptor(new puzzle::IntRangeDescriptor(1, 4)));
-  AddClass(
-      COUNTRY, "country",
-      AddDescriptor(new puzzle::ProtoEnumDescriptor(Country_descriptor())));
-  AddClass(STYLE, "style",
-           AddDescriptor(new puzzle::ProtoEnumDescriptor(Style_descriptor())));
-
-  AddRulePredicates();
-}
+REGISTER_PROBLEM(SwimmingPoolProblem);
