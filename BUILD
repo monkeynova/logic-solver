@@ -60,6 +60,7 @@ cc_library(
     deps = [
 	":six_fearsome_heroes_cc_proto",
         "//puzzle:problem",
+	"@com_google_protobuf//:protobuf",
     ]
 )
 
