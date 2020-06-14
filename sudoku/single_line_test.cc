@@ -9,8 +9,8 @@
 #include "sudoku/line_board.h"
 
 ABSL_FLAG(bool, puzzle_test_unique, true,
-	  "If true (default), tests validate that the solution found is "
-	  "unique.");
+          "If true (default), tests validate that the solution found is "
+          "unique.");
 
 ABSL_FLAG(std::string, sudoku_line_board, "",
           "The sudoku problem to solve as a single line");

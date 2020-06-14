@@ -222,7 +222,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
             b_a_builder.AddBlockTo(false, it_a.position());
             b_a_builder.Add(true);
           }
-	}
+        }
       }
       if (any_of_a) {
         builder_b.AddBlockTo(false, it_b.position());

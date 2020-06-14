@@ -10,8 +10,8 @@
 #include "puzzle/problem.h"
 
 ABSL_FLAG(bool, puzzle_test_unique, true,
-	  "If true (default), tests validate that the solution found is "
-	  "unique.");
+          "If true (default), tests validate that the solution found is "
+          "unique.");
 
 ABSL_DECLARE_FLAG(bool, puzzle_brute_force);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_class_iterator);

@@ -10,9 +10,9 @@
 #include "puzzle/problem.h"
 
 ABSL_FLAG(bool, puzzle_test_unique, true,
-	  "If true (default), tests validate that the solution found is "
-	  "unique.");
-	  
+          "If true (default), tests validate that the solution found is "
+          "unique.");
+
 ABSL_DECLARE_FLAG(std::string, sudoku_problem_setup);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair);
