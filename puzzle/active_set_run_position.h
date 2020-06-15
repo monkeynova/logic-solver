@@ -28,7 +28,8 @@ class ActiveSetRunPositionIterator {
   bool more() const { return offset() < total(); }
 
   int RunSize() const {
-    return matches_[match_position_] - offset_;
+    return match_position_ >= matches_.size()
+      ? 0 : matches_[match_position_] - offset_;
   }
 
   // Moves the iterator the next 'block_size' values.
