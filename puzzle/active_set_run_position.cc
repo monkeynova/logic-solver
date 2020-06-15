@@ -161,34 +161,12 @@ std::string ActiveSetRunPositionIterator::DebugString() const {
 }
 
 void ActiveSetRunPositionIterator::Advance(int n) {
-  DCHECK(match_position_ >= matches_.size() ||
-         offset_ != matches_[match_position_])
-      << DebugString();
-  if (match_position_ == matches_.size()) {
-    offset_ = std::min(total_, offset_ + n);
-    return;
+  offset_ = std::min(total_, offset_ + n);
+  while (match_position_ < matches_.size() &&
+	 offset_ >= matches_[match_position_]) {
+    value_ = !value_;
+    ++match_position_;
   }
-  while (n > 0) {
-    int delta = matches_[match_position_] - offset_;
-    if (n >= delta) {
-      n -= delta;
-      offset_ += delta;
-      if (++match_position_ == matches_.size()) {
-        if (n > 0) {
-          offset_ = std::min(total_, offset_ + n);
-        }
-        value_ = true;
-        break;
-      }
-      value_ = !value_;
-    } else {
-      offset_ += n;
-      n = 0;
-    }
-   }
-  DCHECK(match_position_ >= matches_.size() ||
-         offset_ != matches_[match_position_])
-      << DebugString();
 }
 
 std::vector<int> ActiveSetRunPosition::EnabledValues() const {
