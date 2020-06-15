@@ -12,7 +12,7 @@ class ActiveSetRunPositionIterator {
  public:
   ActiveSetRunPositionIterator(absl::Span<const int> matches, bool value,
                                int total)
-      : matches_(matches), value_(value), total_(total) {}
+    : matches_(matches), total_(total), value_(value) {}
 
   int offset() const { return offset_; }
   int total() const { return total_; }
@@ -33,10 +33,10 @@ class ActiveSetRunPositionIterator {
 
  private:
   absl::Span<const int> matches_;
-  bool value_;
   int match_position_ = 0;
   int offset_ = 0;
   int total_ = 0;
+  bool value_;
 };
 
 // Forward declare for using ActiveSetRunPosition::Builder.
@@ -82,7 +82,7 @@ class ActiveSetRunPosition {
 
   std::string DebugValues() const;
 
-  bool is_trivial() const { return matches_.empty(); }
+  bool is_trivial() const { return matches_count_ == total_; }
   int matches() const { return matches_count_; }
   int total() const { return total_; }
   double Selectivity() const {

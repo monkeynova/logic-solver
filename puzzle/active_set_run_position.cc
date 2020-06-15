@@ -148,12 +148,6 @@ void ActiveSetRunPositionBuilder::AddBlock(bool match, int size) {
 ActiveSetRunPosition ActiveSetRunPositionBuilder::DoneAdding() {
   CHECK_EQ(offset_, set_.total_);
 
-  if (set_.matches_.empty()) {
-    CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
-    // As a special case, if all entries are "true", we don't make matches_ so
-    // the ActiveSetRunPosition remains 'trivial'.
-    return std::move(set_);
-  }
   set_.matches_.push_back(offset_);
 
   return std::move(set_);
@@ -191,7 +185,7 @@ void ActiveSetRunPositionIterator::Advance(int n) {
       offset_ += n;
       n = 0;
     }
-  }
+   }
   DCHECK(match_position_ >= matches_.size() ||
          offset_ != matches_[match_position_])
       << DebugString();
