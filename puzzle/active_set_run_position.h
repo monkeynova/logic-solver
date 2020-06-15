@@ -10,14 +10,20 @@ namespace puzzle {
 
 class ActiveSetRunPositionIterator {
  public:
-  ActiveSetRunPositionIterator(absl::Span<const int> matches, bool value,
-                               int total)
-    : matches_(matches), total_(total), value_(value) {}
+  ActiveSetRunPositionIterator(absl::Span<const int> matches, int total)
+    : matches_(matches), total_(total) {
+    // ActiveSetRunPosition may be constructed with an empty first record (it
+    // uses this to indicate a false record to start), so skip that if present
+    // and negate value.
+    if (!matches_.empty() && matches_[0] == 0) {
+      Advance(0);
+    }
+  }
 
   int offset() const { return offset_; }
   int total() const { return total_; }
 
-  bool value() const { return value_; }
+  bool value() const { return !(match_position_ & 1); }
 
   bool more() const { return offset() < total(); }
 
@@ -35,7 +41,6 @@ class ActiveSetRunPositionIterator {
   int match_position_ = 0;
   int offset_ = 0;
   int total_ = 0;
-  bool value_;
 };
 
 // Forward declare for using ActiveSetRunPosition::Builder.
@@ -90,14 +95,7 @@ class ActiveSetRunPosition {
   }
 
   ActiveSetRunPositionIterator GetIterator() const {
-    // ActiveSetRunPosition may be constructed with an empty first record (it
-    // uses this to indicate a false record to start), so skip that if present
-    // and negate value.
-    if (!matches_.empty() && matches_[0] == 0) {
-      return ActiveSetRunPositionIterator(absl::MakeSpan(matches_).subspan(1),
-                                          false, total_);
-    }
-    return ActiveSetRunPositionIterator(absl::MakeSpan(matches_), true, total_);
+    return ActiveSetRunPositionIterator(absl::MakeSpan(matches_), total_);
   }
 
  private:

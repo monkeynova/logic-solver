@@ -155,7 +155,6 @@ ActiveSetRunPosition ActiveSetRunPositionBuilder::DoneAdding() {
 
 std::string ActiveSetRunPositionIterator::DebugString() const {
   return absl::StrCat("offset: ", offset_, "; ", "total: ", total_, "; ",
-                      "value: ", value_, "; ",
                       "match_position: ", match_position_, "; ",
                       "matches: {", absl::StrJoin(matches_, ","), "}");
 }
@@ -164,7 +163,6 @@ void ActiveSetRunPositionIterator::Advance(int n) {
   offset_ = std::min(total_, offset_ + n);
   while (match_position_ < matches_.size() &&
 	 offset_ >= matches_[match_position_]) {
-    value_ = !value_;
     ++match_position_;
   }
 }
