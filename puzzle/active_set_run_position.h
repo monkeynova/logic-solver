@@ -11,7 +11,7 @@ namespace puzzle {
 class ActiveSetRunPositionIterator {
  public:
   ActiveSetRunPositionIterator(absl::Span<const int> matches, int total)
-    : matches_(matches), total_(total) {
+      : matches_(matches), total_(total) {
     // ActiveSetRunPosition may be constructed with an empty first record (it
     // uses this to indicate a false record to start), so skip that if present
     // and negate value.
@@ -29,7 +29,8 @@ class ActiveSetRunPositionIterator {
 
   int RunSize() const {
     return match_position_ >= matches_.size()
-      ? 0 : matches_[match_position_] - offset_;
+               ? 0
+               : matches_[match_position_] - offset_;
   }
 
   // Moves the iterator the next 'block_size' values.
