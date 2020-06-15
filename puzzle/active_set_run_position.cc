@@ -118,35 +118,31 @@ std::string ActiveSetRunPosition::DebugString() const {
 }
 
 void ActiveSetRunPositionBuilder::Add(bool match) {
-  ++offset_;
   if (match) {
     ++set_.matches_count_;
   }
 
-  if (match == current_value_) {
-    ++run_size_;
-  } else {
-    set_.matches_.push_back(run_size_);
+  if (match != current_value_) {
+    set_.matches_.push_back(offset_);
     current_value_ = match;
-    run_size_ = 1;
   }
+
+  ++offset_;
 }
 
 void ActiveSetRunPositionBuilder::AddBlock(bool match, int size) {
   if (size <= 0) return;
 
-  offset_ += size;
   if (match) {
     set_.matches_count_ += size;
   }
 
-  if (match == current_value_) {
-    run_size_ += size;
-  } else {
-    set_.matches_.push_back(run_size_);
+  if (match != current_value_) {
+    set_.matches_.push_back(offset_);
     current_value_ = match;
-    run_size_ = size;
   }
+
+  offset_ += size;
 }
 
 ActiveSetRunPosition ActiveSetRunPositionBuilder::DoneAdding() {
@@ -158,7 +154,7 @@ ActiveSetRunPosition ActiveSetRunPositionBuilder::DoneAdding() {
     // the ActiveSetRunPosition remains 'trivial'.
     return std::move(set_);
   }
-  set_.matches_.push_back(run_size_);
+  set_.matches_.push_back(offset_);
 
   return std::move(set_);
 }
@@ -167,24 +163,22 @@ std::string ActiveSetRunPositionIterator::DebugString() const {
   return absl::StrCat("offset: ", offset_, "; ", "total: ", total_, "; ",
                       "value: ", value_, "; ",
                       "match_position: ", match_position_, "; ",
-                      "run_position: ", run_position_, "; ", "matches: {",
-                      absl::StrJoin(matches_, ","), "}");
+                      "matches: {", absl::StrJoin(matches_, ","), "}");
 }
 
 void ActiveSetRunPositionIterator::Advance(int n) {
   DCHECK(match_position_ >= matches_.size() ||
-         run_position_ != matches_[match_position_])
+         offset_ != matches_[match_position_])
       << DebugString();
   if (match_position_ == matches_.size()) {
     offset_ = std::min(total_, offset_ + n);
     return;
   }
   while (n > 0) {
-    int delta = matches_[match_position_] - run_position_;
+    int delta = matches_[match_position_] - offset_;
     if (n >= delta) {
       n -= delta;
       offset_ += delta;
-      run_position_ = 0;
       if (++match_position_ == matches_.size()) {
         if (n > 0) {
           offset_ = std::min(total_, offset_ + n);
@@ -194,13 +188,12 @@ void ActiveSetRunPositionIterator::Advance(int n) {
       }
       value_ = !value_;
     } else {
-      run_position_ += n;
       offset_ += n;
       n = 0;
     }
   }
   DCHECK(match_position_ >= matches_.size() ||
-         run_position_ != matches_[match_position_])
+         offset_ != matches_[match_position_])
       << DebugString();
 }
 

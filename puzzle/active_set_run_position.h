@@ -23,7 +23,7 @@ class ActiveSetRunPositionIterator {
 
   int RunSize() const {
     if (match_position_ >= matches_.size()) return total() - offset();
-    return matches_[match_position_] - run_position_;
+    return matches_[match_position_] - offset_;
   }
 
   // Moves the iterator the next 'block_size' values.
@@ -35,7 +35,6 @@ class ActiveSetRunPositionIterator {
   absl::Span<const int> matches_;
   bool value_;
   int match_position_ = 0;
-  int run_position_ = 0;
   int offset_ = 0;
   int total_ = 0;
 };
@@ -163,9 +162,6 @@ class ActiveSetRunPositionBuilder {
 
   // The boolean value of the current accumulating run.
   bool current_value_ = true;
-
-  // The length of the current accumlating run.
-  int run_size_ = 0;
 
   // The total number of elements added to this builder.
   int offset_ = 0;
