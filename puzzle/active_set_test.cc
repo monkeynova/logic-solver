@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 #include "puzzle/active_set_bit_vector.h"
 #include "puzzle/active_set_run_length.h"
+#include "puzzle/active_set_run_position.h"
 
 using ::testing::AnyOf;
 using ::testing::ElementsAre;
@@ -19,7 +20,8 @@ namespace puzzle {
 template <typename T>
 class ActiveSetTest : public ::testing::Test {};
 
-using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetBitVector>;
+using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetBitVector,
+                                        ActiveSetRunPosition>;
 TYPED_TEST_SUITE(ActiveSetTest, ActiveSetTypes);
 
 TYPED_TEST(ActiveSetTest, EmptyIsTrivial) {

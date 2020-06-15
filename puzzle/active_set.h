@@ -12,7 +12,11 @@ namespace puzzle {
 #ifdef ACTIVE_SET_BIT_VECTOR
 using ActiveSet = ActiveSetBitVector;
 #else
+#ifdef ACTIVE_SET_RUN_POSITION
+using ActiveSet = ActiveSetRunPosition;
+#else
 using ActiveSet = ActiveSetRunLength;
+#endif
 #endif
 
 using ActiveSetIterator = ActiveSet::Iterator;

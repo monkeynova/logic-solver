@@ -30,6 +30,7 @@ cc_library(
     deps = [
         ":active_set_bit_vector",
         ":active_set_run_length",
+        ":active_set_run_position",
     ],
 )
 
@@ -48,6 +49,17 @@ cc_library(
     name = "active_set_run_length",
     hdrs = ["active_set_run_length.h"],
     srcs = ["active_set_run_length.cc"],
+    deps = [
+        "@com_google_absl//absl/container:flat_hash_set",
+        "@com_google_absl//absl/strings",
+	"@com_google_glog//:glog",
+    ],
+)
+
+cc_library(
+    name = "active_set_run_position",
+    hdrs = ["active_set_run_position.h"],
+    srcs = ["active_set_run_position.cc"],
     deps = [
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
