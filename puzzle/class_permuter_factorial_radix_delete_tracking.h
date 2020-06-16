@@ -12,17 +12,20 @@ namespace puzzle {
 // is called in the innermost loop.
 class RadixIndexToRawIndex {
  public:
-  RadixIndexToRawIndex(int max_pos)
-      : data(max_pos, std::vector<int>(1 << max_pos, 0)) {}
+  explicit RadixIndexToRawIndex(int max_pos)
+      : max_pos_(max_pos), data_(new int[max_pos_ * (1 << max_pos_)]) {}
 
   void Set(int position, int bit_vector, int value) {
-    data[position][bit_vector] = value;
+    data_[bit_vector * max_pos_ + position] = value;
   }
 
-  int Get(int position, int bit_vector) { return data[position][bit_vector]; }
+  int Get(int position, int bit_vector) {
+    return data_[bit_vector * max_pos_ + position];
+  }
 
  private:
-  std::vector<std::vector<int>> data;
+  int max_pos_;
+  std::unique_ptr<int[]> data_;
 };
 
 // This implementation is O(class_size^2) turning a position into a
