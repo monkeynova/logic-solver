@@ -10,10 +10,10 @@ namespace puzzle {
 #ifdef ACTIVE_SET_BIT_VECTOR
 using ActiveSet = ActiveSetBitVector;
 #else
-#ifdef ACTIVE_SET_RUN_POSITION
-using ActiveSet = ActiveSetRunPosition;
-#else
+#ifdef ACTIVE_SET_RUN_LENGTH
 using ActiveSet = ActiveSetRunLength;
+#else
+using ActiveSet = ActiveSetRunPosition;
 #endif
 #endif
 

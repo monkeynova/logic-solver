@@ -160,10 +160,15 @@ std::string ActiveSetRunPositionIterator::DebugString() const {
 }
 
 void ActiveSetRunPositionIterator::Advance(int n) {
-  offset_ = std::min(total_, offset_ + n);
-  match_position_ = std::upper_bound(matches_.begin() + match_position_,
-                                     matches_.end(), offset_) -
-                    matches_.begin();
+  offset_ += n;
+  if (offset_ >= total_) {
+    match_position_ = matches_.size();
+    offset_ = total_;
+  } else {
+    while (matches_[match_position_] <= offset_) {
+      ++match_position_;
+    }
+  }
 }
 
 std::vector<int> ActiveSetRunPosition::EnabledValues() const {
