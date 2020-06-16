@@ -6,45 +6,32 @@ namespace puzzle {
 
 static constexpr int kMaxStorageSize = 20;
 
-// Global container/cache for `radix_index_to_raw_index_`. Keyed on the  number
-// of items in the permutation.
-// This is a non-trivial amount of memory to use and failure to share the
-// memory between ClassPermuters causes memory pressure on the CPU cache which
-// in turn is very present in profiling.
-static absl::Mutex max_pos_to_radix_index_to_raw_index_lock_;
-static std::vector<std::unique_ptr<RadixIndexToRawIndex>>
-    max_pos_to_radix_index_to_raw_index_
-        ABSL_GUARDED_BY(max_pos_to_radix_index_to_raw_index_lock_);
-
-static int ComputeRadixIndexToRawIndex(int position, int delete_bit_vector) {
+// static
+template <int kMaxPos>
+int RadixIndexToRawIndex<kMaxPos>::ComputeValue(int position,
+                                                int delete_bit_vector) {
+  CHECK_LT(position, kMaxPos);
+  CHECK_EQ(delete_bit_vector & (0xffffffff << kMaxPos), 0);
   for (int j = 0; j <= position; ++j) {
     if (delete_bit_vector & (1 << j)) ++position;
   }
   return position;
 }
 
-static RadixIndexToRawIndex ComputeAllRadixIndexToRawIndex(int max_pos) {
-  RadixIndexToRawIndex ret(max_pos);
-  for (int position = 0; position < max_pos; ++position) {
-    for (int bv = 0; bv < (1 << max_pos); ++bv) {
-      ret.Set(position, bv, ComputeRadixIndexToRawIndex(position, bv));
+template <int kMaxPos>
+void RadixIndexToRawIndex<kMaxPos>::Initialize() {
+  for (int position = 0; position < kMaxPos; ++position) {
+    for (int bv = 0; bv < (1 << kMaxPos); ++bv) {
+      Set(position, bv, ComputeValue(position, bv));
     }
   }
-  return ret;
 }
 
-static RadixIndexToRawIndex* GetRadixIndexToRawIndex(int max_pos) {
-  absl::MutexLock l(&max_pos_to_radix_index_to_raw_index_lock_);
-  if (max_pos_to_radix_index_to_raw_index_.size() < max_pos + 1) {
-    max_pos_to_radix_index_to_raw_index_.resize(max_pos + 1);
-  }
-  if (max_pos_to_radix_index_to_raw_index_[max_pos] == nullptr) {
-    max_pos_to_radix_index_to_raw_index_[max_pos] =
-        absl::make_unique<RadixIndexToRawIndex>(
-            ComputeAllRadixIndexToRawIndex(max_pos));
-  }
-
-  return max_pos_to_radix_index_to_raw_index_[max_pos].get();
+// static
+template <int kMaxPos>
+RadixIndexToRawIndex<kMaxPos>* RadixIndexToRawIndex<kMaxPos>::Singleton() {
+  static RadixIndexToRawIndex<kMaxPos> ret;
+  return &ret;
 }
 
 template <int kStorageSize>
@@ -54,7 +41,7 @@ ClassPermuterFactorialRadixDeleteTracking<kStorageSize>::Advancer::Advancer(
   memcpy(values_, Base::current_, sizeof(values_));
   DCHECK_LT(kStorageSize, kMaxStorageSize)
       << "Permutation indexes use a memory buffer of size N * 2^N";
-  radix_index_to_raw_index_ = GetRadixIndexToRawIndex(kStorageSize);
+  radix_index_to_raw_index_ = RadixIndexToRawIndex<kStorageSize>::Singleton();
 }
 
 template <int kStorageSize>

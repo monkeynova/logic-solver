@@ -8,24 +8,28 @@ namespace puzzle {
 // Contains a map from a radix index position and a bit vector marked with
 // previously selected values from index_ in a permutation to the index for
 // the correspondingly selected value in index_.
-// This is a lookup-table for the function ComputeRadixIndexToRawIndex which
-// is called in the innermost loop.
+// This is a lookup-table for the function RadixIndexToRawIndex::ComputeValue
+// which is needed in the innermost loop of permutation calculation.
+template <int kMaxPos>
 class RadixIndexToRawIndex {
  public:
-  explicit RadixIndexToRawIndex(int max_pos)
-      : max_pos_(max_pos), data_(new int[max_pos_ * (1 << max_pos_)]) {}
-
-  void Set(int position, int bit_vector, int value) {
-    data_[bit_vector * max_pos_ + position] = value;
-  }
+  static RadixIndexToRawIndex<kMaxPos>* Singleton();
 
   int Get(int position, int bit_vector) {
-    return data_[bit_vector * max_pos_ + position];
+    return data_[bit_vector * kMaxPos + position];
   }
 
  private:
-  int max_pos_;
-  std::unique_ptr<int[]> data_;
+  RadixIndexToRawIndex() { Initialize(); }
+
+  void Initialize();
+  static int ComputeValue(int position, int delete_bit_vector);
+
+  void Set(int position, int bit_vector, int value) {
+    data_[bit_vector * kMaxPos + position] = value;
+  }
+
+  int data_[kMaxPos << kMaxPos];
 };
 
 // This implementation is O(class_size^2) turning a position into a
@@ -53,7 +57,7 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
 
     // Memory based data structure to turn an O(N^2) delete with replacement
     // into an O(N) one.
-    RadixIndexToRawIndex* radix_index_to_raw_index_;
+    RadixIndexToRawIndex<kStorageSize>* radix_index_to_raw_index_;
   };
 
   explicit ClassPermuterFactorialRadixDeleteTracking(const Descriptor* d,
