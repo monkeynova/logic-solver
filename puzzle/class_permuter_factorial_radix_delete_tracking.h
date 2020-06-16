@@ -10,7 +10,20 @@ namespace puzzle {
 // the correspondingly selected value in index_.
 // This is a lookup-table for the function ComputeRadixIndexToRawIndex which
 // is called in the innermost loop.
-using RadixIndexToRawIndex = std::vector<std::vector<int>>;
+class RadixIndexToRawIndex {
+ public:
+  RadixIndexToRawIndex(int max_pos)
+      : data(max_pos, std::vector<int>(1 << max_pos, 0)) {}
+
+  void Set(int position, int bit_vector, int value) {
+    data[position][bit_vector] = value;
+  }
+
+  int Get(int position, int bit_vector) { return data[position][bit_vector]; }
+
+ private:
+  std::vector<std::vector<int>> data;
+};
 
 // This implementation is O(class_size^2) turning a position into a
 // permutation but does allows a single position advance for

@@ -24,12 +24,10 @@ static int ComputeRadixIndexToRawIndex(int position, int delete_bit_vector) {
 }
 
 static RadixIndexToRawIndex ComputeAllRadixIndexToRawIndex(int max_pos) {
-  RadixIndexToRawIndex ret;
-  ret.resize(max_pos);
+  RadixIndexToRawIndex ret(max_pos);
   for (int position = 0; position < max_pos; ++position) {
-    ret[position].resize(1 << max_pos, 0);
     for (int bv = 0; bv < (1 << max_pos); ++bv) {
-      ret[position][bv] = ComputeRadixIndexToRawIndex(position, bv);
+      ret.Set(position, bv, ComputeRadixIndexToRawIndex(position, bv));
     }
   }
   return ret;
@@ -73,15 +71,15 @@ void ClassPermuterFactorialRadixDeleteTracking<
     DCHECK_LT(kStorageSize, kMaxStorageSize)
         << "Permutation indexes must be useable as a bit vector";
     for (size_t i = 0; i < kStorageSize - 1; ++i) {
-      const int next =
-          (*radix_index_to_raw_index_)[(Base::position_ / div) % mod][deleted];
+      const int next = radix_index_to_raw_index_->Get(
+          (Base::position_ / div) % mod, deleted);
       DCHECK_LT(next, kStorageSize);
       Base::current_[i] = values_[next];
       deleted |= (1 << next);
       --mod;
       div /= mod;
     }
-    const int next = (*radix_index_to_raw_index_)[0][deleted];
+    const int next = radix_index_to_raw_index_->Get(0, deleted);
     DCHECK_GE(next, 0);
     Base::current_[kStorageSize - 1] = values_[next];
   }
@@ -106,22 +104,24 @@ void ClassPermuterFactorialRadixDeleteTracking<
     kStorageSize>::Advancer::AdvanceSkip(ValueSkip value_skip) {
   int value = Base::current_[value_skip.value_index];
   int div = factorial(kStorageSize - value_skip.value_index - 1);
-  int delta = div - (Base::position_ % div);
   auto still_on_value = [&]() {
     return !Base::current_span_.empty() &&
            Base::current_[value_skip.value_index] == value;
   };
   if (Base::active_set_->is_trivial()) {
+    int delta = div - (Base::position_ % div);
     do {
       AdvanceDelta(/*dist=*/delta);
       delta = div;
     } while (still_on_value());
   } else {
     do {
+      int delta = div - (Base::position_ % div);
       Base::active_set_it_.Advance(delta);
       if (!Base::active_set_it_.value()) {
-        delta += Base::active_set_it_.RunSize();
-        Base::active_set_it_.Advance(Base::active_set_it_.RunSize());
+        int next_delta = Base::active_set_it_.RunSize();
+        delta += next_delta;
+        Base::active_set_it_.Advance(next_delta);
         DCHECK(Base::active_set_it_.value())
             << "Value returned false after advancing past false block: it("
             << Base::active_set_it_.offset() << " of "
@@ -129,7 +129,6 @@ void ClassPermuterFactorialRadixDeleteTracking<
             << "): " << Base::active_set_->DebugValues();
       }
       AdvanceDelta(/*dist=*/delta);
-      delta = div - (Base::position_ % div);
     } while (still_on_value());
   }
 }
