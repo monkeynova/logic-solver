@@ -15,6 +15,8 @@ class Base : public ::puzzle::Problem {
  public:
   using Board = std::vector<std::vector<int>>;
 
+  static Board EmptyBoard() { return Board(9, std::vector<int>(9, 0)); }
+
   struct Box {
     int entry_id;
     int class_id;
