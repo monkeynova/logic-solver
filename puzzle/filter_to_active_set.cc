@@ -191,13 +191,16 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
   const int class_outer = outer->class_int();
   const int class_inner = inner->class_int();
   ActiveSetPair& outer_inner_pair = active_set_pairs_[class_outer][class_inner];
+  ValueSkipToActiveSet* vs2as_outer =
+      value_skip_to_active_set_[outer->descriptor()].get();
   ValueSkipToActiveSet* vs2as_inner =
       value_skip_to_active_set_[inner->descriptor()].get();
 
   ClassPermuter::iterator::ValueSkip value_skip_outer = {.value_index =
 							 Entry::kBadId};
   for (auto it_outer = outer->begin().WithActiveSet(active_sets_[class_outer]);
-       it_outer != outer->end(); it_outer += value_skip_outer) {
+       it_outer != outer->end();
+       Advance(vs2as_outer, value_skip_outer, it_outer)) {
     mutable_solution_.SetClass(it_outer);
     on_outer_before();
     ClassPermuter::iterator::ValueSkip value_skip_inner = {.value_index =
