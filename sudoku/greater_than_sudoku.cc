@@ -11,20 +11,23 @@ void GreaterThanSudoku::AddComparison(const std::pair<Box, Box>& cmp) {
       << "Comparisons must be with in a box (entry)";
   CHECK_EQ(cmp.first.class_id / 3, cmp.second.class_id / 3)
       << "Comparisons must be with in a box (class)";
-  absl::flat_hash_map<int, int> class_to_entry;
-  if (cmp.first.class_id == cmp.second.class_id) {
-    class_to_entry[cmp.first.class_id] = puzzle::Entry::kBadId;
+  if (cmp.first.entry_id == cmp.second.entry_id) {
+    AddSpecificEntryPredicate(
+        absl::StrCat(cmp.first.DebugString(), " > ", cmp.second.DebugString()),
+        [cmp](const puzzle::Entry& e) {
+          return e.Class(cmp.first.class_id) > e.Class(cmp.second.class_id);
+        },
+        {cmp.first.class_id, cmp.second.class_id}, cmp.first.entry_id);
   } else {
-    class_to_entry[cmp.first.class_id] = cmp.first.entry_id;
-    class_to_entry[cmp.second.class_id] = cmp.second.entry_id;
+    CHECK_EQ(cmp.first.class_id, cmp.second.class_id);
+    AddPredicate(
+        absl::StrCat(cmp.first.DebugString(), " > ", cmp.second.DebugString()),
+        [cmp](const puzzle::Solution& s) {
+          return s.Id(cmp.first.entry_id).Class(cmp.first.class_id) >
+                 s.Id(cmp.second.entry_id).Class(cmp.second.class_id);
+        },
+        {cmp.first.class_id});
   }
-  AddPredicate(
-      absl::StrCat(cmp.first.DebugString(), " > ", cmp.second.DebugString()),
-      [cmp](const puzzle::Solution& s) {
-        return s.Id(cmp.first.entry_id).Class(cmp.first.class_id) >
-               s.Id(cmp.second.entry_id).Class(cmp.second.class_id);
-      },
-      class_to_entry);
 }
 
 void GreaterThanSudoku::InstanceSetup() {
