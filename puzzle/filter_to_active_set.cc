@@ -201,6 +201,16 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
       mutable_solution_.SetClass(it_b);
       ActiveSetBuilder b_a_builder(permuter_a->permutation_count());
       bool any_of_a = false;
+      // TODO(@monkeynova): Can we track a potential "value_skip_b" which
+      //                    indicates that all of the values of a failed because
+      //                    of a skipable b value?
+      // TODO(@monkeynova): We might do well to have a predicates_a and
+      //                    predicates_b that allow for sorting by the entry_id
+      //                    for the respective classes.
+      // TODO(@monkeynova): Is there a "dual iterate" function we can extract
+      //                    that takes an inner-loop lambda that reduces the
+      //                    redundancy between these separate policy
+      //                    implementations.
       ClassPermuter::iterator::ValueSkip value_skip_a = {.value_index =
                                                              Entry::kBadId};
       for (auto it_a = permuter_a->begin()
