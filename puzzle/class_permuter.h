@@ -13,6 +13,7 @@ class ClassPermuter {
     // Argument type for operator+= to advance until a sepecific position in the
     // permutation changes values.
     struct ValueSkip {
+      // TODO(@monkeynova): Initialize to kBadId and clean up initializers.
       int value_index;
     };
     static_assert(sizeof(ValueSkip) < 16,
