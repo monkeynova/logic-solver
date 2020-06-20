@@ -230,95 +230,57 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const std::vector<SolutionFilter>& predicates,
     FilterToActiveSet::PairClassMode pair_class_mode) {
   SetupPairBuild(permuter_a, permuter_b, predicates);
-  int class_a = permuter_a->class_int();
-  int class_b = permuter_b->class_int();
-  ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
-  ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
+
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
-  {
-    ActiveSetBuilder builder_b(permuter_b->permutation_count());
-    bool any_of_a;
-    ActiveSetBuilder b_a_builder(permuter_a->permutation_count());
+  for (const auto& pair : std::vector<std::pair<const ClassPermuter*, const ClassPermuter*>>{{permuter_b, permuter_a}, {permuter_a, permuter_b}}) {
+    const ClassPermuter* outer = pair.first;
+    const ClassPermuter* inner = pair.second;
+    ActiveSetBuilder builder_outer(outer->permutation_count());
+    bool any_of_inner;
+    ActiveSetBuilder outer_inner_builder(inner->permutation_count());
+    
+    int class_inner = inner->class_int();
+    int class_outer = outer->class_int();
+    ActiveSetPair& outer_inner_pair = active_set_pairs_[class_outer][class_inner];
 
     DualIterate(
-        permuter_b, permuter_a,
+        outer, inner,
         // Outer, before inner.
         [&]() {
-          b_a_builder = ActiveSetBuilder(permuter_a->permutation_count());
-          any_of_a = false;
+          outer_inner_builder = ActiveSetBuilder(inner->permutation_count());
+          any_of_inner = false;
         },
         // Inner.
-        [&](const ClassPermuter::iterator& it_b,
-            const ClassPermuter::iterator& it_a,
+        [&](const ClassPermuter::iterator& it_outer,
+            const ClassPermuter::iterator& it_inner,
             ClassPermuter::iterator::ValueSkip* value_skip) {
-          if (AllMatch(predicates, solution_, class_a, value_skip)) {
-            any_of_a = true;
+          if (AllMatch(predicates, solution_, class_inner, value_skip)) {
+            any_of_inner = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
-              b_a_builder.AddBlockTo(false, it_a.position());
-              b_a_builder.Add(true);
+              outer_inner_builder.AddBlockTo(false, it_inner.position());
+              outer_inner_builder.Add(true);
             }
           }
           return false;
         },
         // Outer, after inner.
-        [&](const ClassPermuter::iterator& it_b,
+        [&](const ClassPermuter::iterator& it_outer,
 	    ClassPermuter::iterator::ValueSkip* value_skip) {
-          if (any_of_a) {
-            builder_b.AddBlockTo(false, it_b.position());
-            builder_b.Add(true);
+          if (any_of_inner) {
+            builder_outer.AddBlockTo(false, it_outer.position());
+            builder_outer.Add(true);
           }
           if (pair_class_mode == PairClassMode::kMakePairs) {
-            b_a_builder.AddBlockTo(false, permuter_a->permutation_count());
-            b_a_pair.Assign(it_b.position(), b_a_builder.DoneAdding());
+            outer_inner_builder.AddBlockTo(false, inner->permutation_count());
+            outer_inner_pair.Assign(it_outer.position(),
+				    outer_inner_builder.DoneAdding());
           }
         });
 
-    builder_b.AddBlockTo(false, permuter_b->permutation_count());
-    active_sets_[class_b] = builder_b.DoneAdding();
-  }
-  {
-    ActiveSetBuilder builder_a(permuter_a->permutation_count());
-    bool any_of_b;
-    ActiveSetBuilder a_b_builder(permuter_b->permutation_count());
-
-    DualIterate(
-        permuter_a, permuter_b,
-        // Outer, before inner.
-        [&]() {
-          a_b_builder = ActiveSetBuilder(permuter_b->permutation_count());
-          any_of_b = false;
-        },
-        // Inner.
-        [&](const ClassPermuter::iterator& it_a,
-            const ClassPermuter::iterator& it_b,
-            ClassPermuter::iterator::ValueSkip* value_skip) {
-          if (AllMatch(predicates, solution_, class_b, value_skip)) {
-            any_of_b = true;
-            if (pair_class_mode == PairClassMode::kSingleton) return true;
-            if (pair_class_mode == PairClassMode::kMakePairs) {
-              a_b_builder.AddBlockTo(false, it_b.position());
-              a_b_builder.Add(true);
-            }
-          }
-          return false;
-        },
-        // Outer, after inner.
-        [&](const ClassPermuter::iterator& it_a,
-	    ClassPermuter::iterator::ValueSkip* value_skip) {
-          if (any_of_b) {
-            builder_a.AddBlockTo(false, it_a.position());
-            builder_a.Add(true);
-          }
-          if (pair_class_mode == PairClassMode::kMakePairs) {
-            a_b_builder.AddBlockTo(false, permuter_b->permutation_count());
-            a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
-          }
-        });
-
-    builder_a.AddBlockTo(false, permuter_a->permutation_count());
-    active_sets_[class_a] = builder_a.DoneAdding();
+    builder_outer.AddBlockTo(false, outer->permutation_count());
+    active_sets_[class_outer] = builder_outer.DoneAdding();
   }
 }
 
