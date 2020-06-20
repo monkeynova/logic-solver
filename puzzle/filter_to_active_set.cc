@@ -182,11 +182,11 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
                                     const ClassPermuter* inner,
                                     Fn1 on_outer_before, Fn2 on_inner,
                                     Fn3 on_outer_after) {
-  // TODO(@monkeynova): Can we track a potential "value_skip_b" which
+  // TODO(@monkeynova): Can we track a potential "value_skip_outer" which
   //                    indicates that all of the values of a failed because
-  //                    of a skipable b value?
-  // TODO(@monkeynova): We might do well to have a predicates_a and
-  //                    predicates_b that allow for sorting by the entry_id
+  //                    of a skipable outer value?
+  // TODO(@monkeynova): We might do well to have a predicates_outer and
+  //                    predicates_inner that allow for sorting by the entry_id
   //                    for the respective classes.
   const int class_outer = outer->class_int();
   const int class_inner = inner->class_int();
