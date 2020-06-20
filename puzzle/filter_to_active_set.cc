@@ -194,8 +194,10 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
   ValueSkipToActiveSet* vs2as_inner =
       value_skip_to_active_set_[inner->descriptor()].get();
 
+  ClassPermuter::iterator::ValueSkip value_skip_outer = {.value_index =
+							 Entry::kBadId};
   for (auto it_outer = outer->begin().WithActiveSet(active_sets_[class_outer]);
-       it_outer != outer->end(); ++it_outer) {
+       it_outer != outer->end(); it_outer += value_skip_outer) {
     mutable_solution_.SetClass(it_outer);
     on_outer_before();
     ClassPermuter::iterator::ValueSkip value_skip_inner = {.value_index =
@@ -215,7 +217,7 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
       mutable_solution_.SetClass(it_inner);
       if (on_inner(it_outer, it_inner, &value_skip_inner)) break;
     }
-    on_outer_after(it_outer);
+    on_outer_after(it_outer, &value_skip_outer);
   }
 }
 
@@ -258,7 +260,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           return false;
         },
         // Outer, after inner.
-        [&](const ClassPermuter::iterator& it_b) {
+        [&](const ClassPermuter::iterator& it_b,
+	    ClassPermuter::iterator::ValueSkip* value_skip) {
           if (any_of_a) {
             builder_b.AddBlockTo(false, it_b.position());
             builder_b.Add(true);
@@ -299,7 +302,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           return false;
         },
         // Outer, after inner.
-        [&](const ClassPermuter::iterator& it_a) {
+        [&](const ClassPermuter::iterator& it_a,
+	    ClassPermuter::iterator::ValueSkip* value_skip) {
           if (any_of_b) {
             builder_a.AddBlockTo(false, it_a.position());
             builder_a.Add(true);
@@ -360,7 +364,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
         return false;
       },
       // Outer after inner.
-      [&](const ClassPermuter::iterator& it_a) {
+      [&](const ClassPermuter::iterator& it_a,
+	  ClassPermuter::iterator::ValueSkip* value_skip) {
         if (pair_class_mode == PairClassMode::kMakePairs) {
           a_b_builder.AddBlockTo(false, permuter_b->permutation_count());
           a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
@@ -426,7 +431,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
         return false;
       },
       // Outer after inner.
-      [&](const ClassPermuter::iterator& it_a) {});
+      [&](const ClassPermuter::iterator& it_a,
+	  ClassPermuter::iterator::ValueSkip* value_skip) {});
 
   active_sets_[class_a] = ActiveSetBuilder::FromPositions(
       a_match_positions, permuter_a->permutation_count());
