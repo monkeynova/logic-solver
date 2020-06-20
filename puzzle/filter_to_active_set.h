@@ -92,6 +92,10 @@ class FilterToActiveSet {
 
   void SetupPermuter(const ClassPermuter* permuter);
 
+  template <typename Fn1, typename Fn2, typename Fn3>
+  void DualIterate(const ClassPermuter* outer, const ClassPermuter* inner,
+                   Fn1 on_outer_before, Fn2 on_inner, Fn3 on_outer_after);
+
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;
 
