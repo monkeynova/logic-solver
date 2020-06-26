@@ -21,7 +21,7 @@ ClassPermuter::AdvancerBase::AdvancerBase(const AdvancerBase& other)
 }
 
 bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
-  if (active_set_ == &ActiveSet::trivial()) {
+  if (active_set_->is_trivial()) {
     active_set_ = &other;
   } else {
     active_set_ = new ActiveSet(active_set_->Intersection(other));
@@ -30,7 +30,7 @@ bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
   active_set_it_ = active_set_->GetIterator();
   active_set_it_.Advance(position_);
   if (active_set_it_.value()) {
-    // Newly inAtersected active_set still points to an enabled offset.
+    // Newly intersected active_set still points to an enabled offset.
     // Permtuer does not need to advance.
     return false;
   }
