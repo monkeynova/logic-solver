@@ -190,6 +190,8 @@ class ClassPermuter {
         if (was_advanced != nullptr) {
           *was_advanced = was_advanced_tmp;
         }
+      } else if (was_advanced != nullptr) {
+        *was_advanced = false;
       }
       return std::move(*this);
     }
