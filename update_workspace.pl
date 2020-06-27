@@ -12,12 +12,13 @@ my $workspace = join '', <>;
 while ($workspace =~ m{git_repository\(([^)]+)\)}sg) {
     my $repository = $1;
     my %args = $repository =~ /([a-z]+)\s*=\s*\"(.*?)(?!<\")\"/g;
+    next if $commit_map{$args{commit}};
     
     if ($args{remote} =~ m{git://github.com/(.*)\.git}) {
 	my $github_name = $1;
-	my $json_str = `curl https://api.github.com/repos/$github_name/commits/master`;
+	my $json_str = `curl https://api.github.com/repos/$github_name/commits`;
 	my $json = JSON::from_json($json_str);
-	my $sha = $json->{sha};
+	my $sha = $json->[0]{sha};
 	if ($sha) {
 	    print STDERR "updating $args{name} ($github_name) => $sha\n";
 	    $commit_map{$args{commit}} = $sha;

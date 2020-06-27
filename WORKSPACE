@@ -33,7 +33,7 @@ protobuf_deps()
 git_repository(
     name = "com_google_protobuf_cc",
     remote = "git://github.com/protocolobuffers/protobuf.git",
-    commit = "e492e5a4ef16f59010283befbde6112f1995fa0f",
+    commit = "093faebcdb007f5dfaf11a98d61149f89e8bac23",
 )
 
 git_repository(
