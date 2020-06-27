@@ -31,7 +31,7 @@ bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
   active_set_it_.Advance(position_);
   if (active_set_it_.value()) {
     // Newly intersected active_set still points to an enabled offset.
-    // Permtuer does not need to advance.
+    // Permuter does not need to advance.
     return false;
   }
   AdvanceDelta(active_set_it_.RunSize());
