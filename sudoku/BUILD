@@ -243,6 +243,7 @@ cc_library(
     name = "sudoku_test",
     srcs = ["sudoku_test.cc"],
     testonly = 1,
+    alwayslink = 1,
     deps = [
         "//puzzle:problem",
         "//puzzle:test_main",
