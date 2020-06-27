@@ -20,8 +20,12 @@ namespace puzzle {
 template <typename T>
 class ActiveSetTest : public ::testing::Test {};
 
+#ifdef _MSC_VER
+using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetRunPosition>;
+#else
 using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetBitVector,
-                                        ActiveSetRunPosition>;
+					ActiveSetRunPosition>;
+#endif
 TYPED_TEST_SUITE(ActiveSetTest, ActiveSetTypes);
 
 TYPED_TEST(ActiveSetTest, EmptyIsTrivial) {
