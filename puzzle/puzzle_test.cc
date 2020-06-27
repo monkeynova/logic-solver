@@ -2,6 +2,7 @@
 #include <memory>
 #include <vector>
 
+#include "absl/flags/declare.h"
 #include "absl/flags/flag.h"
 #include "absl/strings/str_join.h"
 #include "benchmark/benchmark.h"
