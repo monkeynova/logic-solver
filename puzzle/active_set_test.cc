@@ -21,7 +21,7 @@ template <typename T>
 class ActiveSetTest : public ::testing::Test {};
 
 using ActiveSetTypes = ::testing::Types<ActiveSetRunLength, ActiveSetBitVector,
-                                        ActiveSetRunPosition>;
+					ActiveSetRunPosition>;
 TYPED_TEST_SUITE(ActiveSetTest, ActiveSetTypes);
 
 TYPED_TEST(ActiveSetTest, EmptyIsTrivial) {
@@ -168,7 +168,7 @@ TYPED_TEST(ActiveSetTest, RunSizeBlockStreaks) {
   TypeParam set = builder.DoneAdding();
   typename TypeParam::Iterator it = set.GetIterator();
   while (it.more()) {
-    EXPECT_EQ(it.RunSize(), 4) << it.offset();
+    EXPECT_EQ(it.RunSize(), 4) << it.offset() << "; " << set.DebugString();
     EXPECT_EQ(it.value(), !!(it.offset() & 4));
     it.Advance(it.RunSize());
   }

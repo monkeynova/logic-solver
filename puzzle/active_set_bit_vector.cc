@@ -2,6 +2,10 @@
 
 #include <algorithm>
 #include <iostream>
+#ifdef _MSC_VER
+#include <intrin.h>
+#include <nmmintrin.h>
+#endif
 
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
@@ -56,7 +60,13 @@ int BitVector::GetRange(Word position) const {
     if (read_bits) {
       static_assert(sizeof(Word) == 8,
                     "ffs implementation calls uint64_t override");
+ #ifdef _MSC_VER
+      unsigned long index;
+      CHECK(_BitScanForward64(&index, read_bits));
+      run_size += index;
+ #else
       run_size += __builtin_ffsll(read_bits) - 1;
+ #endif
       return run_size;
     }
     run_size += kBitsPerWord;
@@ -65,7 +75,13 @@ int BitVector::GetRange(Word position) const {
   mask &= ~(kAllBitsSet << (num_bits_ % kBitsPerWord));
   Word read_bits = mask & (is_run_set ? ~buf_[read_word] : buf_[read_word]);
   if (read_bits) {
+ #ifdef _MSC_VER
+    unsigned long index;
+    CHECK(_BitScanForward64(&index, read_bits));
+    run_size += index;
+ #else
     run_size += __builtin_ffsll(read_bits) - 1;
+ #endif
   } else {
     run_size += num_bits_ % kBitsPerWord;
   }
@@ -86,12 +102,21 @@ int BitVector::Intersect(const BitVector* other) {
   int ret = 0;
   for (int i = 0; i < num_words(); ++i) {
     buf_[i] &= other->buf_[i];
+ #ifdef _MSC_VER
+    ret += _mm_popcnt_u64(buf_[i]);
+ #else
     ret += __builtin_popcountll(buf_[i]);
+ #endif
   }
   if (num_words() > 0 && (num_bits() % kBitsPerWord) != 0) {
     // Don't count the bits in the last word past the end.
+ #ifdef _MSC_VER
+    ret -= _mm_popcnt_u64(buf_[num_words() - 1] &
+			  (kAllBitsSet << (num_bits() % kBitsPerWord)));
+ #else
     ret -= __builtin_popcountll(buf_[num_words() - 1] &
                                 (kAllBitsSet << (num_bits() % kBitsPerWord)));
+#endif
   }
   return ret;
 }
