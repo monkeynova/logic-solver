@@ -37,7 +37,7 @@ void KillerSudoku::InstanceSetup() {
 
   for (int entry_id = 0; entry_id < 9; ++entry_id) {
     for (int class_id = 0; class_id < 9; ++class_id) {
-      Box b = {.entry_id = entry_id, .class_id = class_id};
+      Box b = {entry_id, class_id};
       CHECK(box_used_.contains(b)) << b;
     }
   }

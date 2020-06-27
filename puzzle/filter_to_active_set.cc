@@ -125,8 +125,7 @@ void FilterToActiveSet::Build<
   ValueSkipToActiveSet* vs2as =
       value_skip_to_active_set_[class_permuter->descriptor()].get();
 
-  ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
-                                                       Entry::kBadId};
+  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
   for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != class_permuter->end(); Advance(vs2as, value_skip, it)) {
     mutable_solution_.SetClass(it);
@@ -149,8 +148,7 @@ void FilterToActiveSet::Build<
   ValueSkipToActiveSet* vs2as =
       value_skip_to_active_set_[class_permuter->descriptor()].get();
   std::vector<int> a_matches;
-  ClassPermuter::iterator::ValueSkip value_skip = {.value_index =
-                                                       Entry::kBadId};
+  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
   for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != class_permuter->end(); Advance(vs2as, value_skip, it)) {
     mutable_solution_.SetClass(it);
@@ -196,15 +194,13 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
   ValueSkipToActiveSet* vs2as_inner =
       value_skip_to_active_set_[inner->descriptor()].get();
 
-  ClassPermuter::iterator::ValueSkip value_skip_outer = {.value_index =
-							 Entry::kBadId};
+  ClassPermuter::iterator::ValueSkip value_skip_outer = {Entry::kBadId};
   for (auto it_outer = outer->begin().WithActiveSet(active_sets_[class_outer]);
        it_outer != outer->end();
        Advance(vs2as_outer, value_skip_outer, it_outer)) {
     mutable_solution_.SetClass(it_outer);
     on_outer_before();
-    ClassPermuter::iterator::ValueSkip value_skip_inner = {.value_index =
-                                                               Entry::kBadId};
+    ClassPermuter::iterator::ValueSkip value_skip_inner = {Entry::kBadId};
     for (auto it_inner =
              inner->begin()
                  .WithActiveSet(active_sets_[class_inner])
