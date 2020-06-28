@@ -24,6 +24,15 @@ cc_library(
     ],
 )
 
+cc_test(
+    name = "all_match_test",
+    srcs = ["all_match_test.cc"],
+    deps = [
+        ":all_match",
+        ":test_main",
+    ]
+)
+
 cc_library(
     name = "active_set",
     hdrs = ["active_set.h"],
