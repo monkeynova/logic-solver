@@ -7,28 +7,28 @@ namespace puzzle {
 
 TEST(AllMatchTest, SingleTrue) {
   EXPECT_TRUE(
-	      AllMatch({SolutionFilter("", [](const Solution&) { return true; }, {})},
-		       Solution()));
+      AllMatch({SolutionFilter("", [](const Solution&) { return true; }, {})},
+               Solution()));
 }
-  
+
 TEST(AllMatchTest, SingleFalse) {
   EXPECT_FALSE(
-	       AllMatch({SolutionFilter("", [](const Solution&) { return false; }, {})},
-			Solution()));
+      AllMatch({SolutionFilter("", [](const Solution&) { return false; }, {})},
+               Solution()));
 }
 
 TEST(AllMatchTest, PairTrue) {
   EXPECT_TRUE(
-	       AllMatch({SolutionFilter("", [](const Solution&) { return true; }, {}),
-			 SolutionFilter("", [](const Solution&) { return true; }, {})},
-			Solution()));
+      AllMatch({SolutionFilter("", [](const Solution&) { return true; }, {}),
+                SolutionFilter("", [](const Solution&) { return true; }, {})},
+               Solution()));
 }
-  
+
 TEST(AllMatchTest, PairFalse) {
   EXPECT_FALSE(
-	       AllMatch({SolutionFilter("", [](const Solution&) { return true; }, {}),
-			 SolutionFilter("", [](const Solution&) { return false; }, {})},
-			Solution()));
+      AllMatch({SolutionFilter("", [](const Solution&) { return true; }, {}),
+                SolutionFilter("", [](const Solution&) { return false; }, {})},
+               Solution()));
 }
 
 TEST(AllMatchTest, ValueSkip) {
@@ -37,10 +37,11 @@ TEST(AllMatchTest, ValueSkip) {
   entries.emplace_back(0, std::vector<int>{}, nullptr);
   entries.emplace_back(1, std::vector<int>{}, nullptr);
   Solution has_entries(nullptr, &entries);
-  ASSERT_FALSE(
-	       AllMatch({SolutionFilter("", [](const Entry&) { return true; }, {}, 0),
-			 SolutionFilter("", [](const Entry&) { return false; }, {}, 1)},
-		 has_entries, -1, &value_skip));
+  ASSERT_FALSE(AllMatch({SolutionFilter(
+                             "", [](const Entry&) { return true; }, {}, 0),
+                         SolutionFilter(
+                             "", [](const Entry&) { return false; }, {}, 1)},
+                        has_entries, -1, &value_skip));
   EXPECT_EQ(value_skip.value_index, 1);
 }
 
