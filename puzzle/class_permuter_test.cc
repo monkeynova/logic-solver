@@ -182,8 +182,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
   for (int value_index = 0; value_index < permuter_size; ++value_index) {
     int loop_count = 0;
     int last_val = -1;
-    for (auto it = p->begin(); it != p->end();
-         it += {value_index}) {
+    for (auto it = p->begin(); it != p->end(); it += {value_index}) {
       EXPECT_NE(last_val, (*it)[value_index]);
       last_val = (*it)[value_index];
       ++loop_count;
@@ -201,8 +200,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
   const int permutations = p->permutation_count();
 
   int loop_count = 0;
-  for (auto it = p->begin(); it != p->end();
-       it += {Entry::kBadId}) {
+  for (auto it = p->begin(); it != p->end(); it += {Entry::kBadId}) {
     ++loop_count;
   }
   EXPECT_EQ(loop_count, permutations);
