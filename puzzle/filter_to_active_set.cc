@@ -93,7 +93,6 @@ void FilterToActiveSet::SetupBuild(
 void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
                                 ClassPermuter::iterator::ValueSkip value_skip,
                                 ClassPermuter::iterator* it) const {
-  DCHECK(it != nullptr);
   if (vs2as == nullptr) {
     *it += value_skip;
     return;
@@ -207,7 +206,6 @@ void FilterToActiveSet::DualIterate(
     mutable_solution_.SetClass(it_outer);
     on_outer_before();
     ClassPermuter::iterator::ValueSkip value_skip_inner = {Entry::kBadId};
-    CHECK(outer_inner_pair.Find(it_outer.position()).is_trivial());
     for (auto it_inner =
              inner->begin()
                  .WithActiveSet(active_sets_[class_inner])
@@ -236,26 +234,19 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
 
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
-  std::vector<std::pair<const ClassPermuter*, const ClassPermuter*>> pairs = {
-      {permuter_b, permuter_a}, {permuter_a, permuter_b}};
-  for (const auto& pair : pairs) {
+  for (const auto& pair :
+       std::vector<std::pair<const ClassPermuter*, const ClassPermuter*>>{
+           {permuter_b, permuter_a}, {permuter_a, permuter_b}}) {
     const ClassPermuter* outer = pair.first;
     const ClassPermuter* inner = pair.second;
+    ActiveSetBuilder builder_outer(outer->permutation_count());
+    bool any_of_inner;
+    ActiveSetBuilder outer_inner_builder(inner->permutation_count());
+
     int class_inner = inner->class_int();
     int class_outer = outer->class_int();
     ActiveSetPair& outer_inner_pair =
         active_set_pairs_[class_outer][class_inner];
-
-    ActiveSetBuilder builder_outer(outer->permutation_count());
-    bool any_of_inner;
-    ActiveSetBuilder outer_inner_builder(inner->permutation_count());
-    int all_entry_skips;
-    int prev_all_entry_skips;
-    int outer_skip_index = Entry::kBadId;
-    int outer_skip_value = -1;
-
-    bool outer_on_skip_value;
-    int inner_iterations;
 
     DualIterate(
         outer, inner,
@@ -263,46 +254,17 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         [&]() {
           outer_inner_builder = ActiveSetBuilder(inner->permutation_count());
           any_of_inner = false;
-          all_entry_skips = 0xffffffff;
-          outer_on_skip_value =
-              outer_skip_index != Entry::kBadId &&
-              outer_skip_value ==
-                  solution_.Id(outer_skip_index).Class(class_outer);
-          inner_iterations = 0;
         },
         // Inner.
         [&](const ClassPermuter::iterator& it_outer,
             const ClassPermuter::iterator& it_inner,
             ClassPermuter::iterator::ValueSkip* inner_skip) {
-          ++inner_iterations;
-          if (AllMatch(predicates, solution_, -1, inner_skip)) {
-            // If we were told to skip based on a value, but found a match,
-            // the value must have changed.
-            CHECK(!outer_on_skip_value)
-                << outer_skip_index << ", " << outer_skip_value << ", 0x"
-                << std::hex << all_entry_skips << "; prev=0x"
-                << prev_all_entry_skips << std::dec << ": (" << class_outer
-                << ", " << class_inner << "):\n"
-                << solution_.DebugString();
+          if (AllMatch(predicates, solution_, class_inner, inner_skip)) {
             any_of_inner = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
               outer_inner_builder.AddBlockTo(false, it_inner.position());
               outer_inner_builder.Add(true);
-            }
-          } else {
-            // TODO(@monkeynova): We should only use predicates here that have
-            // an entry id for the checked class.
-            all_entry_skips &= UnmatchedEntrySkips(predicates, solution_, -1);
-            if (outer_on_skip_value) {
-              // If we were told to skip and the value is the same, we should
-              // still be able to skip for that value.
-              CHECK(all_entry_skips & (1 << outer_skip_index))
-                  << outer_skip_index << ", " << outer_skip_value << ", 0x"
-                  << std::hex << all_entry_skips << "; prev=0x"
-                  << prev_all_entry_skips << std::dec << ": (" << class_outer
-                  << ", " << class_inner << "):\n"
-                  << solution_.DebugString();
             }
           }
           return false;
@@ -310,33 +272,10 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         // Outer, after inner.
         [&](const ClassPermuter::iterator& it_outer,
             ClassPermuter::iterator::ValueSkip* outer_skip) {
-          const bool outer_on_skip_value =
-              outer_skip_index != Entry::kBadId &&
-              outer_skip_value ==
-                  solution_.Id(outer_skip_index).Class(class_outer);
           if (any_of_inner) {
-            CHECK(!outer_on_skip_value);
             builder_outer.AddBlockTo(false, it_outer.position());
             builder_outer.Add(true);
-            outer_skip_index = Entry::kBadId;
-            outer_skip_value = -1;
-          } else if (all_entry_skips && all_entry_skips != 0xffffffff) {
-            int smallest_entry = __builtin_ffs(all_entry_skips) - 1;
-            outer_skip_index = smallest_entry;
-            outer_skip_value =
-                solution_.Id(outer_skip_index).Class(class_outer);
-            //	    LOG(INFO) << "Hit all_entry_skips " << inner_iterations <<
-            //": "
-            //		      << outer_on_skip_value
-            //		      << ": 0x" << std::hex << all_entry_skips << ": "
-            //		      << std::dec << smallest_entry;
-          } else {
-            CHECK(!outer_on_skip_value);
-            outer_skip_index = Entry::kBadId;
-            outer_skip_value = -1;
           }
-          prev_all_entry_skips = all_entry_skips;
-          // outer_skip->value_index = outer_skip_index;
           if (pair_class_mode == PairClassMode::kMakePairs) {
             outer_inner_builder.AddBlockTo(false, inner->permutation_count());
             outer_inner_pair.Assign(it_outer.position(),
