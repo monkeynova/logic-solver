@@ -81,7 +81,7 @@ class FilterToActiveSet {
   // Advances `it` based on `value_skip`.
   void Advance(const ValueSkipToActiveSet* vs2as,
                ClassPermuter::iterator::ValueSkip value_skip,
-               ClassPermuter::iterator& it) const;
+               ClassPermuter::iterator* it) const;
 
   void SetupBuild(const ClassPermuter* permuter,
                   const std::vector<SolutionFilter>& predicates);
@@ -92,6 +92,12 @@ class FilterToActiveSet {
 
   void SetupPermuter(const ClassPermuter* permuter);
 
+  // Fn1: std::function<void(void)>
+  // Fn2: std::function<bool(const ClassPermuter::iterator& it_outer,
+  //                         const ClassPermuter::iterator& it_inner,
+  //                         ClassPermuter::iterator::ValueSkip* value_skip)
+  //      Return true to break iteration.
+  // Fn1: std::function<void(const ClassPermuter::iterator& it_inner)>
   template <typename Fn1, typename Fn2, typename Fn3>
   void DualIterate(const ClassPermuter* outer, const ClassPermuter* inner,
                    Fn1 on_outer_before, Fn2 on_inner, Fn3 on_outer_after);

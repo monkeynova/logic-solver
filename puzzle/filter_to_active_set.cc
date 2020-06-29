@@ -92,25 +92,25 @@ void FilterToActiveSet::SetupBuild(
 
 void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
                                 ClassPermuter::iterator::ValueSkip value_skip,
-                                ClassPermuter::iterator& it) const {
+                                ClassPermuter::iterator* it) const {
   if (vs2as == nullptr) {
-    it += value_skip;
+    *it += value_skip;
     return;
   }
   if (value_skip.value_index == Entry::kBadId) {
-    ++it;
+    ++*it;
     return;
   }
   bool was_advanced;
-  double pre_selectivity = it.Selectivity();
-  it = std::move(it).WithActiveSet(vs2as->value_skip_set(it, value_skip),
-                                   &was_advanced);
-  VLOG(3) << pre_selectivity << " => " << it.Selectivity() << "; "
-          << it.position() << "; " << value_skip.value_index;
+  double pre_selectivity = it->Selectivity();
+  *it = std::move(*it).WithActiveSet(vs2as->value_skip_set(*it, value_skip),
+				     &was_advanced);
+  VLOG(3) << pre_selectivity << " => " << it->Selectivity() << "; "
+          << it->position() << "; " << value_skip.value_index;
   CHECK(was_advanced)
       << "Skipping the current value should advance the iterator";
   if (!was_advanced) {
-    ++it;
+    ++*it;
   }
 }
 
@@ -127,7 +127,7 @@ void FilterToActiveSet::Build<
 
   ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
   for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
-       it != class_permuter->end(); Advance(vs2as, value_skip, it)) {
+       it != class_permuter->end(); Advance(vs2as, value_skip, &it)) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates, solution_, class_int, &value_skip)) {
       builder.AddBlockTo(false, it.position());
@@ -150,7 +150,7 @@ void FilterToActiveSet::Build<
   std::vector<int> a_matches;
   ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
   for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
-       it != class_permuter->end(); Advance(vs2as, value_skip, it)) {
+       it != class_permuter->end(); Advance(vs2as, value_skip, &it)) {
     mutable_solution_.SetClass(it);
     if (AllMatch(predicates, solution_, class_int, &value_skip)) {
       a_matches.push_back(it.position());
@@ -197,7 +197,7 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
   ClassPermuter::iterator::ValueSkip value_skip_outer = {Entry::kBadId};
   for (auto it_outer = outer->begin().WithActiveSet(active_sets_[class_outer]);
        it_outer != outer->end();
-       Advance(vs2as_outer, value_skip_outer, it_outer)) {
+       Advance(vs2as_outer, value_skip_outer, &it_outer)) {
     mutable_solution_.SetClass(it_outer);
     on_outer_before();
     ClassPermuter::iterator::ValueSkip value_skip_inner = {Entry::kBadId};
@@ -206,7 +206,7 @@ void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
                  .WithActiveSet(active_sets_[class_inner])
                  .WithActiveSet(outer_inner_pair.Find(it_outer.position()));
          it_inner != inner->end();
-         Advance(vs2as_inner, value_skip_inner, it_inner)) {
+         Advance(vs2as_inner, value_skip_inner, &it_inner)) {
       if (profiler_ != nullptr) {
         profiler_->NotePrepare(
             inner->permutation_count() * it_outer.position() +
