@@ -9,6 +9,9 @@
 
 namespace puzzle {
 
+// Returns true if all entries in `predicates` are true for `solution`.
+// If `value_skip` is non-nullptr, returns the entry_id for the corresponding
+// `class_int` on the first predicate that evaluates to false.
 inline bool AllMatch(const std::vector<SolutionFilter>& predicates,
                      const Solution& solution, int class_int = -1,
                      ClassPermuter::iterator::ValueSkip* value_skip = nullptr) {
@@ -25,6 +28,22 @@ inline bool AllMatch(const std::vector<SolutionFilter>& predicates,
   }
   value_skip->value_index = Entry::kBadId;
   return true;
+}
+
+// Returns a bit vector containint all entry_ids at `class_int` for entries in
+// `predicates` that evaluate to false on `solution`.
+inline int UnmatchedEntrySkips(const std::vector<SolutionFilter>& predicates,
+                               const Solution& solution, int class_int = -1) {
+  int all_entry_skips = 0;
+  for (const SolutionFilter& filter : predicates) {
+    if (!filter(solution)) {
+      int entry_id = filter.entry_id(class_int);
+      if (entry_id != Entry::kBadId) {
+        all_entry_skips |= 1 << entry_id;
+      }
+    }
+  }
+  return all_entry_skips;
 }
 
 };  // namespace puzzle
