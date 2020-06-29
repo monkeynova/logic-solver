@@ -1,6 +1,7 @@
 #ifndef PUZZLE_FILTER_TO_ACTIVE_SET_H_
 #define PUZZLE_FILTER_TO_ACTIVE_SET_H_
 
+#include "absl/functional/function_ref.h"
 #include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
