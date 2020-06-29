@@ -92,15 +92,16 @@ class FilterToActiveSet {
 
   void SetupPermuter(const ClassPermuter* permuter);
 
-  // Fn1: std::function<void(void)>
-  // Fn2: std::function<bool(const ClassPermuter::iterator& it_outer,
-  //                         const ClassPermuter::iterator& it_inner,
-  //                         ClassPermuter::iterator::ValueSkip* value_skip)
-  //      Return true to break iteration.
-  // Fn1: std::function<void(const ClassPermuter::iterator& it_inner)>
-  template <typename Fn1, typename Fn2, typename Fn3>
-  void DualIterate(const ClassPermuter* outer, const ClassPermuter* inner,
-                   Fn1 on_outer_before, Fn2 on_inner, Fn3 on_outer_after);
+  void DualIterate(
+      const ClassPermuter* outer, const ClassPermuter* inner,
+      absl::FunctionRef<void(void)> on_outer_before,
+      absl::FunctionRef<bool(const ClassPermuter::iterator& it_outer,
+                             const ClassPermuter::iterator& it_inner,
+                             ClassPermuter::iterator::ValueSkip* inner_skip)>
+          on_inner,
+      absl::FunctionRef<void(const ClassPermuter::iterator& it_outer,
+                             ClassPermuter::iterator::ValueSkip* outer_skip)>
+          on_outer_after);
 
   // Maps class_int to it's built ActiveSet.
   std::vector<ActiveSet> active_sets_;

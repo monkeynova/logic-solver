@@ -104,7 +104,7 @@ void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
   bool was_advanced;
   double pre_selectivity = it->Selectivity();
   *it = std::move(*it).WithActiveSet(vs2as->value_skip_set(*it, value_skip),
-				     &was_advanced);
+                                     &was_advanced);
   VLOG(3) << pre_selectivity << " => " << it->Selectivity() << "; "
           << it->position() << "; " << value_skip.value_index;
   CHECK(was_advanced)
@@ -175,11 +175,16 @@ void FilterToActiveSet::SetupPairBuild(
   }
 }
 
-template <typename Fn1, typename Fn2, typename Fn3>
-void FilterToActiveSet::DualIterate(const ClassPermuter* outer,
-                                    const ClassPermuter* inner,
-                                    Fn1 on_outer_before, Fn2 on_inner,
-                                    Fn3 on_outer_after) {
+void FilterToActiveSet::DualIterate(
+    const ClassPermuter* outer, const ClassPermuter* inner,
+    absl::FunctionRef<void(void)> on_outer_before,
+    absl::FunctionRef<bool(const ClassPermuter::iterator& it_outer,
+                           const ClassPermuter::iterator& it_inner,
+                           ClassPermuter::iterator::ValueSkip* inner_skip)>
+        on_inner,
+    absl::FunctionRef<void(const ClassPermuter::iterator& it_outer,
+                           ClassPermuter::iterator::ValueSkip* outer_skip)>
+        on_outer_after) {
   // TODO(@monkeynova): Can we track a potential "value_skip_outer" which
   //                    indicates that all of the values of a failed because
   //                    of a skipable outer value?
@@ -253,8 +258,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         // Inner.
         [&](const ClassPermuter::iterator& it_outer,
             const ClassPermuter::iterator& it_inner,
-            ClassPermuter::iterator::ValueSkip* value_skip) {
-          if (AllMatch(predicates, solution_, class_inner, value_skip)) {
+            ClassPermuter::iterator::ValueSkip* inner_skip) {
+          if (AllMatch(predicates, solution_, class_inner, inner_skip)) {
             any_of_inner = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -266,7 +271,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         },
         // Outer, after inner.
         [&](const ClassPermuter::iterator& it_outer,
-            ClassPermuter::iterator::ValueSkip* value_skip) {
+            ClassPermuter::iterator::ValueSkip* outer_skip) {
           if (any_of_inner) {
             builder_outer.AddBlockTo(false, it_outer.position());
             builder_outer.Add(true);
@@ -309,14 +314,14 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
       // Inner.
       [&](const ClassPermuter::iterator& it_a,
           const ClassPermuter::iterator& it_b,
-          ClassPermuter::iterator::ValueSkip* value_skip) {
+          ClassPermuter::iterator::ValueSkip* b_skip) {
         if (pair_class_mode == PairClassMode::kSingleton && any_of_b &&
             b_match_positions.find(it_b.position()) !=
                 b_match_positions.end()) {
           // Already added both pieces.
           return true;
         }
-        if (AllMatch(predicates, solution_, class_b, value_skip)) {
+        if (AllMatch(predicates, solution_, class_b, b_skip)) {
           any_of_b = true;
           b_match_positions.insert(it_b.position());
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -329,7 +334,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
       },
       // Outer after inner.
       [&](const ClassPermuter::iterator& it_a,
-          ClassPermuter::iterator::ValueSkip* value_skip) {
+          ClassPermuter::iterator::ValueSkip* a_skip) {
         if (pair_class_mode == PairClassMode::kMakePairs) {
           a_b_builder.AddBlockTo(false, permuter_b->permutation_count());
           a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
@@ -377,14 +382,14 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
       // Inner.
       [&](const ClassPermuter::iterator& it_a,
           const ClassPermuter::iterator& it_b,
-          ClassPermuter::iterator::ValueSkip* value_skip) {
+          ClassPermuter::iterator::ValueSkip* b_skip) {
         if (pair_class_mode == PairClassMode::kSingleton &&
             a_match_positions.count(it_a.position()) > 0 &&
             b_match_positions.count(it_b.position()) > 0) {
           // Already added both pieces.
           return true;
         }
-        if (AllMatch(predicates, solution_, class_b, value_skip)) {
+        if (AllMatch(predicates, solution_, class_b, b_skip)) {
           a_match_positions.insert(it_a.position());
           b_match_positions.insert(it_b.position());
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -396,7 +401,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
       },
       // Outer after inner.
       [&](const ClassPermuter::iterator& it_a,
-          ClassPermuter::iterator::ValueSkip* value_skip) {});
+          ClassPermuter::iterator::ValueSkip* a_skip) {});
 
   active_sets_[class_a] = ActiveSetBuilder::FromPositions(
       a_match_positions, permuter_a->permutation_count());
