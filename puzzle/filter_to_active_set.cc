@@ -209,29 +209,27 @@ void FilterToActiveSet::DualIterate(
   ValueSkipToActiveSet* vs2as_inner =
       value_skip_to_active_set_[inner->descriptor()].get();
 
-  SingleIterate(
-      outer,
-      [&](const ClassPermuter::iterator& it_outer,
-	  ClassPermuter::iterator::ValueSkip* outer_skip) {
-	on_outer_before();
-	ClassPermuter::iterator::ValueSkip value_skip_inner = {Entry::kBadId};
-	for (auto it_inner =
-	       inner->begin()
-	           .WithActiveSet(active_sets_[class_inner])
-	           .WithActiveSet(outer_inner_pair.Find(it_outer.position()));
-	     it_inner != inner->end();
-	     Advance(vs2as_inner, value_skip_inner, &it_inner)) {
-	  if (profiler_ != nullptr) {
-	    profiler_->NotePrepare(
-	        inner->permutation_count() * it_outer.position() +
+  SingleIterate(outer, [&](const ClassPermuter::iterator& it_outer,
+                           ClassPermuter::iterator::ValueSkip* outer_skip) {
+    on_outer_before();
+    ClassPermuter::iterator::ValueSkip value_skip_inner = {Entry::kBadId};
+    for (auto it_inner =
+             inner->begin()
+                 .WithActiveSet(active_sets_[class_inner])
+                 .WithActiveSet(outer_inner_pair.Find(it_outer.position()));
+         it_inner != inner->end();
+         Advance(vs2as_inner, value_skip_inner, &it_inner)) {
+      if (profiler_ != nullptr) {
+        profiler_->NotePrepare(
+            inner->permutation_count() * it_outer.position() +
                 it_inner.position(),
-		inner->permutation_count() * outer->permutation_count());
-	  }
-	  mutable_solution_.SetClass(it_inner);
-	  if (on_inner(it_outer, it_inner, &value_skip_inner)) break;
-	}
-	on_outer_after(it_outer, outer_skip);
-      });
+            inner->permutation_count() * outer->permutation_count());
+      }
+      mutable_solution_.SetClass(it_inner);
+      if (on_inner(it_outer, it_inner, &value_skip_inner)) break;
+    }
+    on_outer_after(it_outer, outer_skip);
+  });
 }
 
 template <>
@@ -250,7 +248,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const ClassPermuter* inner = pair.second;
     ActiveSetBuilder builder_outer(outer->permutation_count());
     bool any_of_inner;
-    ActiveSetBuilder outer_inner_builder(inner->permutation_count());
+    ActiveSetBuilder inner_builder(inner->permutation_count());
 
     int class_inner = inner->class_int();
     int class_outer = outer->class_int();
@@ -261,7 +259,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         outer, inner,
         // Outer, before inner.
         [&]() {
-          outer_inner_builder = ActiveSetBuilder(inner->permutation_count());
+          inner_builder = ActiveSetBuilder(inner->permutation_count());
           any_of_inner = false;
         },
         // Inner.
@@ -272,8 +270,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
             any_of_inner = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
-              outer_inner_builder.AddBlockTo(false, it_inner.position());
-              outer_inner_builder.Add(true);
+              inner_builder.AddBlockTo(false, it_inner.position());
+              inner_builder.Add(true);
             }
           }
           return false;
@@ -286,9 +284,9 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
             builder_outer.Add(true);
           }
           if (pair_class_mode == PairClassMode::kMakePairs) {
-            outer_inner_builder.AddBlockTo(false, inner->permutation_count());
+            inner_builder.AddBlockTo(false, inner->permutation_count());
             outer_inner_pair.Assign(it_outer.position(),
-                                    outer_inner_builder.DoneAdding());
+                                    inner_builder.DoneAdding());
           }
         });
 
