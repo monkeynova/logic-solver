@@ -114,26 +114,40 @@ void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
   }
 }
 
+void FilterToActiveSet::SingleIterate(
+    const ClassPermuter* permuter,
+    absl::FunctionRef<void(const ClassPermuter::iterator& it,
+                           ClassPermuter::iterator::ValueSkip* value_skip)>
+        on_item) {
+  const int class_int = permuter->class_int();
+  ValueSkipToActiveSet* vs2as =
+      value_skip_to_active_set_[permuter->descriptor()].get();
+
+  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
+  for (auto it = permuter->begin().WithActiveSet(active_sets_[class_int]);
+       it != permuter->end(); Advance(vs2as, value_skip, &it)) {
+    mutable_solution_.SetClass(it);
+    on_item(it, &value_skip);
+  }
+}
+
 template <>
 void FilterToActiveSet::Build<
     FilterToActiveSet::SingleClassBuild::kPassThrough>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
   SetupBuild(class_permuter, predicates);
-  int class_int = class_permuter->class_int();
-  ActiveSetBuilder builder(class_permuter->permutation_count());
-  ValueSkipToActiveSet* vs2as =
-      value_skip_to_active_set_[class_permuter->descriptor()].get();
 
-  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
-  for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
-       it != class_permuter->end(); Advance(vs2as, value_skip, &it)) {
-    mutable_solution_.SetClass(it);
-    if (AllMatch(predicates, solution_, class_int, &value_skip)) {
-      builder.AddBlockTo(false, it.position());
-      builder.Add(true);
-    }
-  }
+  const int class_int = class_permuter->class_int();
+  ActiveSetBuilder builder(class_permuter->permutation_count());
+  SingleIterate(class_permuter,
+                [&](const ClassPermuter::iterator& it,
+                    ClassPermuter::iterator::ValueSkip* value_skip) {
+                  if (AllMatch(predicates, solution_, class_int, value_skip)) {
+                    builder.AddBlockTo(false, it.position());
+                    builder.Add(true);
+                  }
+                });
   builder.AddBlockTo(false, class_permuter->permutation_count());
   active_sets_[class_int] = builder.DoneAdding();
 }
@@ -144,18 +158,16 @@ void FilterToActiveSet::Build<
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
   SetupBuild(class_permuter, predicates);
-  int class_int = class_permuter->class_int();
-  ValueSkipToActiveSet* vs2as =
-      value_skip_to_active_set_[class_permuter->descriptor()].get();
+
+  const int class_int = class_permuter->class_int();
   std::vector<int> a_matches;
-  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
-  for (auto it = class_permuter->begin().WithActiveSet(active_sets_[class_int]);
-       it != class_permuter->end(); Advance(vs2as, value_skip, &it)) {
-    mutable_solution_.SetClass(it);
-    if (AllMatch(predicates, solution_, class_int, &value_skip)) {
-      a_matches.push_back(it.position());
-    }
-  }
+  SingleIterate(class_permuter,
+                [&](const ClassPermuter::iterator& it,
+                    ClassPermuter::iterator::ValueSkip* value_skip) {
+                  if (AllMatch(predicates, solution_, class_int, value_skip)) {
+                    a_matches.push_back(it.position());
+                  }
+                });
   active_sets_[class_int] = ActiveSetBuilder::FromPositions(
       a_matches, class_permuter->permutation_count());
 }
