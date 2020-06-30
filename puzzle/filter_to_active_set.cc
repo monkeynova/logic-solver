@@ -327,7 +327,12 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                                 outer_skip_preds, solution_, class_outer);
                           });
             if (all_entry_skips && all_entry_skips != 0xffffffff) {
+#ifdef _MSC_VER
+	      unsigned long smallest_entry;
+	      CHECK(_BitScanForward(&smallest_entry, all_entry_skips));
+#else
               int smallest_entry = __builtin_ffs(all_entry_skips) - 1;
+#endif
               outer_skip->value_index = smallest_entry;
             }
           }
