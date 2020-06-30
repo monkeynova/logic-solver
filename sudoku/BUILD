@@ -65,6 +65,42 @@ cc_test(
 )
 
 cc_test(
+    name = "single_line_pair_prune_skip_outer_test",
+    srcs = ["single_line_test.cc"],
+    args = [
+        "--puzzle_filter_pair_prune_skip_outer=true",
+        "--sudoku_line_board=" +
+        "......2.4" +
+        "1..9....." +
+        "........8" +
+        "68.7....." +
+        "...1..73." +
+        ".4......." +
+        "....25..." +
+        "5......9." +
+        "....4....",
+        "--sudoku_line_answer=" +
+        "978531264" +
+        "124968357" +
+        "356472918" +
+        "681793542" +
+        "295184736" +
+        "743256189" +
+        "439625871" +
+        "562817493" +
+        "817349625",
+    ],
+    tags = ["benchmark", "slowbenchmark"],
+    deps = [
+        ":line_board",
+	"@com_google_absl//absl/flags:flag",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_googletest//:gtest",
+        "//puzzle:test_main",
+    ]
+)
+
+cc_test(
     name = "single_line_empirical_test",
     srcs = ["single_line_test.cc"],
     args = [

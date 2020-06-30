@@ -9,6 +9,14 @@ ABSL_FLAG(bool, puzzle_value_skip_to_active_set, false,
           "ClassPermuter iterations (rather than the default += ValueSkip "
           "implementation).");
 
+ABSL_FLAG(bool, puzzle_filter_pair_prune_skip_outer, false,
+	  "If true, when building pair-wise ActiveSet entries in kBackAndForth "
+	  "mode an attempt is made to be able to use a ValueSkip not just on "
+	  "the inner loop, but the outer as well. This requires an increased "
+	  "number of evaluations in the inner loop to prove safety, so is a "
+	  "trade-off and doesn't currently (2020-06-30) pay for itself on test "
+	  "bencharks.");
+
 namespace puzzle {
 
 std::ostream& operator<<(std::ostream& out,
@@ -93,6 +101,7 @@ void FilterToActiveSet::SetupBuild(
 void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
                                 ClassPermuter::iterator::ValueSkip value_skip,
                                 ClassPermuter::iterator* it) const {
+  DCHECK(it != nullptr);
   if (vs2as == nullptr) {
     *it += value_skip;
     return;
@@ -228,7 +237,11 @@ void FilterToActiveSet::DualIterate(
       mutable_solution_.SetClass(it_inner);
       if (on_inner(it_outer, it_inner, &value_skip_inner)) break;
     }
-    on_outer_after(it_outer, outer_skip);
+    if (outer_inner_pair.Find(it_outer.position()).is_trivial()) {
+      on_outer_after(it_outer, outer_skip);
+    } else {
+      on_outer_after(it_outer, nullptr);
+    }
   });
 }
 
@@ -249,11 +262,22 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     ActiveSetBuilder builder_outer(outer->permutation_count());
     bool any_of_inner;
     ActiveSetBuilder inner_builder(inner->permutation_count());
+    int all_entry_skips;
 
     int class_inner = inner->class_int();
     int class_outer = outer->class_int();
     ActiveSetPair& outer_inner_pair =
         active_set_pairs_[class_outer][class_inner];
+
+    std::vector<SolutionFilter> outer_skip_preds;
+    for (const auto& pred : predicates) {
+      if (pred.entry_id(class_outer) != Entry::kBadId) {
+        outer_skip_preds.push_back(pred);
+      }
+    }
+
+    const bool pair_prune_skip_outer =
+        absl::GetFlag(FLAGS_puzzle_filter_pair_prune_skip_outer);
 
     DualIterate(
         outer, inner,
@@ -261,6 +285,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         [&]() {
           inner_builder = ActiveSetBuilder(inner->permutation_count());
           any_of_inner = false;
+          all_entry_skips = 0xffffffff;
         },
         // Inner.
         [&](const ClassPermuter::iterator& it_outer,
@@ -273,15 +298,38 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
               inner_builder.AddBlockTo(false, it_inner.position());
               inner_builder.Add(true);
             }
+          } else if (pair_prune_skip_outer) {
+            // TODO(@monkeynova): We should only use predicates here that have
+            // an entry id for the checked class.
+            all_entry_skips &=
+                UnmatchedEntrySkips(outer_skip_preds, solution_, class_outer);
           }
           return false;
         },
         // Outer, after inner.
         [&](const ClassPermuter::iterator& it_outer,
             ClassPermuter::iterator::ValueSkip* outer_skip) {
+          if (outer_skip != nullptr) {
+            outer_skip->value_index = Entry::kBadId;
+          }
           if (any_of_inner) {
             builder_outer.AddBlockTo(false, it_outer.position());
             builder_outer.Add(true);
+          } else if (pair_prune_skip_outer && outer_skip != nullptr &&
+                     all_entry_skips && all_entry_skips != 0xffffffff) {
+            all_entry_skips = 0xffffffff;
+            SingleIterate(inner,
+                          [&](const ClassPermuter::iterator& it_inner,
+                              ClassPermuter::iterator::ValueSkip* inner_skip) {
+                            // Test all inners.
+                            inner_skip->value_index = Entry::kBadId;
+                            all_entry_skips &= UnmatchedEntrySkips(
+                                outer_skip_preds, solution_, class_outer);
+                          });
+            if (all_entry_skips && all_entry_skips != 0xffffffff) {
+              int smallest_entry = __builtin_ffs(all_entry_skips) - 1;
+              outer_skip->value_index = smallest_entry;
+            }
           }
           if (pair_class_mode == PairClassMode::kMakePairs) {
             inner_builder.AddBlockTo(false, inner->permutation_count());
