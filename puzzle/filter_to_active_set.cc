@@ -209,12 +209,6 @@ void FilterToActiveSet::DualIterate(
     absl::FunctionRef<void(const ClassPermuter::iterator& it_outer,
                            ClassPermuter::iterator::ValueSkip* outer_skip)>
         on_outer_after) {
-  // TODO(@monkeynova): Can we track a potential "value_skip_outer" which
-  //                    indicates that all of the values of a failed because
-  //                    of a skipable outer value?
-  // TODO(@monkeynova): We might do well to have a predicates_outer and
-  //                    predicates_inner that allow for sorting by the entry_id
-  //                    for the respective classes.
   const int class_outer = outer->class_int();
   const int class_inner = inner->class_int();
   ActiveSetPair& outer_inner_pair = active_set_pairs_[class_outer][class_inner];
@@ -307,8 +301,6 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
               inner_builder.Add(true);
             }
           } else if (pair_prune_skip_outer) {
-            // TODO(@monkeynova): We should only use predicates here that have
-            // an entry id for the checked class.
             all_entry_skips &=
                 UnmatchedEntrySkips(outer_skip_preds, solution_, class_outer);
           }
