@@ -32,8 +32,7 @@ ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,
 namespace puzzle {
 
 static void OrderSolutionFiltersByEntryIdForClassId(
-    int class_int,
-    std::vector<SolutionFilter>* list) {
+    int class_int, std::vector<SolutionFilter>* list) {
   std::sort(list->begin(), list->end(),
             [class_int](const SolutionFilter& a, const SolutionFilter& b) {
               return a.entry_id(class_int) < b.entry_id(class_int);
@@ -43,7 +42,6 @@ static void OrderSolutionFiltersByEntryIdForClassId(
 static void OrderSolutionFiltersByEntryId(std::vector<SolutionFilter>* list) {
   OrderSolutionFiltersByEntryIdForClassId(/*class_id=*/-1, list);
 }
-
 
 FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
@@ -325,8 +323,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
   for (auto& pair_and_predicates : pair_class_predicates) {
     int first_class_int = pair_and_predicates.first.first;
-    OrderSolutionFiltersByEntryIdForClassId(
-        first_class_int, &pair_and_predicates.second);
+    OrderSolutionFiltersByEntryIdForClassId(first_class_int,
+                                            &pair_and_predicates.second);
   }
 
   VLOG(1) << "Generating singleton selectivities";
@@ -353,34 +351,49 @@ void FilteredSolutionPermuter::BuildActiveSets(
           ? FilterToActiveSet::PairClassMode::kMakePairs
           : FilterToActiveSet::PairClassMode::kSingleton;
 
-  struct ClassPair {
+  class ClassPair {
+   public:
     ClassPair(ClassPermuter* a, ClassPermuter* b,
               const std::vector<SolutionFilter>* filters_by_a,
               const std::vector<SolutionFilter>* filters_by_b)
-        : a(a), b(b), filters_by_a(filters_by_a), filters_by_b(filters_by_b),
-	  computed(false) {}
+        : a_(a),
+          b_(b),
+          filters_by_a_(filters_by_a),
+          filters_by_b_(filters_by_b),
+          computed_(false) {}
+
+    ClassPermuter* a() const { return a_; }
+    ClassPermuter* b() const { return b_; }
+    const std::vector<SolutionFilter>* filters_by_a() const {
+      return filters_by_a_;
+    }
+    const std::vector<SolutionFilter>* filters_by_b() const {
+      return filters_by_b_;
+    }
+    double pair_selectivity() const { return pair_selectivity_; }
+    bool computed() const { return computed_; }
+    void set_computed(bool computed) { computed_ = computed; }
 
     void SetPairSelectivity(const FilterToActiveSet* filter_to_active_set) {
       double a_selectivity =
-          filter_to_active_set->active_set(a->class_int()).Selectivity();
+          filter_to_active_set->active_set(a_->class_int()).Selectivity();
       double b_selectivity =
-          filter_to_active_set->active_set(b->class_int()).Selectivity();
+          filter_to_active_set->active_set(b_->class_int()).Selectivity();
       if (a_selectivity > b_selectivity) {
         // Make `a` less selective than `b` for Build calls.
-        std::swap(a, b);
-	std::swap(filters_by_a, filters_by_b);
+        std::swap(a_, b_);
+        std::swap(filters_by_a_, filters_by_b_);
       }
-      pair_selectivity = a_selectivity * b_selectivity;
+      pair_selectivity_ = a_selectivity * b_selectivity;
     }
 
-    ClassPermuter* a;
-    ClassPermuter* b;
-    // TODO(@monkeynova): This is an invariant required for the struct, which
-    //                    means we should upgrade from a struct to a class.
-    const std::vector<SolutionFilter>* filters_by_a;
-    const std::vector<SolutionFilter>* filters_by_b;
-    double pair_selectivity;
-    bool computed;
+   private:
+    ClassPermuter* a_;
+    ClassPermuter* b_;
+    const std::vector<SolutionFilter>* filters_by_a_;
+    const std::vector<SolutionFilter>* filters_by_b_;
+    double pair_selectivity_;
+    bool computed_;
   };
   // TODO(@monkeynova): This metric currently is based on the worst-case
   // cost of computing the pair-wise active sets (N^2 cost). But this is
@@ -388,11 +401,11 @@ void FilteredSolutionPermuter::BuildActiveSets(
   // that even the ideal metric which is the ROI on future compute reduction.
   struct ClassPairGreaterThan {
     bool operator()(const ClassPair& a, const ClassPair& b) const {
-      if (a.computed ^ b.computed) {
+      if (a.computed() ^ b.computed()) {
         // Computed is "greater than" non-computed.
-        return a.computed;
+        return a.computed();
       }
-      return a.pair_selectivity > b.pair_selectivity;
+      return a.pair_selectivity() > b.pair_selectivity();
     }
   };
   std::vector<ClassPair> pairs;
@@ -407,14 +420,14 @@ void FilteredSolutionPermuter::BuildActiveSets(
           !filters_by_a_it->second.empty()) {
         auto filters_by_b_it = pair_class_predicates.find(
             std::make_pair((*it_b)->class_int(), (*it_a)->class_int()));
-	CHECK(filters_by_b_it != pair_class_predicates.end());
+        CHECK(filters_by_b_it != pair_class_predicates.end());
         pairs.emplace_back(it_a->get(), it_b->get(), &filters_by_a_it->second,
-			   &filters_by_b_it->second);
+                           &filters_by_b_it->second);
         pairs.back().SetPairSelectivity(filter_to_active_set_.get());
-        VLOG(2) << "Initial Selectivity (" << pairs.back().a->class_int()
-                << ", " << pairs.back().b->class_int()
-                << "): " << pairs.back().pair_selectivity << " ("
-                << pairs.back().filters_by_a->size() << " filters)";
+        VLOG(2) << "Initial Selectivity (" << pairs.back().a()->class_int()
+                << ", " << pairs.back().b()->class_int()
+                << "): " << pairs.back().pair_selectivity() << " ("
+                << pairs.back().filters_by_a()->size() << " filters)";
       }
     }
   }
@@ -424,30 +437,31 @@ void FilteredSolutionPermuter::BuildActiveSets(
   VLOG(1) << "Pruning pairs: " << pairs.size();
 
   std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
-  while (!pairs.begin()->computed) {
+  while (!pairs.begin()->computed()) {
     std::pop_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     ClassPair& pair = pairs.back();
 
-    double old_pair_selectivity = pair.pair_selectivity;
-    filter_to_active_set_->Build(pair.a, pair.b, *pair.filters_by_a,
-                                 *pair.filters_by_b, pair_class_mode);
+    double old_pair_selectivity = pair.pair_selectivity();
+    filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
+                                 *pair.filters_by_b(), pair_class_mode);
     pair.SetPairSelectivity(filter_to_active_set_.get());
-    VLOG(2) << "Selectivity (" << pair.a->class_int() << ", "
-            << pair.b->class_int() << "): "
-            << static_cast<int>(old_pair_selectivity / pair.pair_selectivity)
-            << "x: " << old_pair_selectivity << " => " << pair.pair_selectivity;
-    pair.computed = true;
-    if (old_pair_selectivity > pair.pair_selectivity) {
+    VLOG(2) << "Selectivity (" << pair.a()->class_int() << ", "
+            << pair.b()->class_int() << "): "
+            << static_cast<int>(old_pair_selectivity / pair.pair_selectivity())
+            << "x: " << old_pair_selectivity << " => "
+            << pair.pair_selectivity();
+    pair.set_computed(true);
+    if (old_pair_selectivity > pair.pair_selectivity()) {
       for (ClassPair& to_update : pairs) {
-        if ((to_update.a == pair.a || to_update.b == pair.a) ^
-            (to_update.a == pair.b || to_update.b == pair.b)) {
-          to_update.computed = false;
+        if ((to_update.a() == pair.a() || to_update.b() == pair.a()) ^
+            (to_update.a() == pair.b() || to_update.b() == pair.b())) {
+          to_update.set_computed(false);
           to_update.SetPairSelectivity(filter_to_active_set_.get());
         }
       }
       std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     } else {
-      CHECK(old_pair_selectivity == pair.pair_selectivity);
+      CHECK(old_pair_selectivity == pair.pair_selectivity());
       std::push_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     }
   }
@@ -457,7 +471,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
     VLOG(1) << "Running one more pass to generate pairs";
     for (ClassPair& pair : pairs) {
       filter_to_active_set_->Build(
-          pair.a, pair.b, *pair.filters_by_a, *pair.filters_by_b,
+          pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
           FilterToActiveSet::PairClassMode::kMakePairs);
     }
   }
