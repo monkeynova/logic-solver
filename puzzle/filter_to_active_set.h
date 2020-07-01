@@ -80,7 +80,7 @@ class FilterToActiveSet {
              const std::vector<SolutionFilter>& predicates,
              PairClassMode pair_class_mode = PairClassMode::kSingleton) {
     Build(pair_class_impl, permuter_a, permuter_b, predicates, predicates,
-	  pair_class_mode);
+          pair_class_mode);
   }
 
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>

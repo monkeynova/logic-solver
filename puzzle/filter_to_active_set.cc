@@ -10,12 +10,12 @@ ABSL_FLAG(bool, puzzle_value_skip_to_active_set, false,
           "implementation).");
 
 ABSL_FLAG(bool, puzzle_filter_pair_prune_skip_outer, false,
-	  "If true, when building pair-wise ActiveSet entries in kBackAndForth "
-	  "mode an attempt is made to be able to use a ValueSkip not just on "
-	  "the inner loop, but the outer as well. This requires an increased "
-	  "number of evaluations in the inner loop to prove safety, so is a "
-	  "trade-off and doesn't currently (2020-06-30) pay for itself on test "
-	  "bencharks.");
+          "If true, when building pair-wise ActiveSet entries in kBackAndForth "
+          "mode an attempt is made to be able to use a ValueSkip not just on "
+          "the inner loop, but the outer as well. This requires an increased "
+          "number of evaluations in the inner loop to prove safety, so is a "
+          "trade-off and doesn't currently (2020-06-30) pay for itself on test "
+          "bencharks.");
 
 namespace puzzle {
 
@@ -258,9 +258,9 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const ClassPermuter* outer = pair.first;
     const ClassPermuter* inner = pair.second;
     const std::vector<SolutionFilter>& predicates_by_inner =
-      inner == permuter_a ? predicates_by_a : predicates_by_b;
+        inner == permuter_a ? predicates_by_a : predicates_by_b;
     const std::vector<SolutionFilter>& predicates_by_outer =
-      inner == permuter_a ? predicates_by_b : predicates_by_a;
+        inner == permuter_a ? predicates_by_b : predicates_by_a;
     ActiveSetBuilder builder_outer(outer->permutation_count());
     bool any_of_inner;
     ActiveSetBuilder inner_builder(inner->permutation_count());
@@ -293,7 +293,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         [&](const ClassPermuter::iterator& it_outer,
             const ClassPermuter::iterator& it_inner,
             ClassPermuter::iterator::ValueSkip* inner_skip) {
-          if (AllMatch(predicates_by_inner, solution_, class_inner, inner_skip)) {
+          if (AllMatch(predicates_by_inner, solution_, class_inner,
+                       inner_skip)) {
             any_of_inner = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -328,8 +329,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                           });
             if (all_entry_skips && all_entry_skips != 0xffffffff) {
 #ifdef _MSC_VER
-	      unsigned long smallest_entry;
-	      CHECK(_BitScanForward(&smallest_entry, all_entry_skips));
+              unsigned long smallest_entry;
+              CHECK(_BitScanForward(&smallest_entry, all_entry_skips));
 #else
               int smallest_entry = __builtin_ffs(all_entry_skips) - 1;
 #endif
@@ -501,24 +502,26 @@ void FilterToActiveSet::Build(SingleClassBuild single_class_build,
   }
 }
 
-void FilterToActiveSet::Build(PairClassImpl pair_class_impl,
-                              const ClassPermuter* permuter_a,
-                              const ClassPermuter* permuter_b,
-                              const std::vector<SolutionFilter>& predicates_by_a,
-                              const std::vector<SolutionFilter>& predicates_by_b,
-                              PairClassMode pair_class_mode) {
+void FilterToActiveSet::Build(
+    PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
+    const ClassPermuter* permuter_b,
+    const std::vector<SolutionFilter>& predicates_by_a,
+    const std::vector<SolutionFilter>& predicates_by_b,
+    PairClassMode pair_class_mode) {
   switch (pair_class_impl) {
     case PairClassImpl::kPairSet:
       Build<PairClassImpl::kPairSet>(permuter_a, permuter_b, predicates_by_a,
-                                      predicates_by_b, pair_class_mode);
+                                     predicates_by_b, pair_class_mode);
       return;
     case PairClassImpl::kBackAndForth:
-      Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b, predicates_by_a,
-                                          predicates_by_b, pair_class_mode);
+      Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b,
+                                          predicates_by_a, predicates_by_b,
+                                          pair_class_mode);
       return;
     case PairClassImpl::kPassThroughA:
-      Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b, predicates_by_a,
-                                          predicates_by_b, pair_class_mode);
+      Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b,
+                                          predicates_by_a, predicates_by_b,
+                                          pair_class_mode);
       return;
     default:
       LOG(FATAL) << "Bad PairClassImpl " << static_cast<int>(pair_class_impl);
