@@ -72,10 +72,26 @@ class FilterToActiveSet {
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
   void Build(const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
              const std::vector<SolutionFilter>& predicates,
-             PairClassMode pair_class_mode = PairClassMode::kSingleton);
+             PairClassMode pair_class_mode = PairClassMode::kSingleton) {
+    Build(permuter_a, permuter_b, predicates, predicates, pair_class_mode);
+  }
   void Build(PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
              const ClassPermuter* permuter_b,
              const std::vector<SolutionFilter>& predicates,
+             PairClassMode pair_class_mode = PairClassMode::kSingleton) {
+    Build(pair_class_impl, permuter_a, permuter_b, predicates, predicates,
+	  pair_class_mode);
+  }
+
+  template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
+  void Build(const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
+             const std::vector<SolutionFilter>& predicates_by_a,
+             const std::vector<SolutionFilter>& predicates_by_b,
+             PairClassMode pair_class_mode = PairClassMode::kSingleton);
+  void Build(PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
+             const ClassPermuter* permuter_b,
+             const std::vector<SolutionFilter>& predicates_by_a,
+             const std::vector<SolutionFilter>& predicates_by_b,
              PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
@@ -89,7 +105,8 @@ class FilterToActiveSet {
 
   void SetupPairBuild(const ClassPermuter* permuter_a,
                       const ClassPermuter* permuter_b,
-                      const std::vector<SolutionFilter>& predicates);
+                      const std::vector<SolutionFilter>& predicates_by_a,
+                      const std::vector<SolutionFilter>& predicates_by_b);
 
   void SetupPermuter(const ClassPermuter* permuter);
 

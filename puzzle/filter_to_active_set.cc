@@ -183,16 +183,19 @@ void FilterToActiveSet::Build<
 
 void FilterToActiveSet::SetupPairBuild(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
-    const std::vector<SolutionFilter>& predicates) {
+    const std::vector<SolutionFilter>& predicates_by_a,
+    const std::vector<SolutionFilter>& predicates_by_b) {
   SetupPermuter(permuter_a);
   SetupPermuter(permuter_b);
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
-  for (const auto& p : predicates) {
-    CHECK_EQ(p.classes().size(), 2);
-    CHECK(p.classes()[0] == class_a || p.classes()[0] == class_b);
-    CHECK(p.classes()[1] == class_a || p.classes()[1] == class_b);
-    CHECK_NE(p.classes()[0], p.classes()[1]);
+  for (const auto& predicates : {predicates_by_a, predicates_by_b}) {
+    for (const auto& p : predicates) {
+      CHECK_EQ(p.classes().size(), 2);
+      CHECK(p.classes()[0] == class_a || p.classes()[0] == class_b);
+      CHECK(p.classes()[1] == class_a || p.classes()[1] == class_b);
+      CHECK_NE(p.classes()[0], p.classes()[1]);
+    }
   }
 }
 
@@ -248,9 +251,10 @@ void FilterToActiveSet::DualIterate(
 template <>
 void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
-    const std::vector<SolutionFilter>& predicates,
+    const std::vector<SolutionFilter>& predicates_by_a,
+    const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  SetupPairBuild(permuter_a, permuter_b, predicates);
+  SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b);
 
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
@@ -259,6 +263,10 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
            {permuter_b, permuter_a}, {permuter_a, permuter_b}}) {
     const ClassPermuter* outer = pair.first;
     const ClassPermuter* inner = pair.second;
+    const std::vector<SolutionFilter>& predicates_by_inner =
+      inner == permuter_a ? predicates_by_a : predicates_by_b;
+    const std::vector<SolutionFilter>& predicates_by_outer =
+      inner == permuter_a ? predicates_by_b : predicates_by_a;
     ActiveSetBuilder builder_outer(outer->permutation_count());
     bool any_of_inner;
     ActiveSetBuilder inner_builder(inner->permutation_count());
@@ -270,7 +278,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         active_set_pairs_[class_outer][class_inner];
 
     std::vector<SolutionFilter> outer_skip_preds;
-    for (const auto& pred : predicates) {
+    for (const auto& pred : predicates_by_outer) {
       if (pred.entry_id(class_outer) != Entry::kBadId) {
         outer_skip_preds.push_back(pred);
       }
@@ -291,7 +299,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         [&](const ClassPermuter::iterator& it_outer,
             const ClassPermuter::iterator& it_inner,
             ClassPermuter::iterator::ValueSkip* inner_skip) {
-          if (AllMatch(predicates, solution_, class_inner, inner_skip)) {
+          if (AllMatch(predicates_by_inner, solution_, class_inner, inner_skip)) {
             any_of_inner = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -351,9 +359,10 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
 template <>
 void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
-    const std::vector<SolutionFilter>& predicates,
+    const std::vector<SolutionFilter>& predicates_by_a,
+    const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  SetupPairBuild(permuter_a, permuter_b, predicates);
+  SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b);
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
@@ -381,7 +390,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
           // Already added both pieces.
           return true;
         }
-        if (AllMatch(predicates, solution_, class_b, b_skip)) {
+        if (AllMatch(predicates_by_b, solution_, class_b, b_skip)) {
           any_of_b = true;
           b_match_positions.insert(it_b.position());
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -422,9 +431,10 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
 template <>
 void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
-    const std::vector<SolutionFilter>& predicates,
+    const std::vector<SolutionFilter>& predicates_by_a,
+    const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  SetupPairBuild(permuter_a, permuter_b, predicates);
+  SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b);
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
@@ -449,7 +459,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
           // Already added both pieces.
           return true;
         }
-        if (AllMatch(predicates, solution_, class_b, b_skip)) {
+        if (AllMatch(predicates_by_b, solution_, class_b, b_skip)) {
           a_match_positions.insert(it_a.position());
           b_match_positions.insert(it_b.position());
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -502,20 +512,21 @@ void FilterToActiveSet::Build(SingleClassBuild single_class_build,
 void FilterToActiveSet::Build(PairClassImpl pair_class_impl,
                               const ClassPermuter* permuter_a,
                               const ClassPermuter* permuter_b,
-                              const std::vector<SolutionFilter>& predicates,
+                              const std::vector<SolutionFilter>& predicates_by_a,
+                              const std::vector<SolutionFilter>& predicates_by_b,
                               PairClassMode pair_class_mode) {
   switch (pair_class_impl) {
     case PairClassImpl::kPairSet:
-      Build<PairClassImpl::kPairSet>(permuter_a, permuter_b, predicates,
-                                     pair_class_mode);
+      Build<PairClassImpl::kPairSet>(permuter_a, permuter_b, predicates_by_a,
+                                      predicates_by_b, pair_class_mode);
       return;
     case PairClassImpl::kBackAndForth:
-      Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b, predicates,
-                                          pair_class_mode);
+      Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b, predicates_by_a,
+                                          predicates_by_b, pair_class_mode);
       return;
     case PairClassImpl::kPassThroughA:
-      Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b, predicates,
-                                          pair_class_mode);
+      Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b, predicates_by_a,
+                                          predicates_by_b, pair_class_mode);
       return;
     default:
       LOG(FATAL) << "Bad PairClassImpl " << static_cast<int>(pair_class_impl);
