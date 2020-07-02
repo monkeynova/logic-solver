@@ -11,12 +11,12 @@ message SixFearsomeHeroesInfo {
       WORF = 5;
     }
     enum Ranking {
-      FIRST = 0;
-      SECOND = 1;
-      THIRD = 2;
-      FOURTH = 3;
-      FIFTH = 4;
-      SIXTH = 5;
+      RANK_1 = 0;
+      RANK_2 = 1;
+      RANK_3 = 2;
+      RANK_4 = 3;
+      RANK_5 = 4;
+      RANK_6 = 5;
     }
 
     optional Who id = 1;

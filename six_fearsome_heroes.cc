@@ -55,13 +55,14 @@ class SixFearsomeHeroes : public puzzle::ProtoProblem {
     WORF = SixFearsomeHeroesInfo::Entry::WORF
   };
 
+  // RANK_1 is considered "worst" with RANK_6 considered "best".
   enum Ranking {
-    FIRST = SixFearsomeHeroesInfo::Entry::FIRST,
-    SECOND = SixFearsomeHeroesInfo::Entry::SECOND,
-    THIRD = SixFearsomeHeroesInfo::Entry::THIRD,
-    FOURTH = SixFearsomeHeroesInfo::Entry::FOURTH,
-    FIFTH = SixFearsomeHeroesInfo::Entry::FIFTH,
-    SIXTH = SixFearsomeHeroesInfo::Entry::SIXTH
+    RANK_1 = SixFearsomeHeroesInfo::Entry::RANK_1,
+    RANK_2 = SixFearsomeHeroesInfo::Entry::RANK_2,
+    RANK_3 = SixFearsomeHeroesInfo::Entry::RANK_3,
+    RANK_4 = SixFearsomeHeroesInfo::Entry::RANK_4,
+    RANK_5 = SixFearsomeHeroesInfo::Entry::RANK_5,
+    RANK_6 = SixFearsomeHeroesInfo::Entry::RANK_6,
   };
 
   enum Classes { HERO = 0, FEAR = 1, TRID = 2, FIZZBIN = 3 };
@@ -95,7 +96,7 @@ void SixFearsomeHeroes::AddGeneralPredicates() {
 void SixFearsomeHeroes::AddStatementPredicates() {
   AddSpecificEntryPredicate(
       "1. Geordi ranks 2 at Tri-D Chess",
-      [](const puzzle::Entry& e) { return e.Class(TRID) == SECOND; }, {TRID},
+      [](const puzzle::Entry& e) { return e.Class(TRID) == RANK_2; }, {TRID},
       GEORDI);
 
   AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
@@ -117,7 +118,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       [](const puzzle::Solution& s) {
         return (s.Id(s.Id(WORF).Class(HERO)).Class(TRID) + 1) * 3 ==
                s.Find([](const puzzle::Entry& e) {
-                  return e.Class(FIZZBIN) == SIXTH;
+                  return e.Class(FIZZBIN) == RANK_6;
                 }).Class(TRID) + 1;
       },
       {HERO, TRID, FIZZBIN});
@@ -142,11 +143,9 @@ void SixFearsomeHeroes::AddStatementPredicates() {
   AddPredicate(
       "8. The person who is worst at Fizzbin is better than Troi "
       "at Tri-D Chess.",
-      // TODO(@monkeynova): This lambda appears to be a bad translation grabbing
-      // 'best' rather than 'worst' as Fizzbin.
       [](const puzzle::Solution& s) {
         return s.Id(TROI).Class(TRID) < s.Find([](const puzzle::Entry& e) {
-                                           return e.Class(FIZZBIN) == FIRST;
+                                           return e.Class(FIZZBIN) == RANK_1;
                                          }).Class(TRID);
       },
       {TRID, FIZZBIN});
@@ -156,7 +155,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       "positions higher than Data at Fizzbin.",
       [](const puzzle::Solution& s) {
         return s.Find([](const puzzle::Entry& e) {
-                  return e.Class(TRID) == THIRD;
+		  return e.Class(TRID) == RANK_3;
                 }).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
       },
       {TRID, FIZZBIN});
@@ -179,7 +178,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       [](const puzzle::Solution& s) {
         return s.Id(RIKER).Class(TRID) + 2 ==
                s.Find([](const puzzle::Entry& e) {
-                  return e.Class(FIZZBIN) == SECOND;
+                  return e.Class(FIZZBIN) == RANK_2;
                 }).Class(TRID);
       },
       {TRID, FIZZBIN});
@@ -187,12 +186,12 @@ void SixFearsomeHeroes::AddStatementPredicates() {
 
 std::string SixFearsomeHeroes::solution_textproto() const {
   return R"PROTO(
-    entry { id: PICARD hero: DATA fear: TROI trid: FIFTH fizzbin: SECOND }
-    entry { id: RIKER hero: PICARD fear: WORF trid: THIRD fizzbin: FIFTH }
-    entry { id: TROI hero: WORF fear: RIKER trid: FIRST fizzbin: FOURTH }
-    entry { id: GEORDI hero: RIKER fear: PICARD trid: SECOND fizzbin: THIRD }
-    entry { id: DATA hero: TROI fear: GEORDI trid: FOURTH fizzbin: FIRST }
-    entry { id: WORF hero: GEORDI fear: DATA trid: SIXTH fizzbin: SIXTH }
+    entry { id: PICARD hero: DATA fear: TROI trid: RANK_5 fizzbin: RANK_2 }
+    entry { id: RIKER hero: PICARD fear: WORF trid: RANK_3 fizzbin: RANK_5 }
+    entry { id: TROI hero: WORF fear: RIKER trid: RANK_1 fizzbin: RANK_4 }
+    entry { id: GEORDI hero: RIKER fear: PICARD trid: RANK_2 fizzbin: RANK_3 }
+    entry { id: DATA hero: TROI fear: GEORDI trid: RANK_4 fizzbin: RANK_1 }
+    entry { id: WORF hero: GEORDI fear: DATA trid: RANK_6 fizzbin: RANK_6 }
   )PROTO";
 }
 
