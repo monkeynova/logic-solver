@@ -103,7 +103,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
 
   const std::vector<SolutionFilter>& solution_predicates =
       permuter_->class_predicates_[class_int];
-  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
+  ClassPermuter::iterator::ValueSkip value_skip;
   for (; iterators_[class_int] != class_permuter->end();
        iterators_[class_int] += value_skip) {
     mutable_solution_.SetClass(iterators_[class_int]);

@@ -182,7 +182,9 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
   for (int value_index = 0; value_index < permuter_size; ++value_index) {
     int loop_count = 0;
     int last_val = -1;
-    for (auto it = p->begin(); it != p->end(); it += {value_index}) {
+    ClassPermuter::iterator::ValueSkip value_skip;
+    value_skip.value_index = value_index;
+    for (auto it = p->begin(); it != p->end(); it += value_skip) {
       EXPECT_NE(last_val, (*it)[value_index]);
       last_val = (*it)[value_index];
       ++loop_count;
@@ -200,7 +202,9 @@ TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
   const int permutations = p->permutation_count();
 
   int loop_count = 0;
-  for (auto it = p->begin(); it != p->end(); it += {Entry::kBadId}) {
+  ClassPermuter::iterator::ValueSkip value_skip;
+  value_skip.value_index = Entry::kBadId;
+  for (auto it = p->begin(); it != p->end(); it += value_skip) {
     ++loop_count;
   }
   EXPECT_EQ(loop_count, permutations);
@@ -226,8 +230,10 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   EXPECT_EQ(loop_count, only_three_in_position_one.matches());
 
   loop_count = 0;
+  ClassPermuter::iterator::ValueSkip value_skip;
+  value_skip.value_index = 1;
   for (auto it = p->begin().WithActiveSet(only_three_in_position_one);
-       it != p->end(); it += {1}) {
+       it != p->end(); it += value_skip) {
     EXPECT_EQ((*it)[1], 3);
     ++loop_count;
   }

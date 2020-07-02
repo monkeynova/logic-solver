@@ -132,7 +132,7 @@ void FilterToActiveSet::SingleIterate(
   ValueSkipToActiveSet* vs2as =
       value_skip_to_active_set_[permuter->descriptor()].get();
 
-  ClassPermuter::iterator::ValueSkip value_skip = {Entry::kBadId};
+  ClassPermuter::iterator::ValueSkip value_skip;
   for (auto it = permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != permuter->end(); Advance(vs2as, value_skip, &it)) {
     mutable_solution_.SetClass(it);
@@ -218,7 +218,7 @@ void FilterToActiveSet::DualIterate(
   SingleIterate(outer, [&](const ClassPermuter::iterator& it_outer,
                            ClassPermuter::iterator::ValueSkip* outer_skip) {
     on_outer_before();
-    ClassPermuter::iterator::ValueSkip value_skip_inner = {Entry::kBadId};
+    ClassPermuter::iterator::ValueSkip value_skip_inner;
     for (auto it_inner =
              inner->begin()
                  .WithActiveSet(active_sets_[class_inner])
