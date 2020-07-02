@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
     if (answer.IsValid()) {
       LOG(INFO) << PositionHeader(answer);
     }
-    LOG(INFO) << answer.DebugString();
+    std::cout << answer.DebugString() << std::endl;
     exit_code = answer.IsValid() ? 0 : 1;
   }
 

@@ -114,7 +114,7 @@ void Base::AddValuePredicate(int row, int col, int value) {
   AddSpecificEntryPredicate(
       absl::StrCat("(", row, ",", col, ") = ", value),
       [col, value](const puzzle::Entry& e) {
-        return e.Class(col - 1) == value;
+        return e.Class(col - 1) == value - 1;
       },
       {col - 1}, row - 1);
 }
@@ -137,6 +137,10 @@ puzzle::Solution Base::GetSolution() const {
   CHECK_EQ(board.size(), 9);
   for (size_t row = 0; row < board.size(); ++row) {
     CHECK_EQ(board[row].size(), 9);
+    for (size_t col = 0; col < board[row].size(); ++col) {
+      // Translate to 0-indexed solution space.
+      --board[row][col];
+    }
     entries.emplace_back(row, board[row], entry_descriptor());
   }
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
@@ -169,12 +173,34 @@ Base::Board Base::ParseBoard(const absl::string_view board) {
 void Base::InstanceSetup() { AddBoardPredicates(GetInstanceBoard()); }
 
 void Base::Setup() {
-  puzzle::Descriptor* val_descriptor =
-      AddDescriptor(new puzzle::IntRangeDescriptor(1, 9));
+  // Descriptors are built so solution.DebugString(), kinda, sorta looks like
+  // a sudoku board.
+  puzzle::StringDescriptor* id_descriptor =
+    AddDescriptor(new puzzle::StringDescriptor());
+  for (int i = 0; i < 9; i += 3) {
+    // Every third row (starting with the first) gets a horizontal line.
+    id_descriptor->SetDescription(i, "+----------+----------+----------+\n");
+    id_descriptor->SetDescription(i + 1, "");
+    id_descriptor->SetDescription(i + 2, "");
+  }
+  SetIdentifiers(id_descriptor);
 
-  SetIdentifiers(AddDescriptor(new puzzle::IntRangeDescriptor(0, 8)));
+  // Most records we want to describe the 0-indexed value with the 1-indexed
+  // numeric value...
+  puzzle::StringDescriptor* mid_val_descriptor =
+    AddDescriptor(new puzzle::StringDescriptor());
+  for (int i = 0; i < 9; i++) {
+    mid_val_descriptor->SetDescription(i, absl::StrCat(i + 1));
+  }
+  // ... but every third one we also add ' :' to add a visual virtical line
+  // in output printing.
+  puzzle::StringDescriptor* col_val_descriptor =
+    AddDescriptor(new puzzle::StringDescriptor());
+  for (int i = 0; i < 9; i++) {
+    col_val_descriptor->SetDescription(i, absl::StrCat(i + 1, " :"));
+  }
   for (int i = 0; i < 9; ++i) {
-    AddClass(i, absl::StrCat(i + 1), val_descriptor);
+    AddClass(i, "", (i % 3) == 2 ? col_val_descriptor: mid_val_descriptor);
   }
 
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {

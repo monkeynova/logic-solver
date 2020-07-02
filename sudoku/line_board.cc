@@ -39,7 +39,8 @@ std::string LineBoard::ToString(const ::puzzle::Solution& solution) {
   char* out = const_cast<char*>(ret.data());
   for (int row = 0; row < 9; ++row) {
     for (int col = 0; col < 9; ++col) {
-      *out = solution.Id(row).Class(col) + '0';
+      // Translate from 0-indexed solution space to 1-indexed sudoku board.
+      *out = solution.Id(row).Class(col) + '1';
       ++out;
     }
   }
