@@ -50,10 +50,10 @@ class StringDescriptor : public Descriptor {
   ~StringDescriptor() override {}
 
   void SetDescription(int i, std::string d) {
+    CHECK_EQ(i, values_.size());
     auto pair = names_.emplace(i, std::move(d));
-    if (pair.second) {
-      values_.push_back(i);
-    }
+    CHECK(pair.second);
+    values_.push_back(i);
   }
   std::string DebugString(int i) const override {
     auto it = names_.find(i);

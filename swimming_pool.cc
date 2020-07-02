@@ -32,6 +32,12 @@ class SwimmingPoolProblem : public puzzle::ProtoProblem {
     DAISY = SwimmingPoolProblemInfo::Entry::DAISY,
     EMILY = SwimmingPoolProblemInfo::Entry::EMILY
   };
+  enum Lane {
+    ONE = SwimmingPoolProblemInfo::Entry::ONE,
+    TWO = SwimmingPoolProblemInfo::Entry::TWO,
+    THREE = SwimmingPoolProblemInfo::Entry::THREE,
+    FOUR = SwimmingPoolProblemInfo::Entry::FOUR
+  };
   enum Style {
     BACKSTROKE = SwimmingPoolProblemInfo::Entry::BACKSTROKE,
     BUTTERFLY = SwimmingPoolProblemInfo::Entry::BUTTERFLY,
@@ -84,10 +90,10 @@ void SwimmingPoolProblem::AddPredicates() {
         const puzzle::Entry& backstroker = s.Find([](const puzzle::Entry& e) {
           return e.Class(STYLE) == BACKSTROKE;
         });
-        if (emily.Class(COUNTRY) == UK && backstroker.Class(LANE) == 4) {
+        if (emily.Class(COUNTRY) == UK && backstroker.Class(LANE) == FOUR) {
           return true;
         }
-        if (backstroker.Class(COUNTRY) == UK && emily.Class(LANE) == 4) {
+        if (backstroker.Class(COUNTRY) == UK && emily.Class(LANE) == FOUR) {
           return true;
         }
         return false;
@@ -98,8 +104,8 @@ void SwimmingPoolProblem::AddPredicates() {
       "not Australian, and is not swiming in lates #2 nor #4.",
       [](const puzzle::Entry& e) {
         return e.Class(STYLE) != BACKSTROKE && e.Class(STYLE) != DOLPHIN &&
-               e.Class(COUNTRY) != AUSTRALIA && e.Class(LANE) != 2 &&
-               e.Class(LANE) != 4;
+               e.Class(COUNTRY) != AUSTRALIA && e.Class(LANE) != TWO &&
+               e.Class(LANE) != FOUR;
       },
       {STYLE, COUNTRY, LANE}, CAROL);
   AddPredicate(
@@ -127,15 +133,15 @@ void SwimmingPoolProblem::AddPredicates() {
                {COUNTRY, LANE});
   AddSpecificEntryPredicate(
       "6. Daisy is not swimming in lane #2.",
-      [](const puzzle::Entry& e) { return e.Class(LANE) != 2; }, {LANE}, DAISY);
+      [](const puzzle::Entry& e) { return e.Class(LANE) != TWO; }, {LANE}, DAISY);
 }
 
 std::string SwimmingPoolProblem::solution_textproto() const {
   return R"PROTO(
-    entry { id: BETTY lane: 2 country: USA style: DOLPHIN }
-    entry { id: CAROL lane: 1 country: CANADA style: BUTTERFLY }
-    entry { id: DAISY lane: 4 country: AUSTRALIA style: BACKSTROKE }
-    entry { id: EMILY lane: 3 country: UK style: FREESTYLE }
+    entry { id: BETTY lane: TWO country: USA style: DOLPHIN }
+    entry { id: CAROL lane: ONE country: CANADA style: BUTTERFLY }
+    entry { id: DAISY lane: FOUR country: AUSTRALIA style: BACKSTROKE }
+    entry { id: EMILY lane: THREE country: UK style: FREESTYLE }
   )PROTO";
 }
 

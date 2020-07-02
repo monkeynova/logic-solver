@@ -55,6 +55,15 @@ class SixFearsomeHeroes : public puzzle::ProtoProblem {
     WORF = SixFearsomeHeroesInfo::Entry::WORF
   };
 
+  enum Ranking {
+    FIRST = SixFearsomeHeroesInfo::Entry::FIRST,
+    SECOND = SixFearsomeHeroesInfo::Entry::SECOND,
+    THIRD = SixFearsomeHeroesInfo::Entry::THIRD,
+    FOURTH = SixFearsomeHeroesInfo::Entry::FOURTH,
+    FIFTH = SixFearsomeHeroesInfo::Entry::FIFTH,
+    SIXTH = SixFearsomeHeroesInfo::Entry::SIXTH
+  };
+
   enum Classes { HERO = 0, FEAR = 1, TRID = 2, FIZZBIN = 3 };
 
   void AddGeneralPredicates();
@@ -86,7 +95,7 @@ void SixFearsomeHeroes::AddGeneralPredicates() {
 void SixFearsomeHeroes::AddStatementPredicates() {
   AddSpecificEntryPredicate(
       "1. Geordi ranks 2 at Tri-D Chess",
-      [](const puzzle::Entry& e) { return e.Class(TRID) == 2; }, {TRID},
+      [](const puzzle::Entry& e) { return e.Class(TRID) == SECOND; }, {TRID},
       GEORDI);
 
   AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
@@ -106,10 +115,10 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       "4. Worf's hero ranks 3 times lower at Tri-D Chess than "
       "the crew member who is best at Fizzbin.",
       [](const puzzle::Solution& s) {
-        return s.Id(s.Id(WORF).Class(HERO)).Class(TRID) * 3 ==
+        return (s.Id(s.Id(WORF).Class(HERO)).Class(TRID) + 1) * 3 ==
                s.Find([](const puzzle::Entry& e) {
-                  return e.Class(FIZZBIN) == 6;
-                }).Class(TRID);
+                  return e.Class(FIZZBIN) == SIXTH;
+                }).Class(TRID) + 1;
       },
       {HERO, TRID, FIZZBIN});
 
@@ -133,9 +142,11 @@ void SixFearsomeHeroes::AddStatementPredicates() {
   AddPredicate(
       "8. The person who is worst at Fizzbin is better than Troi "
       "at Tri-D Chess.",
+      // TODO(@monkeynova): This lambda appears to be a bad translation grabbing
+      // 'best' rather than 'worst' as Fizzbin.
       [](const puzzle::Solution& s) {
         return s.Id(TROI).Class(TRID) < s.Find([](const puzzle::Entry& e) {
-                                           return e.Class(FIZZBIN) == 1;
+                                           return e.Class(FIZZBIN) == FIRST;
                                          }).Class(TRID);
       },
       {TRID, FIZZBIN});
@@ -145,7 +156,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       "positions higher than Data at Fizzbin.",
       [](const puzzle::Solution& s) {
         return s.Find([](const puzzle::Entry& e) {
-                  return e.Class(TRID) == 3;
+                  return e.Class(TRID) == THIRD;
                 }).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
       },
       {TRID, FIZZBIN});
@@ -168,7 +179,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       [](const puzzle::Solution& s) {
         return s.Id(RIKER).Class(TRID) + 2 ==
                s.Find([](const puzzle::Entry& e) {
-                  return e.Class(FIZZBIN) == 2;
+                  return e.Class(FIZZBIN) == SECOND;
                 }).Class(TRID);
       },
       {TRID, FIZZBIN});
