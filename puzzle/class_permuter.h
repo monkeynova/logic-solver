@@ -74,8 +74,8 @@ class ClassPermuter {
    public:
     AdvancerStaticStorage(const ClassPermuter* permuter)
         : AdvancerBase(permuter), current_span_(absl::MakeSpan(current_)) {
-      DCHECK_EQ(kStorageSize, permuter->values().size());
-      memcpy(current_, permuter->values().data(), sizeof(current_));
+      DCHECK_EQ(kStorageSize, permuter->permutation_size());
+      std::iota(current_, current_ + kStorageSize, 0);
     }
 
     // Explicity copy constructor so current_span_ points to this->current
@@ -210,10 +210,9 @@ class ClassPermuter {
     std::unique_ptr<AdvancerBase> advancer_;
   };
 
-  explicit ClassPermuter(const Descriptor* d, int class_int)
-      : descriptor_(d),
-        values_(d->Values()),
-        permutation_count_(PermutationCount(d)),
+  explicit ClassPermuter(int permutation_size, int class_int)
+      : permutation_size_(permutation_size),
+        permutation_count_(PermutationCount(permutation_size_)),
         class_int_(class_int) {}
   virtual ~ClassPermuter() {}
 
@@ -221,20 +220,19 @@ class ClassPermuter {
 
   iterator end() const { return iterator(); }
 
-  int permutation_size() const { return values_.size(); }
+  int permutation_size() const { return permutation_size_; }
   int permutation_count() const { return permutation_count_; }
 
   const Descriptor* descriptor() const { return descriptor_; }
-  const std::vector<int>& values() const { return values_; }
 
   int class_int() const { return class_int_; }
 
   std::string DebugString() const;
 
  private:
-  static int PermutationCount(const Descriptor* d);
+  static int PermutationCount(int permutation_size);
   const Descriptor* descriptor_;
-  std::vector<int> values_;
+  int permutation_size_;
   int permutation_count_;
   int class_int_;
 };

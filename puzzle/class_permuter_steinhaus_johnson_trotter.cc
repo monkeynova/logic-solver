@@ -66,26 +66,25 @@ static constexpr int kMaxStorageSize = 32;
 
 template <int kStorageSize>
 static std::unique_ptr<ClassPermuter> MakeSizedInstance(int permutation_size,
-                                                        const Descriptor* d,
                                                         int class_int) {
   if (permutation_size == kStorageSize) {
     return absl::make_unique<
-        ClassPermuterSteinhausJohnsonTrotter<kStorageSize>>(d, class_int);
+        ClassPermuterSteinhausJohnsonTrotter<kStorageSize>>(permutation_size,
+                                                            class_int);
   }
-  return MakeSizedInstance<kStorageSize - 1>(permutation_size, d, class_int);
+  return MakeSizedInstance<kStorageSize - 1>(permutation_size, class_int);
 }
 
 template <>
 std::unique_ptr<ClassPermuter> MakeSizedInstance<0>(int permutation_size,
-                                                    const Descriptor* d,
                                                     int class_int) {
   return nullptr;
 }
 
 std::unique_ptr<ClassPermuter>
-MakeClassPermuterSteinhausJohnsonTrotter::operator()(const Descriptor* d,
+MakeClassPermuterSteinhausJohnsonTrotter::operator()(int permutation_size,
                                                      int class_int) {
-  return MakeSizedInstance<kMaxStorageSize>(d->Values().size(), d, class_int);
+  return MakeSizedInstance<kMaxStorageSize>(permutation_size, class_int);
 }
 
 }  // namespace puzzle

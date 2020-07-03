@@ -8,7 +8,7 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
 
   builders.resize(class_permuter->permutation_size());
   for (int i = 0; i < class_permuter->permutation_size(); ++i) {
-    for (int value : class_permuter->values()) {
+    for (int value = 0; value < class_permuter->permutation_size(); ++value) {
       builders[i].emplace(
           value, ActiveSetBuilder(class_permuter->permutation_count()));
     }
@@ -27,8 +27,9 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
 
   active_set_.resize(class_permuter->permutation_size());
   for (int i = 0; i < class_permuter->permutation_size(); ++i) {
-    active_set_[i].resize(class_permuter->values().size(), ActiveSet::trivial());
-    for (int value : class_permuter->values()) {
+    active_set_[i].resize(class_permuter->permutation_size(),
+                          ActiveSet::trivial());
+    for (int value = 0; value < class_permuter->permutation_size(); ++value) {
       auto to_finish_it = builders[i].find(value);
       CHECK(to_finish_it != builders[i].end()) << i << ", " << value;
       ActiveSetBuilder& to_finish = to_finish_it->second;

@@ -133,7 +133,8 @@ void SwimmingPoolProblem::AddPredicates() {
                {COUNTRY, LANE});
   AddSpecificEntryPredicate(
       "6. Daisy is not swimming in lane #2.",
-      [](const puzzle::Entry& e) { return e.Class(LANE) != TWO; }, {LANE}, DAISY);
+      [](const puzzle::Entry& e) { return e.Class(LANE) != TWO; }, {LANE},
+      DAISY);
 }
 
 std::string SwimmingPoolProblem::solution_textproto() const {

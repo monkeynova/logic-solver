@@ -12,7 +12,8 @@ BruteSolutionPermuter::Advancer::Advancer(
     return;
   }
 
-  class_types_ = entry_descriptor->AllClasses()->Values();
+  class_types_.resize(entry_descriptor->AllClasses()->size());
+  std::iota(class_types_.begin(), class_types_.end(), 0);
 
   iterators_.resize(class_types_.size());
   for (auto class_int : class_types_) {
@@ -72,11 +73,9 @@ BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
     : entry_descriptor_(e) {}
 
 void BruteSolutionPermuter::Prepare() {
-  const std::vector<int>& class_types =
-      entry_descriptor_->AllClasses()->Values();
-
-  class_permuters_.resize(class_types.size());
-  for (auto class_int : class_types) {
+  int num_classes = entry_descriptor_->AllClasses()->size();
+  class_permuters_.resize(num_classes);
+  for (int class_int = 0; class_int < num_classes; ++class_int) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
     class_permuters_[class_int] =

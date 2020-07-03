@@ -20,24 +20,17 @@ class Descriptor {
  public:
   virtual ~Descriptor() {}
 
-  virtual std::vector<int> Values() const = 0;
+  virtual int size() const = 0;
 
   virtual std::string DebugString(int i) const { return absl::StrCat(i); }
 };
 
 class IntRangeDescriptor : public Descriptor {
  public:
-  IntRangeDescriptor(int size) : size_(size) {}
+  explicit IntRangeDescriptor(int size) : size_(size) {}
   ~IntRangeDescriptor() override {}
 
-  std::vector<int> Values() const override {
-    std::vector<int> ret;
-    ret.reserve(size_);
-    for (int i = 0; i < size_; ++i) {
-      ret.push_back(i);
-    }
-    return ret;
-  }
+  int size() const override { return size_; }
 
  private:
   int size_;
@@ -49,10 +42,10 @@ class StringDescriptor : public Descriptor {
   ~StringDescriptor() override {}
 
   void SetDescription(int i, std::string d) {
-    CHECK_EQ(i, values_.size());
+    CHECK_EQ(i, size_);
     auto pair = names_.emplace(i, std::move(d));
     CHECK(pair.second);
-    values_.push_back(i);
+    ++size_;
   }
   std::string DebugString(int i) const override {
     auto it = names_.find(i);
@@ -60,11 +53,11 @@ class StringDescriptor : public Descriptor {
     return "";
   }
 
-  std::vector<int> Values() const override { return values_; }
+  int size() const override { return size_; }
 
  private:
   absl::flat_hash_map<int, std::string> names_;
-  std::vector<int> values_;
+  int size_ = 0;
 };
 
 class ProtoEnumDescriptor : public StringDescriptor {
@@ -93,7 +86,7 @@ class EntryDescriptor {
     name_descriptors_[class_int] = name_descriptor;
   }
 
-  int num_classes() const { return class_descriptor_.Values().size(); }
+  int num_classes() const { return class_descriptor_.size(); }
 
   const Descriptor* AllIds() const { return id_descriptor_; }
   const Descriptor* AllClasses() const { return &class_descriptor_; }

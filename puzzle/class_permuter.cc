@@ -61,11 +61,9 @@ void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
 }
 
 // static
-int ClassPermuter::PermutationCount(const Descriptor* d) {
-  if (d == nullptr) return 0;
-
+int ClassPermuter::PermutationCount(int permutation_size) {
   int ret = 1;
-  int value_count = d->Values().size();
+  int value_count = permutation_size;
   for (int i = 2; i <= value_count; i++) {
     ret *= i;
   }

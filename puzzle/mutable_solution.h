@@ -18,7 +18,7 @@ class MutableSolution {
       std::vector<int> invalid_classes(num_classes, -1);
 
       entries_.reserve(num_classes);
-      for (auto id : descriptor_->AllIds()->Values()) {
+      for (int id = 0; id < descriptor_->AllIds()->size(); ++id) {
         entries_.push_back(Entry(id, invalid_classes, descriptor_));
       }
     }

@@ -56,9 +56,9 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
     RadixIndexToRawIndex<kStorageSize>* radix_index_to_raw_index_;
   };
 
-  explicit ClassPermuterFactorialRadixDeleteTracking(const Descriptor* d,
+  explicit ClassPermuterFactorialRadixDeleteTracking(int permutation_size,
                                                      int class_int)
-      : ClassPermuter(d, class_int) {}
+      : ClassPermuter(permutation_size, class_int) {}
 
   ClassPermuterFactorialRadixDeleteTracking(
       ClassPermuterFactorialRadixDeleteTracking&&) = default;
@@ -72,7 +72,7 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
 
 class MakeClassPermuterFactorialRadixDeleteTracking {
  public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d = nullptr,
+  std::unique_ptr<ClassPermuter> operator()(int permutation_size = 0,
                                             int class_int = 0);
 };
 

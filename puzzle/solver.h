@@ -35,7 +35,8 @@ class Solver {
   // `class_int_restrict_list` are used by this filter.
   void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
                             std::vector<int> class_int_restrict_list = {}) {
-    for (const int entry_id : entry_descriptor_.AllIds()->Values()) {
+    for (int entry_id = 0; entry_id < entry_descriptor_.AllIds()->size();
+         ++entry_id) {
       AddSpecificEntryPredicate(name, predicate, class_int_restrict_list,
                                 entry_id);
     }

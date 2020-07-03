@@ -224,9 +224,8 @@ void FilteredSolutionPermuter::Prepare() {
   filter_to_active_set_ =
       absl::make_unique<FilterToActiveSet>(entry_descriptor_, profiler_);
 
-  std::vector<int> class_order = entry_descriptor_->AllClasses()->Values();
-
-  for (int class_int : class_order) {
+  for (int class_int = 0; class_int < entry_descriptor_->AllClasses()->size();
+       ++class_int) {
     const Descriptor* class_descriptor =
         entry_descriptor_->AllClassValues(class_int);
     class_permuters_.emplace_back(

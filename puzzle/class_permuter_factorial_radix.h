@@ -22,8 +22,8 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
     void AdvanceDelta(int dist) override;
   };
 
-  explicit ClassPermuterFactorialRadix(const Descriptor* d, int class_int)
-      : ClassPermuter(d, class_int) {}
+  explicit ClassPermuterFactorialRadix(int permutation_size, int class_int)
+      : ClassPermuter(permutation_size, class_int) {}
 
   ClassPermuterFactorialRadix(ClassPermuterFactorialRadix&&) = default;
   ClassPermuterFactorialRadix& operator=(ClassPermuterFactorialRadix&&) =
@@ -36,7 +36,7 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
 
 class MakeClassPermuterFactorialRadix {
  public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d = nullptr,
+  std::unique_ptr<ClassPermuter> operator()(int permutation_size = 0,
                                             int class_int = 0);
 };
 

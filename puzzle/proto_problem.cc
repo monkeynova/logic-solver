@@ -37,8 +37,7 @@ Solution ProtoProblem::GetSolution() const {
   std::vector<Entry> entries;
   for (const auto& entry : proto_entries) {
     int id = entry.GetReflection()->GetEnumValue(entry, id_field);
-    std::vector<int> class_values(
-        entry_descriptor()->AllClasses()->Values().size(), 0);
+    std::vector<int> class_values(entry_descriptor()->AllClasses()->size(), 0);
     for (int i = 0; i < entry_proto->field_count(); ++i) {
       const google::protobuf::FieldDescriptor* field = entry_proto->field(i);
       if (field == id_field) {

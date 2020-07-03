@@ -39,9 +39,8 @@ TEST(Puzzle, UniqueAnswer) {
 
   std::vector<puzzle::Solution> solutions = problem->AllSolutions(/*limit=*/2);
   ASSERT_FALSE(solutions.empty());
-  ASSERT_EQ(solutions.size(), 1)
-    << "\n0: " << solutions[0].DebugString()
-    << "\n1: " << solutions[1].DebugString();
+  ASSERT_EQ(solutions.size(), 1) << "\n0: " << solutions[0].DebugString()
+                                 << "\n1: " << solutions[1].DebugString();
 }
 
 static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,

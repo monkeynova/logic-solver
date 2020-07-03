@@ -119,7 +119,8 @@ void SixFearsomeHeroes::AddStatementPredicates() {
         return (s.Id(s.Id(WORF).Class(HERO)).Class(TRID) + 1) * 3 ==
                s.Find([](const puzzle::Entry& e) {
                   return e.Class(FIZZBIN) == RANK_6;
-                }).Class(TRID) + 1;
+                }).Class(TRID) +
+                   1;
       },
       {HERO, TRID, FIZZBIN});
 
@@ -155,7 +156,7 @@ void SixFearsomeHeroes::AddStatementPredicates() {
       "positions higher than Data at Fizzbin.",
       [](const puzzle::Solution& s) {
         return s.Find([](const puzzle::Entry& e) {
-		  return e.Class(TRID) == RANK_3;
+                  return e.Class(TRID) == RANK_3;
                 }).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
       },
       {TRID, FIZZBIN});

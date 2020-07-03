@@ -24,9 +24,9 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
     int next_from_;
   };
 
-  explicit ClassPermuterSteinhausJohnsonTrotter(const Descriptor* d,
+  explicit ClassPermuterSteinhausJohnsonTrotter(int permutation_size,
                                                 int class_int)
-      : ClassPermuter(d, class_int) {}
+      : ClassPermuter(permutation_size, class_int) {}
 
   ClassPermuterSteinhausJohnsonTrotter(ClassPermuterSteinhausJohnsonTrotter&&) =
       default;
@@ -40,7 +40,7 @@ class ClassPermuterSteinhausJohnsonTrotter final : public ClassPermuter {
 
 class MakeClassPermuterSteinhausJohnsonTrotter {
  public:
-  std::unique_ptr<ClassPermuter> operator()(const Descriptor* d = nullptr,
+  std::unique_ptr<ClassPermuter> operator()(int permutation_size = 0,
                                             int class_int = 0);
 };
 

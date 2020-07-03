@@ -24,8 +24,8 @@ using ClassPermuterTypes =
 TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
-  IntRangeDescriptor d(3);
-  auto p = TypeParam()(&d);
+  constexpr int kPermuterSize = 3;
+  auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
   std::set<std::vector<int>> history;
@@ -41,8 +41,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElements) {
 }
 
 TYPED_TEST(ClassPermuterTest, FiveElements) {
-  IntRangeDescriptor d(5);
-  auto p = TypeParam()(&d);
+  constexpr int kPermuterSize = 5;
+  auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 120);
 
   std::set<std::vector<int>> history;
@@ -58,8 +58,8 @@ TYPED_TEST(ClassPermuterTest, FiveElements) {
 }
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
-  IntRangeDescriptor d(3);
-  auto p = TypeParam()(&d);
+  constexpr int kPermuterSize = 3;
+  auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
   ActiveSetBuilder builder_first(6);
@@ -98,8 +98,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
 }
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
-  IntRangeDescriptor d(3);
-  auto p = TypeParam()(&d);
+  constexpr int kPermuterSize = 3;
+  auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
   ActiveSetBuilder builder_odd(6);
@@ -136,8 +136,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
 }
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
-  IntRangeDescriptor d(3);
-  auto p = TypeParam()(&d);
+  constexpr int kPermuterSize = 3;
+  auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
   ActiveSetBuilder builder_odd(6);
@@ -175,8 +175,7 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
 
 TYPED_TEST(ClassPermuterTest, ValueSkip) {
   constexpr int kPermuterSize = 9;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(kPermuterSize);
   const int permutations = p->permutation_count();
 
   for (int value_index = 0; value_index < kPermuterSize; ++value_index) {
@@ -197,8 +196,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
 
 TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
   constexpr int kPermuterSize = 9;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(kPermuterSize);
   const int permutations = p->permutation_count();
 
   int loop_count = 0;
@@ -212,8 +210,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
 
 TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   constexpr int kPermuterSize = 4;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(kPermuterSize);
 
   ActiveSetBuilder builder(p->permutation_count());
   for (const auto& permutation : *p) {
@@ -242,8 +239,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
 
 TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
   constexpr int kPermuterSize = 4;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(kPermuterSize);
 
   ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count());
@@ -258,8 +254,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
 
 TYPED_TEST(ClassPermuterTest, FullActiveSet) {
   constexpr int kPermuterSize = 4;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(kPermuterSize);
 
   ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(true, p->permutation_count());
@@ -277,8 +272,7 @@ TYPED_TEST(ClassPermuterTest, FullActiveSet) {
 
 TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
   constexpr int kPermuterSize = 4;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(kPermuterSize);
 
   ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count());
@@ -299,9 +293,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
 }
 
 TYPED_TEST(ClassPermuterTest, ActiveSetMidIteration) {
-  constexpr int kPermuterSize = 4;
-  IntRangeDescriptor d(kPermuterSize);
-  auto p = TypeParam()(&d);
+  auto p = TypeParam()(4);
 
   ActiveSetBuilder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count() * 3 / 4);

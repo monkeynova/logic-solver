@@ -21,7 +21,7 @@ void KillerSudoku::AddCage(const Cage& cage) {
       absl::StrCat("Sum around ", cage.boxes[0].DebugString(), " = ",
                    cage.expected_sum),
       [cage](const puzzle::Solution& s) {
-	// Solution values are 0-indexed, rather than 1-indexed like the sum.
+        // Solution values are 0-indexed, rather than 1-indexed like the sum.
         int sum = cage.boxes.size();
         for (const Box& box : cage.boxes) {
           sum += s.Id(box.entry_id).Class(box.class_id);
