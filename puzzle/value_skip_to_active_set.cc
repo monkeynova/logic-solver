@@ -27,12 +27,13 @@ ValueSkipToActiveSet::ValueSkipToActiveSet(
 
   active_set_.resize(class_permuter->permutation_size());
   for (int i = 0; i < class_permuter->permutation_size(); ++i) {
+    active_set_[i].resize(class_permuter->values().size(), ActiveSet::trivial());
     for (int value : class_permuter->values()) {
       auto to_finish_it = builders[i].find(value);
       CHECK(to_finish_it != builders[i].end()) << i << ", " << value;
       ActiveSetBuilder& to_finish = to_finish_it->second;
       to_finish.AddBlockTo(true, class_permuter->permutation_count());
-      active_set_[i].emplace(value, to_finish.DoneAdding());
+      active_set_[i][value] = to_finish.DoneAdding();
     }
   }
 }
