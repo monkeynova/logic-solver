@@ -27,21 +27,20 @@ class Descriptor {
 
 class IntRangeDescriptor : public Descriptor {
  public:
-  IntRangeDescriptor(int start, int end) : start_(start), end_(end) {}
+  IntRangeDescriptor(int size) : size_(size) {}
   ~IntRangeDescriptor() override {}
 
   std::vector<int> Values() const override {
     std::vector<int> ret;
-    ret.reserve(end_ - start_);
-    for (int i = start_; i <= end_; ++i) {
+    ret.reserve(size_);
+    for (int i = 0; i < size_; ++i) {
       ret.push_back(i);
     }
     return ret;
   }
 
  private:
-  int start_;
-  int end_;
+  int size_;
 };
 
 class StringDescriptor : public Descriptor {

@@ -15,9 +15,9 @@ namespace puzzle {
 
 TEST(FilteredSolutionPermuterTest, Simple) {
   EntryDescriptor ed;
-  IntRangeDescriptor id(3, 5);
-  IntRangeDescriptor cd1(6, 8);
-  IntRangeDescriptor cd2(11, 13);
+  IntRangeDescriptor id(3);
+  IntRangeDescriptor cd1(3);
+  IntRangeDescriptor cd2(3);
 
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
@@ -44,9 +44,9 @@ TEST(FilteredSolutionPermuterTest, Simple) {
 
 TEST(FilteredSolutionPermuterTest, CropFirstClass) {
   EntryDescriptor ed;
-  IntRangeDescriptor id(0, 2);
-  IntRangeDescriptor cd1(6, 8);
-  IntRangeDescriptor cd2(11, 13);
+  IntRangeDescriptor id(3);
+  IntRangeDescriptor cd1(3);
+  IntRangeDescriptor cd2(3);
 
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
@@ -54,7 +54,7 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   p.AddFilter(SolutionFilter(
-      "test", [](const Solution& s) { return s.Id(1).Class(0) == 7; },
+      "test", [](const Solution& s) { return s.Id(1).Class(0) == 1; },
       std::vector<int>{0}));
   p.Prepare();
 
@@ -66,7 +66,7 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
     EXPECT_THAT(history.insert(it->DebugString()).second, true)
         << it->DebugString();
 
-    EXPECT_THAT(it->Id(1).Class(0), 7);
+    EXPECT_THAT(it->Id(1).Class(0), 1);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
@@ -78,9 +78,9 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
 
 TEST(FilteredSolutionPermuterTest, CropLastClass) {
   EntryDescriptor ed;
-  IntRangeDescriptor id(0, 2);
-  IntRangeDescriptor cd1(6, 8);
-  IntRangeDescriptor cd2(11, 13);
+  IntRangeDescriptor id(3);
+  IntRangeDescriptor cd1(3);
+  IntRangeDescriptor cd2(3);
 
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
@@ -91,7 +91,7 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
       "test",
       [](const Solution& s) {
         LOG(INFO) << "(1,1) => " << s.Id(0).Class(1) << std::endl;
-        return s.Id(1).Class(1) == 12;
+        return s.Id(1).Class(1) == 2;
       },
       std::vector<int>{1}));
   p.Prepare();
@@ -105,7 +105,7 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
     EXPECT_THAT(history.insert(it->DebugString()).second, true)
         << it->DebugString();
 
-    EXPECT_THAT(it->Id(1).Class(1), 12);
+    EXPECT_THAT(it->Id(1).Class(1), 2);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
@@ -117,9 +117,9 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
 
 TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   EntryDescriptor ed;
-  IntRangeDescriptor id(0, 2);
-  IntRangeDescriptor cd1(6, 8);
-  IntRangeDescriptor cd2(11, 13);
+  IntRangeDescriptor id(3);
+  IntRangeDescriptor cd1(3);
+  IntRangeDescriptor cd2(3);
 
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);
@@ -130,14 +130,14 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
       "test",
       [](const Solution& s) {
         LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
-        return s.Id(0).Class(0) == 7;
+        return s.Id(0).Class(0) == 1;
       },
       std::vector<int>{0}));
   p.AddFilter(SolutionFilter(
       "test",
       [](const Solution& s) {
         LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
-        return s.Id(1).Class(1) == 12;
+        return s.Id(1).Class(1) == 2;
       },
       std::vector<int>{1}));
   p.Prepare();
@@ -151,8 +151,8 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
     EXPECT_THAT(history.insert(it->DebugString()).second, true)
         << it->DebugString();
 
-    EXPECT_THAT(it->Id(0).Class(0), 7);
-    EXPECT_THAT(it->Id(1).Class(1), 12);
+    EXPECT_THAT(it->Id(0).Class(0), 1);
+    EXPECT_THAT(it->Id(1).Class(1), 2);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 2);

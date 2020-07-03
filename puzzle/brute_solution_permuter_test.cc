@@ -12,9 +12,9 @@ namespace puzzle {
 
 TEST(BruteSolutionPermuterTest, Simple) {
   EntryDescriptor ed;
-  IntRangeDescriptor id(3, 5);
-  IntRangeDescriptor cd1(6, 8);
-  IntRangeDescriptor cd2(11, 13);
+  IntRangeDescriptor id(3);
+  IntRangeDescriptor cd1(3);
+  IntRangeDescriptor cd2(3);
 
   ed.SetIds(&id);
   ed.SetClass(0, "foo", &cd1);

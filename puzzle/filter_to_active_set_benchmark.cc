@@ -25,7 +25,7 @@ struct SetupState {
       int permutation_count,
       std::vector<std::unique_ptr<Descriptor>>* descriptors) {
     EntryDescriptor ret;
-    descriptors->emplace_back(new IntRangeDescriptor(0, permutation_count));
+    descriptors->emplace_back(new IntRangeDescriptor(permutation_count));
     ret.SetIds(descriptors->back().get());
     ret.SetClass(kClassIntA, "Class A", descriptors->back().get());
     ret.SetClass(kClassIntB, "Class B", descriptors->back().get());

@@ -11,7 +11,7 @@ namespace puzzle {
 
 template <typename MakeClassPermuterPermuterType, int depth>
 static void BM_Permuter(benchmark::State& state) {
-  IntRangeDescriptor d(1, depth);
+  IntRangeDescriptor d(depth);
   auto p = MakeClassPermuterPermuterType()(&d);
   for (auto _ : state) {
     for (auto it = p->begin(); it != p->end(); ++it) /* no-op */
@@ -40,7 +40,7 @@ template <typename MakeClassPermuterPermuterType, int depth, int crop_column,
           int crop_value>
 static void BM_PermuterActiveSet1InN(benchmark::State& state) {
   // Build ActiveSet.
-  IntRangeDescriptor d(1, depth);
+  IntRangeDescriptor d(depth);
   auto p = MakeClassPermuterPermuterType()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());
@@ -111,7 +111,7 @@ BENCHMARK_TEMPLATE(BM_PermuterActiveSet1InN,
 template <typename MakeClassPermuterPermuterType, int depth, int every_n>
 static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   // Build ActiveSet.
-  IntRangeDescriptor d(1, depth);
+  IntRangeDescriptor d(depth);
   auto p = MakeClassPermuterPermuterType()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());

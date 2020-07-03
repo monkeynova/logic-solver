@@ -24,7 +24,7 @@ using ClassPermuterTypes =
 TYPED_TEST_SUITE(ClassPermuterTest, ClassPermuterTypes);
 
 TYPED_TEST(ClassPermuterTest, ThreeElements) {
-  IntRangeDescriptor d(3, 5);
+  IntRangeDescriptor d(3);
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
@@ -34,14 +34,14 @@ TYPED_TEST(ClassPermuterTest, ThreeElements) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 6);
 }
 
 TYPED_TEST(ClassPermuterTest, FiveElements) {
-  IntRangeDescriptor d(3, 7);
+  IntRangeDescriptor d(5);
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 120);
 
@@ -51,14 +51,14 @@ TYPED_TEST(ClassPermuterTest, FiveElements) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5, 6, 7));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2, 3, 4));
     ++position;
   }
   EXPECT_THAT(position, 120);
 }
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
-  IntRangeDescriptor d(3, 5);
+  IntRangeDescriptor d(3);
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
@@ -78,7 +78,7 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
     EXPECT_THAT(it.position(), position);
     EXPECT_TRUE(history.emplace((*it).begin(), (*it).end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 3);
@@ -91,14 +91,14 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
     EXPECT_THAT(it.position(), position + 3);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 3);
 }
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
-  IntRangeDescriptor d(3, 5);
+  IntRangeDescriptor d(3);
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
@@ -118,7 +118,7 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 3);
@@ -129,14 +129,14 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 3);
 }
 
 TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
-  IntRangeDescriptor d(3, 5);
+  IntRangeDescriptor d(3);
   auto p = TypeParam()(&d);
   EXPECT_THAT(p->permutation_count(), 6);
 
@@ -156,7 +156,7 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
     EXPECT_THAT(it.position(), 2 * position);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 3);
@@ -167,19 +167,19 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
     EXPECT_THAT(it.position(), 2 * position + 1);
     EXPECT_TRUE(history.emplace(it->begin(), it->end()).second)
         << absl::StrJoin(*it, ", ");
-    EXPECT_THAT(*it, UnorderedElementsAre(3, 4, 5));
+    EXPECT_THAT(*it, UnorderedElementsAre(0, 1, 2));
     ++position;
   }
   EXPECT_THAT(position, 3);
 }
 
 TYPED_TEST(ClassPermuterTest, ValueSkip) {
-  constexpr int permuter_size = 9;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 9;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
   const int permutations = p->permutation_count();
 
-  for (int value_index = 0; value_index < permuter_size; ++value_index) {
+  for (int value_index = 0; value_index < kPermuterSize; ++value_index) {
     int loop_count = 0;
     int last_val = -1;
     ClassPermuter::iterator::ValueSkip value_skip;
@@ -196,8 +196,8 @@ TYPED_TEST(ClassPermuterTest, ValueSkip) {
 }
 
 TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
-  constexpr int permuter_size = 9;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 9;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
   const int permutations = p->permutation_count();
 
@@ -211,8 +211,8 @@ TYPED_TEST(ClassPermuterTest, ValueSkipBadId) {
 }
 
 TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
-  constexpr int permuter_size = 4;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 4;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());
@@ -241,8 +241,8 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
 }
 
 TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
-  constexpr int permuter_size = 4;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 4;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());
@@ -257,8 +257,8 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
 }
 
 TYPED_TEST(ClassPermuterTest, FullActiveSet) {
-  constexpr int permuter_size = 4;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 4;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());
@@ -276,8 +276,8 @@ TYPED_TEST(ClassPermuterTest, FullActiveSet) {
 }
 
 TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
-  constexpr int permuter_size = 4;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 4;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());
@@ -299,8 +299,8 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
 }
 
 TYPED_TEST(ClassPermuterTest, ActiveSetMidIteration) {
-  constexpr int permuter_size = 4;
-  IntRangeDescriptor d(1, permuter_size);
+  constexpr int kPermuterSize = 4;
+  IntRangeDescriptor d(kPermuterSize);
   auto p = TypeParam()(&d);
 
   ActiveSetBuilder builder(p->permutation_count());
