@@ -20,11 +20,6 @@ class ClassPermuterFactorialRadix final : public ClassPermuter {
 
     void Advance() override;
     void AdvanceDelta(int dist) override;
-
-   private:
-    // Copy of the values being permuted, stored in order from the values in
-    // permuter().
-    int values_[kStorageSize];
   };
 
   explicit ClassPermuterFactorialRadix(const Descriptor* d, int class_int)

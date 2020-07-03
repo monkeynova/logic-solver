@@ -38,7 +38,6 @@ template <int kStorageSize>
 ClassPermuterFactorialRadixDeleteTracking<kStorageSize>::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter)
     : Base(permuter) {
-  memcpy(values_, Base::current_, sizeof(values_));
   DCHECK_LT(kStorageSize, kMaxStorageSize)
       << "Permutation indexes use a memory buffer of size N * 2^N";
   radix_index_to_raw_index_ = RadixIndexToRawIndex<kStorageSize>::Singleton();
@@ -61,14 +60,14 @@ void ClassPermuterFactorialRadixDeleteTracking<
       const int next = radix_index_to_raw_index_->Get(
           (Base::position_ / div) % mod, deleted);
       DCHECK_LT(next, kStorageSize);
-      Base::current_[i] = values_[next];
+      Base::current_[i] = next;
       deleted |= (1 << next);
       --mod;
       div /= mod;
     }
     const int next = radix_index_to_raw_index_->Get(0, deleted);
     DCHECK_GE(next, 0);
-    Base::current_[kStorageSize - 1] = values_[next];
+    Base::current_[kStorageSize - 1] = next;
   }
 }
 

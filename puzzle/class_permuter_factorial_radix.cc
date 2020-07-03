@@ -7,7 +7,6 @@ ClassPermuterFactorialRadix<kStorageSize>::Advancer::Advancer(
     const ClassPermuterFactorialRadix* permuter)
     : Base(permuter) {
   DCHECK_EQ(kStorageSize, permuter->descriptor()->Values().size());
-  memcpy(values_, permuter->descriptor()->Values().data(), sizeof(values_));
 }
 
 template <int kStorageSize>
@@ -20,7 +19,7 @@ void ClassPermuterFactorialRadix<kStorageSize>::Advancer::AdvanceDelta(
   } else {
     int tmp = Base::position_;
     for (size_t i = 0; i < kStorageSize; ++i) {
-      Base::current_[i] = values_[i];
+      Base::current_[i] = i;
     }
     for (size_t i = 0; tmp && i < kStorageSize; ++i) {
       int next = tmp % (kStorageSize - i);
