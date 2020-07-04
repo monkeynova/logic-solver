@@ -33,7 +33,10 @@ class ClassPermuter {
     virtual void AdvanceDelta(int dist) = 0;
     virtual void AdvanceSkip(ValueSkip value_skip) = 0;
 
-    void AdvanceWithSkip();
+    // Advances permutation until the the result should be allowed considering
+    // 'active_set_'.
+    void AdvanceWithSkip() { AdvanceDeltaWithSkip(/*delta=*/1); }
+    void AdvanceDeltaWithSkip(int delta);
 
     virtual const absl::Span<const int>& current() const = 0;
     int position() const { return position_; }
@@ -157,6 +160,15 @@ class ClassPermuter {
       return *this;
     }
 
+    iterator& operator+=(int delta) {
+      if (advancer_->active_set().is_trivial()) {
+        advancer_->AdvanceDelta(delta);
+      } else {
+        advancer_->AdvanceDeltaWithSkip(delta);
+      }
+      return *this;
+    }
+
     // Advance until the value of `current_[value_skip.value_index]` changes.
     // TODO(@monkeynova): The details of permutation iteration are
     // putting the iteration reduction to a permutation of size 9 between 1-4x
@@ -201,10 +213,6 @@ class ClassPermuter {
     bool is_end() const {
       return advancer_ == nullptr || advancer_->current().empty();
     }
-
-    // Advances permutation until the the result should be allowed considering
-    // 'active_set_'.
-    void AdvanceWithSkip();
 
     // Implementation dependent means of advancing through permutations.
     std::unique_ptr<AdvancerBase> advancer_;

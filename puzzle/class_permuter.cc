@@ -44,9 +44,8 @@ bool ClassPermuter::AdvancerBase::WithActiveSet(const ActiveSet& other) {
   return true;
 }
 
-void ClassPermuter::AdvancerBase::AdvanceWithSkip() {
+void ClassPermuter::AdvancerBase::AdvanceDeltaWithSkip(int delta) {
   DCHECK(active_set_it_.value());
-  int delta = 1;
   active_set_it_.Advance(delta);
   if (!active_set_it_.value()) {
     DCHECK(active_set_it_.RunSize() > 0) << "0 length false run";
