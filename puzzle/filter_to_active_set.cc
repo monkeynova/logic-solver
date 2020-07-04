@@ -329,7 +329,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                             inner_skip->value_index = Entry::kBadId;
                             all_entry_skips &= UnmatchedEntrySkips(
                                 outer_skip_preds, solution_, class_outer);
-			    return false;
+			    // Stop iteration if we can't return something useful.
+			    return all_entry_skips == 0;
                           });
             if (all_entry_skips && all_entry_skips != 0xffffffff) {
 #ifdef _MSC_VER
