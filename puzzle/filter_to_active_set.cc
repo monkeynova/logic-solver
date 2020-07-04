@@ -125,7 +125,7 @@ void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
 
 void FilterToActiveSet::SingleIterate(
     const ClassPermuter* permuter,
-    absl::FunctionRef<void(const ClassPermuter::iterator& it,
+    absl::FunctionRef<bool(const ClassPermuter::iterator& it,
                            ClassPermuter::iterator::ValueSkip* value_skip)>
         on_item) {
   const int class_int = permuter->class_int();
@@ -136,7 +136,7 @@ void FilterToActiveSet::SingleIterate(
   for (auto it = permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != permuter->end(); Advance(vs2as, value_skip, &it)) {
     mutable_solution_.SetClass(it);
-    on_item(it, &value_skip);
+    if (on_item(it, &value_skip)) break;
   }
 }
 
@@ -156,6 +156,7 @@ void FilterToActiveSet::Build<
                     builder.AddBlockTo(false, it.position());
                     builder.Add(true);
                   }
+		  return false;
                 });
   builder.AddBlockTo(false, class_permuter->permutation_count());
   active_sets_[class_int] = builder.DoneAdding();
@@ -176,6 +177,7 @@ void FilterToActiveSet::Build<
                   if (AllMatch(predicates, solution_, class_int, value_skip)) {
                     a_matches.push_back(it.position());
                   }
+		  return false;
                 });
   active_sets_[class_int] = ActiveSetBuilder::FromPositions(
       a_matches, class_permuter->permutation_count());
@@ -239,6 +241,7 @@ void FilterToActiveSet::DualIterate(
     } else {
       on_outer_after(it_outer, nullptr);
     }
+    return false;
   });
 }
 
@@ -326,6 +329,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                             inner_skip->value_index = Entry::kBadId;
                             all_entry_skips &= UnmatchedEntrySkips(
                                 outer_skip_preds, solution_, class_outer);
+			    return false;
                           });
             if (all_entry_skips && all_entry_skips != 0xffffffff) {
 #ifdef _MSC_VER

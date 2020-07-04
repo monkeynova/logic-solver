@@ -112,7 +112,7 @@ class FilterToActiveSet {
 
   inline void SingleIterate(
       const ClassPermuter* permuter,
-      absl::FunctionRef<void(const ClassPermuter::iterator& it,
+      absl::FunctionRef<bool(const ClassPermuter::iterator& it,
                              ClassPermuter::iterator::ValueSkip* value_skip)>
           on_item);
 
