@@ -112,20 +112,20 @@ void Base::AddPredicatesPairwise() {
 
 void Base::AddValuePredicate(int row, int col, int value) {
   AddSpecificEntryPredicate(
-      absl::StrCat("(", row, ",", col, ") = ", value),
+      absl::StrCat("(", row + 1, ",", col + 1, ") = ", value),
       [col, value](const puzzle::Entry& e) {
-        return e.Class(col - 1) == value - 1;
+        return e.Class(col) == value;
       },
-      {col - 1}, row - 1);
+      {col}, row);
 }
 
 void Base::AddBoardPredicates(const Board& board) {
   CHECK_EQ(board.size(), 9);
-  for (size_t row = 1; row <= board.size(); ++row) {
-    CHECK_EQ(board[row - 1].size(), 9);
-    for (size_t col = 1; col <= board[row - 1].size(); ++col) {
-      if (board[row - 1][col - 1] > 0) {
-        AddValuePredicate(row, col, board[row - 1][col - 1]);
+  for (size_t row = 0; row < board.size(); ++row) {
+    CHECK_EQ(board[row].size(), 9);
+    for (size_t col = 0; col < board[row].size(); ++col) {
+      if (board[row][col] > 0) {
+        AddValuePredicate(row, col, board[row][col] - 1);
       }
     }
   }
