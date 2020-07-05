@@ -49,7 +49,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
   Base::position_ += dist;
   if (Base::position_ >= Base::permutation_count()) {
     Base::position_ = Base::permutation_count();
-    Base::current_span_ = absl::Span<const int>();
+    Base::set_current(absl::Span<const int>());
   } else {
     int mod = kStorageSize;
     int div = Base::permutation_count() / mod;
@@ -91,8 +91,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
   int value = Base::current_[value_skip.value_index];
   int div = factorial(kStorageSize - value_skip.value_index - 1);
   auto still_on_value = [&]() {
-    return !Base::current_span_.empty() &&
-           Base::current_[value_skip.value_index] == value;
+    return !Base::done() && Base::current_[value_skip.value_index] == value;
   };
   if (Base::active_set_->is_trivial()) {
     int delta = div - (Base::position_ % div);

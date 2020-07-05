@@ -156,7 +156,7 @@ void FilterToActiveSet::Build<
                     builder.AddBlockTo(false, it.position());
                     builder.Add(true);
                   }
-		  return false;
+                  return false;
                 });
   builder.AddBlockTo(false, class_permuter->permutation_count());
   active_sets_[class_int] = builder.DoneAdding();
@@ -177,7 +177,7 @@ void FilterToActiveSet::Build<
                   if (AllMatch(predicates, solution_, class_int, value_skip)) {
                     a_matches.push_back(it.position());
                   }
-		  return false;
+                  return false;
                 });
   active_sets_[class_int] = ActiveSetBuilder::FromPositions(
       a_matches, class_permuter->permutation_count());
@@ -329,8 +329,9 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
                             inner_skip->value_index = Entry::kBadId;
                             all_entry_skips &= UnmatchedEntrySkips(
                                 outer_skip_preds, solution_, class_outer);
-			    // Stop iteration if we can't return something useful.
-			    return all_entry_skips == 0;
+                            // Stop iteration if we can't return something
+                            // useful.
+                            return all_entry_skips == 0;
                           });
             if (all_entry_skips && all_entry_skips != 0xffffffff) {
 #ifdef _MSC_VER

@@ -38,7 +38,8 @@ class ClassPermuter {
     void AdvanceWithSkip() { AdvanceDeltaWithSkip(/*delta=*/1); }
     void AdvanceDeltaWithSkip(int delta);
 
-    virtual const absl::Span<const int>& current() const = 0;
+    const absl::Span<const int>& current() const { return current_; }
+    bool done() const { return current_.empty(); }
     int position() const { return position_; }
     const ActiveSet& active_set() const { return *active_set_; }
 
@@ -55,6 +56,8 @@ class ClassPermuter {
     double Selectivity() const { return active_set_->Selectivity(); }
 
    protected:
+    void set_current(absl::Span<const int> current) { current_ = current; }
+
     // Position in the iteration. Integer from 1 to number of permutations.
     // Represents the position independent of skipped values from 'active_set'.
     int position_;
@@ -64,6 +67,8 @@ class ClassPermuter {
     ActiveSetIterator active_set_it_;
 
    private:
+    absl::Span<const int> current_;
+
     bool active_set_owned_;
 
     // The number of permutations iterated (permutation_size_!).
@@ -76,33 +81,29 @@ class ClassPermuter {
   class AdvancerStaticStorage : public AdvancerBase {
    public:
     AdvancerStaticStorage(const ClassPermuter* permuter)
-        : AdvancerBase(permuter), current_span_(absl::MakeSpan(current_)) {
+        : AdvancerBase(permuter) {
+      set_current(absl::MakeSpan(current_));
       DCHECK_EQ(kStorageSize, permuter->permutation_size());
       std::iota(current_, current_ + kStorageSize, 0);
     }
 
-    // Explicity copy constructor so current_span_ points to this->current
+    // Explicity copy constructor so current_ points to this->current
     // rather than other.current, which would be the default implementation.
     AdvancerStaticStorage(const AdvancerStaticStorage<kStorageSize>& other)
-        : AdvancerBase(other),
-          current_span_(  // Preserve is_end().
-              other.current_span_.empty() ? absl::Span<const int>()
-                                          : absl::MakeSpan(current_)) {
+        : AdvancerBase(other) {
+      set_current(other.done() ? absl::Span<const int>()
+                               : absl::MakeSpan(current_));
       memcpy(current_, other.current_, sizeof(current_));
     }
-
-    const absl::Span<const int>& current() const final { return current_span_; }
 
     void AdvanceSkip(ValueSkip value_skip) override {
       int value = current_[value_skip.value_index];
       if (active_set_->is_trivial()) {
-        while (!current_span_.empty() &&
-               current_[value_skip.value_index] == value) {
+        while (!done() && current_[value_skip.value_index] == value) {
           Advance();
         }
       } else {
-        while (!current_span_.empty() &&
-               current_[value_skip.value_index] == value) {
+        while (!done() && current_[value_skip.value_index] == value) {
           AdvanceWithSkip();
         }
       }
@@ -113,8 +114,6 @@ class ClassPermuter {
    protected:
     // The cached current value of iteration.
     int current_[kStorageSize];
-
-    absl::Span<const int> current_span_;
   };
 
   class iterator {
@@ -210,9 +209,7 @@ class ClassPermuter {
     double Selectivity() const { return advancer_->Selectivity(); }
 
    private:
-    bool is_end() const {
-      return advancer_ == nullptr || advancer_->current().empty();
-    }
+    bool is_end() const { return advancer_ == nullptr || advancer_->done(); }
 
     // Implementation dependent means of advancing through permutations.
     std::unique_ptr<AdvancerBase> advancer_;

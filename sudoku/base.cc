@@ -113,9 +113,7 @@ void Base::AddPredicatesPairwise() {
 void Base::AddValuePredicate(int row, int col, int value) {
   AddSpecificEntryPredicate(
       absl::StrCat("(", row + 1, ",", col + 1, ") = ", value),
-      [col, value](const puzzle::Entry& e) {
-        return e.Class(col) == value;
-      },
+      [col, value](const puzzle::Entry& e) { return e.Class(col) == value; },
       {col}, row);
 }
 

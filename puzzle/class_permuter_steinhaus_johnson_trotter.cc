@@ -19,7 +19,7 @@ void ClassPermuterSteinhausJohnsonTrotter<kStorageSize>::Advancer::Advance() {
   ++Base::position_;
   if (Base::position_ >= Base::permutation_count()) {
     Base::position_ = Base::permutation_count();
-    Base::current_span_ = absl::Span<const int>();
+    Base::set_current(absl::Span<const int>());
   } else {
     int from = next_from_;
     int to = from + direction_[from];

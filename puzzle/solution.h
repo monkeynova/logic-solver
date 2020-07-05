@@ -134,7 +134,6 @@ class Entry {
   }
 
   int id() const { return id_; }
-  bool IsValid() const { return id_ >= 0; }
   int Class(int classname) const { return classes_[classname]; }
   void SetClass(int classname, int value) { classes_[classname] = value; }
   std::string DebugString() const;

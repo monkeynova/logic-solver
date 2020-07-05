@@ -13,7 +13,7 @@ void ClassPermuterFactorialRadix<kStorageSize>::Advancer::AdvanceDelta(
   Base::position_ += dist;
   if (Base::position_ >= Base::permutation_count()) {
     Base::position_ = Base::permutation_count();
-    Base::current_span_ = absl::Span<const int>();
+    Base::set_current(absl::Span<const int>());
   } else {
     int tmp = Base::position_;
     for (size_t i = 0; i < kStorageSize; ++i) {
