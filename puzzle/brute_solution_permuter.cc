@@ -9,6 +9,7 @@ BruteSolutionPermuter::Advancer::Advancer(
     const EntryDescriptor* entry_descriptor)
     : AdvancerBase(entry_descriptor), permuter_(permuter) {
   if (entry_descriptor == nullptr) {
+    set_done();
     return;
   }
 
@@ -46,6 +47,7 @@ void BruteSolutionPermuter::Advancer::Advance() {
     }
   }
   if (at_end) {
+    set_done();
     current_ = Solution();
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(permuter_->permutation_count());
@@ -55,6 +57,8 @@ void BruteSolutionPermuter::Advancer::Advance() {
 }
 
 int64_t BruteSolutionPermuter::Advancer::position() const {
+  if (permuter_ == nullptr) return -1;
+
   int64_t position = 0;
 
   for (int class_int : class_types_) {
@@ -66,6 +70,7 @@ int64_t BruteSolutionPermuter::Advancer::position() const {
 }
 
 double BruteSolutionPermuter::Advancer::completion() const {
+  if (permuter_ == nullptr) return 1;
   return 1.0 * position() / permuter_->permutation_count();
 }
 

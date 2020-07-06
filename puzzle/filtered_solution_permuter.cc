@@ -47,7 +47,10 @@ FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
     : AdvancerBase(permuter == nullptr ? nullptr : permuter->entry_descriptor_),
       permuter_(permuter) {
-  if (permuter_ == nullptr) return;
+  if (permuter_ == nullptr) {
+    set_done();
+    return;
+  }
 
   iterators_.resize(permuter_->class_permuters_.size());
   pair_selectivity_reduction_.resize(iterators_.size(), 1);
@@ -59,6 +62,7 @@ FilteredSolutionPermuter::Advancer::Advancer(
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(position());
   } else {
+    set_done();
     current_ = Solution();
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(permuter_->permutation_count());
@@ -179,6 +183,7 @@ void FilteredSolutionPermuter::Advancer::Advance() {
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(position());
   } else {
+    set_done();
     current_ = Solution();
     current_.set_permutation_count(permuter_->permutation_count());
     current_.set_permutation_position(permuter_->permutation_count());
@@ -186,6 +191,8 @@ void FilteredSolutionPermuter::Advancer::Advance() {
 }
 
 int64_t FilteredSolutionPermuter::Advancer::position() const {
+  if (permuter_ == nullptr) return -1;
+
   int64_t position = 0;
 
   for (auto& class_permuter : permuter_->class_permuters_) {
@@ -197,6 +204,7 @@ int64_t FilteredSolutionPermuter::Advancer::position() const {
 }
 
 double FilteredSolutionPermuter::Advancer::completion() const {
+  if (permuter_ == nullptr) return 1;
   return 1.0 * position() / permuter_->permutation_count();
 }
 

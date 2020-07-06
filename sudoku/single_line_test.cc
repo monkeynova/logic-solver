@@ -41,7 +41,10 @@ TEST(Puzzle, UniqueAnswer) {
 
   std::vector<puzzle::Solution> solutions =
       line_board->AllSolutions(/*limit=*/2);
-  ASSERT_EQ(solutions.size(), 1);
+  ASSERT_FALSE(solutions.empty());
+  ASSERT_EQ(solutions.size(), 1) << "\n0:\n"
+                                 << solutions[0].DebugString() << "\n1:\n"
+                                 << solutions[1].DebugString();
 }
 
 static void BM_Solver(benchmark::State& state) {

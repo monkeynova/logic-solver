@@ -17,6 +17,9 @@ class SolutionPermuter {
 
     virtual ~AdvancerBase() {}
 
+    bool done() const { return done_; }
+    void set_done() { done_ = true; }
+
     virtual int64_t position() const = 0;
     virtual double completion() const = 0;
     virtual void Advance() = 0;
@@ -26,6 +29,7 @@ class SolutionPermuter {
    protected:
     MutableSolution mutable_solution_;
     Solution current_;  // Bound to mutable_solution_.
+    bool done_ = false;
   };
 
   class iterator {
@@ -48,7 +52,7 @@ class SolutionPermuter {
     bool operator==(const iterator& other) {
       if (advancer_ == nullptr) return other.advancer_ == nullptr;
       if (other.advancer_ == nullptr) return false;
-      return advancer_->current() == other.advancer_->current();
+      return advancer_->done() == other.advancer_->done();
     }
     const Solution& operator*() { return advancer_->current(); }
     const Solution* operator->() { return &advancer_->current(); }
