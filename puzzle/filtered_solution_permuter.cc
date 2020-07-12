@@ -145,7 +145,7 @@ std::string FilteredSolutionPermuter::Advancer::IterationDebugString() const {
 
 bool FilteredSolutionPermuter::Advancer::NotePositionForProfiler(
     int class_position) {
-  VLOG(3) << "FindNextVali(d" << class_position << ") ("
+  VLOG(3) << "FindNextValid(" << class_position << ") ("
           << IterationDebugString() << ")";
 
   if (permuter_->profiler_ == nullptr) return false;
