@@ -367,7 +367,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
           b_(b),
           filters_by_a_(filters_by_a),
           filters_by_b_(filters_by_b),
-          computed_(false) {}
+          computed_a_(false),
+          computed_b_(false) {}
 
     ClassPermuter* a() const { return a_; }
     ClassPermuter* b() const { return b_; }
@@ -378,8 +379,9 @@ void FilteredSolutionPermuter::BuildActiveSets(
       return filters_by_b_;
     }
     double pair_selectivity() const { return pair_selectivity_; }
-    bool computed() const { return computed_; }
-    void set_computed(bool computed) { computed_ = computed; }
+    bool computed() const { return computed_a_ || computed_b_; }
+    void set_computed_a(bool computed) { computed_a_ = computed; }
+    void set_computed_b(bool computed) { computed_b_ = computed; }
 
     void SetPairSelectivity(const FilterToActiveSet* filter_to_active_set) {
       double a_selectivity =
@@ -388,10 +390,25 @@ void FilteredSolutionPermuter::BuildActiveSets(
           filter_to_active_set->active_set(b_->class_int()).Selectivity();
       if (a_selectivity > b_selectivity) {
         // Make `a` less selective than `b` for Build calls.
+        // TODO(@monkeynova): Leave not-computed on "the right" and pass down
+        // that information to FilterToActiveSet.
         std::swap(a_, b_);
         std::swap(filters_by_a_, filters_by_b_);
+        std::swap(computed_a_, computed_b_);
       }
       pair_selectivity_ = a_selectivity * b_selectivity;
+    }
+
+    // TODO(@monkeynova): This metric currently is based on the worst-case
+    // cost of computing the pair-wise active sets (N^2 cost). But this is
+    // neither the expected cost of the computation (early exit), nor is
+    // that even the ideal metric which is the ROI on future compute reduction.
+    bool operator<(const ClassPair& other) const {
+      if (computed() ^ other.computed()) {
+        // Computed is "greater than" non-computed.
+        return other.computed();
+      }
+      return pair_selectivity() < other.pair_selectivity();
     }
 
    private:
@@ -400,19 +417,12 @@ void FilteredSolutionPermuter::BuildActiveSets(
     const std::vector<SolutionFilter>* filters_by_a_;
     const std::vector<SolutionFilter>* filters_by_b_;
     double pair_selectivity_;
-    bool computed_;
+    bool computed_a_;
+    bool computed_b_;
   };
-  // TODO(@monkeynova): This metric currently is based on the worst-case
-  // cost of computing the pair-wise active sets (N^2 cost). But this is
-  // neither the expected cost of the computation (early exit), nor is
-  // that even the ideal metric which is the ROI on future compute reduction.
   struct ClassPairGreaterThan {
     bool operator()(const ClassPair& a, const ClassPair& b) const {
-      if (a.computed() ^ b.computed()) {
-        // Computed is "greater than" non-computed.
-        return a.computed();
-      }
-      return a.pair_selectivity() > b.pair_selectivity();
+      return b < a;
     }
   };
   std::vector<ClassPair> pairs;
@@ -451,18 +461,24 @@ void FilteredSolutionPermuter::BuildActiveSets(
     double old_pair_selectivity = pair.pair_selectivity();
     filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
                                  *pair.filters_by_b(), pair_class_mode);
+    pair.set_computed_a(true);
+    pair.set_computed_b(true);
     pair.SetPairSelectivity(filter_to_active_set_.get());
     VLOG(2) << "Selectivity (" << pair.a()->class_int() << ", "
             << pair.b()->class_int() << "): "
             << static_cast<int>(old_pair_selectivity / pair.pair_selectivity())
             << "x: " << old_pair_selectivity << " => "
             << pair.pair_selectivity();
-    pair.set_computed(true);
     if (old_pair_selectivity > pair.pair_selectivity()) {
       for (ClassPair& to_update : pairs) {
-        if ((to_update.a() == pair.a() || to_update.b() == pair.a()) ^
-            (to_update.a() == pair.b() || to_update.b() == pair.b())) {
-          to_update.set_computed(false);
+        if (to_update.a() == pair.a() || to_update.a() == pair.b()) {
+          // Skip exact match.
+          if (to_update.b() != pair.a() && to_update.b() != pair.b()) {
+            to_update.set_computed_a(false);
+            to_update.SetPairSelectivity(filter_to_active_set_.get());
+          }
+        } else if (to_update.b() == pair.a() || to_update.b() == pair.b()) {
+          to_update.set_computed_b(false);
           to_update.SetPairSelectivity(filter_to_active_set_.get());
         }
       }
