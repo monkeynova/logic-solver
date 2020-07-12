@@ -265,7 +265,8 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const std::vector<SolutionFilter>& predicates_by_outer =
         inner == permuter_a ? predicates_by_b : predicates_by_a;
     ActiveSetBuilder builder_outer(outer->permutation_count());
-    bool any_of_inner;
+    bool any_of_inner_true;
+    bool any_of_outer_false = false;
     ActiveSetBuilder inner_builder(inner->permutation_count());
     int all_entry_skips;
 
@@ -289,7 +290,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         // Outer, before inner.
         [&]() {
           inner_builder = ActiveSetBuilder(inner->permutation_count());
-          any_of_inner = false;
+          any_of_inner_true = false;
           all_entry_skips = 0xffffffff;
         },
         // Inner.
@@ -298,7 +299,7 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
             ClassPermuter::iterator::ValueSkip* inner_skip) {
           if (AllMatch(predicates_by_inner, solution_, class_inner,
                        inner_skip)) {
-            any_of_inner = true;
+            any_of_inner_true = true;
             if (pair_class_mode == PairClassMode::kSingleton) return true;
             if (pair_class_mode == PairClassMode::kMakePairs) {
               inner_builder.AddBlockTo(false, it_inner.position());
@@ -316,31 +317,34 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           if (outer_skip != nullptr) {
             outer_skip->value_index = Entry::kBadId;
           }
-          if (any_of_inner) {
+          if (any_of_inner_true) {
             builder_outer.AddBlockTo(false, it_outer.position());
             builder_outer.Add(true);
-          } else if (pair_prune_skip_outer && outer_skip != nullptr &&
-                     all_entry_skips && all_entry_skips != 0xffffffff) {
-            all_entry_skips = 0xffffffff;
-            SingleIterate(inner,
-                          [&](const ClassPermuter::iterator& it_inner,
-                              ClassPermuter::iterator::ValueSkip* inner_skip) {
-                            // Test all inners.
-                            inner_skip->value_index = Entry::kBadId;
-                            all_entry_skips &= UnmatchedEntrySkips(
-                                outer_skip_preds, solution_, class_outer);
-                            // Stop iteration if we can't return something
-                            // useful.
-                            return all_entry_skips == 0;
-                          });
-            if (all_entry_skips && all_entry_skips != 0xffffffff) {
+          } else {
+            any_of_outer_false = true;
+            if (pair_prune_skip_outer && outer_skip != nullptr &&
+                all_entry_skips && all_entry_skips != 0xffffffff) {
+              all_entry_skips = 0xffffffff;
+              SingleIterate(
+                  inner, [&](const ClassPermuter::iterator& it_inner,
+                             ClassPermuter::iterator::ValueSkip* inner_skip) {
+                    // Test all inners.
+                    inner_skip->value_index = Entry::kBadId;
+                    all_entry_skips &= UnmatchedEntrySkips(
+                        outer_skip_preds, solution_, class_outer);
+                    // Stop iteration if we can't return something
+                    // useful.
+                    return all_entry_skips == 0;
+                  });
+              if (all_entry_skips && all_entry_skips != 0xffffffff) {
 #ifdef _MSC_VER
-              unsigned long smallest_entry;
-              CHECK(_BitScanForward(&smallest_entry, all_entry_skips));
+                unsigned long smallest_entry;
+                CHECK(_BitScanForward(&smallest_entry, all_entry_skips));
 #else
-              int smallest_entry = __builtin_ffs(all_entry_skips) - 1;
+                int smallest_entry = __builtin_ffs(all_entry_skips) - 1;
 #endif
-              outer_skip->value_index = smallest_entry;
+                outer_skip->value_index = smallest_entry;
+              }
             }
           }
           if (pair_class_mode == PairClassMode::kMakePairs) {
@@ -350,8 +354,10 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           }
         });
 
-    builder_outer.AddBlockTo(false, outer->permutation_count());
-    active_sets_[class_outer] = builder_outer.DoneAdding();
+    if (any_of_outer_false) {
+      builder_outer.AddBlockTo(false, outer->permutation_count());
+      active_sets_[class_outer] = builder_outer.DoneAdding();
+    }
   }
 }
 
