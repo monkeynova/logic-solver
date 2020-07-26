@@ -1,6 +1,7 @@
 workspace(name="com_monkeynova_logic_solver")
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository", "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository",
+     "new_git_repository")
 
 git_repository(
     name = "com_google_googletest",
