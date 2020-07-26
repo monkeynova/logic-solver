@@ -145,6 +145,8 @@ void FilterToActiveSet::Build<
     FilterToActiveSet::SingleClassBuild::kPassThrough>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
+  if (predicates.empty()) return;
+
   SetupBuild(class_permuter, predicates);
 
   const int class_int = class_permuter->class_int();
@@ -167,6 +169,8 @@ void FilterToActiveSet::Build<
     FilterToActiveSet::SingleClassBuild::kPositionSet>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
+  if (predicates.empty()) return;
+
   SetupBuild(class_permuter, predicates);
 
   const int class_int = class_permuter->class_int();
