@@ -324,17 +324,11 @@ void FilteredSolutionPermuter::BuildActiveSets(
     }
   }
 
+  VLOG(1) << "Generating singleton selectivities";
+
   for (auto& single_class_predicate_list : single_class_predicates) {
     OrderSolutionFiltersByEntryId(&single_class_predicate_list);
   }
-
-  for (auto& pair_and_predicates : pair_class_predicates) {
-    int first_class_int = pair_and_predicates.first.first;
-    OrderSolutionFiltersByEntryIdForClassId(first_class_int,
-                                            &pair_and_predicates.second);
-  }
-
-  VLOG(1) << "Generating singleton selectivities";
 
   for (auto& class_permuter : class_permuters_) {
     int class_int = class_permuter->class_int();
@@ -352,6 +346,12 @@ void FilteredSolutionPermuter::BuildActiveSets(
   }
 
   VLOG(1) << "Generating pair selectivities";
+
+  for (auto& pair_and_predicates : pair_class_predicates) {
+    int first_class_int = pair_and_predicates.first.first;
+    OrderSolutionFiltersByEntryIdForClassId(first_class_int,
+                                            &pair_and_predicates.second);
+  }
 
   FilterToActiveSet::PairClassMode pair_class_mode =
       absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
