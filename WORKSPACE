@@ -6,13 +6,13 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository",
 git_repository(
     name = "com_google_googletest",
     remote = "git://github.com/google/googletest.git",
-    commit = "aee0f9d9b5b87796ee8a0ab26b7587ec30e8858e",
+    commit = "a781fe29bcf73003559a3583167fe3d647518464",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "git://github.com/abseil/abseil-cpp.git",
-    commit = "b86fff162e15ad8ee534c25e58bf522330e8376d",
+    commit = "2c8a5b0d890cfbd2c1e70163e347f3e00b4ddb49",
 )
 
 git_repository(
@@ -24,7 +24,7 @@ git_repository(
 git_repository(
     name = "com_google_protobuf",
     remote = "git://github.com/protocolbuffers/protobuf.git",
-    commit = "093faebcdb007f5dfaf11a98d61149f89e8bac23",
+    commit = "6b1d0f11493ef2317ea74aa00804835a10ebaf19",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -40,19 +40,19 @@ git_repository(
 git_repository(
     name = "com_google_benchmark",
     remote = "git://github.com/google/benchmark.git",
-    commit = "39b6e703f8cdf87284db2aaca2f9b214f02e5673",
+    commit = "37177a84b7e8d33696ea1e1854513cb0de3b4dc3",
 )
 
 git_repository(
     name = "com_google_tcmalloc",
     remote = "git://github.com/google/tcmalloc.git",
-    commit = "8738f271bd58a0decb358fd6047f3bfac1be3382",
+    commit = "9dfdae4dabe1e6804ee60f519ac953e6836c81cc",
 )
 
 new_git_repository(
     name = "com_google_gperftools",
     remote = "git://github.com/gperftools/gperftools.git",
-    commit = "e5f77d6485bd2f6ce43862e3e57118b1bb97d30a",
+    commit = "bda3c82e11615ca9e7751d1f3cfb161026ee742a",
     build_file = "@//third_party:BUILD.gperftools",
 )
 
