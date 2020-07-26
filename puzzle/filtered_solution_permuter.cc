@@ -31,18 +31,6 @@ ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,
 
 namespace puzzle {
 
-static void OrderSolutionFiltersByEntryIdForClassId(
-    int class_int, std::vector<SolutionFilter>* list) {
-  std::sort(list->begin(), list->end(),
-            [class_int](const SolutionFilter& a, const SolutionFilter& b) {
-              return a.entry_id(class_int) < b.entry_id(class_int);
-            });
-}
-
-static void OrderSolutionFiltersByEntryId(std::vector<SolutionFilter>* list) {
-  OrderSolutionFiltersByEntryIdForClassId(/*class_id=*/-1, list);
-}
-
 FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
     : AdvancerBase(permuter == nullptr ? nullptr : permuter->entry_descriptor_),
@@ -266,7 +254,8 @@ void FilteredSolutionPermuter::Prepare() {
   }
 
   for (auto& predicates : class_predicates_) {
-    OrderSolutionFiltersByEntryId(&predicates);
+    std::sort(predicates.begin(), predicates.end(),
+              SolutionFilter::LtByEntryId());
   }
 
   if (VLOG_IS_ON(1)) {
@@ -327,7 +316,8 @@ void FilteredSolutionPermuter::BuildActiveSets(
   VLOG(1) << "Generating singleton selectivities";
 
   for (auto& single_class_predicate_list : single_class_predicates) {
-    OrderSolutionFiltersByEntryId(&single_class_predicate_list);
+    std::sort(single_class_predicate_list.begin(),
+              single_class_predicate_list.end(), SolutionFilter::LtByEntryId());
   }
 
   for (auto& class_permuter : class_permuters_) {
@@ -349,8 +339,9 @@ void FilteredSolutionPermuter::BuildActiveSets(
 
   for (auto& pair_and_predicates : pair_class_predicates) {
     int first_class_int = pair_and_predicates.first.first;
-    OrderSolutionFiltersByEntryIdForClassId(first_class_int,
-                                            &pair_and_predicates.second);
+    std::sort(pair_and_predicates.second.begin(),
+              pair_and_predicates.second.end(),
+              SolutionFilter::LtByEntryId(first_class_int));
   }
 
   FilterToActiveSet::PairClassMode pair_class_mode =

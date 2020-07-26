@@ -53,6 +53,13 @@ class SolutionFilter {
     }
   }
 
+  static std::function<bool(const SolutionFilter& a, const SolutionFilter& b)>
+  LtByEntryId(int class_int = -1) {
+    return [class_int](const SolutionFilter& a, const SolutionFilter& b) {
+      return a.entry_id(class_int) < b.entry_id(class_int);
+    };
+  }
+
   bool operator()(const Solution& s) const { return solution_p_(s); }
 
   bool operator()(const Entry& e) const {
