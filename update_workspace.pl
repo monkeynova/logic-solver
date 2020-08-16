@@ -16,8 +16,12 @@ while ($workspace =~ m{git_repository\(([^)]+)\)}sg) {
     
     if ($args{remote} =~ m{git://github.com/(.*)\.git}) {
 	my $github_name = $1;
-	my $json_str = `curl https://api.github.com/repos/$github_name/commits`;
+	my $json_str = `curl -s https://api.github.com/repos/$github_name/commits`;
 	my $json = JSON::from_json($json_str);
+	if (ref($json) ne 'ARRAY') {
+	    warn "Cannot find commit for ", $github_name, ": ", $json_str;
+	    next;
+	}
 	my $sha = $json->[0]{sha};
 	if ($sha) {
 	    print STDERR "updating $args{name} ($github_name) => $sha\n";
