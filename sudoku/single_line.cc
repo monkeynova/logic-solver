@@ -2,14 +2,14 @@
 #include <memory>
 
 #include "absl/flags/flag.h"
-#include "puzzle/main_lib.h"
+#include "main_lib.h"
 #include "sudoku/line_board.h"
 
 ABSL_FLAG(std::string, sudoku_line_board, "",
           "The sudoku problem to solve as a single line");
 
 int main(int argc, char** argv) {
-  std::vector<char*> args = ::puzzle::InitMain(argc, argv);
+  std::vector<char*> args = InitMain(argc, argv);
   CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
 
   CHECK(!absl::GetFlag(FLAGS_sudoku_line_board).empty())

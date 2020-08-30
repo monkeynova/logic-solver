@@ -15,7 +15,7 @@ cc_binary(
     srcs = ["multi_line.cc"],
     deps = [
         ":line_board",
-	"//puzzle:main_lib",
+	"@com_monkeynova_gunit_main//:main_lib",
     ]
 )
 
@@ -24,7 +24,7 @@ cc_binary(
     srcs = ["single_line.cc"],
     deps = [
         ":line_board",
-	"//puzzle:main_lib",
+	"@com_monkeynova_gunit_main//:main_lib",
 	"@com_google_absl//absl/flags:flag",
     ]
 )
@@ -60,7 +60,7 @@ cc_test(
 	"@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
-        "//puzzle:test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )
 
@@ -96,7 +96,7 @@ cc_test(
 	"@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
-        "//puzzle:test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )
 
@@ -131,7 +131,7 @@ cc_test(
 	"@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
-        "//puzzle:test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )
 
@@ -179,7 +179,7 @@ cc_test(
 	"@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
-        "//puzzle:test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )
 
@@ -282,11 +282,11 @@ cc_library(
     alwayslink = 1,
     deps = [
         "//puzzle:problem",
-        "//puzzle:test_main",
 	"@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
+	"@com_monkeynova_gunit_main//:test_main",
     ],
     visibility = [
         "//visibility:public",

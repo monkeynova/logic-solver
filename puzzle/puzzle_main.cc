@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "absl/flags/flag.h"
-#include "puzzle/main_lib.h"
+#include "main_lib.h"
 #include "puzzle/problem.h"
 
 ABSL_FLAG(bool, all, false, "Show all solutions");
@@ -14,7 +14,7 @@ std::string PositionHeader(const puzzle::Solution& s) {
 }
 
 int main(int argc, char** argv) {
-  std::vector<char*> args = ::puzzle::InitMain(argc, argv);
+  std::vector<char*> args = InitMain(argc, argv);
   CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();

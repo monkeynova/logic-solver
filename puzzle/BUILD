@@ -29,7 +29,7 @@ cc_test(
     srcs = ["all_match_test.cc"],
     deps = [
         ":all_match",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )
 
@@ -81,7 +81,7 @@ cc_test(
     srcs = ["active_set_test.cc"],
     deps = [
         ":active_set",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )   
 
@@ -100,7 +100,7 @@ cc_test(
     srcs = ["active_set_pair_test.cc"],
     deps = [
         ":active_set_pair",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )   
 
@@ -145,7 +145,7 @@ cc_test(
         ":class_permuter_factory",
         ":mutable_solution",
         ":solution_filter",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
     ]
 )
 
@@ -164,7 +164,7 @@ cc_test(
     srcs = ["value_skip_to_active_set_test.cc"],
     deps = [
         ":class_permuter_factory",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
         ":value_skip_to_active_set",
     ],
 )
@@ -173,10 +173,10 @@ cc_library(
     name = "benchmark_main",
     srcs = ["benchmark_main.cc"],
     deps = [
-        ":main_lib",
 	"@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
 	"@com_google_glog//:glog",
+	"@com_monkeynova_gunit_main//:main_lib",
     ],
     visibility = [
         "//visibility:public",
@@ -365,7 +365,7 @@ cc_test(
         ":class_permuter_factorial_radix",
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
         "@com_google_googletest//:gtest",
     ]
 )
@@ -389,7 +389,7 @@ cc_test(
     srcs = ["brute_solution_permuter_test.cc"],
     deps = [
         ":brute_solution_permuter",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
         "@com_google_googletest//:gtest",
     ]
 )
@@ -400,7 +400,7 @@ cc_test(
     deps = [
         ":filtered_solution_permuter",
 	":solution_filter",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
         "@com_google_googletest//:gtest",
     ]
 )
@@ -409,10 +409,10 @@ cc_library(
     name = "puzzle_main",
     srcs = ["puzzle_main.cc"],
     deps = [
-        ":main_lib",
         ":problem",
 	"@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
+	"@com_monkeynova_gunit_main//:main_lib",
     ],
     visibility = [
         "//visibility:public",
@@ -425,42 +425,10 @@ cc_library(
     testonly = 1,
     deps = [
         ":problem",
-        ":test_main",
+	"@com_monkeynova_gunit_main//:test_main",
 	"@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
-        "@com_google_googletest//:gtest",
-    ],
-    visibility = [
-        "//visibility:public",
-    ]
-)
-
-cc_library(
-    name = "test_main",
-    srcs = ["test_main.cc"],
-    testonly = 1,
-    deps = [
-        ":main_lib",
-	"@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/strings",
-        "@com_google_googletest//:gtest",
-    ],
-    visibility = [
-        "//visibility:public",
-    ]
-)
-
-cc_library(
-    name = "main_lib",
-    hdrs = ["main_lib.h"],
-    srcs = ["main_lib.cc"],
-    deps = [
-	"@com_google_absl//absl/flags:flag",
-	"@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/strings",
-        "@com_google_benchmark//:benchmark",
-	"@com_google_glog//:glog",
         "@com_google_googletest//:gtest",
     ],
     visibility = [

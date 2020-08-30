@@ -2,11 +2,11 @@
 #include <memory>
 
 #include "absl/time/time.h"
-#include "puzzle/main_lib.h"
+#include "main_lib.h"
 #include "sudoku/line_board.h"
 
 int main(int argc, char** argv) {
-  std::vector<char*> args = ::puzzle::InitMain(argc, argv);
+  std::vector<char*> args = InitMain(argc, argv);
   CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
 
   int exit_code = 0;

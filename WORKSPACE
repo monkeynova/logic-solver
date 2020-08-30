@@ -61,3 +61,9 @@ git_repository(
     remote = "git://github.com/google/glog.git",
     commit = "0a2e5931bd5ff22fd3bf8999eb8ce776f159cda6",
 )
+
+git_repository(
+    name = "com_monkeynova_gunit_main",
+    remote = "git://github.com/monkeynova/gunit-main.git",
+    commit = "e3e52e54ef31b01949ff3e4541397e9431d16dfe",
+)
