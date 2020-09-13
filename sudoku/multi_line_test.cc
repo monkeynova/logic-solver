@@ -18,20 +18,19 @@
 #include "test_case_options.h"
 #endif
 
-void TestLineBoard(
-      absl::string_view test_case,
-      file_based_test_driver::RunTestCaseResult* test_result) {
+void TestLineBoard(absl::string_view test_case,
+                   file_based_test_driver::RunTestCaseResult* test_result) {
   // Parse and strip off the test case's options.
   std::string test_case_without_options = std::string(test_case);
 
 #if USE_OPTIONS
   const absl::Status options_status =
-    options_.ParseTestCaseOptions(&test_case_without_options);
+      options_.ParseTestCaseOptions(&test_case_without_options);
   if (!options_status.ok()) {
     // For bad test cases, prefer to return an error in the output instead
     // of crashing.
-    test_result->AddTestOutput(absl::StrCat(
-          "ERROR: Failed to parse options: ", options_status.ToString()));
+    test_result->AddTestOutput(absl::StrCat("ERROR: Failed to parse options: ",
+                                            options_status.ToString()));
     return;
   }
 
@@ -46,25 +45,27 @@ void TestLineBoard(
   absl::StripAsciiWhitespace(&test_case_without_options);
 
   std::unique_ptr<::puzzle::Problem> line_board =
-    ::sudoku::LineBoard::Create(test_case_without_options);
+      ::sudoku::LineBoard::Create(test_case_without_options);
   if (line_board == nullptr) {
-    test_result->AddTestOutput(absl::StrCat(
-					    "ERROR: Failed to parse board: ", test_case_without_options));
-      return;
+    test_result->AddTestOutput(absl::StrCat("ERROR: Failed to parse board: ",
+                                            test_case_without_options));
+    return;
   }
   line_board->Setup();
   ::puzzle::Solution answer = line_board->Solve();
   if (!answer.IsValid()) {
-    test_result->AddTestOutput(absl::StrCat(
-					    "ERROR: Could not solve puzzle: ", answer.DebugString()));
-      return;
+    test_result->AddTestOutput(
+        absl::StrCat("ERROR: Could not solve puzzle: ", answer.DebugString()));
+    return;
   }
   test_result->AddTestOutput(::sudoku::LineBoard::ToString(answer));
 }
 
 TEST(MultiLineTest, FileBasedTest) {
-  // const std::string filespec = file_based_test_driver_base::JoinPath(TestDir(), "multi_line.test");
-  const std::string filespec = absl::StrCat(getenv("TEST_DATADIR"), "sudoku/multi_line.test");
-  EXPECT_TRUE(file_based_test_driver::RunTestCasesFromFiles(filespec, TestLineBoard));
+  // const std::string filespec =
+  // file_based_test_driver_base::JoinPath(TestDir(), "multi_line.test");
+  const std::string filespec =
+      absl::StrCat(getenv("TEST_DATADIR"), "sudoku/multi_line.test");
+  EXPECT_TRUE(
+      file_based_test_driver::RunTestCasesFromFiles(filespec, TestLineBoard));
 }
-
