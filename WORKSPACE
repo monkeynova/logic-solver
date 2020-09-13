@@ -67,3 +67,16 @@ git_repository(
     remote = "git://github.com/monkeynova/gunit-main.git",
     commit = "e3e52e54ef31b01949ff3e4541397e9431d16dfe",
 )
+
+git_repository(
+    name = "com_googlesource_code_re2",
+    remote = "git://github.com/google/re2.git",
+    # Must be on branch 'abseil'.
+    commit = "bd32b6b147832e87fb06d0600bb7de5d8a80b5c1",
+)
+
+git_repository(
+    name = "com_google_file_based_test_driver",
+    remote = "git://github.com/google/file-based-test-driver.git",
+    commit = "d0561d4d24117c2f3893e6fa947f1bde8c0719af",
+)
