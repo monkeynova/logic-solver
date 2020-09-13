@@ -22,7 +22,7 @@ cc_binary(
 cc_test(
     name = "multi_line_test",
     srcs = ["multi_line_test.cc"],
-    data = ["multi_line.test"],
+    data = ["sudoku17_sample.test"],
     deps = [
         ":line_board",
         "@com_google_absl//absl/strings",
@@ -31,7 +31,9 @@ cc_test(
         # TODO(@monkeynova): Use when it can compile.
         # "@com_google_file_based_test_driver//:test_case_options",
         "@com_google_googletest//:gtest",
-	"@com_monkeynova_gunit_main//:test_main",
+        # TODO(@monkeynova): FBTD includes it's own main which interferes with
+        # logging, flags etc.
+	# "@com_monkeynova_gunit_main//:test_main",
     ],
 )
 

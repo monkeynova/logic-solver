@@ -62,10 +62,7 @@ void TestLineBoard(absl::string_view test_case,
 }
 
 TEST(MultiLineTest, FileBasedTest) {
-  // const std::string filespec =
-  // file_based_test_driver_base::JoinPath(TestDir(), "multi_line.test");
-  const std::string filespec =
-      absl::StrCat(getenv("TEST_DATADIR"), "sudoku/multi_line.test");
-  EXPECT_TRUE(
-      file_based_test_driver::RunTestCasesFromFiles(filespec, TestLineBoard));
+  EXPECT_TRUE(file_based_test_driver::RunTestCasesFromFiles(
+      absl::StrCat("sudoku/", "sudoku17_sample.test"),
+      TestLineBoard));
 }
