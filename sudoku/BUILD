@@ -22,9 +22,12 @@ cc_binary(
 cc_test(
     name = "multi_line_test",
     srcs = ["multi_line_test.cc"],
+    args = ["--test_filename=sudoku17_sample.test"],
     data = ["sudoku17_sample.test"],
     deps = [
         ":line_board",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:parse",
         "@com_google_absl//absl/strings",
         "@com_google_file_based_test_driver//:file_based_test_driver",
         "@com_google_file_based_test_driver//:run_test_case_result",

@@ -1,16 +1,13 @@
 #include <iostream>
 #include <memory>
 
-// TODO(@monkeynova): test_case_options.cc doesn't compile for me on OSX.
-// There are missing implicit casts from absl::string_view to std::string.
-// Even better would be that since the places it's used don't need a copy, we
-// could just convert the uses to absl::string_views.
-#define USE_OPTIONS 1
-
+#include "absl/flags/flag.h"
+#include "absl/flags/parse.h"
 #include "absl/strings/ascii.h"
 #include "absl/strings/str_join.h"
 #include "file_based_test_driver.h"
 #include "gmock/gmock.h"
+#include "gtest/internal/gtest-port.h"
 #include "gtest/gtest.h"
 #include "run_test_case_result.h"
 #include "sudoku/line_board.h"
@@ -19,6 +16,24 @@
 // If set, flags the test suite to ignore the result.
 static inline constexpr absl::string_view kIgnoreThisTestOption =
     "ignore_this_test";
+
+ABSL_FLAG(std::string, test_filename, "",
+	  "The name of the file containing sudoku problems and solutions to test.");
+
+// TODO(@monkeynova): This is horrific in that we're poking through the
+// internal abstraction to get at the original flags. Until either ABSL, googletest
+// and FBTD play nice together or I can use my own main, I don't see a different
+// way to initialize absl flags.
+void InitializeAbslFlagsFromGtest() {
+  std::vector<std::string> string_argvs = testing::internal::GetArgvs();
+  std::vector<const char*> raw_argvs(string_argvs.size());
+  for (int i = 0; i < string_argvs.size(); ++i) {
+    raw_argvs[i] = string_argvs[i].c_str();
+  }
+  int argc = raw_argvs.size();
+  absl::ParseCommandLine(argc, const_cast<char**>(raw_argvs.data()));
+}
+
 
 void TestLineBoard(absl::string_view test_case,
                    file_based_test_driver::RunTestCaseResult* test_result) {
@@ -65,6 +80,7 @@ void TestLineBoard(absl::string_view test_case,
 }
 
 TEST(MultiLineTest, FileBasedTest) {
+  InitializeAbslFlagsFromGtest();
   EXPECT_TRUE(file_based_test_driver::RunTestCasesFromFiles(
-      absl::StrCat("sudoku/", "sudoku17_sample.test"), TestLineBoard));
+      absl::StrCat("sudoku/", absl::GetFlag(FLAGS_test_filename)), TestLineBoard));
 }
