@@ -19,11 +19,10 @@ cc_binary(
     ]
 )
 
-cc_test(
-    name = "multi_line_test",
+cc_library(
+    name = "multi_line_test_lib",
     srcs = ["multi_line_test.cc"],
-    args = ["--test_filename=sudoku17_sample.test"],
-    data = ["sudoku17_sample.test"],
+    testonly = 1,
     deps = [
         ":line_board",
         "@com_google_absl//absl/flags:flag",
@@ -37,6 +36,14 @@ cc_test(
         # logging, flags etc.
 	# "@com_monkeynova_gunit_main//:test_main",
     ],
+)    
+
+cc_test(
+    name = "multi_line_test",
+    srcs = [],
+    args = ["--test_filename=sudoku17_sample.test"],
+    data = ["sudoku17_sample.test"],
+    deps = [":multi_line_test_lib"],
 )
 
 cc_binary(
