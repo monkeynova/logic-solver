@@ -1,0 +1,39 @@
+......2.41..9.............868.7........1..73..4...........25...5......9.....4....
+--
+978531264124968357356472918681793542295184736743256189439625871562817493817349625
+==
+[flags=puzzle_filter_pair_prune_skip_outer=true]
+
+......2.41..9.............868.7........1..73..4...........25...5......9.....4....
+--
+978531264124968357356472918681793542295184736743256189439625871562817493817349625
+==
+
+# This test case was extracted from the sudoku17 suite when it wasn't solvable.
+.......13...2............8....76.2....8...4...1.......2.....75.6..34.........8...
+--
+562874913839215647174639582345761298728953461916482375283196754651347829497528136
+==
+
+# This tests an empty board with no constraints. We set some flags for this case
+# for the following reasons.
+# 'puzzle_test_unique': This problem has no unique solution. Don't require it in
+#                       a test.
+# 'puzzle_prune_pair_class_iterators': This is a worst-case benchmark for
+#                                      prune_pair_class_iterators without any
+#                                      single class filters to prune the space,
+#                                      so we disable the pair pruning for usual
+#                                      testing  (but can enable it to benchmark
+#                                      pair pruning behavior).
+# 'puzzle_prune_pair_class_iterators_mode_pair': We also enable mode_pair to
+#                                                test that the combination of
+#                                                these two flags return valid
+#                                                results.
+# Since we have no contraints, all valid sudoku solutions are returnable, the
+# expected result is the first one given the iteration model used.
+[flags=puzzle_test_unique=false,puzzle_prune_pair_class_iterators=false,puzzle_prune_pair_class_iterators_mode_pair=true]
+.................................................................................
+--
+147238569258169347369457128471382695582691473693574281714823956825916734936745812
+==
+
