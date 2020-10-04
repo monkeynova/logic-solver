@@ -307,6 +307,7 @@ cc_library(
     srcs = ["problem.cc"],
     deps = [
         ":solver",
+        "@com_google_absl//absl/status:statusor",
     ],
     visibility = [
         "//visibility:public",
@@ -319,7 +320,7 @@ cc_library(
     srcs = ["proto_problem.cc"],
     deps = [
         ":problem",
-	"@com_google_protobuf//:protobuf",
+        "@com_google_protobuf//:protobuf",
     ],
     visibility = [
         "//visibility:public",

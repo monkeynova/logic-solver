@@ -129,12 +129,17 @@ void Base::AddBoardPredicates(const Board& board) {
   }
 }
 
-puzzle::Solution Base::GetSolution() const {
+absl::StatusOr<puzzle::Solution> Base::GetSolution() const {
   Board board = GetSolutionBoard();
   std::vector<puzzle::Entry> entries;
-  CHECK_EQ(board.size(), 9);
+  if (board.size() != 9) {
+    return absl::InvalidArgumentError("Board must have 9 rows");
+  }
   for (size_t row = 0; row < board.size(); ++row) {
-    CHECK_EQ(board[row].size(), 9);
+    if (board[row].size() != 9) {
+      return absl::InvalidArgumentError(
+          "Board must have 9 columns in each row");
+    }
     for (size_t col = 0; col < board[row].size(); ++col) {
       // Translate to 0-indexed solution space.
       --board[row][col];

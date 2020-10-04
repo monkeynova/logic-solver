@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "absl/status/statusor.h"
 #include "puzzle/solver.h"
 
 namespace puzzle {
@@ -13,7 +14,7 @@ class Problem : public Solver {
   virtual ~Problem() = default;
 
   virtual void Setup() = 0;
-  virtual Solution GetSolution() const = 0;
+  virtual absl::StatusOr<puzzle::Solution> GetSolution() const = 0;
 
   static std::unique_ptr<Problem> GetInstance();
   static Generator SetGenerator(Generator generator);

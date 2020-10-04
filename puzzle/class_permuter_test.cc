@@ -213,7 +213,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   auto p = TypeParam()(kPermuterSize);
 
   ActiveSetBuilder builder(p->permutation_count());
-  for (const auto& permutation : *p) {
+  for (absl::Span<const int> permutation : *p) {
     builder.Add(permutation[1] == 3);
   }
   ActiveSet only_three_in_position_one = builder.DoneAdding();

@@ -26,9 +26,10 @@ TEST(Puzzle, RightAnswer) {
   problem->Setup();
 
   puzzle::Solution got = problem->Solve();
-  puzzle::Solution expect = problem->GetSolution();
+  absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
+  ASSERT_TRUE(expect.ok()) << expect.status();
 
-  EXPECT_EQ(got, expect);
+  EXPECT_EQ(got, *expect);
 }
 
 TEST(Puzzle, UniqueAnswer) {

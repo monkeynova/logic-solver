@@ -194,7 +194,7 @@ TYPED_TEST(ActiveSetTest, EnabledValues) {
   std::vector<std::vector<int>> test_cases = {
       {0, 1, 2, 3}, {}, {1, 3}, {0, 2}, {0, 1}};
 
-  for (const auto test : test_cases) {
+  for (const auto& test : test_cases) {
     EXPECT_THAT(TypeParam::Builder::FromPositions(test, 4).EnabledValues(),
                 ElementsAreArray(test))
         << "{" << absl::StrJoin(test, ",") << "}";

@@ -27,8 +27,10 @@ TEST(Puzzle, RightAnswer) {
 
   puzzle::Solution got = problem->Solve();
   ASSERT_TRUE(got.IsValid());
+  absl::StatusOr<puzzle::Solution> expected = problem->GetSolution();
+  ASSERT_TRUE(expected.ok()) << expected.status();
 
-  EXPECT_EQ(got, problem->GetSolution());
+  EXPECT_EQ(got, *expected);
 }
 
 TEST(Puzzle, UniqueAnswer) {
@@ -55,7 +57,8 @@ static void BM_Solver(benchmark::State& state) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   problem->Setup();
 
-  puzzle::Solution expect = problem->GetSolution();
+  absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
+  ASSERT_TRUE(expect.ok()) << expect.status();
 
   std::vector<std::string> labels;
   SetFlag(pair_iterators, "pair_iterators",
@@ -66,7 +69,7 @@ static void BM_Solver(benchmark::State& state) {
 
   for (auto _ : state) {
     puzzle::Solution got = problem->Solve();
-    EXPECT_EQ(got, expect);
+    EXPECT_EQ(got, *expect);
   }
 }
 
