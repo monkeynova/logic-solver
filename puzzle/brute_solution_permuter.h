@@ -37,7 +37,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   BruteSolutionPermuter(BruteSolutionPermuter&&) = default;
   BruteSolutionPermuter& operator=(BruteSolutionPermuter&&) = default;
 
-  void Prepare() override;
+  absl::Status Prepare() override;
 
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this, entry_descriptor_));

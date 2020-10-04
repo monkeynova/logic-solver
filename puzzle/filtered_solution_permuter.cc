@@ -217,8 +217,10 @@ absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
   return true;
 }
 
-void FilteredSolutionPermuter::Prepare() {
-  CHECK(!prepared_);
+absl::Status FilteredSolutionPermuter::Prepare() {
+  if (prepared_) {
+    return absl::FailedPreconditionError("Already prepared");
+  }
   prepared_ = true;
   filter_to_active_set_ =
       absl::make_unique<FilterToActiveSet>(entry_descriptor_, profiler_);
@@ -232,7 +234,7 @@ void FilteredSolutionPermuter::Prepare() {
   }
 
   std::vector<SolutionFilter> unhandled;
-  BuildActiveSets(&unhandled);
+  if (absl::Status st = BuildActiveSets(&unhandled); !st.ok()) return st;
   ReorderEvaluation();
 
   class_predicates_.clear();
@@ -252,8 +254,11 @@ void FilteredSolutionPermuter::Prepare() {
         break;  // class_int
       }
     }
-    CHECK(added) << "Could not add filter for " << filter.name() << " ["
-                 << absl::StrJoin(filter.classes(), ",") << "]";
+    if (!added) {
+      return absl::InternalError(
+          absl::StrCat("Could not add filter for ", filter.name(), " [",
+                       absl::StrJoin(filter.classes(), ","), "]"));
+    }
   }
 
   for (auto& predicates : class_predicates_) {
@@ -281,15 +286,16 @@ void FilteredSolutionPermuter::Prepare() {
               << ": " << predicate_name;
     }
   }
+  return absl::OkStatus();
 }
 
-void FilteredSolutionPermuter::BuildActiveSets(
+absl::Status FilteredSolutionPermuter::BuildActiveSets(
     std::vector<SolutionFilter>* residual) {
   if (!absl::GetFlag(FLAGS_puzzle_prune_class_iterator)) {
     for (const auto& filter : predicates_) {
       residual->push_back(filter);
     }
-    return;
+    return absl::OkStatus();
   }
 
   std::vector<std::vector<SolutionFilter>> single_class_predicates;
@@ -327,15 +333,16 @@ void FilteredSolutionPermuter::BuildActiveSets(
     int class_int = class_permuter->class_int();
     double old_selectivity =
         filter_to_active_set_->active_set(class_int).Selectivity();
-    filter_to_active_set_->Build(class_permuter.get(),
-                                 single_class_predicates[class_int]);
+    absl::Status st = filter_to_active_set_->Build(
+        class_permuter.get(), single_class_predicates[class_int]);
+    if (!st.ok()) return st;
     VLOG(2) << "Selectivity (" << class_permuter->class_int()
             << "): " << old_selectivity << " => "
             << filter_to_active_set_->active_set(class_int).Selectivity();
   }
 
   if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {
-    return;
+    return absl::OkStatus();
   }
 
   VLOG(1) << "Generating pair selectivities";
@@ -424,14 +431,18 @@ void FilteredSolutionPermuter::BuildActiveSets(
   for (auto it_a = class_permuters_.begin(); it_a != class_permuters_.end();
        ++it_a) {
     for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
-      CHECK((*it_a)->class_int() != (*it_b)->class_int());
+      if ((*it_a)->class_int() == (*it_b)->class_int()) {
+        return absl::InternalError("same class on pair");
+      }
       auto filters_by_a_it = pair_class_predicates.find(
           std::make_pair((*it_a)->class_int(), (*it_b)->class_int()));
       if (filters_by_a_it != pair_class_predicates.end() &&
           !filters_by_a_it->second.empty()) {
         auto filters_by_b_it = pair_class_predicates.find(
             std::make_pair((*it_b)->class_int(), (*it_a)->class_int()));
-        CHECK(filters_by_b_it != pair_class_predicates.end());
+        if (filters_by_b_it == pair_class_predicates.end()) {
+          return absl::InternalError("Could not find filters");
+        }
         pairs.emplace_back(it_a->get(), it_b->get(), &filters_by_a_it->second,
                            &filters_by_b_it->second);
         pairs.back().SetPairSelectivity(filter_to_active_set_.get());
@@ -443,7 +454,7 @@ void FilteredSolutionPermuter::BuildActiveSets(
     }
   }
 
-  if (pairs.empty()) return;
+  if (pairs.empty()) return absl::OkStatus();
 
   VLOG(1) << "Pruning pairs: " << pairs.size();
 
@@ -453,8 +464,10 @@ void FilteredSolutionPermuter::BuildActiveSets(
     ClassPair& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
-                                 *pair.filters_by_b(), pair_class_mode);
+    absl::Status st =
+        filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
+                                     *pair.filters_by_b(), pair_class_mode);
+    if (!st.ok()) return st;
     pair.set_computed_a(true);
     pair.set_computed_b(true);
     pair.SetPairSelectivity(filter_to_active_set_.get());
@@ -478,7 +491,9 @@ void FilteredSolutionPermuter::BuildActiveSets(
       }
       std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     } else {
-      CHECK(old_pair_selectivity == pair.pair_selectivity());
+      if (old_pair_selectivity != pair.pair_selectivity()) {
+        return absl::InternalError("Selectivity didn't change");
+      }
       std::push_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     }
   }
@@ -487,11 +502,13 @@ void FilteredSolutionPermuter::BuildActiveSets(
       pair_class_mode != FilterToActiveSet::PairClassMode::kMakePairs) {
     VLOG(1) << "Running one more pass to generate pairs";
     for (ClassPair& pair : pairs) {
-      filter_to_active_set_->Build(
+      absl::Status st = filter_to_active_set_->Build(
           pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
           FilterToActiveSet::PairClassMode::kMakePairs);
+      if (!st.ok()) return st;
     }
   }
+  return absl::OkStatus();
 }
 
 void FilteredSolutionPermuter::ReorderEvaluation() {

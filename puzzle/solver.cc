@@ -21,16 +21,15 @@ absl::Status Solver::AddFilter(SolutionFilter solution_filter) {
   return absl::OkStatus();
 }
 
-Solution Solver::Solve() {
-  std::vector<Solution> ret = AllSolutions(1);
-  if (ret.empty()) {
-    return Solution();
-  }
-  return std::move(ret[0]);
+absl::StatusOr<Solution> Solver::Solve() {
+  absl::StatusOr<std::vector<Solution>> ret = AllSolutions(1);
+  if (!ret.ok()) return ret.status();
+  if (ret->empty()) return absl::NotFoundError("No solution found");
+  return std::move(ret->at(0));
 }
 
-std::vector<Solution> Solver::AllSolutions(int limit) {
-  solution_permuter_->Prepare();
+absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
+  if (absl::Status st = solution_permuter_->Prepare(); !st.ok()) return st;
 
   std::vector<Solution> ret;
   for (auto it = solution_permuter_->begin(); it != solution_permuter_->end();

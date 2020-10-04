@@ -26,20 +26,23 @@ int main(int argc, char** argv) {
 
   if (absl::GetFlag(FLAGS_all)) {
     LOG(INFO) << "[AllSolutions]";
-    std::vector<puzzle::Solution> all_solutions = problem->AllSolutions();
-    exit_code = all_solutions.size() > 0 ? 0 : 1;
-    LOG(INFO) << "[" << all_solutions.size() << " solutions]";
+    absl::StatusOr<std::vector<puzzle::Solution>> all_solutions =
+        problem->AllSolutions();
+    CHECK(all_solutions.ok()) << all_solutions.status();
+    exit_code = all_solutions->size() > 0 ? 0 : 1;
+    LOG(INFO) << "[" << all_solutions->size() << " solutions]";
     LOG(INFO) << absl::StrJoin(
-        all_solutions, "\n", [](std::string* out, const puzzle::Solution& s) {
+        *all_solutions, "\n", [](std::string* out, const puzzle::Solution& s) {
           absl::StrAppend(out, PositionHeader(s), "\n", s.DebugString());
         });
   } else {
-    puzzle::Solution answer = problem->Solve();
-    if (answer.IsValid()) {
-      LOG(INFO) << PositionHeader(answer);
+    absl::StatusOr<puzzle::Solution> answer = problem->Solve();
+    CHECK(answer.ok()) << answer.status();
+    if (answer->IsValid()) {
+      LOG(INFO) << PositionHeader(*answer);
     }
-    std::cout << answer.DebugString() << std::endl;
-    exit_code = answer.IsValid() ? 0 : 1;
+    std::cout << answer->DebugString() << std::endl;
+    exit_code = answer->IsValid() ? 0 : 1;
   }
 
   LOG(INFO) << problem->DebugStatistics();

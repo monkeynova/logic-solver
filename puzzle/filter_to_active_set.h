@@ -2,6 +2,7 @@
 #define PUZZLE_FILTER_TO_ACTIVE_SET_H_
 
 #include "absl/functional/function_ref.h"
+#include "absl/status/status.h"
 #include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
@@ -50,11 +51,11 @@ class FilterToActiveSet {
   // The returned active set fully honors the ANDing of input predicates.
   template <
       SingleClassBuild single_class_build = SingleClassBuild::kPassThrough>
-  void Build(const ClassPermuter* class_permuter,
-             const std::vector<SolutionFilter>& predicates);
-  void Build(SingleClassBuild single_class_build,
-             const ClassPermuter* class_permuter,
-             const std::vector<SolutionFilter>& predicates);
+  absl::Status Build(const ClassPermuter* class_permuter,
+                     const std::vector<SolutionFilter>& predicates);
+  absl::Status Build(SingleClassBuild single_class_build,
+                     const ClassPermuter* class_permuter,
+                     const std::vector<SolutionFilter>& predicates);
 
   // Given a pair of class permuters and a set of predicates on those classes
   // (it is an error to pass predicates on other classes), builds active sets
@@ -70,29 +71,34 @@ class FilterToActiveSet {
   // selective than 'permuter_b', and all other things being equal, ordering
   // the arguments that way may provide a slight performance benefit.
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
-  void Build(const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
-             const std::vector<SolutionFilter>& predicates,
-             PairClassMode pair_class_mode = PairClassMode::kSingleton) {
-    Build(permuter_a, permuter_b, predicates, predicates, pair_class_mode);
+  absl::Status Build(
+      const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
+      const std::vector<SolutionFilter>& predicates,
+      PairClassMode pair_class_mode = PairClassMode::kSingleton) {
+    return Build(permuter_a, permuter_b, predicates, predicates,
+                 pair_class_mode);
   }
-  void Build(PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
-             const ClassPermuter* permuter_b,
-             const std::vector<SolutionFilter>& predicates,
-             PairClassMode pair_class_mode = PairClassMode::kSingleton) {
-    Build(pair_class_impl, permuter_a, permuter_b, predicates, predicates,
-          pair_class_mode);
+  absl::Status Build(
+      PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
+      const ClassPermuter* permuter_b,
+      const std::vector<SolutionFilter>& predicates,
+      PairClassMode pair_class_mode = PairClassMode::kSingleton) {
+    return Build(pair_class_impl, permuter_a, permuter_b, predicates,
+                 predicates, pair_class_mode);
   }
 
   template <PairClassImpl pair_class_impl = PairClassImpl::kBackAndForth>
-  void Build(const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
-             const std::vector<SolutionFilter>& predicates_by_a,
-             const std::vector<SolutionFilter>& predicates_by_b,
-             PairClassMode pair_class_mode = PairClassMode::kSingleton);
-  void Build(PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
-             const ClassPermuter* permuter_b,
-             const std::vector<SolutionFilter>& predicates_by_a,
-             const std::vector<SolutionFilter>& predicates_by_b,
-             PairClassMode pair_class_mode = PairClassMode::kSingleton);
+  absl::Status Build(const ClassPermuter* permuter_a,
+                     const ClassPermuter* permuter_b,
+                     const std::vector<SolutionFilter>& predicates_by_a,
+                     const std::vector<SolutionFilter>& predicates_by_b,
+                     PairClassMode pair_class_mode = PairClassMode::kSingleton);
+  absl::Status Build(PairClassImpl pair_class_impl,
+                     const ClassPermuter* permuter_a,
+                     const ClassPermuter* permuter_b,
+                     const std::vector<SolutionFilter>& predicates_by_a,
+                     const std::vector<SolutionFilter>& predicates_by_b,
+                     PairClassMode pair_class_mode = PairClassMode::kSingleton);
 
  private:
   // Advances `it` based on `value_skip`.
@@ -100,13 +106,13 @@ class FilterToActiveSet {
                ClassPermuter::iterator::ValueSkip value_skip,
                ClassPermuter::iterator* it) const;
 
-  void SetupBuild(const ClassPermuter* permuter,
-                  const std::vector<SolutionFilter>& predicates);
+  absl::Status SetupBuild(const ClassPermuter* permuter,
+                          const std::vector<SolutionFilter>& predicates);
 
-  void SetupPairBuild(const ClassPermuter* permuter_a,
-                      const ClassPermuter* permuter_b,
-                      const std::vector<SolutionFilter>& predicates_by_a,
-                      const std::vector<SolutionFilter>& predicates_by_b);
+  absl::Status SetupPairBuild(
+      const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
+      const std::vector<SolutionFilter>& predicates_by_a,
+      const std::vector<SolutionFilter>& predicates_by_b);
 
   void SetupPermuter(const ClassPermuter* permuter);
 

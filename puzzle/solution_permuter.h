@@ -78,7 +78,7 @@ class SolutionPermuter {
 
   // EntryDescriptor is not valid before this call.
   // TODO(@monkeynova): Fix this awful interface.
-  virtual void Prepare() = 0;
+  virtual absl::Status Prepare() = 0;
 
   virtual iterator begin() const = 0;
   virtual iterator end() const = 0;

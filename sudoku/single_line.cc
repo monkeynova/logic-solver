@@ -21,14 +21,15 @@ int main(int argc, char** argv) {
 
   CHECK(line_board->Setup().ok());
 
-  ::puzzle::Solution answer = line_board->Solve();
-  CHECK(answer.IsValid());
+  absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+  CHECK(answer.ok());
+  CHECK(answer->IsValid());
 
   char answer_buf[82];
   char* out = answer_buf;
   for (int row = 0; row < 9; ++row) {
     for (int col = 0; col < 9; ++col) {
-      *out = answer.Id(row).Class(col) + '0';
+      *out = answer->Id(row).Class(col) + '0';
       ++out;
     }
   }

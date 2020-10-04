@@ -76,13 +76,13 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
   absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) override;
 
-  void Prepare() override;
+  absl::Status Prepare() override;
 
  private:
   // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
   // Elements in 'filters' that are not completely evaluated by these active
   // sets are returned in 'residual'.
-  void BuildActiveSets(std::vector<SolutionFilter>* residual);
+  absl::Status BuildActiveSets(std::vector<SolutionFilter>* residual);
 
   // Reorders 'class_permuters_' by increasing selectivity. The effect of this
   // is to mean that any filter evaluated on a partial set of 'class_permuters_'

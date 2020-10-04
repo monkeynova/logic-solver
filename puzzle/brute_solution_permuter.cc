@@ -77,7 +77,7 @@ double BruteSolutionPermuter::Advancer::completion() const {
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
     : entry_descriptor_(e) {}
 
-void BruteSolutionPermuter::Prepare() {
+absl::Status BruteSolutionPermuter::Prepare() {
   int num_classes = entry_descriptor_->AllClasses()->size();
   class_permuters_.resize(num_classes);
   for (int class_int = 0; class_int < num_classes; ++class_int) {
@@ -86,6 +86,7 @@ void BruteSolutionPermuter::Prepare() {
     class_permuters_[class_int] =
         MakeClassPermuter(class_descriptor, class_int);
   }
+  return absl::OkStatus();
 }
 
 int64_t BruteSolutionPermuter::permutation_count() const {

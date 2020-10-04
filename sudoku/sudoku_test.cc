@@ -25,12 +25,13 @@ TEST(Puzzle, RightAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   ASSERT_TRUE(problem->Setup().ok());
 
-  puzzle::Solution got = problem->Solve();
-  ASSERT_TRUE(got.IsValid());
+  absl::StatusOr<puzzle::Solution> got = problem->Solve();
+  ASSERT_TRUE(got.ok());
+  ASSERT_TRUE(got->IsValid());
   absl::StatusOr<puzzle::Solution> expected = problem->GetSolution();
   ASSERT_TRUE(expected.ok()) << expected.status();
 
-  EXPECT_EQ(got, *expected);
+  EXPECT_EQ(*got, *expected);
 }
 
 TEST(Puzzle, UniqueAnswer) {
@@ -39,11 +40,13 @@ TEST(Puzzle, UniqueAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   ASSERT_TRUE(problem->Setup().ok());
 
-  std::vector<puzzle::Solution> solutions = problem->AllSolutions(/*limit=*/2);
-  ASSERT_FALSE(solutions.empty());
-  ASSERT_EQ(solutions.size(), 1) << "\n0:\n"
-                                 << solutions[0].DebugString() << "\n1:\n"
-                                 << solutions[1].DebugString();
+  absl::StatusOr<std::vector<puzzle::Solution>> solutions =
+      problem->AllSolutions(/*limit=*/2);
+  ASSERT_TRUE(solutions.ok());
+  ASSERT_FALSE(solutions->empty());
+  ASSERT_EQ(solutions->size(), 1) << "\n0:\n"
+                                  << solutions->at(0).DebugString() << "\n1:\n"
+                                  << solutions->at(1).DebugString();
 }
 
 static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
@@ -68,8 +71,9 @@ static void BM_Solver(benchmark::State& state) {
   state.SetLabel(absl::StrJoin(labels, " "));
 
   for (auto _ : state) {
-    puzzle::Solution got = problem->Solve();
-    EXPECT_EQ(got, *expect);
+    absl::StatusOr<puzzle::Solution> got = problem->Solve();
+    ASSERT_TRUE(got.ok());
+    EXPECT_EQ(*got, *expect);
   }
 }
 

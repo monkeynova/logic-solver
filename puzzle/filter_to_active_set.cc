@@ -87,15 +87,20 @@ void FilterToActiveSet::SetupPermuter(const ClassPermuter* class_permuter) {
   }
 }
 
-void FilterToActiveSet::SetupBuild(
+absl::Status FilterToActiveSet::SetupBuild(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
   SetupPermuter(class_permuter);
   int class_int = class_permuter->class_int();
   for (const auto& p : predicates) {
-    CHECK_EQ(p.classes().size(), 1);
-    CHECK_EQ(p.classes()[0], class_int);
+    if (p.classes().size() != 1) {
+      return absl::InvalidArgumentError("More than one class for filter");
+    }
+    if (p.classes()[0] != class_int) {
+      return absl::InvalidArgumentError("Filter class doesn't match");
+    }
   }
+  return absl::OkStatus();
 }
 
 void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
@@ -141,13 +146,14 @@ void FilterToActiveSet::SingleIterate(
 }
 
 template <>
-void FilterToActiveSet::Build<
-    FilterToActiveSet::SingleClassBuild::kPassThrough>(
+absl::Status
+FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPassThrough>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
-  if (predicates.empty()) return;
+  if (predicates.empty()) return absl::OkStatus();
 
-  SetupBuild(class_permuter, predicates);
+  if (absl::Status st = SetupBuild(class_permuter, predicates); !st.ok())
+    return st;
 
   const int class_int = class_permuter->class_int();
   ActiveSetBuilder builder(class_permuter->permutation_count());
@@ -162,16 +168,18 @@ void FilterToActiveSet::Build<
                 });
   builder.AddBlockTo(false, class_permuter->permutation_count());
   active_sets_[class_int] = builder.DoneAdding();
+  return absl::OkStatus();
 }
 
 template <>
-void FilterToActiveSet::Build<
-    FilterToActiveSet::SingleClassBuild::kPositionSet>(
+absl::Status
+FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPositionSet>(
     const ClassPermuter* class_permuter,
     const std::vector<SolutionFilter>& predicates) {
-  if (predicates.empty()) return;
+  if (predicates.empty()) return absl::OkStatus();
 
-  SetupBuild(class_permuter, predicates);
+  if (absl::Status st = SetupBuild(class_permuter, predicates); !st.ok())
+    return st;
 
   const int class_int = class_permuter->class_int();
   std::vector<int> a_matches;
@@ -185,9 +193,10 @@ void FilterToActiveSet::Build<
                 });
   active_sets_[class_int] = ActiveSetBuilder::FromPositions(
       a_matches, class_permuter->permutation_count());
+  return absl::OkStatus();
 }
 
-void FilterToActiveSet::SetupPairBuild(
+absl::Status FilterToActiveSet::SetupPairBuild(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b) {
@@ -197,12 +206,21 @@ void FilterToActiveSet::SetupPairBuild(
   int class_b = permuter_b->class_int();
   for (const auto& predicates : {predicates_by_a, predicates_by_b}) {
     for (const auto& p : predicates) {
-      CHECK_EQ(p.classes().size(), 2);
-      CHECK(p.classes()[0] == class_a || p.classes()[0] == class_b);
-      CHECK(p.classes()[1] == class_a || p.classes()[1] == class_b);
-      CHECK_NE(p.classes()[0], p.classes()[1]);
+      if (p.classes().size() != 2) {
+        return absl::InvalidArgumentError("Must have 2 classes in each filter");
+      }
+      if (p.classes()[0] != class_a && p.classes()[0] != class_b) {
+        return absl::InvalidArgumentError("Filter must match class");
+      }
+      if (p.classes()[1] != class_a && p.classes()[1] != class_b) {
+        return absl::InvalidArgumentError("Filter must match class");
+      }
+      if (p.classes()[0] == p.classes()[1]) {
+        return absl::InvalidArgumentError("Filter classes must be different");
+      }
     }
   }
+  return absl::OkStatus();
 }
 
 void FilterToActiveSet::DualIterate(
@@ -250,12 +268,16 @@ void FilterToActiveSet::DualIterate(
 }
 
 template <>
-void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
+absl::Status
+FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b);
+  if (absl::Status st = SetupPairBuild(permuter_a, permuter_b, predicates_by_a,
+                                       predicates_by_b);
+      !st.ok())
+    return st;
 
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
@@ -363,15 +385,20 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
       active_sets_[class_outer] = builder_outer.DoneAdding();
     }
   }
+  return absl::OkStatus();
 }
 
 template <>
-void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
+absl::Status
+FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b);
+  if (absl::Status st = SetupPairBuild(permuter_a, permuter_b, predicates_by_a,
+                                       predicates_by_b);
+      !st.ok())
+    return st;
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
@@ -435,15 +462,20 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
                                  a_set, permuter_a->permutation_count()));
     }
   }
+  return absl::OkStatus();
 }
 
 template <>
-void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
+absl::Status
+FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
     const ClassPermuter* permuter_a, const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b);
+  if (absl::Status st = SetupPairBuild(permuter_a, permuter_b, predicates_by_a,
+                                       predicates_by_b);
+      !st.ok())
+    return st;
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
@@ -500,25 +532,24 @@ void FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
                                  a_set, permuter_a->permutation_count()));
     }
   }
+  return absl::OkStatus();
 }
 
-void FilterToActiveSet::Build(SingleClassBuild single_class_build,
-                              const ClassPermuter* class_permuter,
-                              const std::vector<SolutionFilter>& predicates) {
+absl::Status FilterToActiveSet::Build(
+    SingleClassBuild single_class_build, const ClassPermuter* class_permuter,
+    const std::vector<SolutionFilter>& predicates) {
   switch (single_class_build) {
     case SingleClassBuild::kPassThrough:
-      Build<SingleClassBuild::kPassThrough>(class_permuter, predicates);
-      return;
+      return Build<SingleClassBuild::kPassThrough>(class_permuter, predicates);
     case SingleClassBuild::kPositionSet:
-      Build<SingleClassBuild::kPositionSet>(class_permuter, predicates);
-      return;
+      return Build<SingleClassBuild::kPositionSet>(class_permuter, predicates);
     default:
-      LOG(FATAL) << "Bad SingleClassBuild "
-                 << static_cast<int>(single_class_build);
+      return absl::InvalidArgumentError(absl::StrCat(
+          "Bad SingleClassBuild ", static_cast<int>(single_class_build)));
   }
 }
 
-void FilterToActiveSet::Build(
+absl::Status FilterToActiveSet::Build(
     PairClassImpl pair_class_impl, const ClassPermuter* permuter_a,
     const ClassPermuter* permuter_b,
     const std::vector<SolutionFilter>& predicates_by_a,
@@ -526,21 +557,20 @@ void FilterToActiveSet::Build(
     PairClassMode pair_class_mode) {
   switch (pair_class_impl) {
     case PairClassImpl::kPairSet:
-      Build<PairClassImpl::kPairSet>(permuter_a, permuter_b, predicates_by_a,
-                                     predicates_by_b, pair_class_mode);
-      return;
+      return Build<PairClassImpl::kPairSet>(permuter_a, permuter_b,
+                                            predicates_by_a, predicates_by_b,
+                                            pair_class_mode);
     case PairClassImpl::kBackAndForth:
-      Build<PairClassImpl::kBackAndForth>(permuter_a, permuter_b,
-                                          predicates_by_a, predicates_by_b,
-                                          pair_class_mode);
-      return;
+      return Build<PairClassImpl::kBackAndForth>(
+          permuter_a, permuter_b, predicates_by_a, predicates_by_b,
+          pair_class_mode);
     case PairClassImpl::kPassThroughA:
-      Build<PairClassImpl::kPassThroughA>(permuter_a, permuter_b,
-                                          predicates_by_a, predicates_by_b,
-                                          pair_class_mode);
-      return;
+      return Build<PairClassImpl::kPassThroughA>(
+          permuter_a, permuter_b, predicates_by_a, predicates_by_b,
+          pair_class_mode);
     default:
-      LOG(FATAL) << "Bad PairClassImpl " << static_cast<int>(pair_class_impl);
+      return absl::InvalidArgumentError(absl::StrCat(
+          "Bad PairClassImpl ", static_cast<int>(pair_class_impl)));
   }
 }
 

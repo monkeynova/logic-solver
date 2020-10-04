@@ -24,10 +24,11 @@ TEST(Puzzle, RightAnswer) {
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
 
   ASSERT_TRUE(line_board->Setup().ok());
-  ::puzzle::Solution answer = line_board->Solve();
-  ASSERT_TRUE(answer.IsValid());
+  absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+  ASSERT_TRUE(answer.ok());
+  ASSERT_TRUE(answer->IsValid());
 
-  EXPECT_EQ(::sudoku::LineBoard::ToString(answer),
+  EXPECT_EQ(::sudoku::LineBoard::ToString(*answer),
             absl::GetFlag(FLAGS_sudoku_line_answer));
 }
 
@@ -39,12 +40,13 @@ TEST(Puzzle, UniqueAnswer) {
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
   ASSERT_TRUE(line_board->Setup().ok());
 
-  std::vector<puzzle::Solution> solutions =
+  absl::StatusOr<std::vector<puzzle::Solution>> solutions =
       line_board->AllSolutions(/*limit=*/2);
-  ASSERT_FALSE(solutions.empty());
-  ASSERT_EQ(solutions.size(), 1) << "\n0:\n"
-                                 << solutions[0].DebugString() << "\n1:\n"
-                                 << solutions[1].DebugString();
+  ASSERT_TRUE(solutions.ok());
+  ASSERT_FALSE(solutions->empty());
+  ASSERT_EQ(solutions->size(), 1) << "\n0:\n"
+                                  << solutions->at(0).DebugString() << "\n1:\n"
+                                  << solutions->at(1).DebugString();
 }
 
 static void BM_Solver(benchmark::State& state) {
@@ -54,10 +56,11 @@ static void BM_Solver(benchmark::State& state) {
 
   ASSERT_TRUE(line_board->Setup().ok());
   for (auto _ : state) {
-    ::puzzle::Solution answer = line_board->Solve();
-    ASSERT_TRUE(answer.IsValid());
+    absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+    ASSERT_TRUE(answer.ok());
+    ASSERT_TRUE(answer->IsValid());
     if (!absl::GetFlag(FLAGS_sudoku_line_answer).empty()) {
-      EXPECT_EQ(::sudoku::LineBoard::ToString(answer),
+      EXPECT_EQ(::sudoku::LineBoard::ToString(*answer),
                 absl::GetFlag(FLAGS_sudoku_line_answer));
     }
   }

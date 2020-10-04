@@ -20,10 +20,11 @@ int main(int argc, char** argv) {
 
     CHECK(line_board->Setup().ok());
 
-    ::puzzle::Solution answer = line_board->Solve();
-    if (answer.IsValid()) {
+    absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+    CHECK(answer.ok());
+    if (answer->IsValid()) {
       absl::Time done = absl::Now();
-      std::cout << "Out: " << ::sudoku::LineBoard::ToString(answer) << " ("
+      std::cout << "Out: " << ::sudoku::LineBoard::ToString(*answer) << " ("
                 << 1e-3 * ((done - start) / absl::Milliseconds(1)) << "s)"
                 << std::endl;
     } else {

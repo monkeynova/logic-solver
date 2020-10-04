@@ -16,8 +16,8 @@ class Solver {
   Solver();
   ~Solver() = default;
 
-  Solution Solve();
-  std::vector<Solution> AllSolutions(int limit = -1);
+  absl::StatusOr<Solution> Solve();
+  absl::StatusOr<std::vector<Solution>> AllSolutions(int limit = -1);
 
   void SetIdentifiers(const Descriptor* id_descriptor) {
     entry_descriptor_.SetIds(id_descriptor);

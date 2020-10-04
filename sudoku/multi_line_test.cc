@@ -106,10 +106,15 @@ void TestLineBoard(absl::string_view test_case,
         absl::StrCat("ERROR: Could not setup puzzle: ", st.message()));
     return;
   }
-  ::puzzle::Solution answer = line_board->Solve();
-  if (!answer.IsValid()) {
+  absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+  if (!answer.ok()) {
+    test_result->AddTestOutput(absl::StrCat("ERROR: Could not solve puzzle: ",
+                                            answer.status().message()));
+    return;
+  }
+  if (!answer->IsValid()) {
     test_result->AddTestOutput(
-        absl::StrCat("ERROR: Could not solve puzzle: ", answer.DebugString()));
+        absl::StrCat("ERROR: Could not solve puzzle: ", answer->DebugString()));
     return;
   }
   if (absl::GetFlag(FLAGS_puzzle_test_unique)) {
@@ -121,14 +126,18 @@ void TestLineBoard(absl::string_view test_case,
       return;
     }
 
-    std::vector<puzzle::Solution> solutions =
+    absl::StatusOr<std::vector<puzzle::Solution>> solutions =
         line_board->AllSolutions(/*limit=*/2);
-    if (solutions.size() != 1) {
+    if (!solutions.ok()) {
+      test_result->AddTestOutput(absl::StrCat("ERROR: Could not solve puzzle: ",
+                                              solutions.status().message()));
+    }
+    if (solutions->size() != 1) {
       test_result->AddTestOutput(
           absl::StrCat("ERROR: Puzzle solution not unique"));
     }
   }
-  test_result->AddTestOutput(::sudoku::LineBoard::ToString(answer));
+  test_result->AddTestOutput(::sudoku::LineBoard::ToString(*answer));
 }
 
 TEST(MultiLineTest, FileBasedTest) {

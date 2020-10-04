@@ -46,30 +46,36 @@ TEST_P(SinglePermuterTest, Simple) {
   ASSERT_THAT(p->permutation_count(), 6);
 
   FilterToActiveSet first_is_0_builder(&entry_descriptor);
-  first_is_0_builder.Build(
-      single_class_build(), p.get(),
-      {SolutionFilter(
-          "First entry is class 0",
-          [](const Solution& s) { return s.Id(0).Class(kClassInt) == 0; },
-          {kClassInt})});
+  ASSERT_TRUE(first_is_0_builder
+                  .Build(single_class_build(), p.get(),
+                         {SolutionFilter("First entry is class 0",
+                                         [](const Solution& s) {
+                                           return s.Id(0).Class(kClassInt) == 0;
+                                         },
+                                         {kClassInt})})
+                  .ok());
   ActiveSet active_set_first_is_0 = first_is_0_builder.active_set(kClassInt);
 
   FilterToActiveSet first_is_1_builder(&entry_descriptor);
-  first_is_1_builder.Build(
-      single_class_build(), p.get(),
-      {SolutionFilter(
-          "First entry is class 1",
-          [](const Solution& s) { return s.Id(0).Class(kClassInt) == 1; },
-          {kClassInt})});
+  ASSERT_TRUE(first_is_1_builder
+                  .Build(single_class_build(), p.get(),
+                         {SolutionFilter("First entry is class 1",
+                                         [](const Solution& s) {
+                                           return s.Id(0).Class(kClassInt) == 1;
+                                         },
+                                         {kClassInt})})
+                  .ok());
   ActiveSet active_set_first_is_1 = first_is_1_builder.active_set(kClassInt);
 
   FilterToActiveSet first_is_2_builder(&entry_descriptor);
-  first_is_2_builder.Build(
-      single_class_build(), p.get(),
-      {SolutionFilter(
-          "First entry is class 2",
-          [](const Solution& s) { return s.Id(0).Class(kClassInt) == 2; },
-          {kClassInt})});
+  ASSERT_TRUE(first_is_2_builder
+                  .Build(single_class_build(), p.get(),
+                         {SolutionFilter("First entry is class 2",
+                                         [](const Solution& s) {
+                                           return s.Id(0).Class(kClassInt) == 2;
+                                         },
+                                         {kClassInt})})
+                  .ok());
   ActiveSet active_set_first_is_2 = first_is_2_builder.active_set(kClassInt);
 
   std::set<int> position_history;
@@ -130,10 +136,10 @@ TEST_P(SinglePermuterTest, ExistingSet) {
       {kClassInt});
 
   LOG(INFO) << "Start: " << builder.active_set(kClassInt).DebugString();
-  builder.Build(single_class_build(), p.get(), {first_is_0});
+  ASSERT_TRUE(builder.Build(single_class_build(), p.get(), {first_is_0}).ok());
   LOG(INFO) << "Add " << first_is_0.name() << ": "
             << builder.active_set(kClassInt).DebugString();
-  builder.Build(single_class_build(), p.get(), {second_is_1});
+  ASSERT_TRUE(builder.Build(single_class_build(), p.get(), {second_is_1}).ok());
   LOG(INFO) << "Add " << second_is_1.name() << ": "
             << builder.active_set(kClassInt).DebugString();
 
@@ -183,7 +189,9 @@ TEST_P(PairPermuterTest, Simple) {
                    },
                    {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c});
+  ASSERT_TRUE(
+      builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c})
+          .ok());
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b = builder.active_set(kClassIntB);
@@ -249,7 +257,7 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
       [](const Solution& s) { return s.Id(1).Class(kClassIntA) == 1; },
       {kClassIntA});
 
-  builder.Build(permuter_a.get(), {a_filter});
+  ASSERT_TRUE(builder.Build(permuter_a.get(), {a_filter}).ok());
   ActiveSet active_set_a_pre = builder.active_set(kClassIntA);
 
   SolutionFilter pair_filter("a is 0 and b is 1 for id 0",
@@ -259,8 +267,10 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
                              },
                              {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
-                {pair_filter});
+  ASSERT_TRUE(builder
+                  .Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
+                         {pair_filter})
+                  .ok());
 
   ActiveSet active_set_a_post = builder.active_set(kClassIntA);
   ActiveSet active_set_b = builder.active_set(kClassIntB);
@@ -329,7 +339,7 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
       [](const Solution& s) { return s.Id(1).Class(kClassIntB) == 2; },
       {kClassIntB});
 
-  builder.Build(permuter_b.get(), {b_filter});
+  ASSERT_TRUE(builder.Build(permuter_b.get(), {b_filter}).ok());
   ActiveSet active_set_b_pre = builder.active_set(kClassIntB);
 
   SolutionFilter pair_filter("a is 0 and b is 1 for id 0",
@@ -339,8 +349,10 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
                              },
                              {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
-                {pair_filter});
+  ASSERT_TRUE(builder
+                  .Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
+                         {pair_filter})
+                  .ok());
 
   ActiveSet active_set_a = builder.active_set(kClassIntA);
   ActiveSet active_set_b_post = builder.active_set(kClassIntB);
@@ -436,8 +448,10 @@ TEST_P(PairPermuterTest, MakePairs) {
                    },
                    {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
-                FilterToActiveSet::PairClassMode::kMakePairs);
+  ASSERT_TRUE(builder
+                  .Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
+                         {c}, FilterToActiveSet::PairClassMode::kMakePairs)
+                  .ok());
 
   EXPECT_THAT(
       builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_not_0, kClassIntB)
@@ -510,8 +524,10 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
       },
       {kClassIntA, kClassIntB}, /*entry_id=*/0);
 
-  builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
-                FilterToActiveSet::PairClassMode::kMakePairs);
+  ASSERT_TRUE(builder
+                  .Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
+                         {c}, FilterToActiveSet::PairClassMode::kMakePairs)
+                  .ok());
 
   EXPECT_THAT(
       builder.active_set_pair(kClassIntA, /*a_val=*/a0_is_not_0, kClassIntB)
@@ -586,8 +602,10 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
                    },
                    {kClassIntA, kClassIntB});
 
-  builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {c},
-                FilterToActiveSet::PairClassMode::kMakePairs);
+  ASSERT_TRUE(builder
+                  .Build(pair_class_impl(), permuter_a.get(), permuter_b.get(),
+                         {c}, FilterToActiveSet::PairClassMode::kMakePairs)
+                  .ok());
 
   EXPECT_THAT(
       builder.active_set_pair(kClassIntA, /*a_val=*/a_0_is_2, kClassIntB)
@@ -659,14 +677,23 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
 
   for (const auto& loop : {1, 2, 3}) {
     std::ignore = loop;
-    builder.Build(pair_class_impl(), permuter_a.get(), permuter_b.get(), {a_b},
-                  FilterToActiveSet::PairClassMode::kMakePairs);
+    ASSERT_TRUE(builder
+                    .Build(pair_class_impl(), permuter_a.get(),
+                           permuter_b.get(), {a_b},
+                           FilterToActiveSet::PairClassMode::kMakePairs)
+                    .ok());
 
-    builder.Build(pair_class_impl(), permuter_b.get(), permuter_c.get(), {b_c},
-                  FilterToActiveSet::PairClassMode::kMakePairs);
+    ASSERT_TRUE(builder
+                    .Build(pair_class_impl(), permuter_b.get(),
+                           permuter_c.get(), {b_c},
+                           FilterToActiveSet::PairClassMode::kMakePairs)
+                    .ok());
 
-    builder.Build(pair_class_impl(), permuter_c.get(), permuter_a.get(), {c_a},
-                  FilterToActiveSet::PairClassMode::kMakePairs);
+    ASSERT_TRUE(builder
+                    .Build(pair_class_impl(), permuter_c.get(),
+                           permuter_a.get(), {c_a},
+                           FilterToActiveSet::PairClassMode::kMakePairs)
+                    .ok());
   }
 
   EXPECT_EQ(builder.active_set(kClassIntA).matches(), 1) << *permuter_a;

@@ -24,7 +24,7 @@ TEST(FilteredSolutionPermuterTest, Simple) {
   ed.SetClass(1, "bar", &cd2);
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.Prepare();
+  ASSERT_TRUE(p.Prepare().ok());
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
@@ -59,7 +59,7 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
               "test", [](const Solution& s) { return s.Id(1).Class(0) == 1; },
               std::vector<int>{0}))
           .ok());
-  p.Prepare();
+  ASSERT_TRUE(p.Prepare().ok());
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
@@ -99,7 +99,7 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
                               },
                               std::vector<int>{1}))
                   .ok());
-  p.Prepare();
+  ASSERT_TRUE(p.Prepare().ok());
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
@@ -147,7 +147,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
                               },
                               std::vector<int>{1}))
                   .ok());
-  p.Prepare();
+  ASSERT_TRUE(p.Prepare().ok());
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);

@@ -21,7 +21,7 @@ TEST(BruteSolutionPermuterTest, Simple) {
   ed.SetClass(1, "bar", &cd2);
 
   BruteSolutionPermuter p(&ed);
-  p.Prepare();
+  ASSERT_TRUE(p.Prepare().ok());
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
