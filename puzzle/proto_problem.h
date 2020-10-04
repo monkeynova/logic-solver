@@ -1,7 +1,6 @@
 #ifndef PUZZLE_PROTOT_PROBLEM_H
 #define PUZZLE_PROTOT_PROBLEM_H
 
-#include "absl/status/statusor.h"
 #include "google/protobuf/descriptor.h"
 #include "puzzle/problem.h"
 
@@ -9,7 +8,7 @@ namespace puzzle {
 
 class ProtoProblem : public Problem {
  public:
-  void Setup() override;
+  absl::Status Setup() override;
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 
   virtual void AddPredicates() = 0;

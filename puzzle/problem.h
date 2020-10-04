@@ -13,7 +13,7 @@ class Problem : public Solver {
   using Generator = std::unique_ptr<Problem> (*)();
   virtual ~Problem() = default;
 
-  virtual void Setup() = 0;
+  virtual absl::Status Setup() = 0;
   virtual absl::StatusOr<puzzle::Solution> GetSolution() const = 0;
 
   static std::unique_ptr<Problem> GetInstance();

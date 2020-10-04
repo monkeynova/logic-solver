@@ -175,7 +175,7 @@ Base::Board Base::ParseBoard(const absl::string_view board) {
 
 void Base::InstanceSetup() { AddBoardPredicates(GetInstanceBoard()); }
 
-void Base::Setup() {
+absl::Status Base::Setup() {
   // Descriptors are built so solution.DebugString(), kinda, sorta looks like
   // a sudoku board.
   puzzle::StringDescriptor* id_descriptor =
@@ -211,17 +211,18 @@ void Base::Setup() {
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {
     AddPredicatesPairwise();
   } else {
-    LOG(FATAL) << "Unrecognized option for sudoku_problem_setup '"
-               << absl::GetFlag(FLAGS_sudoku_problem_setup)
-               << "'; valid values are "
-               << "'cumulative' and 'pairwise'.";
+    return absl::InternalError(
+        absl::StrCat("Unrecognized option for sudoku_problem_setup '",
+                     absl::GetFlag(FLAGS_sudoku_problem_setup),
+                     "'; valid values are "
+                     "'cumulative' and 'pairwise'."));
   }
 
-  if (absl::GetFlag(FLAGS_sudoku_setup_only)) {
-    return;
+  if (!absl::GetFlag(FLAGS_sudoku_setup_only)) {
+    InstanceSetup();
   }
 
-  InstanceSetup();
+  return absl::OkStatus();
 }
 
 }  // namespace sudoku

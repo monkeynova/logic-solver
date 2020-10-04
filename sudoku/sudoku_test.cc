@@ -23,7 +23,7 @@ extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  problem->Setup();
+  ASSERT_TRUE(problem->Setup().ok());
 
   puzzle::Solution got = problem->Solve();
   ASSERT_TRUE(got.IsValid());
@@ -37,7 +37,7 @@ TEST(Puzzle, UniqueAnswer) {
   if (!absl::GetFlag(FLAGS_puzzle_test_unique)) return;
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  problem->Setup();
+  ASSERT_TRUE(problem->Setup().ok());
 
   std::vector<puzzle::Solution> solutions = problem->AllSolutions(/*limit=*/2);
   ASSERT_FALSE(solutions.empty());
@@ -55,7 +55,7 @@ static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
 template <bool pair_iterators, bool mode_pair>
 static void BM_Solver(benchmark::State& state) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  problem->Setup();
+  ASSERT_TRUE(problem->Setup().ok());
 
   absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
   ASSERT_TRUE(expect.ok()) << expect.status();

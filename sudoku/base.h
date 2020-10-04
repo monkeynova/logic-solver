@@ -45,7 +45,7 @@ class Base : public ::puzzle::Problem {
 
  private:
   // ::puzzle::Problem methods. Final to prevent missing parts.
-  void Setup() final;
+  absl::Status Setup() final;
   absl::StatusOr<::puzzle::Solution> GetSolution() const final;
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);

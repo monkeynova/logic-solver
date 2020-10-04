@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
         ::sudoku::LineBoard::Create(buf);
     CHECK(line_board != nullptr) << "No puzzle found";
 
-    line_board->Setup();
+    CHECK(line_board->Setup().ok());
 
     ::puzzle::Solution answer = line_board->Solve();
     if (answer.IsValid()) {
