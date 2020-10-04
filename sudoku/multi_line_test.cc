@@ -101,7 +101,11 @@ void TestLineBoard(absl::string_view test_case,
                                             test_case_without_options));
     return;
   }
-  line_board->Setup();
+  if (absl::Status st = line_board->Setup(); !st.ok()) {
+    test_result->AddTestOutput(
+        absl::StrCat("ERROR: Could not setup puzzle: ", st.message()));
+    return;
+  }
   ::puzzle::Solution answer = line_board->Solve();
   if (!answer.IsValid()) {
     test_result->AddTestOutput(
@@ -111,7 +115,11 @@ void TestLineBoard(absl::string_view test_case,
   if (absl::GetFlag(FLAGS_puzzle_test_unique)) {
     std::unique_ptr<::puzzle::Problem> line_board =
         ::sudoku::LineBoard::Create(test_case_without_options);
-    line_board->Setup();
+    if (absl::Status st = line_board->Setup(); !st.ok()) {
+      test_result->AddTestOutput(
+          absl::StrCat("ERROR: Could not setup puzzle: ", st.message()));
+      return;
+    }
 
     std::vector<puzzle::Solution> solutions =
         line_board->AllSolutions(/*limit=*/2);

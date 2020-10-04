@@ -18,7 +18,7 @@ class KillerSudoku : public ::sudoku::Base {
     std::vector<Box> boxes;
   };
 
-  Board GetInstanceBoard() const override { return Board(); }
+  absl::StatusOr<Board> GetInstanceBoard() const override { return Board(); }
 
   virtual std::vector<Cage> GetCages() const = 0;
 

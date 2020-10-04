@@ -35,10 +35,10 @@ class Base : public ::puzzle::Problem {
     }
   };
 
-  static Board ParseBoard(const absl::string_view board);
+  static absl::StatusOr<Board> ParseBoard(const absl::string_view board);
 
-  virtual Board GetInstanceBoard() const = 0;
-  virtual Board GetSolutionBoard() const = 0;
+  virtual absl::StatusOr<Board> GetInstanceBoard() const = 0;
+  virtual absl::StatusOr<Board> GetSolutionBoard() const = 0;
 
  protected:
   virtual absl::Status InstanceSetup();

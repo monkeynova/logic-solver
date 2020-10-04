@@ -23,8 +23,8 @@ class LineBoard : public Base {
   static std::string ToString(const ::puzzle::Solution& solution);
   static Board ToBoard(absl::string_view line);
 
-  Board GetInstanceBoard() const override { return board_; }
-  Board GetSolutionBoard() const override { return board_; }
+  absl::StatusOr<Board> GetInstanceBoard() const override { return board_; }
+  absl::StatusOr<Board> GetSolutionBoard() const override { return board_; }
 
  private:
   Board board_;

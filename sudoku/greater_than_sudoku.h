@@ -13,7 +13,7 @@ relations on pairs of values rather than some initial values.
  */
 class GreaterThanSudoku : public ::sudoku::Base {
  public:
-  Board GetInstanceBoard() const override { return Board(); }
+  absl::StatusOr<Board> GetInstanceBoard() const override { return Board(); }
 
   virtual std::vector<std::pair<Box, Box>> GetComparisons() const = 0;
 

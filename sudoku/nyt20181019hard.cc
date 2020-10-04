@@ -4,11 +4,11 @@ namespace sudoku {
 
 class NYT20181019Hard : public Base {
  private:
-  Board GetInstanceBoard() const override;
-  Board GetSolutionBoard() const override;
+  absl::StatusOr<Board> GetInstanceBoard() const override;
+  absl::StatusOr<Board> GetSolutionBoard() const override;
 };
 
-Base::Board NYT20181019Hard::GetInstanceBoard() const {
+absl::StatusOr<Base::Board> NYT20181019Hard::GetInstanceBoard() const {
   return ParseBoard(
       "? ? ? | 1 ? ? | ? ? 3\n"
       "? ? ? | ? ? ? | 4 5 ?\n"
@@ -23,7 +23,7 @@ Base::Board NYT20181019Hard::GetInstanceBoard() const {
       "? ? 3 | ? ? ? | ? ? 2");
 }
 
-Base::Board NYT20181019Hard::GetSolutionBoard() const {
+absl::StatusOr<Base::Board> NYT20181019Hard::GetSolutionBoard() const {
   /*
 I1019 16:34:49.435868 2793841472 puzzle_main.cc:44] 0: 1=7 2=6 3=5 4=1 5=8 6=4
 7=2 8=9 9=3 1: 1=1 2=3 3=9 4=6 5=7 6=2 7=4 8=5 9=8 2: 1=4 2=8 3=2 4=9 5=3 6=5

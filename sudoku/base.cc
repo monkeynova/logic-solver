@@ -144,41 +144,50 @@ absl::Status Base::AddBoardPredicates(const Board& board) {
 }
 
 absl::StatusOr<puzzle::Solution> Base::GetSolution() const {
-  Board board = GetSolutionBoard();
+  absl::StatusOr<Board> board = GetSolutionBoard();
+  if (!board.ok()) return board.status();
+
   std::vector<puzzle::Entry> entries;
-  if (board.size() != 9) {
+  if (board->size() != 9) {
     return absl::InvalidArgumentError("Board must have 9 rows");
   }
-  for (size_t row = 0; row < board.size(); ++row) {
-    if (board[row].size() != 9) {
+  for (size_t row = 0; row < board->size(); ++row) {
+    if ((*board)[row].size() != 9) {
       return absl::InvalidArgumentError(
           "Board must have 9 columns in each row");
     }
-    for (size_t col = 0; col < board[row].size(); ++col) {
+    for (size_t col = 0; col < (*board)[row].size(); ++col) {
       // Translate to 0-indexed solution space.
-      --board[row][col];
+      --(*board)[row][col];
     }
-    entries.emplace_back(row, board[row], entry_descriptor());
+    entries.emplace_back(row, (*board)[row], entry_descriptor());
   }
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
 
 // static
-Base::Board Base::ParseBoard(const absl::string_view board) {
+absl::StatusOr<Base::Board> Base::ParseBoard(const absl::string_view board) {
   Board ret;
   std::vector<std::string> rows = absl::StrSplit(board, "\n");
-  CHECK_EQ(rows.size(), /*data=*/9 + /*spacer=*/2);
+  if (rows.size() != /*data=*/9 + /*spacer=*/2) {
+    return absl::InvalidArgumentError("# of rows isn't 11");
+  }
   for (const absl::string_view row : rows) {
     if (row == "- - - + - - - + - - -") continue;
 
     std::vector<std::string> cols = absl::StrSplit(row, " ");
-    CHECK_EQ(cols.size(), /*data=*/9 + /*spacer=*/2);
+    if (cols.size() != /*data=*/9 + /*spacer=*/2) {
+      return absl::InvalidArgumentError("Length of row isn't 11");
+    }
     std::vector<int> cur_cols;
     for (const absl::string_view col : cols) {
       if (col == "|") continue;
       int val = -1;
       if (col != "?") {
-        CHECK(absl::SimpleAtoi(col, &val)) << "Not a number: " << col;
+        if (!absl::SimpleAtoi(col, &val)) {
+          return absl::InvalidArgumentError(
+              absl::StrCat("Not a number: ", col));
+        }
       }
       cur_cols.push_back(val);
     }
@@ -188,7 +197,9 @@ Base::Board Base::ParseBoard(const absl::string_view board) {
 }
 
 absl::Status Base::InstanceSetup() {
-  return AddBoardPredicates(GetInstanceBoard());
+  absl::StatusOr<Board> instance = GetInstanceBoard();
+  if (!instance.ok()) return instance.status();
+  return AddBoardPredicates(*instance);
 }
 
 absl::Status Base::Setup() {
