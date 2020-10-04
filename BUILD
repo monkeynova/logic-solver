@@ -5,17 +5,17 @@ cc_binary(
     deps = [
         ":dracula_and_friends_lib",
         "//puzzle:puzzle_main",
-    ]
+    ],
 )
 
 cc_library(
     name = "dracula_and_friends_lib",
     srcs = ["dracula_and_friends.cc"],
-    alwayslink = 1,
     deps = [
         ":dracula_and_friends_cc_proto",
         "//puzzle:proto_problem",
-    ]
+    ],
+    alwayslink = 1,
 )
 
 cc_proto_library(
@@ -40,7 +40,7 @@ cc_binary(
     deps = [
         ":six_fearsome_heroes_lib",
         "//puzzle:puzzle_main",
-    ]
+    ],
 )
 
 cc_proto_library(
@@ -55,12 +55,12 @@ proto_library(
 
 cc_library(
     name = "six_fearsome_heroes_lib",
-    alwayslink = 1,
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
-	":six_fearsome_heroes_cc_proto",
+        ":six_fearsome_heroes_cc_proto",
         "//puzzle:proto_problem",
-    ]
+    ],
+    alwayslink = 1,
 )
 
 cc_binary(
@@ -68,17 +68,17 @@ cc_binary(
     deps = [
         ":swimming_pool_lib",
         "//puzzle:puzzle_main",
-    ]
+    ],
 )
 
 cc_library(
     name = "swimming_pool_lib",
     srcs = ["swimming_pool.cc"],
-    alwayslink = 1,
     deps = [
         ":swimming_pool_cc_proto",
         "//puzzle:proto_problem",
-    ]
+    ],
+    alwayslink = 1,
 )
 
 cc_proto_library(

@@ -6,7 +6,7 @@ cc_library(
     hdrs = ["base.h"],
     deps = [
         "//puzzle:problem",
-	"@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:flag",
     ],
 )
 
@@ -15,14 +15,14 @@ cc_binary(
     srcs = ["multi_line.cc"],
     deps = [
         ":line_board",
-	"@com_monkeynova_gunit_main//:main_lib",
-    ]
+        "@com_monkeynova_gunit_main//:main_lib",
+    ],
 )
 
 cc_library(
     name = "multi_line_test_lib",
-    srcs = ["multi_line_test.cc"],
     testonly = 1,
+    srcs = ["multi_line_test.cc"],
     deps = [
         ":line_board",
         "@com_google_absl//absl/flags:flag",
@@ -34,9 +34,9 @@ cc_library(
         "@com_google_googletest//:gtest",
         # TODO(@monkeynova): FBTD includes it's own main which interferes with
         # logging, flags etc.
-	# "@com_monkeynova_gunit_main//:test_main",
+        # "@com_monkeynova_gunit_main//:test_main",
     ],
-)    
+)
 
 cc_test(
     name = "multi_line_test",
@@ -59,9 +59,9 @@ cc_binary(
     srcs = ["single_line.cc"],
     deps = [
         ":line_board",
-	"@com_monkeynova_gunit_main//:main_lib",
-	"@com_google_absl//absl/flags:flag",
-    ]
+        "@com_google_absl//absl/flags:flag",
+        "@com_monkeynova_gunit_main//:main_lib",
+    ],
 )
 
 cc_test(
@@ -89,20 +89,23 @@ cc_test(
         "562817493" +
         "817349625",
     ],
-    tags = ["benchmark", "slowbenchmark"],
+    tags = [
+        "benchmark",
+        "slowbenchmark",
+    ],
     deps = [
         ":line_board",
-       "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
-       "@com_monkeynova_gunit_main//:test_main",
-    ]
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
 )
 
 cc_library(
     name = "line_board",
-    hdrs = ["line_board.h"],
     srcs = ["line_board.cc"],
+    hdrs = ["line_board.h"],
     deps = [
         ":base",
     ],
@@ -119,11 +122,11 @@ cc_binary(
 cc_library(
     name = "nyt20171202_lib",
     srcs = ["nyt20171202.cc"],
-    alwayslink = 1,
     deps = [
         ":base",
         "//puzzle:puzzle_main",
     ],
+    alwayslink = 1,
 )
 
 sudoku_test(
@@ -144,10 +147,10 @@ cc_binary(
 cc_library(
     name = "nyt20180101easy_lib",
     srcs = ["nyt20180101easy.cc"],
-    alwayslink = 1,
     deps = [
         ":base",
     ],
+    alwayslink = 1,
 )
 
 sudoku_test(
@@ -160,7 +163,7 @@ sudoku_test(
 sudoku_test(
     name = "nyt20180101easy_nopairs_test",
     args = [
-	"--puzzle_prune_pair_class_iterators_mode_pair=false",
+        "--puzzle_prune_pair_class_iterators_mode_pair=false",
     ],
     deps = [
         ":nyt20180101easy_lib",
@@ -178,10 +181,10 @@ cc_binary(
 cc_library(
     name = "nyt20180102medium_lib",
     srcs = ["nyt20180102medium.cc"],
-    alwayslink = 1,
     deps = [
         ":base",
     ],
+    alwayslink = 1,
 )
 
 sudoku_test(
@@ -193,20 +196,20 @@ sudoku_test(
 
 cc_library(
     name = "sudoku_test",
-    srcs = ["sudoku_test.cc"],
     testonly = 1,
-    alwayslink = 1,
+    srcs = ["sudoku_test.cc"],
+    visibility = [
+        "//visibility:public",
+    ],
     deps = [
         "//puzzle:problem",
-	"@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
-	"@com_monkeynova_gunit_main//:test_main",
+        "@com_monkeynova_gunit_main//:test_main",
     ],
-    visibility = [
-        "//visibility:public",
-    ]
+    alwayslink = 1,
 )
 
 cc_binary(
@@ -220,10 +223,10 @@ cc_binary(
 cc_library(
     name = "nyt20181019easy_lib",
     srcs = ["nyt20181019easy.cc"],
-    alwayslink = 1,
     deps = [
         ":base",
     ],
+    alwayslink = 1,
 )
 
 sudoku_test(
@@ -244,10 +247,10 @@ cc_binary(
 cc_library(
     name = "nyt20181019hard_lib",
     srcs = ["nyt20181019hard.cc"],
-    alwayslink = 1,
     deps = [
         ":base",
     ],
+    alwayslink = 1,
 )
 
 sudoku_test(
@@ -269,10 +272,10 @@ cc_library(
 cc_library(
     name = "conceptis_puzzles_lib",
     srcs = ["conceptis_puzzles.cc"],
-    alwayslink = 1,
     deps = [
         ":killer_sudoku",
     ],
+    alwayslink = 1,
 )
 
 cc_binary(
@@ -302,10 +305,10 @@ cc_library(
 cc_library(
     name = "ksogt20200601_lib",
     srcs = ["ksogt20200601.cc"],
-    alwayslink = 1,
     deps = [
         ":greater_than_sudoku",
     ],
+    alwayslink = 1,
 )
 
 cc_binary(
@@ -318,12 +321,12 @@ cc_binary(
 
 sudoku_test(
     name = "ksogt20200601_test",
-    deps = [
-        ":ksogt20200601_lib",
-    ],
     args = [
         # This test currently (2020.09.20) takes ~25s without the uniqueness proof.
         # Leave it off of typical testing.
         "--puzzle_test_unique=false",
+    ],
+    deps = [
+        ":ksogt20200601_lib",
     ],
 )

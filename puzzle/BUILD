@@ -1,16 +1,17 @@
 cc_library(
     name = "solver",
-    hdrs = ["solver.h"],
     srcs = ["solver.cc"],
+    hdrs = ["solver.h"],
+    visibility = [
+        "//visibility:public",
+    ],
     deps = [
         ":all_match",
-	":profiler",
+        ":profiler",
         ":solution",
-	":solution_permuter",
-	":solution_permuter_factory",
-    ],
-    visibility = [
-        "//visibility:public"
+        ":solution_permuter",
+        ":solution_permuter_factory",
+        "@com_google_absl//absl/status",
     ],
 )
 
@@ -19,8 +20,8 @@ cc_library(
     hdrs = ["all_match.h"],
     deps = [
         ":class_permuter",
-        ":solution_filter",
         ":solution",
+        ":solution_filter",
     ],
 )
 
@@ -29,8 +30,8 @@ cc_test(
     srcs = ["all_match_test.cc"],
     deps = [
         ":all_match",
-	"@com_monkeynova_gunit_main//:test_main",
-    ]
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
 )
 
 cc_library(
@@ -45,34 +46,34 @@ cc_library(
 
 cc_library(
     name = "active_set_bit_vector",
-    hdrs = ["active_set_bit_vector.h"],
     srcs = ["active_set_bit_vector.cc"],
+    hdrs = ["active_set_bit_vector.h"],
     deps = [
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
-	"@com_google_glog//:glog",
+        "@com_google_glog//:glog",
     ],
 )
 
 cc_library(
     name = "active_set_run_length",
-    hdrs = ["active_set_run_length.h"],
     srcs = ["active_set_run_length.cc"],
+    hdrs = ["active_set_run_length.h"],
     deps = [
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
-	"@com_google_glog//:glog",
+        "@com_google_glog//:glog",
     ],
 )
 
 cc_library(
     name = "active_set_run_position",
-    hdrs = ["active_set_run_position.h"],
     srcs = ["active_set_run_position.cc"],
+    hdrs = ["active_set_run_position.h"],
     deps = [
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/strings",
-	"@com_google_glog//:glog",
+        "@com_google_glog//:glog",
     ],
 )
 
@@ -81,36 +82,36 @@ cc_test(
     srcs = ["active_set_test.cc"],
     deps = [
         ":active_set",
-	"@com_monkeynova_gunit_main//:test_main",
-    ]
-)   
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
 
 cc_library(
     name = "active_set_pair",
-    hdrs = ["active_set_pair.h"],
     srcs = ["active_set_pair.cc"],
+    hdrs = ["active_set_pair.h"],
     deps = [
         ":active_set",
         "@com_google_absl//absl/container:flat_hash_map",
     ],
 )
-        
+
 cc_test(
     name = "active_set_pair_test",
     srcs = ["active_set_pair_test.cc"],
     deps = [
         ":active_set_pair",
-	"@com_monkeynova_gunit_main//:test_main",
-    ]
-)   
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
 
 cc_library(
     name = "filter_to_active_set",
-    hdrs = ["filter_to_active_set.h"],
     srcs = ["filter_to_active_set.cc"],
+    hdrs = ["filter_to_active_set.h"],
     deps = [
         ":active_set",
-	":active_set_pair",
+        ":active_set_pair",
         ":all_match",
         ":class_permuter",
         ":mutable_solution",
@@ -129,30 +130,30 @@ cc_binary(
     srcs = ["filter_to_active_set_benchmark.cc"],
     tags = ["benchmark"],
     deps = [
-        ":filter_to_active_set",
-	":benchmark_main",
+        ":benchmark_main",
         ":class_permuter_factory",
+        ":filter_to_active_set",
         ":solution_filter",
         "@com_google_benchmark//:benchmark",
-    ]
+    ],
 )
 
 cc_test(
     name = "filter_to_active_set_test",
     srcs = ["filter_to_active_set_test.cc"],
     deps = [
-        ":filter_to_active_set",
         ":class_permuter_factory",
+        ":filter_to_active_set",
         ":mutable_solution",
         ":solution_filter",
-	"@com_monkeynova_gunit_main//:test_main",
-    ]
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
 )
 
 cc_library(
     name = "value_skip_to_active_set",
-    hdrs = ["value_skip_to_active_set.h"],
     srcs = ["value_skip_to_active_set.cc"],
+    hdrs = ["value_skip_to_active_set.h"],
     deps = [
         ":active_set",
         ":class_permuter",
@@ -164,96 +165,97 @@ cc_test(
     srcs = ["value_skip_to_active_set_test.cc"],
     deps = [
         ":class_permuter_factory",
-	"@com_monkeynova_gunit_main//:test_main",
         ":value_skip_to_active_set",
+        "@com_monkeynova_gunit_main//:test_main",
     ],
 )
 
 cc_library(
     name = "benchmark_main",
     srcs = ["benchmark_main.cc"],
-    deps = [
-	"@com_google_absl//absl/flags:flag",
-        "@com_google_benchmark//:benchmark",
-	"@com_google_glog//:glog",
-	"@com_monkeynova_gunit_main//:main_lib",
-    ],
     visibility = [
         "//visibility:public",
-    ]
+    ],
+    deps = [
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_benchmark//:benchmark",
+        "@com_google_glog//:glog",
+        "@com_monkeynova_gunit_main//:main_lib",
+    ],
 )
 
 cc_library(
     name = "brute_solution_permuter",
-    hdrs = ["brute_solution_permuter.h"],
     srcs = ["brute_solution_permuter.cc"],
+    hdrs = ["brute_solution_permuter.h"],
     deps = [
         ":class_permuter",
         ":class_permuter_factory",
         ":mutable_solution",
-	":solution_filter",
-	":solution_permuter",
+        ":solution_filter",
+        ":solution_permuter",
     ],
 )
 
 cc_library(
     name = "filtered_solution_permuter",
-    hdrs = ["filtered_solution_permuter.h"],
     srcs = ["filtered_solution_permuter.cc"],
+    hdrs = ["filtered_solution_permuter.h"],
     deps = [
-        ":filter_to_active_set",
         ":all_match",
         ":class_permuter",
         ":class_permuter_factory",
-	":mutable_solution",
-	":profiler",
+        ":filter_to_active_set",
+        ":mutable_solution",
+        ":profiler",
         ":solution_filter",
         ":solution_permuter",
-	"@com_google_absl//absl/memory",
-	"@com_google_glog//:glog",
+        "@com_google_absl//absl/memory",
+        "@com_google_glog//:glog",
     ],
 )
 
 cc_library(
     name = "solution_permuter",
-    hdrs = ["solution_permuter.h"],
     srcs = ["solution_permuter.cc"],
+    hdrs = ["solution_permuter.h"],
     deps = [
-	":mutable_solution",
+        ":mutable_solution",
         ":solution",
-	":solution_filter",
+        ":solution_filter",
+        "@com_google_absl//absl/status:statusor",
     ],
 )
 
 cc_library(
     name = "solution_permuter_factory",
-    hdrs = ["solution_permuter_factory.h"],
     srcs = ["solution_permuter_factory.cc"],
+    hdrs = ["solution_permuter_factory.h"],
     deps = [
         ":brute_solution_permuter",
         ":filtered_solution_permuter",
-	":profiler",
-	":solution",
-	":solution_permuter",
-	"@com_google_absl//absl/flags:flag",
+        ":profiler",
+        ":solution",
+        ":solution_permuter",
+        "@com_google_absl//absl/flags:flag",
     ],
 )
 
 cc_library(
     name = "class_permuter",
-    hdrs = ["class_permuter.h"],
     srcs = ["class_permuter.cc"],
+    hdrs = ["class_permuter.h"],
     deps = [
         ":active_set",
         ":solution",
-	"@com_google_absl//absl/container:inlined_vector",
+        "@com_google_absl//absl/container:inlined_vector",
     ],
 )
 
 cc_library(
     name = "class_permuter_steinhaus_johnson_trotter",
-    hdrs = ["class_permuter_steinhaus_johnson_trotter.h"],
     srcs = ["class_permuter_steinhaus_johnson_trotter.cc"],
+    hdrs = ["class_permuter_steinhaus_johnson_trotter.h"],
     deps = [
         ":class_permuter",
     ],
@@ -261,8 +263,8 @@ cc_library(
 
 cc_library(
     name = "class_permuter_factorial_radix",
-    hdrs = ["class_permuter_factorial_radix.h"],
     srcs = ["class_permuter_factorial_radix.cc"],
+    hdrs = ["class_permuter_factorial_radix.h"],
     deps = [
         ":class_permuter",
     ],
@@ -270,25 +272,25 @@ cc_library(
 
 cc_library(
     name = "class_permuter_factorial_radix_delete_tracking",
-    hdrs = ["class_permuter_factorial_radix_delete_tracking.h"],
     srcs = ["class_permuter_factorial_radix_delete_tracking.cc"],
+    hdrs = ["class_permuter_factorial_radix_delete_tracking.h"],
     deps = [
         ":class_permuter",
-	"@com_google_absl//absl/synchronization",
+        "@com_google_absl//absl/synchronization",
     ],
 )
 
 cc_library(
     name = "class_permuter_factory",
-    hdrs = ["class_permuter_factory.h"],
     srcs = ["class_permuter_factory.cc"],
+    hdrs = ["class_permuter_factory.h"],
     deps = [
         ":class_permuter",
         ":class_permuter_factorial_radix",
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
         ":solution",
-	"@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:flag",
     ],
 )
 
@@ -303,40 +305,40 @@ cc_library(
 
 cc_library(
     name = "problem",
-    hdrs = ["problem.h"],
     srcs = ["problem.cc"],
+    hdrs = ["problem.h"],
+    visibility = [
+        "//visibility:public",
+    ],
     deps = [
         ":solver",
         "@com_google_absl//absl/status:statusor",
     ],
-    visibility = [
-        "//visibility:public",
-    ]
 )
 
 cc_library(
     name = "proto_problem",
-    hdrs = ["proto_problem.h"],
     srcs = ["proto_problem.cc"],
+    hdrs = ["proto_problem.h"],
+    visibility = [
+        "//visibility:public",
+    ],
     deps = [
         ":problem",
         "@com_google_protobuf//:protobuf",
     ],
-    visibility = [
-        "//visibility:public",
-    ]
 )
 
 cc_library(
     name = "solution",
-    hdrs = ["solution.h"],
     srcs = ["solution.cc"],
-    deps = [ 
+    hdrs = ["solution.h"],
+    deps = [
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/strings",
-        "@com_google_protobuf//:protobuf",
         "@com_google_glog//:glog",
-   ],
+        "@com_google_protobuf//:protobuf",
+    ],
 )
 
 cc_library(
@@ -349,15 +351,15 @@ cc_library(
 
 cc_library(
     name = "profiler",
-    hdrs = ["profiler.h"],
     srcs = ["profiler.cc"],
-    deps = [ 
-	"@com_google_absl//absl/flags:flag",
+    hdrs = ["profiler.h"],
+    deps = [
+        "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_glog//:glog",
-   ],
+    ],
 )
- 
+
 cc_test(
     name = "class_permuter_test",
     srcs = ["class_permuter_test.cc"],
@@ -366,9 +368,9 @@ cc_test(
         ":class_permuter_factorial_radix",
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
-	"@com_monkeynova_gunit_main//:test_main",
         "@com_google_googletest//:gtest",
-    ]
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
 )
 
 cc_binary(
@@ -380,9 +382,9 @@ cc_binary(
         ":class_permuter_factorial_radix",
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
-	"@com_google_absl//absl/strings",
+        "@com_google_absl//absl/strings",
         "@com_google_benchmark//:benchmark",
-    ]
+    ],
 )
 
 cc_test(
@@ -390,9 +392,9 @@ cc_test(
     srcs = ["brute_solution_permuter_test.cc"],
     deps = [
         ":brute_solution_permuter",
-	"@com_monkeynova_gunit_main//:test_main",
         "@com_google_googletest//:gtest",
-    ]
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
 )
 
 cc_test(
@@ -400,39 +402,39 @@ cc_test(
     srcs = ["filtered_solution_permuter_test.cc"],
     deps = [
         ":filtered_solution_permuter",
-	":solution_filter",
-	"@com_monkeynova_gunit_main//:test_main",
+        ":solution_filter",
         "@com_google_googletest//:gtest",
-    ]
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
 )
 
 cc_library(
     name = "puzzle_main",
     srcs = ["puzzle_main.cc"],
-    deps = [
-        ":problem",
-	"@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/memory",
-	"@com_monkeynova_gunit_main//:main_lib",
-    ],
     visibility = [
         "//visibility:public",
-    ]    
+    ],
+    deps = [
+        ":problem",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/memory",
+        "@com_monkeynova_gunit_main//:main_lib",
+    ],
 )
 
 cc_library(
     name = "puzzle_test",
-    srcs = ["puzzle_test.cc"],
     testonly = 1,
+    srcs = ["puzzle_test.cc"],
+    visibility = [
+        "//visibility:public",
+    ],
     deps = [
         ":problem",
-	"@com_monkeynova_gunit_main//:test_main",
-	"@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
         "@com_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
+        "@com_monkeynova_gunit_main//:test_main",
     ],
-    visibility = [
-        "//visibility:public",
-    ]
 )
