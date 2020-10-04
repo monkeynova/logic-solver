@@ -17,8 +17,8 @@ struct SetupState {
         permuter_b(MakeClassPermuter(descriptor.AllClassValues(kClassIntB),
                                      kClassIntB)),
         single_class_builder(&descriptor) {
-    single_class_builder.Build(permuter_a.get(), {MakeFilterA()});
-    single_class_builder.Build(permuter_b.get(), {MakeFilterB()});
+    CHECK(single_class_builder.Build(permuter_a.get(), {MakeFilterA()}).ok());
+    CHECK(single_class_builder.Build(permuter_b.get(), {MakeFilterB()}).ok());
   }
 
   static EntryDescriptor MakeDescriptor(
@@ -84,9 +84,11 @@ static void BM_Pair(benchmark::State& state) {
 
   for (auto _ : state) {
     FilterToActiveSet builder = setup.single_class_builder;
-    builder.Build<pair_class_impl>(setup.permuter_a.get(),
-                                   setup.permuter_b.get(), setup.predicates,
-                                   pair_class_mode);
+    CHECK(builder
+              .Build<pair_class_impl>(setup.permuter_a.get(),
+                                      setup.permuter_b.get(), setup.predicates,
+                                      pair_class_mode)
+              .ok());
   }
 }
 
