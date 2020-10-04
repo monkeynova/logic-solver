@@ -53,9 +53,12 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
   ed.SetClass(1, "bar", &cd2);
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.AddFilter(SolutionFilter(
-      "test", [](const Solution& s) { return s.Id(1).Class(0) == 1; },
-      std::vector<int>{0}));
+  ASSERT_TRUE(
+      p
+          .AddFilter(SolutionFilter(
+              "test", [](const Solution& s) { return s.Id(1).Class(0) == 1; },
+              std::vector<int>{0}))
+          .ok());
   p.Prepare();
 
   std::unordered_set<std::string> history;
@@ -87,13 +90,15 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
   ed.SetClass(1, "bar", &cd2);
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.AddFilter(SolutionFilter(
-      "test",
-      [](const Solution& s) {
-        LOG(INFO) << "(1,1) => " << s.Id(0).Class(1) << std::endl;
-        return s.Id(1).Class(1) == 2;
-      },
-      std::vector<int>{1}));
+  ASSERT_TRUE(p.AddFilter(SolutionFilter(
+                              "test",
+                              [](const Solution& s) {
+                                LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
+                                          << std::endl;
+                                return s.Id(1).Class(1) == 2;
+                              },
+                              std::vector<int>{1}))
+                  .ok());
   p.Prepare();
 
   std::unordered_set<std::string> history;
@@ -126,20 +131,22 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   ed.SetClass(1, "bar", &cd2);
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  p.AddFilter(SolutionFilter(
-      "test",
-      [](const Solution& s) {
-        LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
-        return s.Id(0).Class(0) == 1;
-      },
-      std::vector<int>{0}));
-  p.AddFilter(SolutionFilter(
-      "test",
-      [](const Solution& s) {
-        LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
-        return s.Id(1).Class(1) == 2;
-      },
-      std::vector<int>{1}));
+  ASSERT_TRUE(p.AddFilter(SolutionFilter(
+                              "test",
+                              [](const Solution& s) {
+                                LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
+                                return s.Id(0).Class(0) == 1;
+                              },
+                              std::vector<int>{0}))
+                  .ok());
+  ASSERT_TRUE(p.AddFilter(SolutionFilter(
+                              "test",
+                              [](const Solution& s) {
+                                LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
+                                return s.Id(1).Class(1) == 2;
+                              },
+                              std::vector<int>{1}))
+                  .ok());
   p.Prepare();
 
   std::unordered_set<std::string> history;

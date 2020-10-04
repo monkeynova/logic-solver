@@ -222,4 +222,5 @@ std::string SixFearsomeHeroes::solution_textproto() const {
 absl::Status SixFearsomeHeroes::AddPredicates() {
   if (absl::Status st = AddGeneralPredicates(); !st.ok()) return st;
   if (absl::Status st = AddStatementPredicates(); !st.ok()) return st;
+  return absl::OkStatus();
 }
