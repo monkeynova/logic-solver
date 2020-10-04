@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   CHECK(problem != nullptr) << "No puzzle found";
 
-  problem->Setup();
+  CHECK(problem->Setup().ok());
 
   int exit_code = 1;
 

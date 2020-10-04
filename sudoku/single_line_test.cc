@@ -23,7 +23,7 @@ TEST(Puzzle, RightAnswer) {
       ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
 
-  line_board->Setup();
+  ASSERT_TRUE(line_board->Setup().ok());
   ::puzzle::Solution answer = line_board->Solve();
   ASSERT_TRUE(answer.IsValid());
 
@@ -37,7 +37,7 @@ TEST(Puzzle, UniqueAnswer) {
   std::unique_ptr<::puzzle::Problem> line_board =
       ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
-  line_board->Setup();
+  ASSERT_TRUE(line_board->Setup().ok());
 
   std::vector<puzzle::Solution> solutions =
       line_board->AllSolutions(/*limit=*/2);
@@ -52,7 +52,7 @@ static void BM_Solver(benchmark::State& state) {
       ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
   ASSERT_TRUE(line_board != nullptr) << "No puzzle found";
 
-  line_board->Setup();
+  ASSERT_TRUE(line_board->Setup().ok());
   for (auto _ : state) {
     ::puzzle::Solution answer = line_board->Solve();
     ASSERT_TRUE(answer.IsValid());

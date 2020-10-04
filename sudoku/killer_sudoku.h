@@ -23,10 +23,10 @@ class KillerSudoku : public ::sudoku::Base {
   virtual std::vector<Cage> GetCages() const = 0;
 
  protected:
-  void InstanceSetup() override;
+  absl::Status InstanceSetup() override;
 
  private:
-  void AddCage(const Cage& cage);
+  absl::Status AddCage(const Cage& cage);
 
   absl::flat_hash_set<Box> box_used_;
 };

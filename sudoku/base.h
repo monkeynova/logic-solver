@@ -41,7 +41,7 @@ class Base : public ::puzzle::Problem {
   virtual Board GetSolutionBoard() const = 0;
 
  protected:
-  virtual void InstanceSetup();
+  virtual absl::Status InstanceSetup();
 
  private:
   // ::puzzle::Problem methods. Final to prevent missing parts.
@@ -50,11 +50,11 @@ class Base : public ::puzzle::Problem {
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
-  void AddValuePredicate(int row, int col, int value);
-  void AddBoardPredicates(const Board& board);
-  void AddPredicates();
-  void AddPredicatesCumulative();
-  void AddPredicatesPairwise();
+  absl::Status AddValuePredicate(int row, int col, int value);
+  absl::Status AddBoardPredicates(const Board& board);
+  absl::Status AddPredicates();
+  absl::Status AddPredicatesCumulative();
+  absl::Status AddPredicatesPairwise();
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Base::Box& box) {

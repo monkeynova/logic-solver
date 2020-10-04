@@ -10,12 +10,15 @@ Solver::Solver()
       solution_permuter_(
           CreateSolutionPermuter(&entry_descriptor_, profiler_.get())) {}
 
-void Solver::AddFilter(SolutionFilter solution_filter) {
-  if (solution_permuter_->AddFilter(solution_filter)) {
+absl::Status Solver::AddFilter(SolutionFilter solution_filter) {
+  absl::StatusOr<bool> added = solution_permuter_->AddFilter(solution_filter);
+  if (!added.ok()) return added.status();
+  if (*added) {
     // Permuter guarantees no need to evaluate the predicate further.
   } else {
     on_solution_.push_back(solution_filter);
   }
+  return absl::OkStatus();
 }
 
 Solution Solver::Solve() {

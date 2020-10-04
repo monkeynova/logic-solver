@@ -200,8 +200,11 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
                                                    Profiler* profiler)
     : entry_descriptor_(e), profiler_(profiler) {}
 
-bool FilteredSolutionPermuter::AddFilter(SolutionFilter solution_filter) {
-  CHECK(!prepared_);
+absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
+    SolutionFilter solution_filter) {
+  if (prepared_) {
+    return absl::FailedPreconditionError("Permuter already prepared");
+  }
   // TODO(@monkeynova): Maybe test for full sized list as well.
   if (solution_filter.classes().empty()) {
     // No reason to store the predicate here as we require a full solution to

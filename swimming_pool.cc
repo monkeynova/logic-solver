@@ -54,7 +54,7 @@ class SwimmingPoolProblem : public puzzle::ProtoProblem {
 
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
-  void AddPredicates() override;
+  absl::Status AddPredicates() override;
 
   const google::protobuf::Descriptor* problem_descriptor() const override {
     return SwimmingPoolProblemInfo::descriptor();
@@ -68,8 +68,9 @@ bool SwimmingPoolProblem::IsNextTo(const puzzle::Entry& a,
   return fabs(a.Class(LANE) - b.Class(LANE)) == 1;
 };
 
-void SwimmingPoolProblem::AddPredicates() {
-  AddPredicate(
+absl::Status SwimmingPoolProblem::AddPredicates() {
+  absl::Status st;
+  st = AddPredicate(
       "1. Betty is swimming next to the athlete from the UK. "
       "Neither of them is swimming Butterfly.",
       [](const puzzle::Solution& s) {
@@ -80,8 +81,9 @@ void SwimmingPoolProblem::AddPredicates() {
                from_uk.Class(STYLE) != BUTTERFLY;
       },
       {COUNTRY, STYLE, LANE});
+  if (!st.ok()) return st;
 
-  AddPredicate(
+  st = AddPredicate(
       "2. Among Emily and the Backstroker, one is from the UK "
       "and the other is in the fourth lane.",
       [](const puzzle::Solution& s) {
@@ -99,7 +101,9 @@ void SwimmingPoolProblem::AddPredicates() {
         return false;
       },
       {COUNTRY, STYLE, LANE});
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+
+  st = AddSpecificEntryPredicate(
       "3. Carol is not swimming Backstroke nor Dolphin. She is "
       "not Australian, and is not swiming in lates #2 nor #4.",
       [](const puzzle::Entry& e) {
@@ -108,7 +112,9 @@ void SwimmingPoolProblem::AddPredicates() {
                e.Class(LANE) != FOUR;
       },
       {STYLE, COUNTRY, LANE}, CAROL);
-  AddPredicate(
+  if (!st.ok()) return st;
+
+  st = AddPredicate(
       "4. The Freestyler is next to both Daisy and the American "
       "swimmer.",
       [](const puzzle::Solution& s) {
@@ -123,18 +129,25 @@ void SwimmingPoolProblem::AddPredicates() {
                         }));
       },
       {STYLE, COUNTRY, LANE});
-  AddPredicate("5. The American swimmer is next to Carol.",
-               [](const puzzle::Solution& s) {
-                 return IsNextTo(s.Id(CAROL),
-                                 s.Find([](const puzzle::Entry& e) {
-                                   return e.Class(COUNTRY) == USA;
-                                 }));
-               },
-               {COUNTRY, LANE});
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+
+  st = AddPredicate("5. The American swimmer is next to Carol.",
+                    [](const puzzle::Solution& s) {
+                      return IsNextTo(s.Id(CAROL),
+                                      s.Find([](const puzzle::Entry& e) {
+                                        return e.Class(COUNTRY) == USA;
+                                      }));
+                    },
+                    {COUNTRY, LANE});
+  if (!st.ok()) return st;
+
+  st = AddSpecificEntryPredicate(
       "6. Daisy is not swimming in lane #2.",
       [](const puzzle::Entry& e) { return e.Class(LANE) != TWO; }, {LANE},
       DAISY);
+  if (!st.ok()) return st;
+
+  return absl::OkStatus();
 }
 
 std::string SwimmingPoolProblem::solution_textproto() const {

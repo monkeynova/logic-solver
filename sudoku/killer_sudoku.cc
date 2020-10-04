@@ -1,12 +1,19 @@
 #include "sudoku/killer_sudoku.h"
 
+#include "absl/strings/str_cat.h"
+
 namespace sudoku {
 
-void KillerSudoku::AddCage(const Cage& cage) {
-  CHECK(!cage.boxes.empty());
+absl::Status KillerSudoku::AddCage(const Cage& cage) {
+  if (cage.boxes.empty()) {
+    return absl::InvalidArgumentError("cage cannot be empty");
+  }
   absl::flat_hash_map<int, int> class_to_entry;
   for (const Box& box : cage.boxes) {
-    CHECK(!box_used_.contains(box)) << "Duplicate entry: " << box;
+    if (box_used_.contains(box)) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("Duplicate entry: ", box.DebugString()));
+    }
     box_used_.insert(box);
     auto it = class_to_entry.find(box.class_id);
     if (it == class_to_entry.end()) {
@@ -17,7 +24,7 @@ void KillerSudoku::AddCage(const Cage& cage) {
       it->second = puzzle::Entry::kBadId;
     }
   }
-  AddPredicate(
+  return AddPredicate(
       absl::StrCat("Sum around ", cage.boxes[0].DebugString(), " = ",
                    cage.expected_sum),
       [cage](const puzzle::Solution& s) {
@@ -31,17 +38,23 @@ void KillerSudoku::AddCage(const Cage& cage) {
       std::move(class_to_entry));
 }
 
-void KillerSudoku::InstanceSetup() {
+absl::Status KillerSudoku::InstanceSetup() {
   for (const Cage& cage : GetCages()) {
-    AddCage(cage);
+    absl::Status st = AddCage(cage);
+    if (!st.ok()) return st;
   }
 
   for (int entry_id = 0; entry_id < 9; ++entry_id) {
     for (int class_id = 0; class_id < 9; ++class_id) {
       Box b = {entry_id, class_id};
-      CHECK(box_used_.contains(b)) << b;
+      if (!box_used_.contains(b)) {
+        return absl::InvalidArgumentError(
+            absl::StrCat("Missing entry: ", b.DebugString()));
+      }
     }
   }
+
+  return absl::OkStatus();
 }
 
 }  // namespace sudoku

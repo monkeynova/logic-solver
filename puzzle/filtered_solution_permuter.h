@@ -2,6 +2,7 @@
 #define PUZZLE_FILTERED_SOLUTION_PERMUTER_H
 
 #include "absl/memory/memory.h"
+#include "absl/status/statusor.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/mutable_solution.h"
@@ -73,7 +74,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     return class_permuters_[class_int].get();
   }
 
-  bool AddFilter(SolutionFilter solution_filter) override;
+  absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) override;
 
   void Prepare() override;
 

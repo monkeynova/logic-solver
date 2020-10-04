@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "absl/status/statusor.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_filter.h"
@@ -71,7 +72,9 @@ class SolutionPermuter {
   SolutionPermuter() = default;
   virtual ~SolutionPermuter() = default;
 
-  virtual bool AddFilter(SolutionFilter solution_filter) { return false; }
+  virtual absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) {
+    return false;
+  }
 
   // EntryDescriptor is not valid before this call.
   // TODO(@monkeynova): Fix this awful interface.

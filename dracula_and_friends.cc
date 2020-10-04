@@ -59,15 +59,16 @@ class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
     CENTURY = 2,
   };
 
-  void AddPredicates() override;
+  absl::Status AddPredicates() override;
   const google::protobuf::Descriptor* problem_descriptor() const override {
     return DraculaAndFriendsInfo::descriptor();
   }
   std::string solution_textproto() const override;
 };
 
-void DraculaAndFriendsProblem::AddPredicates() {
-  AddPredicate(
+absl::Status DraculaAndFriendsProblem::AddPredicates() {
+  absl::Status st;
+  st = AddPredicate(
       "1. One, and only one, of the vampires had the same initials "
       "of his name and of his birthplace.",
       [](const puzzle::Solution& s) {
@@ -78,7 +79,8 @@ void DraculaAndFriendsProblem::AddPredicates() {
         return true;
       },
       {REGION});
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+  st = AddSpecificEntryPredicate(
       "2. Matei wasn't from Debrogea. He hated onions or ivy.",
       // Edit "He hated" probably should be "He hated neither".
       [](const puzzle::Entry& e) {
@@ -86,7 +88,8 @@ void DraculaAndFriendsProblem::AddPredicates() {
         return e.Class(PLANT) == ONION || e.Class(PLANT) == IVY;
       },
       {REGION, PLANT}, MATEI);
-  AddPredicate(
+  if (!st.ok()) return st;
+  st = AddPredicate(
       "3. The vampire from Mutenia lived 100 years after the "
       "vampire who hated thornbrush.",
       [](const puzzle::Solution& s) {
@@ -99,7 +102,8 @@ void DraculaAndFriendsProblem::AddPredicates() {
         return hated_thornbrush_century == from_mutenia_century - 1;
       },
       {REGION, PLANT, CENTURY});
-  AddPredicate(
+  if (!st.ok()) return st;
+  st = AddPredicate(
       "4. 100 years after Dorian's death, another vamipre rised "
       "in Bucovina, but this wasn't Bogdan.",
       [](const puzzle::Solution& s) {
@@ -110,7 +114,8 @@ void DraculaAndFriendsProblem::AddPredicates() {
                 s.Id(DORIAN).Class(CENTURY) + 1);
       },
       {REGION, CENTURY});
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+  st = AddSpecificEntryPredicate(
       "5. Octavain either lived in the XVI century or hated "
       "thornbrush.",
       [](const puzzle::Entry& e) {
@@ -119,27 +124,33 @@ void DraculaAndFriendsProblem::AddPredicates() {
         return (in_xvi || hated_thornbrush) && !(in_xvi && hated_thornbrush);
       },
       {PLANT, CENTURY}, OCTAVIAN);
-  AddPredicate("6. If Bogdan hated wolfsbane, then Matei lived in Buchovia.",
-               [](const puzzle::Solution& s) {
-                 if (s.Id(BOGDAN).Class(PLANT) == WOLFSBANE) {
-                   return s.Id(MATEI).Class(REGION) == BUCOVINA;
-                 }
-                 return true;
-               },
-               {{REGION, MATEI}, {PLANT, BOGDAN}});
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+  st = AddPredicate(
+      "6. If Bogdan hated wolfsbane, then Matei lived in Buchovia.",
+      [](const puzzle::Solution& s) {
+        if (s.Id(BOGDAN).Class(PLANT) == WOLFSBANE) {
+          return s.Id(MATEI).Class(REGION) == BUCOVINA;
+        }
+        return true;
+      },
+      {{REGION, MATEI}, {PLANT, BOGDAN}});
+  if (!st.ok()) return st;
+  st = AddSpecificEntryPredicate(
       "7a. The vampire from XIV century wasn't Octavian nor Bogdan. (Octavian)",
       [](const puzzle::Entry& e) { return e.Class(CENTURY) != XIV; }, {CENTURY},
       OCTAVIAN);
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+  st = AddSpecificEntryPredicate(
       "7b. The vampire from XIV century wasn't Octavian nor Bogdan. (Bogdan)",
       [](const puzzle::Entry& e) { return e.Class(CENTURY) != XIV; }, {CENTURY},
       BOGDAN);
-  AddSpecificEntryPredicate(
+  if (!st.ok()) return st;
+  st = AddSpecificEntryPredicate(
       "8. Villagers didn't grow thornbrush against Dorian.",
       [](const puzzle::Entry& e) { return e.Class(PLANT) != THORNBRUSH; },
       {PLANT}, DORIAN);
-  AddPredicate(
+  if (!st.ok()) return st;
+  st = AddPredicate(
       "9. Chronicles of XVII century claimed that ivy was "
       "ineffective and that Debrogea was free from vamipres.",
       [](const puzzle::Solution& s) {
@@ -148,6 +159,9 @@ void DraculaAndFriendsProblem::AddPredicates() {
         return e.Class(PLANT) != IVY && e.Class(REGION) != DEBROGEA;
       },
       {REGION, PLANT, CENTURY});
+  if (!st.ok()) return st;
+
+  return absl::OkStatus();
 }
 
 std::string DraculaAndFriendsProblem::solution_textproto() const {

@@ -21,11 +21,11 @@ ABSL_FLAG(bool, sudoku_setup_only, false,
 
 namespace sudoku {
 
-void Base::AddPredicatesCumulative() {
+absl::Status Base::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
-    AddAllEntryPredicate(
+    absl::Status st = AddAllEntryPredicate(
         absl::StrCat("No row dupes ", i + 1),
         [i](const puzzle::Entry& e) {
           for (int j = 0; j < i; ++j) {
@@ -34,6 +34,7 @@ void Base::AddPredicatesCumulative() {
           return true;
         },
         cols);
+    if (!st.ok()) return st;
   }
 
   for (int i = 0; i < 9; ++i) {
@@ -43,7 +44,7 @@ void Base::AddPredicatesCumulative() {
     }
 
     cols.push_back(i);
-    AddPredicate(
+    absl::Status st = AddPredicate(
         absl::StrCat("No box dupes ", i + 1),
         [i](const puzzle::Solution& s) {
           for (int row = 0; row < 9; ++row) {
@@ -60,16 +61,19 @@ void Base::AddPredicatesCumulative() {
           return true;
         },
         cols);
+    if (!st.ok()) return st;
   }
+  return absl::OkStatus();
 }
 
-void Base::AddPredicatesPairwise() {
+absl::Status Base::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
     for (int j = i + 1; j < 9; ++j) {
-      AddAllEntryPredicate(
+      absl::Status st = AddAllEntryPredicate(
           absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
           [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
           {i, j});
+      if (!st.ok()) return st;
     }
   }
 
@@ -85,7 +89,9 @@ void Base::AddPredicatesPairwise() {
         const int box_j_x = box_base_x + (j / 3);
         const int box_j_y = box_base_y + (j % 3);
 
-        CHECK(!(box_i_x == box_j_x && box_i_y == box_j_y));
+        if (box_i_x == box_j_x && box_i_y == box_j_y) {
+          return absl::InternalError("box iteration wonky");
+        }
 
         // Handled by class permutation.
         if (box_i_x == box_j_x) continue;
@@ -93,7 +99,7 @@ void Base::AddPredicatesPairwise() {
         // Handled by row predicate.
         if (box_i_y == box_j_y) continue;
 
-        AddPredicate(
+        absl::Status st = AddPredicate(
             absl::StrCat("No box dupes "
                          "(",
                          box_i_x + 1, ",", box_i_y + 1,
@@ -105,28 +111,36 @@ void Base::AddPredicatesPairwise() {
                      s.Id(box_j_x).Class(box_j_y);
             },
             {{box_i_y, box_i_x}, {box_j_y, box_j_x}});
+        if (!st.ok()) return st;
       }
     }
   }
+  return absl::OkStatus();
 }
 
-void Base::AddValuePredicate(int row, int col, int value) {
-  AddSpecificEntryPredicate(
+absl::Status Base::AddValuePredicate(int row, int col, int value) {
+  return AddSpecificEntryPredicate(
       absl::StrCat("(", row + 1, ",", col + 1, ") = ", value),
       [col, value](const puzzle::Entry& e) { return e.Class(col) == value; },
       {col}, row);
 }
 
-void Base::AddBoardPredicates(const Board& board) {
-  CHECK_EQ(board.size(), 9);
+absl::Status Base::AddBoardPredicates(const Board& board) {
+  if (board.size() != 9) {
+    return absl::InvalidArgumentError("Board must have 9 rows");
+  }
   for (size_t row = 0; row < board.size(); ++row) {
-    CHECK_EQ(board[row].size(), 9);
+    if (board[row].size() != 9) {
+      return absl::InvalidArgumentError("Each board row must have 9 columns");
+    }
     for (size_t col = 0; col < board[row].size(); ++col) {
       if (board[row][col] > 0) {
-        AddValuePredicate(row, col, board[row][col] - 1);
+        absl::Status st = AddValuePredicate(row, col, board[row][col] - 1);
+        if (!st.ok()) return st;
       }
     }
   }
+  return absl::OkStatus();
 }
 
 absl::StatusOr<puzzle::Solution> Base::GetSolution() const {
@@ -173,7 +187,9 @@ Base::Board Base::ParseBoard(const absl::string_view board) {
   return ret;
 }
 
-void Base::InstanceSetup() { AddBoardPredicates(GetInstanceBoard()); }
+absl::Status Base::InstanceSetup() {
+  return AddBoardPredicates(GetInstanceBoard());
+}
 
 absl::Status Base::Setup() {
   // Descriptors are built so solution.DebugString(), kinda, sorta looks like
@@ -207,9 +223,9 @@ absl::Status Base::Setup() {
   }
 
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
-    AddPredicatesCumulative();
+    if (absl::Status st = AddPredicatesCumulative(); !st.ok()) return st;
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {
-    AddPredicatesPairwise();
+    if (absl::Status st = AddPredicatesPairwise(); !st.ok()) return st;
   } else {
     return absl::InternalError(
         absl::StrCat("Unrecognized option for sudoku_problem_setup '",
@@ -219,7 +235,8 @@ absl::Status Base::Setup() {
   }
 
   if (!absl::GetFlag(FLAGS_sudoku_setup_only)) {
-    InstanceSetup();
+    absl::Status st = InstanceSetup();
+    if (!st.ok()) return st;
   }
 
   return absl::OkStatus();

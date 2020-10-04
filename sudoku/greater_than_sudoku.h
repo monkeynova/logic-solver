@@ -18,10 +18,10 @@ class GreaterThanSudoku : public ::sudoku::Base {
   virtual std::vector<std::pair<Box, Box>> GetComparisons() const = 0;
 
  protected:
-  void InstanceSetup() override;
+  absl::Status InstanceSetup() override;
 
  private:
-  void AddComparison(const std::pair<Box, Box>& comparison);
+  absl::Status AddComparison(const std::pair<Box, Box>& comparison);
 };
 
 }  // namespace sudoku

@@ -123,7 +123,7 @@ absl::Status ProtoProblem::Setup() {
     AddClass(field->number() - 2, field->name(), descriptor);
   }
 
-  AddPredicates();
+  if (absl::Status st = AddPredicates(); !st.ok()) return st;
 
   return absl::OkStatus();
 }

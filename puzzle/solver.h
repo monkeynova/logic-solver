@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include "absl/status/status.h"
 #include "puzzle/profiler.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_permuter.h"
@@ -33,42 +34,47 @@ class Solver {
 
   // Add predicate with the constraint that only class values found in
   // `class_int_restrict_list` are used by this filter.
-  void AddAllEntryPredicate(std::string name, Entry::Predicate predicate,
-                            std::vector<int> class_int_restrict_list = {}) {
+  absl::Status AddAllEntryPredicate(
+      std::string name, Entry::Predicate predicate,
+      std::vector<int> class_int_restrict_list = {}) {
     for (int entry_id = 0; entry_id < entry_descriptor_.AllIds()->size();
          ++entry_id) {
-      AddSpecificEntryPredicate(name, predicate, class_int_restrict_list,
-                                entry_id);
+      absl::Status added = AddSpecificEntryPredicate(
+          name, predicate, class_int_restrict_list, entry_id);
+      if (!added.ok()) return added;
     }
+    return absl::OkStatus();
   }
 
-  void AddSpecificEntryPredicate(std::string name, Entry::Predicate predicate,
-                                 std::vector<int> class_int_restrict_list,
-                                 int entry_id) {
-    AddFilter(SolutionFilter(std::move(name), predicate,
-                             std::move(class_int_restrict_list), entry_id));
+  absl::Status AddSpecificEntryPredicate(
+      std::string name, Entry::Predicate predicate,
+      std::vector<int> class_int_restrict_list, int entry_id) {
+    return AddFilter(SolutionFilter(std::move(name), predicate,
+                                    std::move(class_int_restrict_list),
+                                    entry_id));
   }
 
   // Add predicate with the constraint that only class values found in
   // `class_int_restrict_list` are used by this filter.
-  void AddPredicate(std::string name, Solution::Predicate predicate,
-                    std::vector<int> class_int_restrict_list = {}) {
-    AddFilter(SolutionFilter(std::move(name), predicate,
-                             std::move(class_int_restrict_list)));
+  absl::Status AddPredicate(std::string name, Solution::Predicate predicate,
+                            std::vector<int> class_int_restrict_list = {}) {
+    return AddFilter(SolutionFilter(std::move(name), predicate,
+                                    std::move(class_int_restrict_list)));
   }
-  void AddPredicate(std::string name, Solution::Predicate predicate,
-                    std::initializer_list<int> class_int_restrict_list) {
-    AddPredicate(std::move(name), predicate,
-                 std::vector<int>(class_int_restrict_list));
+  absl::Status AddPredicate(
+      std::string name, Solution::Predicate predicate,
+      std::initializer_list<int> class_int_restrict_list) {
+    return AddPredicate(std::move(name), predicate,
+                        std::vector<int>(class_int_restrict_list));
   }
 
   // Add predicate with the constraint that only class values found in the
   // keys of `class_to_entry` are used by this filter and that if a false
   // value is found the correponding value represents and entry which may
   // be skipped.
-  void AddPredicate(std::string name, Solution::Predicate predicate,
-                    absl::flat_hash_map<int, int> class_to_entry) {
-    AddFilter(
+  absl::Status AddPredicate(std::string name, Solution::Predicate predicate,
+                            absl::flat_hash_map<int, int> class_to_entry) {
+    return AddFilter(
         SolutionFilter(std::move(name), predicate, std::move(class_to_entry)));
   }
 
@@ -86,7 +92,7 @@ class Solver {
   }
 
  private:
-  void AddFilter(SolutionFilter solution_filter);
+  absl::Status AddFilter(SolutionFilter solution_filter);
 
   EntryDescriptor entry_descriptor_;
 

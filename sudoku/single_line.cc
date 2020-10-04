@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
       ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
   CHECK(line_board != nullptr) << "No puzzle found";
 
-  line_board->Setup();
+  CHECK(line_board->Setup().ok());
 
   ::puzzle::Solution answer = line_board->Solve();
   CHECK(answer.IsValid());
