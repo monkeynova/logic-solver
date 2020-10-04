@@ -1,1 +1,4 @@
-build -c opt --cxxopt=-std=c++1z
+# Compile time on optimizations is made up for in reduced test time.
+build -c opt
+# file_based_test_driver requires C++ 17 idioms.
+build --cxxopt=-std=c++1z
