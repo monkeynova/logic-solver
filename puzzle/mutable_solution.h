@@ -26,8 +26,10 @@ class MutableSolution {
 
   Solution TestableSolution() { return Solution(descriptor_, &entries_); }
 
-  // TODO(@monkeynova): Allow a MutableSolution to bind to class
-  // permuters and pull values from them directly avoiding this push model.
+  // We push values from thee iteration to all values in the set. One could
+  // imagine a mode where we directly bind the values from the class iterator
+  // to the solution. In an experiment to do that the performance change was
+  // negligable, so we leave this more readable form.
   void SetClass(const ClassPermuter::iterator& it) {
     for (unsigned int j = 0; j < it->size(); ++j) {
       entries_[j].SetClass(it.class_int(), (*it)[j]);

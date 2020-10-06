@@ -29,7 +29,7 @@ ABSL_FLAG(bool, puzzle_test_unique, true,
           "unique.");
 
 // TODO(@monkeynova): This is horrific in that we're poking through the
-// internal abstraction to get at the original flags. Until either ABSL,
+// internal abstraction to get at the original flags. Until all of ABSL,
 // googletest and FBTD play nice together or I can use my own main, I don't see
 // a different way to initialize absl flags.
 void InitializeAbslFlagsFromGtest() {
