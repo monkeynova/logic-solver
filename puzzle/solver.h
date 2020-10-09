@@ -13,21 +13,11 @@ namespace puzzle {
 
 class Solver {
  public:
-  Solver();
+  explicit Solver(EntryDescriptor entry_descriptor);
   ~Solver() = default;
 
   absl::StatusOr<Solution> Solve();
   absl::StatusOr<std::vector<Solution>> AllSolutions(int limit = -1);
-
-  void SetIdentifiers(const Descriptor* id_descriptor) {
-    entry_descriptor_.SetIds(id_descriptor);
-  }
-
-  void AddClass(int class_int, std::string class_name,
-                const Descriptor* name_descriptor) {
-    entry_descriptor_.SetClass(class_int, std::move(class_name),
-                               name_descriptor);
-  }
 
   // TODO(@monkeynova): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
@@ -94,7 +84,7 @@ class Solver {
  private:
   absl::Status AddFilter(SolutionFilter solution_filter);
 
-  EntryDescriptor entry_descriptor_;
+  const EntryDescriptor entry_descriptor_;
 
   int test_calls_ = 0;
 

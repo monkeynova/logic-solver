@@ -45,6 +45,9 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 #include "six_fearsome_heroes.pb.h"
 
 class SixFearsomeHeroes : public puzzle::ProtoProblem {
+ public:
+  SixFearsomeHeroes() : puzzle::ProtoProblem(SixFearsomeHeroesInfo::descriptor()) {}
+
  private:
   enum Who {
     PICARD = SixFearsomeHeroesInfo::Entry::PICARD,
@@ -70,9 +73,6 @@ class SixFearsomeHeroes : public puzzle::ProtoProblem {
   absl::Status AddGeneralPredicates();
   absl::Status AddStatementPredicates();
 
-  const google::protobuf::Descriptor* problem_descriptor() const override {
-    return SixFearsomeHeroesInfo::descriptor();
-  }
   std::string solution_textproto() const override;
   absl::Status AddPredicates() override;
 };

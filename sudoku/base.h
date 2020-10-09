@@ -13,6 +13,8 @@ Logic solver repurposed for sudoku
  */
 class Base : public ::puzzle::Problem {
  public:
+  Base();
+
   using Board = std::vector<std::vector<int>>;
 
   static Board EmptyBoard() { return Board(9, std::vector<int>(9, 0)); }

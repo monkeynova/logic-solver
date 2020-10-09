@@ -5,8 +5,9 @@
 
 namespace puzzle {
 
-Solver::Solver()
-    : profiler_(Profiler::Create()),
+Solver::Solver(EntryDescriptor entry_descriptor)
+    : entry_descriptor_(std::move(entry_descriptor)),
+      profiler_(Profiler::Create()),
       solution_permuter_(
           CreateSolutionPermuter(&entry_descriptor_, profiler_.get())) {}
 

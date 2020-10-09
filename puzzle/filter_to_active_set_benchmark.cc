@@ -10,7 +10,7 @@ struct SetupState {
   static const int kClassIntB = 1;
 
   SetupState(int permutation_count)
-      : descriptor(MakeDescriptor(permutation_count, &owned_descriptors)),
+      : descriptor(MakeDescriptor(permutation_count)),
         predicates({MakePairFilter()}),
         permuter_a(MakeClassPermuter(descriptor.AllClassValues(kClassIntA),
                                      kClassIntA)),
@@ -21,15 +21,14 @@ struct SetupState {
     CHECK(single_class_builder.Build(permuter_b.get(), {MakeFilterB()}).ok());
   }
 
-  static EntryDescriptor MakeDescriptor(
-      int permutation_count,
-      std::vector<std::unique_ptr<Descriptor>>* descriptors) {
-    EntryDescriptor ret;
-    descriptors->emplace_back(new IntRangeDescriptor(permutation_count));
-    ret.SetIds(descriptors->back().get());
-    ret.SetClass(kClassIntA, "Class A", descriptors->back().get());
-    ret.SetClass(kClassIntB, "Class B", descriptors->back().get());
-    return ret;
+  static EntryDescriptor MakeDescriptor(int permutation_count) {
+    std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
+    class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(permutation_count));
+    class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(permutation_count));
+    return EntryDescriptor(
+      absl::make_unique<IntRangeDescriptor>(permutation_count),
+      absl::make_unique<StringDescriptor>(std::vector<std::string>{"Class A", "Class B"}),
+      std::move(class_descriptors));
   }
 
   static SolutionFilter MakePairFilter() {
@@ -69,7 +68,6 @@ struct SetupState {
   void BuildPassThroughA();
   void BuildBackAndForth();
 
-  std::vector<std::unique_ptr<Descriptor>> owned_descriptors;
   EntryDescriptor descriptor;
   std::vector<SolutionFilter> predicates;
   std::unique_ptr<ClassPermuter> permuter_a;

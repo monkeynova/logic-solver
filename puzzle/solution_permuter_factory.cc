@@ -10,7 +10,7 @@ ABSL_FLAG(bool, puzzle_brute_force, false,
 namespace puzzle {
 
 std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
-    EntryDescriptor* entry_descriptor, Profiler* profiler) {
+    const EntryDescriptor* entry_descriptor, Profiler* profiler) {
   if (absl::GetFlag(FLAGS_puzzle_brute_force)) {
     return absl::make_unique<BruteSolutionPermuter>(entry_descriptor);
   }

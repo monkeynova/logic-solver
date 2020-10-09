@@ -11,14 +11,13 @@
 namespace puzzle {
 
 TEST(BruteSolutionPermuterTest, Simple) {
-  EntryDescriptor ed;
-  IntRangeDescriptor id(3);
-  IntRangeDescriptor cd1(3);
-  IntRangeDescriptor cd2(3);
-
-  ed.SetIds(&id);
-  ed.SetClass(0, "foo", &cd1);
-  ed.SetClass(1, "bar", &cd2);
+  std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
+  class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
+  class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
+  EntryDescriptor ed(
+    absl::make_unique<IntRangeDescriptor>(3),
+    absl::make_unique<StringDescriptor>(std::vector<std::string>{"foo", "bar"}),
+    std::move(class_descriptors));
 
   BruteSolutionPermuter p(&ed);
   ASSERT_TRUE(p.Prepare().ok());

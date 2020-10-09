@@ -21,6 +21,46 @@ ABSL_FLAG(bool, sudoku_setup_only, false,
 
 namespace sudoku {
 
+static puzzle::EntryDescriptor MakeEntryDescriptor() {
+  // Descriptors are built so solution.DebugString(), kinda, sorta looks like
+  // a sudoku board.
+  std::vector<std::string> id_names(9);
+  for (int i = 0; i < 9; i += 3) {
+    // Every third row (starting with the first) gets a horizontal line.
+    id_names[i] = ("+----------+----------+----------+\n");
+    id_names[i+1] = ("");
+    id_names[i+2] = ("");
+  }
+
+  std::vector<std::unique_ptr<const puzzle::Descriptor>> class_descriptors;
+  for (int i = 0; i < 9; ++i) {
+    std::vector<std::string> class_names(9);
+    if (i % 3 != 2) {
+      // Most records we want to describe the 0-indexed value with the 1-indexed
+      // numeric value...
+      for (int j = 0; j < 9; ++j) {
+        class_names[j] = absl::StrCat(j + 1);
+      }
+    } else {
+      // ... but every third one we also add ' :' to add a visual virtical line
+      // in output printing.
+      for (int j = 0; j < 9; ++j) {
+        class_names[j] = absl::StrCat(j + 1, " :");
+      }
+    }
+    class_descriptors.push_back(absl::make_unique<puzzle::StringDescriptor>(std::move(class_names)));
+  }
+
+  return puzzle::EntryDescriptor(
+    absl::make_unique<puzzle::StringDescriptor>(id_names), 
+    /*class_descriptor=*/absl::make_unique<puzzle::StringDescriptor>(
+      std::vector<std::string>(9, "")),
+    std::move(class_descriptors));
+}
+
+Base::Base()
+ : ::puzzle::Problem(MakeEntryDescriptor()) {}
+
 absl::Status Base::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
@@ -203,36 +243,6 @@ absl::Status Base::InstanceSetup() {
 }
 
 absl::Status Base::Setup() {
-  // Descriptors are built so solution.DebugString(), kinda, sorta looks like
-  // a sudoku board.
-  puzzle::StringDescriptor* id_descriptor =
-      AddDescriptor(new puzzle::StringDescriptor());
-  for (int i = 0; i < 9; i += 3) {
-    // Every third row (starting with the first) gets a horizontal line.
-    id_descriptor->SetDescription(i, "+----------+----------+----------+\n");
-    id_descriptor->SetDescription(i + 1, "");
-    id_descriptor->SetDescription(i + 2, "");
-  }
-  SetIdentifiers(id_descriptor);
-
-  // Most records we want to describe the 0-indexed value with the 1-indexed
-  // numeric value...
-  puzzle::StringDescriptor* mid_val_descriptor =
-      AddDescriptor(new puzzle::StringDescriptor());
-  for (int i = 0; i < 9; i++) {
-    mid_val_descriptor->SetDescription(i, absl::StrCat(i + 1));
-  }
-  // ... but every third one we also add ' :' to add a visual virtical line
-  // in output printing.
-  puzzle::StringDescriptor* col_val_descriptor =
-      AddDescriptor(new puzzle::StringDescriptor());
-  for (int i = 0; i < 9; i++) {
-    col_val_descriptor->SetDescription(i, absl::StrCat(i + 1, " :"));
-  }
-  for (int i = 0; i < 9; ++i) {
-    AddClass(i, "", (i % 3) == 2 ? col_val_descriptor : mid_val_descriptor);
-  }
-
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
     if (absl::Status st = AddPredicatesCumulative(); !st.ok()) return st;
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {

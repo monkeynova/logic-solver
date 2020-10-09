@@ -25,6 +25,9 @@ Emily: style=Freestyle country=UK lane=3
 #include "swimming_pool.pb.h"
 
 class SwimmingPoolProblem : public puzzle::ProtoProblem {
+ public:
+  SwimmingPoolProblem() : puzzle::ProtoProblem(SwimmingPoolProblemInfo::descriptor()) {}
+
  private:
   enum Who {
     BETTY = SwimmingPoolProblemInfo::Entry::BETTY,
@@ -56,9 +59,6 @@ class SwimmingPoolProblem : public puzzle::ProtoProblem {
 
   absl::Status AddPredicates() override;
 
-  const google::protobuf::Descriptor* problem_descriptor() const override {
-    return SwimmingPoolProblemInfo::descriptor();
-  }
   std::string solution_textproto() const override;
 };
 

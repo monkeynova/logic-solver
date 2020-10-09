@@ -28,6 +28,9 @@ OCTAVIAN: region=BUCOVINA plants=THORNBRUSH century=XV
 #include "puzzle/proto_problem.h"
 
 class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
+ public:
+  DraculaAndFriendsProblem() : puzzle::ProtoProblem(DraculaAndFriendsInfo::descriptor()) {}
+
  private:
   enum Who {
     BOGDAN = DraculaAndFriendsInfo::Entry::BOGDAN,
@@ -60,9 +63,6 @@ class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
   };
 
   absl::Status AddPredicates() override;
-  const google::protobuf::Descriptor* problem_descriptor() const override {
-    return DraculaAndFriendsInfo::descriptor();
-  }
   std::string solution_textproto() const override;
 };
 
