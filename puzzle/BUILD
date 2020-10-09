@@ -331,14 +331,23 @@ cc_library(
 )
 
 cc_library(
-    name = "solution",
-    srcs = ["solution.cc"],
-    hdrs = ["solution.h"],
+    name = "descriptors",
+    srcs = [],
+    hdrs = ["descriptors.h"],
     deps = [
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/strings",
         "@com_google_glog//:glog",
         "@com_google_protobuf//:protobuf",
+    ],
+)
+
+cc_library(
+    name = "solution",
+    srcs = ["solution.cc"],
+    hdrs = ["solution.h"],
+    deps = [
+        ":descriptors",
     ],
 )
 
