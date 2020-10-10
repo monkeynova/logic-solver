@@ -69,19 +69,24 @@ class SolutionPermuter {
     std::unique_ptr<AdvancerBase> advancer_;
   };
 
-  SolutionPermuter() = default;
+  explicit SolutionPermuter(const EntryDescriptor* entry_descriptor)
+    : entry_descriptor_(entry_descriptor) {}
   virtual ~SolutionPermuter() = default;
 
   virtual absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) {
     return false;
   }
 
-  // EntryDescriptor is not valid before this call.
-  // TODO(@monkeynova): Fix this awful interface.
   virtual absl::Status Prepare() = 0;
 
   virtual iterator begin() const = 0;
   virtual iterator end() const = 0;
+
+ protected:
+  const EntryDescriptor* entry_descriptor() const { return entry_descriptor_; }
+
+ private:
+  const EntryDescriptor* entry_descriptor_;
 };
 
 }  // namespace puzzle

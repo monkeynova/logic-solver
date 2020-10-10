@@ -75,14 +75,14 @@ double BruteSolutionPermuter::Advancer::completion() const {
 }
 
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)
-    : entry_descriptor_(e) {}
+    : SolutionPermuter(e) {}
 
 absl::Status BruteSolutionPermuter::Prepare() {
-  int num_classes = entry_descriptor_->AllClasses()->size();
+  int num_classes = entry_descriptor()->AllClasses()->size();
   class_permuters_.resize(num_classes);
   for (int class_int = 0; class_int < num_classes; ++class_int) {
     const Descriptor* class_descriptor =
-        entry_descriptor_->AllClassValues(class_int);
+        entry_descriptor()->AllClassValues(class_int);
     class_permuters_[class_int] =
         MakeClassPermuter(class_descriptor, class_int);
   }

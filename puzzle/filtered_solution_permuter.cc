@@ -33,7 +33,7 @@ namespace puzzle {
 
 FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
-    : AdvancerBase(permuter == nullptr ? nullptr : permuter->entry_descriptor_),
+    : AdvancerBase(permuter == nullptr ? nullptr : permuter->entry_descriptor()),
       permuter_(permuter) {
   if (permuter_ == nullptr) {
     set_done();
@@ -198,7 +198,7 @@ double FilteredSolutionPermuter::Advancer::completion() const {
 
 FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
                                                    Profiler* profiler)
-    : entry_descriptor_(e), profiler_(profiler) {}
+    : SolutionPermuter(e), profiler_(profiler) {}
 
 absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {
@@ -223,12 +223,12 @@ absl::Status FilteredSolutionPermuter::Prepare() {
   }
   prepared_ = true;
   filter_to_active_set_ =
-      absl::make_unique<FilterToActiveSet>(entry_descriptor_, profiler_);
+      absl::make_unique<FilterToActiveSet>(entry_descriptor(), profiler_);
 
-  for (int class_int = 0; class_int < entry_descriptor_->AllClasses()->size();
+  for (int class_int = 0; class_int < entry_descriptor()->AllClasses()->size();
        ++class_int) {
     const Descriptor* class_descriptor =
-        entry_descriptor_->AllClassValues(class_int);
+        entry_descriptor()->AllClassValues(class_int);
     class_permuters_.emplace_back(
         MakeClassPermuter(class_descriptor, class_int));
   }

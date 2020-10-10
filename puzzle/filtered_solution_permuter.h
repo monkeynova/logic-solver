@@ -89,8 +89,6 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   // maximally prunes unnecessary iteration.
   void ReorderEvaluation();
 
-  const EntryDescriptor* entry_descriptor_ = nullptr;
-
   std::vector<SolutionFilter> predicates_;
 
   Profiler* profiler_;

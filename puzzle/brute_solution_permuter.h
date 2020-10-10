@@ -40,7 +40,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   absl::Status Prepare() override;
 
   iterator begin() const override {
-    return iterator(absl::make_unique<Advancer>(this, entry_descriptor_));
+    return iterator(absl::make_unique<Advancer>(this, entry_descriptor()));
   }
   iterator end() const override {
     return iterator(absl::make_unique<Advancer>(this, nullptr));
@@ -52,7 +52,6 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   }
 
  private:
-  const EntryDescriptor* entry_descriptor_;
   std::vector<std::unique_ptr<ClassPermuter>> class_permuters_;
 
   friend Advancer;
