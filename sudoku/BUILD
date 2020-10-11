@@ -330,3 +330,13 @@ sudoku_test(
         ":ksogt20200601_lib",
     ],
 )
+
+cc_binary(
+    name = "estimate_sudoku_boards",
+    srcs = ["estimate_sudoku_boards.cc"],
+    deps = [
+        ":base",
+        "@com_google_absl//absl/flags:flag",
+        "@com_monkeynova_gunit_main//:main_lib",
+    ],
+)

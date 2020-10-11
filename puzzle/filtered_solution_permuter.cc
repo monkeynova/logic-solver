@@ -178,12 +178,12 @@ void FilteredSolutionPermuter::Advancer::Advance() {
   }
 }
 
-int64_t FilteredSolutionPermuter::Advancer::position() const {
+double FilteredSolutionPermuter::Advancer::position() const {
   if (permuter_ == nullptr) return -1;
 
-  int64_t position = 0;
+  double position = 0;
 
-  for (auto& class_permuter : permuter_->class_permuters_) {
+  for (const auto& class_permuter : permuter_->class_permuters_) {
     position *= class_permuter->permutation_count();
     position += iterators_[class_permuter->class_int()].position();
   }
@@ -329,7 +329,7 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
               single_class_predicate_list.end(), SolutionFilter::LtByEntryId());
   }
 
-  for (auto& class_permuter : class_permuters_) {
+  for (const auto& class_permuter : class_permuters_) {
     int class_int = class_permuter->class_int();
     double old_selectivity =
         filter_to_active_set_->active_set(class_int).Selectivity();
@@ -539,8 +539,8 @@ void FilteredSolutionPermuter::ReorderEvaluation() {
                            });
 }
 
-int64_t FilteredSolutionPermuter::permutation_count() const {
-  int64_t count = 1;
+double FilteredSolutionPermuter::permutation_count() const {
+  double count = 1;
   for (const auto& permuter : class_permuters_) {
     count *= permuter->permutation_count();
   }

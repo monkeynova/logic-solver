@@ -22,7 +22,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;
 
-    int64_t position() const override;
+    double position() const override;
     double completion() const override;
 
    private:
@@ -69,7 +69,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     return iterator(absl::make_unique<Advancer>(nullptr));
   }
 
-  int64_t permutation_count() const;
+  double permutation_count() const;
   const ClassPermuter* class_permuter(int class_int) const {
     return class_permuters_[class_int].get();
   }

@@ -56,10 +56,10 @@ void BruteSolutionPermuter::Advancer::Advance() {
   }
 }
 
-int64_t BruteSolutionPermuter::Advancer::position() const {
+double BruteSolutionPermuter::Advancer::position() const {
   if (permuter_ == nullptr) return -1;
 
-  int64_t position = 0;
+  double position = 0;
 
   for (int class_int : class_types_) {
     position *= permuter_->class_permuters_[class_int]->permutation_count();
@@ -89,8 +89,8 @@ absl::Status BruteSolutionPermuter::Prepare() {
   return absl::OkStatus();
 }
 
-int64_t BruteSolutionPermuter::permutation_count() const {
-  int64_t count = 1;
+double BruteSolutionPermuter::permutation_count() const {
+  double count = 1;
   for (const auto& permuter : class_permuters_) {
     count *= permuter->permutation_count();
   }
