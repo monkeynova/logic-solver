@@ -6,7 +6,7 @@
 namespace puzzle {
 
 static absl::StatusOr<EntryDescriptor> MakeEntryDescriptor(
-  const google::protobuf::Descriptor* proto_descriptor) {
+    const google::protobuf::Descriptor* proto_descriptor) {
   if (proto_descriptor->field_count() != 1) {
     return absl::InvalidArgumentError("Proto must have a single field");
   }
@@ -37,7 +37,8 @@ static absl::StatusOr<EntryDescriptor> MakeEntryDescriptor(
   }
 
   std::vector<std::string> class_names(entry_descriptor->field_count() - 1);
-  std::vector<std::unique_ptr<const Descriptor>> class_descriptors(entry_descriptor->field_count() - 1);
+  std::vector<std::unique_ptr<const Descriptor>> class_descriptors(
+      entry_descriptor->field_count() - 1);
   for (int i = 0; i < entry_descriptor->field_count(); ++i) {
     const google::protobuf::FieldDescriptor* field = entry_descriptor->field(i);
     if (field == id_field) {
@@ -51,26 +52,29 @@ static absl::StatusOr<EntryDescriptor> MakeEntryDescriptor(
     // to the first class (0). This is an awful, hard-coded translation and a
     // better data model should be found.
     class_names[field->number() - 2] = field->name();
-    class_descriptors[field->number() - 2] = absl::make_unique<ProtoEnumDescriptor>(enum_type);
+    class_descriptors[field->number() - 2] =
+        absl::make_unique<ProtoEnumDescriptor>(enum_type);
   }
 
   EntryDescriptor puzzle_entry_desriptor(
-    absl::make_unique<ProtoEnumDescriptor>(id_enum),
-    absl::make_unique<StringDescriptor>(class_names),
-    std::move(class_descriptors));
+      absl::make_unique<ProtoEnumDescriptor>(id_enum),
+      absl::make_unique<StringDescriptor>(class_names),
+      std::move(class_descriptors));
 
   return puzzle_entry_desriptor;
 }
 
-static EntryDescriptor CheckDescriptor(absl::StatusOr<EntryDescriptor> entry_descriptor) {
+static EntryDescriptor CheckDescriptor(
+    absl::StatusOr<EntryDescriptor> entry_descriptor) {
   // TODO(@monkeynova): Maybe find a way to defer until setup...
   CHECK(entry_descriptor.ok()) << entry_descriptor.status();
   return std::move(*entry_descriptor);
 }
 
-ProtoProblem::ProtoProblem(const google::protobuf::Descriptor* problem_descriptor)
-  : Problem(CheckDescriptor(MakeEntryDescriptor(problem_descriptor))),
-    problem_descriptor_(problem_descriptor) {}
+ProtoProblem::ProtoProblem(
+    const google::protobuf::Descriptor* problem_descriptor)
+    : Problem(CheckDescriptor(MakeEntryDescriptor(problem_descriptor))),
+      problem_descriptor_(problem_descriptor) {}
 
 absl::StatusOr<Solution> ProtoProblem::GetSolution() const {
   google::protobuf::DynamicMessageFactory factory;
@@ -141,8 +145,6 @@ absl::StatusOr<Solution> ProtoProblem::GetSolution() const {
   return Solution(entry_descriptor(), &entries).Clone();
 }
 
-absl::Status ProtoProblem::Setup() {
-  return AddPredicates();
-}
+absl::Status ProtoProblem::Setup() { return AddPredicates(); }
 
 }  // namespace puzzle

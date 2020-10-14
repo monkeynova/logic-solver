@@ -14,10 +14,10 @@ TEST(BruteSolutionPermuterTest, Simple) {
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor ed(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"foo", "bar"}),
-    std::move(class_descriptors));
+  EntryDescriptor ed(absl::make_unique<IntRangeDescriptor>(3),
+                     absl::make_unique<StringDescriptor>(
+                         std::vector<std::string>{"foo", "bar"}),
+                     std::move(class_descriptors));
 
   BruteSolutionPermuter p(&ed);
   ASSERT_TRUE(p.Prepare().ok());

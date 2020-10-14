@@ -7,9 +7,7 @@ namespace thread {
 
 class InlineExecutor : public Executor {
  public:
-  void Schedule(Fn fn) override {
-    fn();
-  }
+  void Schedule(Fn fn) override { fn(); }
 };
 
 }  // namespace thread

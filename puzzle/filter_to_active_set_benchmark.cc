@@ -23,12 +23,15 @@ struct SetupState {
 
   static EntryDescriptor MakeDescriptor(int permutation_count) {
     std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
-    class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(permutation_count));
-    class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(permutation_count));
+    class_descriptors.push_back(
+        absl::make_unique<IntRangeDescriptor>(permutation_count));
+    class_descriptors.push_back(
+        absl::make_unique<IntRangeDescriptor>(permutation_count));
     return EntryDescriptor(
-      absl::make_unique<IntRangeDescriptor>(permutation_count),
-      absl::make_unique<StringDescriptor>(std::vector<std::string>{"Class A", "Class B"}),
-      std::move(class_descriptors));
+        absl::make_unique<IntRangeDescriptor>(permutation_count),
+        absl::make_unique<StringDescriptor>(
+            std::vector<std::string>{"Class A", "Class B"}),
+        std::move(class_descriptors));
   }
 
   static SolutionFilter MakePairFilter() {

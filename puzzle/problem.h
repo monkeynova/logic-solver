@@ -13,7 +13,7 @@ class Problem : public Solver {
   using Generator = std::unique_ptr<Problem> (*)();
 
   explicit Problem(EntryDescriptor entry_descriptor)
-    : Solver(std::move(entry_descriptor)) {}
+      : Solver(std::move(entry_descriptor)) {}
   virtual ~Problem() = default;
 
   virtual absl::Status Setup() = 0;

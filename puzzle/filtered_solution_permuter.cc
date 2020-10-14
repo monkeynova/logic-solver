@@ -33,7 +33,8 @@ namespace puzzle {
 
 FilteredSolutionPermuter::Advancer::Advancer(
     const FilteredSolutionPermuter* permuter)
-    : AdvancerBase(permuter == nullptr ? nullptr : permuter->entry_descriptor()),
+    : AdvancerBase(permuter == nullptr ? nullptr
+                                       : permuter->entry_descriptor()),
       permuter_(permuter) {
   if (permuter_ == nullptr) {
     set_done();

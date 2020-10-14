@@ -12,7 +12,7 @@ TEST(ThreadPoolTest, Trivial) {
     Pool p(/*num_workers=*/1);
     p.Schedule([&set]() { set = true; });
   }
-  EXPECT_TRUE(set); 
+  EXPECT_TRUE(set);
 }
 
 TEST(ThreadPoolTest, ConcurrentWork) {
@@ -24,15 +24,15 @@ TEST(ThreadPoolTest, ConcurrentWork) {
   {
     Pool p(/*num_workers=*/2);
     p.Schedule([&]() {
-        wait.WaitForNotification();
-        absl::MutexLock l(&mu);
-        ++sum;
+      wait.WaitForNotification();
+      absl::MutexLock l(&mu);
+      ++sum;
     });
     for (int i = 0; i < kNonWaitingThreads; ++i) {
       p.Schedule([&]() {
-          absl::MutexLock l(&mu);
-          ++sum;
-          if (sum == kNonWaitingThreads) done = true;
+        absl::MutexLock l(&mu);
+        ++sum;
+        if (sum == kNonWaitingThreads) done = true;
       });
     }
     absl::MutexLock l(&mu);
@@ -42,5 +42,4 @@ TEST(ThreadPoolTest, ConcurrentWork) {
   EXPECT_EQ(sum, kNonWaitingThreads + 1);
 }
 
-
-}  // namespace puzzle
+}  // namespace thread

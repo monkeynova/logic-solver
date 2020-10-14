@@ -22,7 +22,6 @@ cc_test(
     ],
 )
 
-
 cc_library(
     name = "pool",
     hdrs = ["pool.h"],

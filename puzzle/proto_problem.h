@@ -18,7 +18,7 @@ class ProtoProblem : public Problem {
     return problem_descriptor_;
   }
   virtual std::string solution_textproto() const = 0;
- 
+
  private:
   const google::protobuf::Descriptor* problem_descriptor_;
 };

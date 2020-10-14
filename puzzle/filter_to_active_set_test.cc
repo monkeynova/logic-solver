@@ -37,11 +37,12 @@ TEST_P(SinglePermuterTest, Simple) {
   static constexpr int kClassInt = 0;
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"test class"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor = entry_descriptor.AllClassValues(kClassInt);
+  EntryDescriptor entry_descriptor(absl::make_unique<IntRangeDescriptor>(3),
+                                   absl::make_unique<StringDescriptor>(
+                                       std::vector<std::string>{"test class"}),
+                                   std::move(class_descriptors));
+  const Descriptor* class_descriptor =
+      entry_descriptor.AllClassValues(kClassInt);
 
   std::unique_ptr<ClassPermuter> p(
       MakeClassPermuter(class_descriptor, kClassInt));
@@ -117,11 +118,12 @@ TEST_P(SinglePermuterTest, ExistingSet) {
   static constexpr int kClassInt = 0;
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"test class"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor = entry_descriptor.AllClassValues(kClassInt);
+  EntryDescriptor entry_descriptor(absl::make_unique<IntRangeDescriptor>(3),
+                                   absl::make_unique<StringDescriptor>(
+                                       std::vector<std::string>{"test class"}),
+                                   std::move(class_descriptors));
+  const Descriptor* class_descriptor =
+      entry_descriptor.AllClassValues(kClassInt);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -173,11 +175,14 @@ TEST_P(PairPermuterTest, Simple) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -245,11 +250,14 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -329,11 +337,14 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -413,11 +424,14 @@ TEST_P(PairPermuterTest, MakePairs) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -491,11 +505,14 @@ TEST_P(PairPermuterTest, MakePairsEntryPredicate) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -569,11 +586,14 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
 
   FilterToActiveSet builder(&entry_descriptor);
 
@@ -653,12 +673,16 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   EntryDescriptor entry_descriptor(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"class a", "class b", "class c"}),
-    std::move(class_descriptors));
-  const Descriptor* class_descriptor_a = entry_descriptor.AllClassValues(kClassIntA);
-  const Descriptor* class_descriptor_b = entry_descriptor.AllClassValues(kClassIntB);
-  const Descriptor* class_descriptor_c = entry_descriptor.AllClassValues(kClassIntC);
+      absl::make_unique<IntRangeDescriptor>(3),
+      absl::make_unique<StringDescriptor>(
+          std::vector<std::string>{"class a", "class b", "class c"}),
+      std::move(class_descriptors));
+  const Descriptor* class_descriptor_a =
+      entry_descriptor.AllClassValues(kClassIntA);
+  const Descriptor* class_descriptor_b =
+      entry_descriptor.AllClassValues(kClassIntB);
+  const Descriptor* class_descriptor_c =
+      entry_descriptor.AllClassValues(kClassIntC);
 
   FilterToActiveSet builder(&entry_descriptor);
 

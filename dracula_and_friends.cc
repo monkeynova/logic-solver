@@ -29,7 +29,8 @@ OCTAVIAN: region=BUCOVINA plants=THORNBRUSH century=XV
 
 class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
  public:
-  DraculaAndFriendsProblem() : puzzle::ProtoProblem(DraculaAndFriendsInfo::descriptor()) {}
+  DraculaAndFriendsProblem()
+      : puzzle::ProtoProblem(DraculaAndFriendsInfo::descriptor()) {}
 
  private:
   enum Who {

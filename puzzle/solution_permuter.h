@@ -70,7 +70,7 @@ class SolutionPermuter {
   };
 
   explicit SolutionPermuter(const EntryDescriptor* entry_descriptor)
-    : entry_descriptor_(entry_descriptor) {}
+      : entry_descriptor_(entry_descriptor) {}
   virtual ~SolutionPermuter() = default;
 
   virtual absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) {

@@ -25,7 +25,9 @@ class Pool : public Executor {
       absl::MutexLock l(&mu_);
       done_ = true;
     }
-    for (auto& thread : pool_) { if (thread.joinable()) thread.join(); }
+    for (auto& thread : pool_) {
+      if (thread.joinable()) thread.join();
+    }
   }
 
   void Schedule(Fn fn) LOCKS_EXCLUDED(mu_) override {
@@ -45,17 +47,17 @@ class Pool : public Executor {
   }
 
   void Run() {
-      while (true) {
-          Fn fn;
-          {
-            absl::MutexLock l(&mu_);
-            mu_.Await(absl::Condition(this, &Pool::QueueNonEmptyOrDone));
-            if (queue_.empty() && done_) break;
-            fn = std::move(queue_.front());
-            queue_.pop_front();
-          }
-          fn();
+    while (true) {
+      Fn fn;
+      {
+        absl::MutexLock l(&mu_);
+        mu_.Await(absl::Condition(this, &Pool::QueueNonEmptyOrDone));
+        if (queue_.empty() && done_) break;
+        fn = std::move(queue_.front());
+        queue_.pop_front();
       }
+      fn();
+    }
   }
 
   absl::Mutex mu_;

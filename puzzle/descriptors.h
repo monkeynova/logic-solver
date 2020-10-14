@@ -17,7 +17,7 @@ class Descriptor {
 
   virtual std::string DebugString(int i) const { return absl::StrCat(i); }
 };
- 
+
 class IntRangeDescriptor : public Descriptor {
  public:
   explicit IntRangeDescriptor(int size) : size_(size) {}
@@ -31,8 +31,8 @@ class IntRangeDescriptor : public Descriptor {
 
 class StringDescriptor : public Descriptor {
  public:
-  explicit StringDescriptor(std::vector<std::string> names) 
-    : names_(std::move(names)) {}
+  explicit StringDescriptor(std::vector<std::string> names)
+      : names_(std::move(names)) {}
   ~StringDescriptor() override {}
 
   std::string DebugString(int i) const override {
@@ -48,29 +48,30 @@ class StringDescriptor : public Descriptor {
 
 class ProtoEnumDescriptor : public StringDescriptor {
  public:
-  ProtoEnumDescriptor(
-      const google::protobuf::EnumDescriptor* proto_descriptor)
+  ProtoEnumDescriptor(const google::protobuf::EnumDescriptor* proto_descriptor)
       : StringDescriptor(ProtoNames(proto_descriptor)) {}
 
-  private:
-   static std::vector<std::string> ProtoNames(
-     const google::protobuf::EnumDescriptor* proto_descriptor) {
-       std::vector<std::string> names(proto_descriptor->value_count());
-      for (int i = 0; i < proto_descriptor->value_count(); ++i) {
-        names[proto_descriptor->value(i)->number()] = proto_descriptor->value(i)->name();
-      }
-      return names;
-     }
+ private:
+  static std::vector<std::string> ProtoNames(
+      const google::protobuf::EnumDescriptor* proto_descriptor) {
+    std::vector<std::string> names(proto_descriptor->value_count());
+    for (int i = 0; i < proto_descriptor->value_count(); ++i) {
+      names[proto_descriptor->value(i)->number()] =
+          proto_descriptor->value(i)->name();
+    }
+    return names;
+  }
 };
 
 class EntryDescriptor {
  public:
-  EntryDescriptor(std::unique_ptr<const Descriptor> id_descriptor,
-                  std::unique_ptr<const Descriptor> class_descriptor,
-                  std::vector<std::unique_ptr<const Descriptor>> name_descriptors) 
-    : id_descriptor_(std::move(id_descriptor)),
-      class_descriptor_(std::move(class_descriptor)),
-      name_descriptors_(std::move(name_descriptors)) {}
+  EntryDescriptor(
+      std::unique_ptr<const Descriptor> id_descriptor,
+      std::unique_ptr<const Descriptor> class_descriptor,
+      std::vector<std::unique_ptr<const Descriptor>> name_descriptors)
+      : id_descriptor_(std::move(id_descriptor)),
+        class_descriptor_(std::move(class_descriptor)),
+        name_descriptors_(std::move(name_descriptors)) {}
 
   int num_classes() const { return class_descriptor_->size(); }
 
@@ -98,6 +99,6 @@ class EntryDescriptor {
   std::vector<std::unique_ptr<const Descriptor>> name_descriptors_;
 };
 
-}  // namespace
+}  // namespace puzzle
 
 #endif  // PUZZLE_DESCRIPTORS_H

@@ -7,10 +7,10 @@
 namespace thread {
 
 TEST(InlineExecutorTest, Trivial) {
-    InlineExecutor e;
-    bool b = false;
-    e.Schedule([&](){ b = true; });
-    EXPECT_TRUE(b);
+  InlineExecutor e;
+  bool b = false;
+  e.Schedule([&]() { b = true; });
+  EXPECT_TRUE(b);
 }
 
 }  // namespace thread

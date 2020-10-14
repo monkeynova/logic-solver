@@ -17,10 +17,10 @@ TEST(FilteredSolutionPermuterTest, Simple) {
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor ed(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"foo", "bar"}),
-    std::move(class_descriptors));
+  EntryDescriptor ed(absl::make_unique<IntRangeDescriptor>(3),
+                     absl::make_unique<StringDescriptor>(
+                         std::vector<std::string>{"foo", "bar"}),
+                     std::move(class_descriptors));
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   ASSERT_TRUE(p.Prepare().ok());
@@ -45,10 +45,10 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor ed(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"foo", "bar"}),
-    std::move(class_descriptors));
+  EntryDescriptor ed(absl::make_unique<IntRangeDescriptor>(3),
+                     absl::make_unique<StringDescriptor>(
+                         std::vector<std::string>{"foo", "bar"}),
+                     std::move(class_descriptors));
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   ASSERT_TRUE(
@@ -81,10 +81,10 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor ed(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"foo", "bar"}),
-    std::move(class_descriptors));
+  EntryDescriptor ed(absl::make_unique<IntRangeDescriptor>(3),
+                     absl::make_unique<StringDescriptor>(
+                         std::vector<std::string>{"foo", "bar"}),
+                     std::move(class_descriptors));
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   ASSERT_TRUE(p.AddFilter(SolutionFilter(
@@ -121,10 +121,10 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   std::vector<std::unique_ptr<const Descriptor>> class_descriptors;
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
   class_descriptors.push_back(absl::make_unique<IntRangeDescriptor>(3));
-  EntryDescriptor ed(
-    absl::make_unique<IntRangeDescriptor>(3),
-    absl::make_unique<StringDescriptor>(std::vector<std::string>{"foo", "bar"}),
-    std::move(class_descriptors));
+  EntryDescriptor ed(absl::make_unique<IntRangeDescriptor>(3),
+                     absl::make_unique<StringDescriptor>(
+                         std::vector<std::string>{"foo", "bar"}),
+                     std::move(class_descriptors));
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   ASSERT_TRUE(p.AddFilter(SolutionFilter(

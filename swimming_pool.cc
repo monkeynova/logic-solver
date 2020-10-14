@@ -26,7 +26,8 @@ Emily: style=Freestyle country=UK lane=3
 
 class SwimmingPoolProblem : public puzzle::ProtoProblem {
  public:
-  SwimmingPoolProblem() : puzzle::ProtoProblem(SwimmingPoolProblemInfo::descriptor()) {}
+  SwimmingPoolProblem()
+      : puzzle::ProtoProblem(SwimmingPoolProblemInfo::descriptor()) {}
 
  private:
   enum Who {

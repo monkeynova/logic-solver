@@ -28,8 +28,8 @@ static puzzle::EntryDescriptor MakeEntryDescriptor() {
   for (int i = 0; i < 9; i += 3) {
     // Every third row (starting with the first) gets a horizontal line.
     id_names[i] = ("+----------+----------+----------+\n");
-    id_names[i+1] = ("");
-    id_names[i+2] = ("");
+    id_names[i + 1] = ("");
+    id_names[i + 2] = ("");
   }
 
   std::vector<std::unique_ptr<const puzzle::Descriptor>> class_descriptors;
@@ -48,18 +48,19 @@ static puzzle::EntryDescriptor MakeEntryDescriptor() {
         class_names[j] = absl::StrCat(j + 1, " :");
       }
     }
-    class_descriptors.push_back(absl::make_unique<puzzle::StringDescriptor>(std::move(class_names)));
+    class_descriptors.push_back(
+        absl::make_unique<puzzle::StringDescriptor>(std::move(class_names)));
   }
 
   return puzzle::EntryDescriptor(
-    absl::make_unique<puzzle::StringDescriptor>(id_names), 
-    /*class_descriptor=*/absl::make_unique<puzzle::StringDescriptor>(
-      std::vector<std::string>(9, "")),
-    std::move(class_descriptors));
+      absl::make_unique<puzzle::StringDescriptor>(id_names),
+      /*class_descriptor=*/
+      absl::make_unique<puzzle::StringDescriptor>(
+          std::vector<std::string>(9, "")),
+      std::move(class_descriptors));
 }
 
-Base::Base()
- : ::puzzle::Problem(MakeEntryDescriptor()) {}
+Base::Base() : ::puzzle::Problem(MakeEntryDescriptor()) {}
 
 absl::Status Base::AddPredicatesCumulative() {
   std::vector<int> cols = {0};

@@ -46,7 +46,8 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 
 class SixFearsomeHeroes : public puzzle::ProtoProblem {
  public:
-  SixFearsomeHeroes() : puzzle::ProtoProblem(SixFearsomeHeroesInfo::descriptor()) {}
+  SixFearsomeHeroes()
+      : puzzle::ProtoProblem(SixFearsomeHeroesInfo::descriptor()) {}
 
  private:
   enum Who {
