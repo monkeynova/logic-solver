@@ -5,6 +5,8 @@
 
 namespace thread {
 
+// Executor implementation that performs the desired computation within the
+// call of scheduling work.
 class InlineExecutor : public Executor {
  public:
   void Schedule(Fn fn) override { fn(); }

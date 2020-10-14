@@ -5,8 +5,12 @@
 
 namespace thread {
 
+// Abstract base class to peform possibly delayed, queued or concurrent
+// calculation of arbitrary work units.
 class Executor {
  public:
+  virtual ~Executor() = default;
+
   using Fn = std::function<void()>;
 
   virtual void Schedule(Fn fn) = 0;

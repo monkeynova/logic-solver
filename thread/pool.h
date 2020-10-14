@@ -11,6 +11,8 @@
 
 namespace thread {
 
+// Executor implementation that performs the desired computations within a
+// pool of threads allocated to perform the work.
 class Pool : public Executor {
  public:
   explicit Pool(int num_threads) {
@@ -20,7 +22,7 @@ class Pool : public Executor {
     }
   }
 
-  ~Pool() {
+  ~Pool() override {
     {
       absl::MutexLock l(&mu_);
       done_ = true;
