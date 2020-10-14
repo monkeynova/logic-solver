@@ -7,13 +7,12 @@
 
 #include "absl/base/thread_annotations.h"
 #include "absl/synchronization/mutex.h"
+#include "thread/executor.h"
 
 namespace thread {
 
-class Pool {
+class Pool : public Executor {
  public:
-  using Fn = std::function<void()>;
-
   explicit Pool(int num_threads) {
     pool_.reserve(num_threads);
     for (int i = 0; i < num_threads; ++i) {
@@ -29,7 +28,7 @@ class Pool {
     for (auto& thread : pool_) { if (thread.joinable()) thread.join(); }
   }
 
-  void Schedule(Fn fn) LOCKS_EXCLUDED(mu_){
+  void Schedule(Fn fn) LOCKS_EXCLUDED(mu_) override {
     absl::MutexLock l(&mu_);
     queue_.push_back(fn);
   }
@@ -65,6 +64,6 @@ class Pool {
   bool done_ GUARDED_BY(mu_) = false;
 };
 
-}
+}  // namespace thread
 
 #endif  // THREAD_POOL_H
