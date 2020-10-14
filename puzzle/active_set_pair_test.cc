@@ -1,6 +1,7 @@
+#include "puzzle/active_set_pair.h"
+
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "puzzle/active_set.h"
 
 using ::testing::AnyOf;
 using ::testing::Eq;
