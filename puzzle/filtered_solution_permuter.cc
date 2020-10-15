@@ -1,11 +1,14 @@
 #include "puzzle/filtered_solution_permuter.h"
 
 #include "absl/flags/flag.h"
+#include "absl/synchronization/notification.h"
 #include "glog/logging.h"
 #include "puzzle/active_set.h"
 #include "puzzle/all_match.h"
 #include "puzzle/class_permuter_factory.h"
 #include "puzzle/filter_to_active_set.h"
+#include "thread/inline_executor.h"
+#include "thread/pool.h"
 
 ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
           "If specfied, class iterators will be pruned based on single "
@@ -28,6 +31,10 @@ ABSL_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair, false,
 ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,
           "If true, pairwise iterator pruning will always run with a mode of "
           "kMakePairs.");
+
+ABSL_FLAG(bool, puzzle_thread_pool_executor, false,
+          "If true Solver::Prepare will try to use a thread pool to speed "
+          "up the work by using more CPU cores.");
 
 namespace puzzle {
 
@@ -199,7 +206,11 @@ double FilteredSolutionPermuter::Advancer::completion() const {
 
 FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
                                                    Profiler* profiler)
-    : SolutionPermuter(e), profiler_(profiler) {}
+    : SolutionPermuter(e),
+      profiler_(profiler),
+      executor_(absl::GetFlag(FLAGS_puzzle_thread_pool_executor)
+       ? static_cast<::thread::Executor*>(new ::thread::Pool(/*num_workers=*/4))
+       : static_cast<::thread::Executor*>(new ::thread::InlineExecutor())) {}
 
 absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {
@@ -465,9 +476,15 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
     ClassPair& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    absl::Status st =
-        filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
-                                     *pair.filters_by_b(), pair_class_mode);
+    absl::Status st;
+    absl::Notification wait;
+    executor_->Schedule(
+      [&]() {
+        st = filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
+                                          *pair.filters_by_b(), pair_class_mode);
+        wait.Notify();
+      });
+    wait.WaitForNotification();
     if (!st.ok()) return st;
     pair.set_computed_a(true);
     pair.set_computed_b(true);
@@ -493,7 +510,7 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
       std::make_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     } else {
       if (old_pair_selectivity != pair.pair_selectivity()) {
-        return absl::InternalError("Selectivity didn't change");
+        return absl::InternalError("Selectivity shouldn't increase");
       }
       std::push_heap(pairs.begin(), pairs.end(), ClassPairGreaterThan());
     }

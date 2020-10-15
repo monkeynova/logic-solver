@@ -211,7 +211,11 @@ cc_library(
         ":profiler",
         ":solution_filter",
         ":solution_permuter",
+        "//thread:executor",
+        "//thread:inline_executor",
+        "//thread:pool",
         "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/synchronization",
         "@com_google_glog//:glog",
     ],
 )

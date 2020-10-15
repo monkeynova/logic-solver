@@ -10,6 +10,7 @@
 #include "puzzle/solution.h"
 #include "puzzle/solution_filter.h"
 #include "puzzle/solution_permuter.h"
+#include "thread/executor.h"
 
 namespace puzzle {
 
@@ -106,6 +107,8 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   std::vector<std::vector<SolutionFilter>> class_predicates_;
 
   std::unique_ptr<FilterToActiveSet> filter_to_active_set_;
+
+  std::unique_ptr<::thread::Executor> executor_;
 
   friend Advancer;
 };
