@@ -209,8 +209,10 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
     : SolutionPermuter(e),
       profiler_(profiler),
       executor_(absl::GetFlag(FLAGS_puzzle_thread_pool_executor)
-       ? static_cast<::thread::Executor*>(new ::thread::Pool(/*num_workers=*/4))
-       : static_cast<::thread::Executor*>(new ::thread::InlineExecutor())) {}
+                    ? static_cast<::thread::Executor*>(
+                          new ::thread::Pool(/*num_workers=*/4))
+                    : static_cast<::thread::Executor*>(
+                          new ::thread::InlineExecutor())) {}
 
 absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {
@@ -478,12 +480,12 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
     double old_pair_selectivity = pair.pair_selectivity();
     absl::Status st;
     absl::Notification wait;
-    executor_->Schedule(
-      [&]() {
-        st = filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
-                                          *pair.filters_by_b(), pair_class_mode);
-        wait.Notify();
-      });
+    executor_->Schedule([&]() {
+      st =
+          filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
+                                       *pair.filters_by_b(), pair_class_mode);
+      wait.Notify();
+    });
     wait.WaitForNotification();
     if (!st.ok()) return st;
     pair.set_computed_a(true);
