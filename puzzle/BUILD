@@ -199,11 +199,21 @@ cc_library(
 )
 
 cc_library(
+    name = "class_pair_selectivity",
+    hdrs = ["class_pair_selectivity.h"],
+    deps = [
+        ":class_permuter",
+        ":solution_filter",
+    ],
+)
+
+cc_library(
     name = "filtered_solution_permuter",
     srcs = ["filtered_solution_permuter.cc"],
     hdrs = ["filtered_solution_permuter.h"],
     deps = [
         ":all_match",
+        ":class_pair_selectivity",
         ":class_permuter",
         ":class_permuter_factory",
         ":filter_to_active_set",
