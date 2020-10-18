@@ -42,3 +42,23 @@ cc_test(
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
+
+cc_library(
+    name = "future",
+    hdrs = ["future.h"],
+    deps = [
+        "@com_google_absl//absl/synchronization",
+    ],
+)
+
+cc_test(
+    name = "future_test",
+    srcs = ["future_test.cc"],
+    deps = [
+        ":future",
+        ":pool",
+        "@com_google_googletest//:gtest",
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
+
