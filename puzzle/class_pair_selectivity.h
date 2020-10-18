@@ -13,8 +13,8 @@ namespace puzzle {
 class ClassPairSelectivity {
  public:
   ClassPairSelectivity(ClassPermuter* a, ClassPermuter* b,
-            const std::vector<SolutionFilter>* filters_by_a,
-            const std::vector<SolutionFilter>* filters_by_b)
+                       const std::vector<SolutionFilter>* filters_by_a,
+                       const std::vector<SolutionFilter>* filters_by_b)
       : a_(a),
         b_(b),
         filters_by_a_(filters_by_a),
@@ -64,6 +64,7 @@ class ClassPairSelectivity {
     }
     return pair_selectivity() < other.pair_selectivity();
   }
+
  private:
   ClassPermuter* a_;
   ClassPermuter* b_;
@@ -76,7 +77,8 @@ class ClassPairSelectivity {
 
 // Greater than comparison for ClassPairSelectivity for use in a heap.
 struct ClassPairSelectivityGreaterThan {
-  bool operator()(const ClassPairSelectivity& a, const ClassPairSelectivity& b) const {
+  bool operator()(const ClassPairSelectivity& a,
+                  const ClassPairSelectivity& b) const {
     return b < a;
   }
 };

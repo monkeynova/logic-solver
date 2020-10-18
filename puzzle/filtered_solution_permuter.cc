@@ -408,7 +408,8 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
 
   std::make_heap(pairs.begin(), pairs.end(), ClassPairSelectivityGreaterThan());
   while (!pairs.begin()->computed()) {
-    std::pop_heap(pairs.begin(), pairs.end(), ClassPairSelectivityGreaterThan());
+    std::pop_heap(pairs.begin(), pairs.end(),
+                  ClassPairSelectivityGreaterThan());
     ClassPairSelectivity& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
@@ -443,12 +444,14 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
           to_update.SetPairSelectivity(filter_to_active_set_.get());
         }
       }
-      std::make_heap(pairs.begin(), pairs.end(), ClassPairSelectivityGreaterThan());
+      std::make_heap(pairs.begin(), pairs.end(),
+                     ClassPairSelectivityGreaterThan());
     } else {
       if (old_pair_selectivity != pair.pair_selectivity()) {
         return absl::InternalError("Selectivity shouldn't increase");
       }
-      std::push_heap(pairs.begin(), pairs.end(), ClassPairSelectivityGreaterThan());
+      std::push_heap(pairs.begin(), pairs.end(),
+                     ClassPairSelectivityGreaterThan());
     }
   }
 
