@@ -9,6 +9,7 @@
 #include "puzzle/class_permuter_factory.h"
 #include "puzzle/filter_to_active_set.h"
 #include "thread/inline_executor.h"
+#include "thread/future.h"
 #include "thread/pool.h"
 
 ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
@@ -413,16 +414,13 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
     ClassPairSelectivity& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    absl::Status st;
-    absl::Notification wait;
+    ::thread::Future<absl::Status> st;
     executor_->Schedule([&]() {
-      st =
+      st.Publish(
           filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
-                                       *pair.filters_by_b(), pair_class_mode);
-      wait.Notify();
+                                       *pair.filters_by_b(), pair_class_mode));
     });
-    wait.WaitForNotification();
-    if (!st.ok()) return st;
+    if (!st.WaitForValue().ok()) return st.WaitForValue();
     pair.set_computed_a(true);
     pair.set_computed_b(true);
     pair.SetPairSelectivity(filter_to_active_set_.get());

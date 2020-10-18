@@ -222,6 +222,7 @@ cc_library(
         ":solution_filter",
         ":solution_permuter",
         "//thread:executor",
+        "//thread:future",
         "//thread:inline_executor",
         "//thread:pool",
         "@com_google_absl//absl/memory",
