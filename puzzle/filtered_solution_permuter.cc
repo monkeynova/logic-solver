@@ -394,6 +394,11 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
       return filters_by_b_;
     }
     double pair_selectivity() const { return pair_selectivity_; }
+    // TODO(@monkeynova): In theory computed should be the AND-ing of the two
+    // parts. In practice, it causes a 15% regression in benchmarks on sudoku
+    // since it redoes a bunch of redundant work. This method probably should
+    // be reamed at the least, but understanding the model for when to compute
+    // further would be better.
     bool computed() const { return computed_a_ || computed_b_; }
     void set_computed_a(bool computed) { computed_a_ = computed; }
     void set_computed_b(bool computed) { computed_b_ = computed; }
