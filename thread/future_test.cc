@@ -15,6 +15,14 @@ TEST(ThreadPoolTest, Simple) {
   EXPECT_EQ(test.WaitForValue(), 123);
 }
 
+TEST(ThreadPoolTest, Dereference) {
+  Future<int> test;
+  EXPECT_FALSE(test.has_value());
+  test.Publish(123);
+  EXPECT_TRUE(test.has_value());
+  EXPECT_EQ(*test, 123);
+}
+
 TEST(ThreadPoolTest, Threaded) {
   Future<int> test;
   Pool p(/*num_workers=*/2);
@@ -26,6 +34,12 @@ TEST(ThreadPoolTest, Threaded) {
   EXPECT_FALSE(test.has_value());
   wait.Notify();
   EXPECT_EQ(test.WaitForValue(), 123);
+}
+
+TEST(ThreadPoolTest, Past) {
+  Past<int> test(123);
+  EXPECT_TRUE(test.has_value());
+  EXPECT_EQ(*test, 123);
 }
 
 }  // namespace thread

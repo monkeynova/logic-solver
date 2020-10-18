@@ -12,12 +12,14 @@ class Future {
 
   bool has_value() const { return publish_.HasBeenNotified(); }
 
+  const Storage& operator*() const { return WaitForValue(); }
+
   void Publish(Storage value) {
     value_ = std::move(value);
     publish_.Notify();
   }
 
-  const Storage& WaitForValue() {
+  const Storage& WaitForValue() const {
     publish_.WaitForNotification();
     return value_;
   }
@@ -30,6 +32,12 @@ class Future {
  private:
   Storage value_;
   absl::Notification publish_;
+};
+
+template <typename Storage>
+class Past : public Future<Storage> {
+ public:
+  Past(Storage value) { this->Publish(std::move(value)); }
 };
 
 }  // namespace thread
