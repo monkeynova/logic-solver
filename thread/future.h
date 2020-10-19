@@ -13,6 +13,10 @@ class Future {
   bool has_value() const { return publish_.HasBeenNotified(); }
 
   const Storage& operator*() const { return WaitForValue(); }
+  const Storage* operator->() const {
+    WaitForValue();
+    return &value_;
+  }
 
   void Publish(Storage value) {
     value_ = std::move(value);

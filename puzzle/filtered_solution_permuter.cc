@@ -8,8 +8,8 @@
 #include "puzzle/class_pair_selectivity.h"
 #include "puzzle/class_permuter_factory.h"
 #include "puzzle/filter_to_active_set.h"
-#include "thread/inline_executor.h"
 #include "thread/future.h"
+#include "thread/inline_executor.h"
 #include "thread/pool.h"
 
 ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
@@ -416,14 +416,19 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
     double old_pair_selectivity = pair.pair_selectivity();
     ::thread::Future<absl::Status> st;
     executor_->Schedule([&]() {
-      st.Publish(
+      absl::Status build_st =
           filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
-                                       *pair.filters_by_b(), pair_class_mode));
+                                       *pair.filters_by_b(), pair_class_mode);
+      if (!build_st.ok()) {
+        st.Publish(build_st);
+        return;
+      }
+      pair.set_computed_a(true);
+      pair.set_computed_b(true);
+      pair.SetPairSelectivity(filter_to_active_set_.get());
+      st.Publish(absl::OkStatus());
     });
-    if (!st.WaitForValue().ok()) return st.WaitForValue();
-    pair.set_computed_a(true);
-    pair.set_computed_b(true);
-    pair.SetPairSelectivity(filter_to_active_set_.get());
+    if (!st->ok()) return *st;
     VLOG(2) << "Selectivity (" << pair.a()->class_int() << ", "
             << pair.b()->class_int() << "): "
             << static_cast<int>(old_pair_selectivity / pair.pair_selectivity())
