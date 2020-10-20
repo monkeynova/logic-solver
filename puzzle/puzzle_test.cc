@@ -69,10 +69,18 @@ static void BM_Solver(benchmark::State& state) {
 }
 
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/false,
-                   /*reorder=*/false);
+                   /*reorder=*/false)
+                   ->MeasureProcessCPUTime()->UseRealTime();
+
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/true, /*prune=*/false,
-                   /*reorder=*/false);
+                   /*reorder=*/false)
+                   ->MeasureProcessCPUTime()->UseRealTime();
+
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-                   /*reorder=*/false);
+                   /*reorder=*/false)
+                   ->MeasureProcessCPUTime()->UseRealTime();
+
 BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-                   /*reorder=*/true);
+                   /*reorder=*/true)
+                   ->MeasureProcessCPUTime()->UseRealTime();
+

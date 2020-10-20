@@ -57,30 +57,34 @@ static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
 
 template <bool pair_iterators, bool mode_pair>
 static void BM_Solver(benchmark::State& state) {
-  std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  ASSERT_TRUE(problem->Setup().ok());
-
-  absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
-  ASSERT_TRUE(expect.ok()) << expect.status();
-
-  std::vector<std::string> labels;
-  SetFlag(pair_iterators, "pair_iterators",
-          &FLAGS_puzzle_prune_pair_class_iterators, &labels);
-  SetFlag(mode_pair, "mode_pair",
-          &FLAGS_puzzle_prune_pair_class_iterators_mode_pair, &labels);
-  state.SetLabel(absl::StrJoin(labels, " "));
-
   for (auto _ : state) {
+    std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
+    absl::Status st = problem->Setup();
+    CHECK(st.ok()) << st;
+
+    absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
+    CHECK(expect.ok()) << expect.status();
+
+    std::vector<std::string> labels;
+    SetFlag(pair_iterators, "pair_iterators",
+            &FLAGS_puzzle_prune_pair_class_iterators, &labels);
+    SetFlag(mode_pair, "mode_pair",
+            &FLAGS_puzzle_prune_pair_class_iterators_mode_pair, &labels);
+    state.SetLabel(absl::StrJoin(labels, " "));
+
     absl::StatusOr<puzzle::Solution> got = problem->Solve();
-    ASSERT_TRUE(got.ok());
-    EXPECT_EQ(*got, *expect);
+    CHECK(got.ok()) << got.status();
+    CHECK(*got == *expect);
   }
 }
 
 BENCHMARK_TEMPLATE(BM_Solver,
                    /*pair_iterators=*/true,
-                   /*mode_pair=*/false);
+                   /*mode_pair=*/false)
+                   ->MeasureProcessCPUTime()->UseRealTime();
 
 BENCHMARK_TEMPLATE(BM_Solver,
                    /*pair_iterators=*/true,
-                   /*mode_pair=*/true);
+                   /*mode_pair=*/true)
+                   ->MeasureProcessCPUTime()->UseRealTime();
+
