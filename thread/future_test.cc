@@ -7,7 +7,7 @@
 
 namespace thread {
 
-TEST(ThreadPoolTest, Simple) {
+TEST(FutureTest, Simple) {
   Future<int> test;
   EXPECT_FALSE(test.has_value());
   test.Publish(123);
@@ -15,7 +15,7 @@ TEST(ThreadPoolTest, Simple) {
   EXPECT_EQ(test.WaitForValue(), 123);
 }
 
-TEST(ThreadPoolTest, Dereference) {
+TEST(FutureTest, Dereference) {
   Future<int> test;
   EXPECT_FALSE(test.has_value());
   test.Publish(123);
@@ -23,7 +23,7 @@ TEST(ThreadPoolTest, Dereference) {
   EXPECT_EQ(*test, 123);
 }
 
-TEST(ThreadPoolTest, Movable) {
+TEST(FutureTest, Movable) {
   Future<std::unique_ptr<int>> test;
   EXPECT_FALSE(test.has_value());
   test.Publish(std::make_unique<int>(123));
@@ -33,7 +33,7 @@ TEST(ThreadPoolTest, Movable) {
   EXPECT_EQ(*recv, 123);
 }
 
-TEST(ThreadPoolTest, Threaded) {
+TEST(FutureTest, Threaded) {
   Future<int> test;
   Pool p(/*num_workers=*/2);
   absl::Notification wait;
@@ -46,10 +46,25 @@ TEST(ThreadPoolTest, Threaded) {
   EXPECT_EQ(test.WaitForValue(), 123);
 }
 
-TEST(ThreadPoolTest, Past) {
+TEST(FutureTest, Past) {
   Past<int> test(123);
   EXPECT_TRUE(test.has_value());
   EXPECT_EQ(*test, 123);
+}
+
+TEST(FutureTest, FutureSet) {
+  FutureSet<int> set;
+  Future<int> f1 = set.Create();
+  Future<int> f2 = set.Create();
+  Future<int>* next = nullptr;
+  f2.Publish(123);
+  next = set.WaitForAny();
+  EXPECT_EQ(next, &f2);
+  f1.Publish(456);
+  next = set.WaitForAny();
+  EXPECT_EQ(next, &f1);
+  next = set.WaitForAny();
+  EXPECT_EQ(next, nullptr);
 }
 
 }  // namespace thread
