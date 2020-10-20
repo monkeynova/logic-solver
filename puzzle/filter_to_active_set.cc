@@ -98,7 +98,7 @@ absl::Status FilterToActiveSet::SetupBuild(
     }
     if (p.classes()[0] != class_int) {
       return absl::InvalidArgumentError(absl::StrCat(
-        "Filter class doesn't match: ", p.classes()[0], " != ", class_int));
+          "Filter class doesn't match: ", p.classes()[0], " != ", class_int));
     }
   }
   return absl::OkStatus();
@@ -138,7 +138,7 @@ void FilterToActiveSet::SingleIterate(
   ValueSkipToActiveSet* vs2as = nullptr;
   if (auto it = value_skip_to_active_set_.find(permuter->descriptor());
       it != value_skip_to_active_set_.end()) {
-        vs2as = it->second.get();
+    vs2as = it->second.get();
   }
 
   ClassPermuter::iterator::ValueSkip value_skip;

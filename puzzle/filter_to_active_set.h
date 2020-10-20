@@ -3,8 +3,8 @@
 
 #include "absl/base/thread_annotations.h"
 #include "absl/functional/function_ref.h"
-#include "absl/synchronization/mutex.h"
 #include "absl/status/status.h"
+#include "absl/synchronization/mutex.h"
 #include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"

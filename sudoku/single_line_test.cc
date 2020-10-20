@@ -54,7 +54,7 @@ TEST(Puzzle, UniqueAnswer) {
 static void BM_Solver(benchmark::State& state) {
   for (auto _ : state) {
     std::unique_ptr<::puzzle::Problem> line_board =
-         ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
+        ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
     CHECK(line_board != nullptr) << "No puzzle found";
 
     absl::Status st = line_board->Setup();

@@ -81,10 +81,11 @@ static void BM_Solver(benchmark::State& state) {
 BENCHMARK_TEMPLATE(BM_Solver,
                    /*pair_iterators=*/true,
                    /*mode_pair=*/false)
-                   ->MeasureProcessCPUTime()->UseRealTime();
+    ->MeasureProcessCPUTime()
+    ->UseRealTime();
 
 BENCHMARK_TEMPLATE(BM_Solver,
                    /*pair_iterators=*/true,
                    /*mode_pair=*/true)
-                   ->MeasureProcessCPUTime()->UseRealTime();
-
+    ->MeasureProcessCPUTime()
+    ->UseRealTime();

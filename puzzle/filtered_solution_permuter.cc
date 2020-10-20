@@ -214,12 +214,12 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
                                                    Profiler* profiler)
     : SolutionPermuter(e),
       profiler_(profiler),
-      executor_(absl::GetFlag(FLAGS_puzzle_thread_pool_executor)
-                    ? static_cast<::thread::Executor*>(
-                          new ::thread::Pool(absl::GetFlag(
-                            FLAGS_puzzle_thread_pool_executor_threads)))
-                    : static_cast<::thread::Executor*>(
-                          new ::thread::InlineExecutor())) {}
+      executor_(
+          absl::GetFlag(FLAGS_puzzle_thread_pool_executor)
+              ? static_cast<::thread::Executor*>(new ::thread::Pool(
+                    absl::GetFlag(FLAGS_puzzle_thread_pool_executor_threads)))
+              : static_cast<::thread::Executor*>(
+                    new ::thread::InlineExecutor())) {}
 
 absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {
@@ -359,7 +359,10 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
           filter_to_active_set_->active_set(class_int).Selectivity();
       absl::Status st = filter_to_active_set_->Build(
           class_permuter.get(), single_class_predicates[class_int]);
-      if (!st.ok()) { this_status.Publish(st); return; }
+      if (!st.ok()) {
+        this_status.Publish(st);
+        return;
+      }
       VLOG(2) << "Selectivity (" << class_permuter->class_int()
               << "): " << old_selectivity << " => "
               << filter_to_active_set_->active_set(class_int).Selectivity();
