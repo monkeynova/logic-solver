@@ -23,6 +23,16 @@ TEST(ThreadPoolTest, Dereference) {
   EXPECT_EQ(*test, 123);
 }
 
+TEST(ThreadPoolTest, Movable) {
+  Future<std::unique_ptr<int>> test;
+  EXPECT_FALSE(test.has_value());
+  test.Publish(std::make_unique<int>(123));
+  EXPECT_TRUE(test.has_value());
+  EXPECT_EQ(*test.WaitForValue(), 123);
+  std::unique_ptr<int> recv = std::move(test).WaitForAndConsumeValue();
+  EXPECT_EQ(*recv, 123);
+}
+
 TEST(ThreadPoolTest, Threaded) {
   Future<int> test;
   Pool p(/*num_workers=*/2);
