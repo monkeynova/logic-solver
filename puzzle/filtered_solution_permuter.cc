@@ -38,6 +38,10 @@ ABSL_FLAG(bool, puzzle_thread_pool_executor, false,
           "If true Solver::Prepare will try to use a thread pool to speed "
           "up the work by using more CPU cores.");
 
+ABSL_FLAG(int, puzzle_thread_pool_executor_threads, 4,
+          "If --puzzle_thread_pool_executor is true, this specifies the size "
+          "of the threadpool used (number of concurrent threads)");
+
 namespace puzzle {
 
 FilteredSolutionPermuter::Advancer::Advancer(
@@ -212,7 +216,8 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
       profiler_(profiler),
       executor_(absl::GetFlag(FLAGS_puzzle_thread_pool_executor)
                     ? static_cast<::thread::Executor*>(
-                          new ::thread::Pool(/*num_workers=*/4))
+                          new ::thread::Pool(absl::GetFlag(
+                            FLAGS_puzzle_thread_pool_executor_threads)))
                     : static_cast<::thread::Executor*>(
                           new ::thread::InlineExecutor())) {}
 
@@ -345,16 +350,24 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
               single_class_predicate_list.end(), SolutionFilter::LtByEntryId());
   }
 
+  std::vector<::thread::Future<absl::Status>> work(class_permuters_.size());
   for (const auto& class_permuter : class_permuters_) {
-    int class_int = class_permuter->class_int();
-    double old_selectivity =
-        filter_to_active_set_->active_set(class_int).Selectivity();
-    absl::Status st = filter_to_active_set_->Build(
-        class_permuter.get(), single_class_predicates[class_int]);
-    if (!st.ok()) return st;
-    VLOG(2) << "Selectivity (" << class_permuter->class_int()
-            << "): " << old_selectivity << " => "
-            << filter_to_active_set_->active_set(class_int).Selectivity();
+    executor_->Schedule([&]() {
+      int class_int = class_permuter->class_int();
+      ::thread::Future<absl::Status>& this_status = work[class_int];
+      double old_selectivity =
+          filter_to_active_set_->active_set(class_int).Selectivity();
+      absl::Status st = filter_to_active_set_->Build(
+          class_permuter.get(), single_class_predicates[class_int]);
+      if (!st.ok()) { this_status.Publish(st); return; }
+      VLOG(2) << "Selectivity (" << class_permuter->class_int()
+              << "): " << old_selectivity << " => "
+              << filter_to_active_set_->active_set(class_int).Selectivity();
+      this_status.Publish(absl::OkStatus());
+    });
+  }
+  for (const auto& st : work) {
+    if (!st->ok()) return *st;
   }
 
   if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {

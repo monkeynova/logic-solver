@@ -9,6 +9,7 @@ template <typename Storage>
 class Future {
  public:
   Future() = default;
+  ~Future() { WaitForValue(); }
 
   bool has_value() const { return publish_.HasBeenNotified(); }
 

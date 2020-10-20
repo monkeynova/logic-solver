@@ -1,7 +1,9 @@
 #ifndef PUZZLE_FILTER_TO_ACTIVE_SET_H_
 #define PUZZLE_FILTER_TO_ACTIVE_SET_H_
 
+#include "absl/base/thread_annotations.h"
 #include "absl/functional/function_ref.h"
+#include "absl/synchronization/mutex.h"
 #include "absl/status/status.h"
 #include "puzzle/active_set_pair.h"
 #include "puzzle/class_permuter.h"
@@ -36,6 +38,9 @@ class FilterToActiveSet {
 
   const ActiveSet& active_set(int class_int) const {
     DCHECK_LT(static_cast<size_t>(class_int), active_sets_.size());
+    // TODO(@monkeynova): This lock guards the hash but not the value
+    // which is a terrible contract.
+    absl::ReaderMutexLock l(&mu_);
     return active_sets_[class_int];
   }
   const ActiveSet& active_set_pair(int class_a, int a_val, int class_b) const {
@@ -133,8 +138,10 @@ class FilterToActiveSet {
                              ClassPermuter::iterator::ValueSkip* outer_skip)>
           on_outer_after);
 
+  mutable absl::Mutex mu_;
+
   // Maps class_int to it's built ActiveSet.
-  std::vector<ActiveSet> active_sets_;
+  std::vector<ActiveSet> active_sets_ GUARDED_BY(mu_);
 
   // active_set_pairs_[class_a][class_b][a_val] stores the ActiveSet for
   // class_b given class_a is at position a_val.
