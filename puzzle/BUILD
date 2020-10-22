@@ -204,8 +204,27 @@ cc_library(
     hdrs = ["class_pair_selectivity.h"],
     deps = [
         ":class_permuter",
+        ":filter_to_active_set",
         ":solution_filter",
     ],
+)
+
+cc_library(
+    name = "pair_filter_burn_down",
+    hdrs = ["pair_filter_burn_down.h"],
+    srcs = ["pair_filter_burn_down.cc"],
+    deps = [
+        ":class_pair_selectivity",
+        ":class_permuter",
+        ":filter_to_active_set",
+        ":solution_filter",
+        "//thread:executor",
+        "//thread:future",
+        "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/status",
+        "@com_google_absl//absl/synchronization",
+        "@com_google_glog//:glog",
+    ]
 )
 
 cc_library(
@@ -214,11 +233,11 @@ cc_library(
     hdrs = ["filtered_solution_permuter.h"],
     deps = [
         ":all_match",
-        ":class_pair_selectivity",
         ":class_permuter",
         ":class_permuter_factory",
         ":filter_to_active_set",
         ":mutable_solution",
+        ":pair_filter_burn_down",
         ":profiler",
         ":solution_filter",
         ":solution_permuter",
