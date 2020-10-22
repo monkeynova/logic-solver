@@ -8,7 +8,8 @@
 
 namespace thread {
 
-template <typename Storage> class FutureSet;
+template <typename Storage>
+class FutureSet;
 
 template <typename Storage>
 class Future {
@@ -43,8 +44,7 @@ class Future {
   }
 
  private:
-  explicit Future(FutureSet<Storage>* future_set)
-   : future_set_(future_set) {}
+  explicit Future(FutureSet<Storage>* future_set) : future_set_(future_set) {}
 
   Storage value_;
   absl::Notification publish_;

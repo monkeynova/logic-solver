@@ -211,8 +211,8 @@ cc_library(
 
 cc_library(
     name = "pair_filter_burn_down",
-    hdrs = ["pair_filter_burn_down.h"],
     srcs = ["pair_filter_burn_down.cc"],
+    hdrs = ["pair_filter_burn_down.h"],
     deps = [
         ":class_pair_selectivity",
         ":class_permuter",
@@ -224,7 +224,7 @@ cc_library(
         "@com_google_absl//absl/status",
         "@com_google_absl//absl/synchronization",
         "@com_google_glog//:glog",
-    ]
+    ],
 )
 
 cc_library(

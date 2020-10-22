@@ -16,7 +16,8 @@ extern absl::Flag<bool> FLAGS_puzzle_prune_pair_class_iterators_mode_pair;
 namespace puzzle {
 
 absl::Status PairFilterBurnDown::BurnDown(
-    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>> pair_class_predicates) {
+    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
+        pair_class_predicates) {
   for (auto& pair_and_predicates : pair_class_predicates) {
     int first_class_int = pair_and_predicates.first.first;
     std::sort(pair_and_predicates.second.begin(),
@@ -126,4 +127,4 @@ absl::Status PairFilterBurnDown::BurnDown(
   return absl::OkStatus();
 }
 
-};
+};  // namespace puzzle
