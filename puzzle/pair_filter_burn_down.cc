@@ -18,44 +18,71 @@ namespace puzzle {
 absl::Status PairFilterBurnDown::BurnDown(
     absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
         pair_class_predicates) {
-  for (auto& pair_and_predicates : pair_class_predicates) {
-    int first_class_int = pair_and_predicates.first.first;
-    std::sort(pair_and_predicates.second.begin(),
-              pair_and_predicates.second.end(),
-              SolutionFilter::LtByEntryId(first_class_int));
-  }
-
   FilterToActiveSet::PairClassMode pair_class_mode =
       absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
           ? FilterToActiveSet::PairClassMode::kMakePairs
           : FilterToActiveSet::PairClassMode::kSingleton;
 
+  absl::flat_hash_map<int, ClassPermuter*> class_int_to_permuter;
+  for (const auto& permuter : class_permuters_) {
+    class_int_to_permuter[permuter->class_int()] = permuter.get();
+  }
+
   std::vector<ClassPairSelectivity> pairs;
   pairs.reserve(class_permuters_.size() * (class_permuters_.size() - 1) / 2);
-  for (auto it_a = class_permuters_.begin(); it_a != class_permuters_.end();
-       ++it_a) {
-    for (auto it_b = it_a + 1; it_b != class_permuters_.end(); ++it_b) {
-      if ((*it_a)->class_int() == (*it_b)->class_int()) {
-        return absl::InternalError("same class on pair");
-      }
-      auto filters_by_a_it = pair_class_predicates.find(
-          std::make_pair((*it_a)->class_int(), (*it_b)->class_int()));
-      if (filters_by_a_it != pair_class_predicates.end() &&
-          !filters_by_a_it->second.empty()) {
-        auto filters_by_b_it = pair_class_predicates.find(
-            std::make_pair((*it_b)->class_int(), (*it_a)->class_int()));
-        if (filters_by_b_it == pair_class_predicates.end()) {
-          return absl::InternalError("Could not find filters");
-        }
-        pairs.emplace_back(it_a->get(), it_b->get(), &filters_by_a_it->second,
-                           &filters_by_b_it->second);
-        pairs.back().SetPairSelectivity(filter_to_active_set_);
-        VLOG(2) << "Initial Selectivity (" << pairs.back().a()->class_int()
-                << ", " << pairs.back().b()->class_int()
-                << "): " << pairs.back().pair_selectivity() << " ("
-                << pairs.back().filters_by_a()->size() << " filters)";
-      }
+  for (auto& pair_and_predicates : pair_class_predicates) {
+    int first_class_int = pair_and_predicates.first.first;
+    int second_class_int = pair_and_predicates.first.second;
+    std::vector<SolutionFilter>& filters_by_first = pair_and_predicates.second;
+
+    if (first_class_int == second_class_int) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("same class on pair: ", first_class_int));
     }
+
+    auto reverse_pair = std::make_pair(second_class_int, first_class_int);
+    auto reverse_it = pair_class_predicates.find(reverse_pair);
+    if (reverse_it == pair_class_predicates.end()) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("mapping does not contain reverse pair for: (",
+                       first_class_int, ", ", second_class_int, ")"));
+    }
+    std::vector<SolutionFilter>& filters_by_second = reverse_it->second;
+    // filters_by_{first,second} should represent the same set of filters just
+    // ordered differently. Validate that at least they have the same size.
+    if (filters_by_first.size() != filters_by_second.size()) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("different sized filters for: (", first_class_int, ", ",
+                       second_class_int, ")"));
+    }
+    // No filters for this pair.
+    if (filters_by_first.empty()) continue;
+    // Since we process both pairs at the same time and they aren't equal,
+    // only handle the case where first < second and leave the > path to be
+    // handled in the reverse.
+    if (first_class_int > second_class_int) continue;
+
+    ClassPermuter* first_class = class_int_to_permuter[first_class_int];
+    if (first_class == nullptr) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("class ", first_class_int, " is not in permuters"));
+    }
+    ClassPermuter* second_class = class_int_to_permuter[second_class_int];
+    if (second_class == nullptr) {
+      return absl::InvalidArgumentError(
+          absl::StrCat("class ", second_class_int, " is not in permuters"));
+    }
+    std::sort(filters_by_first.begin(), filters_by_first.end(),
+              SolutionFilter::LtByEntryId(first_class_int));
+    std::sort(filters_by_second.begin(), filters_by_second.end(),
+              SolutionFilter::LtByEntryId(second_class_int));
+    pairs.emplace_back(first_class, second_class, &filters_by_first,
+                       &filters_by_second);
+    pairs.back().SetPairSelectivity(filter_to_active_set_);
+    VLOG(2) << "Initial Selectivity (" << pairs.back().a()->class_int() << ", "
+            << pairs.back().b()->class_int()
+            << "): " << pairs.back().pair_selectivity() << " ("
+            << pairs.back().filters_by_a()->size() << " filters)";
   }
 
   if (pairs.empty()) return absl::OkStatus();
