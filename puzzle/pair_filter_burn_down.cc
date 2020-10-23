@@ -100,27 +100,29 @@ absl::Status PairFilterBurnDown::BurnDown(
 
   std::make_heap(pairs->begin(), pairs->end(),
                  ClassPairSelectivityGreaterThan());
+  ::thread::FutureSet<absl::Status> work;
   while (!pairs->begin()->computed()) {
     std::pop_heap(pairs->begin(), pairs->end(),
                   ClassPairSelectivityGreaterThan());
     ClassPairSelectivity& pair = pairs->back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    std::unique_ptr<::thread::Future<absl::Status>> st =
-        executor_->ScheduleFuture<absl::Status>(
-            [this, &pair, pair_class_mode]() {
-              absl::Status build_st = filter_to_active_set_->Build(
-                  pair.a(), pair.b(), *pair.filters_by_a(),
-                  *pair.filters_by_b(), pair_class_mode);
-              if (!build_st.ok()) {
-                return build_st;
-              }
-              pair.set_computed_a(true);
-              pair.set_computed_b(true);
-              pair.SetPairSelectivity(filter_to_active_set_);
-              return absl::OkStatus();
-            });
+    executor_->ScheduleFuture<absl::Status>(
+        &work, [this, &pair, pair_class_mode]() {
+          absl::Status build_st = filter_to_active_set_->Build(
+              pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
+              pair_class_mode);
+          if (!build_st.ok()) {
+            return build_st;
+          }
+          pair.set_computed_a(true);
+          pair.set_computed_b(true);
+          pair.SetPairSelectivity(filter_to_active_set_);
+          return absl::OkStatus();
+        });
+    ::thread::Future<absl::Status>* st = work.WaitForAny();
     if (!(*st)->ok()) return **st;
+
     VLOG(2) << "Selectivity (" << pair.a()->class_int() << ", "
             << pair.b()->class_int() << "): "
             << static_cast<int>(old_pair_selectivity / pair.pair_selectivity())
@@ -153,11 +155,17 @@ absl::Status PairFilterBurnDown::BurnDown(
   if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair) &&
       pair_class_mode != FilterToActiveSet::PairClassMode::kMakePairs) {
     VLOG(1) << "Running one more pass to generate pairs";
+    ::thread::FutureSet<absl::Status> make_pairs_work;
     for (ClassPairSelectivity& pair : *pairs) {
-      absl::Status st = filter_to_active_set_->Build(
-          pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
-          FilterToActiveSet::PairClassMode::kMakePairs);
-      if (!st.ok()) return st;
+      executor_->ScheduleFuture<absl::Status>(
+          &make_pairs_work, [this, &pair]() {
+            return filter_to_active_set_->Build(
+                pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
+                FilterToActiveSet::PairClassMode::kMakePairs);
+          });
+    }
+    while (::thread::Future<absl::Status>* st = make_pairs_work.WaitForAny()) {
+      if (!(*st)->ok()) return **st;
     }
   }
 
