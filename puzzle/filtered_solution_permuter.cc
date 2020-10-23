@@ -348,22 +348,18 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
 
   ::thread::FutureSet<absl::Status> work_set;
   for (const auto& class_permuter : class_permuters_) {
-    ::thread::Future<absl::Status>* this_status = work_set.Create();
-    executor_->Schedule(
-        [this, this_status, &class_permuter, &single_class_predicates]() {
+    executor_->ScheduleFuture<absl::Status>(
+        &work_set, [this, &class_permuter, &single_class_predicates]() {
           int class_int = class_permuter->class_int();
           double old_selectivity =
               filter_to_active_set_->active_set(class_int).Selectivity();
           absl::Status st = filter_to_active_set_->Build(
               class_permuter.get(), single_class_predicates[class_int]);
-          if (!st.ok()) {
-            this_status->Publish(st);
-            return;
-          }
+          if (!st.ok()) return st;
           VLOG(2) << "Selectivity (" << class_permuter->class_int()
                   << "): " << old_selectivity << " => "
                   << filter_to_active_set_->active_set(class_int).Selectivity();
-          this_status->Publish(absl::OkStatus());
+          return absl::OkStatus();
         });
   }
   while (::thread::Future<absl::Status>* st = work_set.WaitForAny()) {

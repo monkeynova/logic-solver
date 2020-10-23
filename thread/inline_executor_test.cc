@@ -13,4 +13,12 @@ TEST(InlineExecutorTest, Trivial) {
   EXPECT_TRUE(b);
 }
 
+TEST(InlineExecutorTest, Future) {
+  InlineExecutor e;
+  std::unique_ptr<Future<bool>> future =
+      e.ScheduleFuture<bool>([]() { return true; });
+  EXPECT_TRUE(future->has_value());
+  EXPECT_TRUE(future->WaitForValue());
+}
+
 }  // namespace thread

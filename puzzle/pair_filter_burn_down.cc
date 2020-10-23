@@ -106,21 +106,21 @@ absl::Status PairFilterBurnDown::BurnDown(
     ClassPairSelectivity& pair = pairs->back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    ::thread::Future<absl::Status> st;
-    executor_->Schedule([this, &st, &pair, pair_class_mode]() {
-      absl::Status build_st =
-          filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
-                                       *pair.filters_by_b(), pair_class_mode);
-      if (!build_st.ok()) {
-        st.Publish(build_st);
-        return;
-      }
-      pair.set_computed_a(true);
-      pair.set_computed_b(true);
-      pair.SetPairSelectivity(filter_to_active_set_);
-      st.Publish(absl::OkStatus());
-    });
-    if (!st->ok()) return *st;
+    std::unique_ptr<::thread::Future<absl::Status>> st =
+        executor_->ScheduleFuture<absl::Status>(
+            [this, &pair, pair_class_mode]() {
+              absl::Status build_st = filter_to_active_set_->Build(
+                  pair.a(), pair.b(), *pair.filters_by_a(),
+                  *pair.filters_by_b(), pair_class_mode);
+              if (!build_st.ok()) {
+                return build_st;
+              }
+              pair.set_computed_a(true);
+              pair.set_computed_b(true);
+              pair.SetPairSelectivity(filter_to_active_set_);
+              return absl::OkStatus();
+            });
+    if (!(*st)->ok()) return **st;
     VLOG(2) << "Selectivity (" << pair.a()->class_int() << ", "
             << pair.b()->class_int() << "): "
             << static_cast<int>(old_pair_selectivity / pair.pair_selectivity())

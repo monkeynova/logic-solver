@@ -3,7 +3,9 @@ package(default_visibility = ["//visibility:public"])
 cc_library(
     name = "executor",
     hdrs = ["executor.h"],
-    deps = [],
+    deps = [
+        ":future",
+    ],
 )
 
 cc_library(
