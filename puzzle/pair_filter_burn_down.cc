@@ -15,9 +15,7 @@ extern absl::Flag<bool> FLAGS_puzzle_prune_pair_class_iterators_mode_pair;
 namespace puzzle {
 
 absl::StatusOr<std::vector<ClassPairSelectivity>>
-PairFilterBurnDown::BuildSelectivityPairs(
-    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>&
-        pair_class_predicates) {
+PairFilterBurnDown::BuildSelectivityPairs() {
   absl::flat_hash_map<int, ClassPermuter*> class_int_to_permuter;
   for (const auto& permuter : class_permuters_) {
     class_int_to_permuter[permuter->class_int()] = permuter.get();
@@ -25,7 +23,7 @@ PairFilterBurnDown::BuildSelectivityPairs(
 
   std::vector<ClassPairSelectivity> pairs;
   pairs.reserve(class_permuters_.size() * (class_permuters_.size() - 1) / 2);
-  for (auto& pair_and_predicates : pair_class_predicates) {
+  for (auto& pair_and_predicates : pair_class_predicates_) {
     int first_class_int = pair_and_predicates.first.first;
     int second_class_int = pair_and_predicates.first.second;
     std::vector<SolutionFilter>& filters_by_first = pair_and_predicates.second;
@@ -36,8 +34,8 @@ PairFilterBurnDown::BuildSelectivityPairs(
     }
 
     auto reverse_pair = std::make_pair(second_class_int, first_class_int);
-    auto reverse_it = pair_class_predicates.find(reverse_pair);
-    if (reverse_it == pair_class_predicates.end()) {
+    auto reverse_it = pair_class_predicates_.find(reverse_pair);
+    if (reverse_it == pair_class_predicates_.end()) {
       return absl::InvalidArgumentError(
           absl::StrCat("mapping does not contain reverse pair for: (",
                        first_class_int, ", ", second_class_int, ")"));
@@ -83,11 +81,9 @@ PairFilterBurnDown::BuildSelectivityPairs(
   return pairs;
 }
 
-absl::Status PairFilterBurnDown::BurnDown(
-    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
-        pair_class_predicates) {
+absl::Status PairFilterBurnDown::BurnDown() {
   absl::StatusOr<std::vector<ClassPairSelectivity>> pairs =
-      BuildSelectivityPairs(pair_class_predicates);
+      BuildSelectivityPairs();
   if (!pairs.ok()) return pairs.status();
   if (pairs->empty()) return absl::OkStatus();
 
