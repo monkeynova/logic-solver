@@ -27,6 +27,8 @@ class PairFilterBurnDown {
  private:
   absl::StatusOr<std::vector<ClassPairSelectivity>> BuildSelectivityPairs();
 
+  absl::Status HeapBurnDown(std::vector<ClassPairSelectivity> pairs);
+
   const std::vector<std::unique_ptr<ClassPermuter>>& class_permuters_;
   absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
       pair_class_predicates_;

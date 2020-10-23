@@ -87,20 +87,26 @@ absl::Status PairFilterBurnDown::BurnDown() {
   if (!pairs.ok()) return pairs.status();
   if (pairs->empty()) return absl::OkStatus();
 
-  VLOG(1) << "Pruning pairs: " << pairs->size();
+  if (absl::Status st = HeapBurnDown(std::move(*pairs)); !st.ok()) return st;
+
+  return absl::OkStatus();
+}
+
+absl::Status PairFilterBurnDown::HeapBurnDown(
+    std::vector<ClassPairSelectivity> pairs) {
+  VLOG(1) << "Pruning pairs: " << pairs.size();
 
   FilterToActiveSet::PairClassMode pair_class_mode =
       absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
           ? FilterToActiveSet::PairClassMode::kMakePairs
           : FilterToActiveSet::PairClassMode::kSingleton;
 
-  std::make_heap(pairs->begin(), pairs->end(),
-                 ClassPairSelectivityGreaterThan());
+  std::make_heap(pairs.begin(), pairs.end(), ClassPairSelectivityGreaterThan());
   ::thread::FutureSet<absl::Status> work;
-  while (!pairs->begin()->computed()) {
-    std::pop_heap(pairs->begin(), pairs->end(),
+  while (!pairs.begin()->computed()) {
+    std::pop_heap(pairs.begin(), pairs.end(),
                   ClassPairSelectivityGreaterThan());
-    ClassPairSelectivity& pair = pairs->back();
+    ClassPairSelectivity& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
     executor_->ScheduleFuture<absl::Status>(
@@ -125,7 +131,7 @@ absl::Status PairFilterBurnDown::BurnDown() {
             << "x: " << old_pair_selectivity << " => "
             << pair.pair_selectivity();
     if (old_pair_selectivity > pair.pair_selectivity()) {
-      for (ClassPairSelectivity& to_update : *pairs) {
+      for (ClassPairSelectivity& to_update : pairs) {
         if (to_update.a() == pair.a() || to_update.a() == pair.b()) {
           // Skip exact match.
           if (to_update.b() != pair.a() && to_update.b() != pair.b()) {
@@ -137,13 +143,13 @@ absl::Status PairFilterBurnDown::BurnDown() {
           to_update.SetPairSelectivity(filter_to_active_set_);
         }
       }
-      std::make_heap(pairs->begin(), pairs->end(),
+      std::make_heap(pairs.begin(), pairs.end(),
                      ClassPairSelectivityGreaterThan());
     } else {
       if (old_pair_selectivity != pair.pair_selectivity()) {
         return absl::InternalError("Selectivity shouldn't increase");
       }
-      std::push_heap(pairs->begin(), pairs->end(),
+      std::push_heap(pairs.begin(), pairs.end(),
                      ClassPairSelectivityGreaterThan());
     }
   }
@@ -152,7 +158,7 @@ absl::Status PairFilterBurnDown::BurnDown() {
       pair_class_mode != FilterToActiveSet::PairClassMode::kMakePairs) {
     VLOG(1) << "Running one more pass to generate pairs";
     ::thread::FutureSet<absl::Status> make_pairs_work;
-    for (ClassPairSelectivity& pair : *pairs) {
+    for (ClassPairSelectivity& pair : pairs) {
       executor_->ScheduleFuture<absl::Status>(
           &make_pairs_work, [this, &pair]() {
             return filter_to_active_set_->Build(
