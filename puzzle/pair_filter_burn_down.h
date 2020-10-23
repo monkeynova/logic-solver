@@ -2,6 +2,8 @@
 #define PUZZLE_PAIR_FILTER_BURN_DOWN_H
 
 #include "absl/status/status.h"
+#include "absl/status/statusor.h"
+#include "puzzle/class_pair_selectivity.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/filter_to_active_set.h"
 #include "thread/executor.h"
@@ -22,6 +24,10 @@ class PairFilterBurnDown {
           pair_class_predicates);
 
  private:
+  absl::StatusOr<std::vector<ClassPairSelectivity>> BuildSelectivityPairs(
+      absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>&
+          pair_class_predicates);
+
   const std::vector<std::unique_ptr<ClassPermuter>>& class_permuters_;
   FilterToActiveSet* filter_to_active_set_;
   ::thread::Executor* executor_;

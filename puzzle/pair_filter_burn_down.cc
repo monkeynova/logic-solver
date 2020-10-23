@@ -3,7 +3,6 @@
 #include "absl/flags/flag.h"
 #include "absl/synchronization/mutex.h"
 #include "glog/logging.h"
-#include "puzzle/class_pair_selectivity.h"
 #include "puzzle/solution_filter.h"
 #include "thread/future.h"
 
@@ -15,14 +14,10 @@ extern absl::Flag<bool> FLAGS_puzzle_prune_pair_class_iterators_mode_pair;
 
 namespace puzzle {
 
-absl::Status PairFilterBurnDown::BurnDown(
-    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
+absl::StatusOr<std::vector<ClassPairSelectivity>>
+PairFilterBurnDown::BuildSelectivityPairs(
+    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>&
         pair_class_predicates) {
-  FilterToActiveSet::PairClassMode pair_class_mode =
-      absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
-          ? FilterToActiveSet::PairClassMode::kMakePairs
-          : FilterToActiveSet::PairClassMode::kSingleton;
-
   absl::flat_hash_map<int, ClassPermuter*> class_int_to_permuter;
   for (const auto& permuter : class_permuters_) {
     class_int_to_permuter[permuter->class_int()] = permuter.get();
@@ -85,15 +80,30 @@ absl::Status PairFilterBurnDown::BurnDown(
             << pairs.back().filters_by_a()->size() << " filters)";
   }
 
-  if (pairs.empty()) return absl::OkStatus();
+  return pairs;
+}
 
-  VLOG(1) << "Pruning pairs: " << pairs.size();
+absl::Status PairFilterBurnDown::BurnDown(
+    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
+        pair_class_predicates) {
+  absl::StatusOr<std::vector<ClassPairSelectivity>> pairs =
+      BuildSelectivityPairs(pair_class_predicates);
+  if (!pairs.ok()) return pairs.status();
+  if (pairs->empty()) return absl::OkStatus();
 
-  std::make_heap(pairs.begin(), pairs.end(), ClassPairSelectivityGreaterThan());
-  while (!pairs.begin()->computed()) {
-    std::pop_heap(pairs.begin(), pairs.end(),
+  VLOG(1) << "Pruning pairs: " << pairs->size();
+
+  FilterToActiveSet::PairClassMode pair_class_mode =
+      absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
+          ? FilterToActiveSet::PairClassMode::kMakePairs
+          : FilterToActiveSet::PairClassMode::kSingleton;
+
+  std::make_heap(pairs->begin(), pairs->end(),
+                 ClassPairSelectivityGreaterThan());
+  while (!pairs->begin()->computed()) {
+    std::pop_heap(pairs->begin(), pairs->end(),
                   ClassPairSelectivityGreaterThan());
-    ClassPairSelectivity& pair = pairs.back();
+    ClassPairSelectivity& pair = pairs->back();
 
     double old_pair_selectivity = pair.pair_selectivity();
     ::thread::Future<absl::Status> st;
@@ -117,7 +127,7 @@ absl::Status PairFilterBurnDown::BurnDown(
             << "x: " << old_pair_selectivity << " => "
             << pair.pair_selectivity();
     if (old_pair_selectivity > pair.pair_selectivity()) {
-      for (ClassPairSelectivity& to_update : pairs) {
+      for (ClassPairSelectivity& to_update : *pairs) {
         if (to_update.a() == pair.a() || to_update.a() == pair.b()) {
           // Skip exact match.
           if (to_update.b() != pair.a() && to_update.b() != pair.b()) {
@@ -129,13 +139,13 @@ absl::Status PairFilterBurnDown::BurnDown(
           to_update.SetPairSelectivity(filter_to_active_set_);
         }
       }
-      std::make_heap(pairs.begin(), pairs.end(),
+      std::make_heap(pairs->begin(), pairs->end(),
                      ClassPairSelectivityGreaterThan());
     } else {
       if (old_pair_selectivity != pair.pair_selectivity()) {
         return absl::InternalError("Selectivity shouldn't increase");
       }
-      std::push_heap(pairs.begin(), pairs.end(),
+      std::push_heap(pairs->begin(), pairs->end(),
                      ClassPairSelectivityGreaterThan());
     }
   }
@@ -143,7 +153,7 @@ absl::Status PairFilterBurnDown::BurnDown(
   if (absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair) &&
       pair_class_mode != FilterToActiveSet::PairClassMode::kMakePairs) {
     VLOG(1) << "Running one more pass to generate pairs";
-    for (ClassPairSelectivity& pair : pairs) {
+    for (ClassPairSelectivity& pair : *pairs) {
       absl::Status st = filter_to_active_set_->Build(
           pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
           FilterToActiveSet::PairClassMode::kMakePairs);

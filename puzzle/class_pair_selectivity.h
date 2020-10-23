@@ -22,6 +22,12 @@ class ClassPairSelectivity {
         filters_by_b_(filters_by_b),
         computed_a_(false),
         computed_b_(false) {}
+
+  ClassPairSelectivity(const ClassPairSelectivity&) = delete;
+  ClassPairSelectivity& operator=(const ClassPairSelectivity&) = delete;
+  ClassPairSelectivity(ClassPairSelectivity&&) = default;
+  ClassPairSelectivity& operator=(ClassPairSelectivity&&) = default;
+
   ClassPermuter* a() const { return a_; }
   ClassPermuter* b() const { return b_; }
   const std::vector<SolutionFilter>* filters_by_a() const {
