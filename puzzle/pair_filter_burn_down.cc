@@ -107,7 +107,7 @@ absl::Status PairFilterBurnDown::BurnDown(
 
     double old_pair_selectivity = pair.pair_selectivity();
     ::thread::Future<absl::Status> st;
-    executor_->Schedule([&]() {
+    executor_->Schedule([this, &st, &pair, pair_class_mode]() {
       absl::Status build_st =
           filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
                                        *pair.filters_by_b(), pair_class_mode);

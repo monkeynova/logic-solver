@@ -48,6 +48,7 @@ cc_library(
     hdrs = ["future.h"],
     deps = [
         "@com_google_absl//absl/synchronization",
+        "@com_google_glog//:glog",
     ],
 )
 

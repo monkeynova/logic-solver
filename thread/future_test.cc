@@ -23,7 +23,7 @@ TEST(FutureTest, Dereference) {
   EXPECT_EQ(*test, 123);
 }
 
-TEST(FutureTest, Movable) {
+TEST(FutureTest, Consume) {
   Future<std::unique_ptr<int>> test;
   EXPECT_FALSE(test.has_value());
   test.Publish(std::make_unique<int>(123));
@@ -54,15 +54,15 @@ TEST(FutureTest, Past) {
 
 TEST(FutureTest, FutureSet) {
   FutureSet<int> set;
-  Future<int> f1 = set.Create();
-  Future<int> f2 = set.Create();
+  Future<int>* f1 = set.Create();
+  Future<int>* f2 = set.Create();
   Future<int>* next = nullptr;
-  f2.Publish(123);
+  f2->Publish(123);
   next = set.WaitForAny();
-  EXPECT_EQ(next, &f2);
-  f1.Publish(456);
+  EXPECT_EQ(next, f2);
+  f1->Publish(456);
   next = set.WaitForAny();
-  EXPECT_EQ(next, &f1);
+  EXPECT_EQ(next, f1);
   next = set.WaitForAny();
   EXPECT_EQ(next, nullptr);
 }

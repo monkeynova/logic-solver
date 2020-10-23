@@ -5,6 +5,7 @@
 
 #include "absl/synchronization/mutex.h"
 #include "absl/synchronization/notification.h"
+#include "glog/logging.h"
 
 namespace thread {
 
@@ -17,37 +18,49 @@ class Future {
   Future() = default;
   ~Future() { WaitForValue(); }
 
-  bool has_value() const { return publish_.HasBeenNotified(); }
-
-  const Storage& operator*() const { return WaitForValue(); }
-  const Storage* operator->() const {
-    WaitForValue();
-    return &value_;
+  bool has_value() const {
+    absl::MutexLock l(&mu_);
+    return has_value_locked();
   }
 
+  const Storage& operator*() const { return WaitForValue(); }
+  const Storage* operator->() const { return &WaitForValue(); }
+
   void Publish(Storage value) {
-    value_ = std::move(value);
-    publish_.Notify();
+    {
+      absl::MutexLock l(&mu_);
+      DCHECK(!has_value_);
+      value_ = std::move(value);
+      has_value_ = true;
+    }
     if (future_set_ != nullptr) {
       future_set_->Notify(this);
     }
   }
 
   const Storage& WaitForValue() const {
-    publish_.WaitForNotification();
+    absl::MutexLock l(&mu_);
+    mu_.Await(absl::Condition(this, &Future::has_value_locked));
     return value_;
   }
 
   Storage WaitForAndConsumeValue() && {
-    publish_.WaitForNotification();
+    absl::MutexLock l(&mu_);
+    mu_.Await(absl::Condition(this, &Future::has_value_locked));
     return std::move(value_);
   }
 
  private:
+  bool has_value_locked() const ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) {
+    mu_.AssertHeld();
+    return has_value_;
+  }
+
   explicit Future(FutureSet<Storage>* future_set) : future_set_(future_set) {}
 
-  Storage value_;
-  absl::Notification publish_;
+  mutable absl::Mutex mu_;
+  bool has_value_ GUARDED_BY(mu_) = false;
+  Storage value_ GUARDED_BY(mu_);
   FutureSet<Storage>* future_set_ = nullptr;
 
   friend class FutureSet<Storage>;
@@ -58,35 +71,37 @@ class FutureSet {
  public:
   FutureSet() = default;
 
-  Future<Storage> Create() ABSL_LOCKS_EXCLUDED(mu_) {
+  Future<Storage>* Create() ABSL_LOCKS_EXCLUDED(mu_) {
     absl::MutexLock l(&mu_);
     ++outstanding_futures_;
-    return Future<Storage>(this);
+    futures_.emplace_back(new Future<Storage>(this));
+    return futures_.back().get();
   }
 
   Future<Storage>* WaitForAny() ABSL_LOCKS_EXCLUDED(mu_) {
     absl::MutexLock l(&mu_);
     mu_.Await(absl::Condition(this, &FutureSet::AnyReady));
-    if (queue_.empty()) return nullptr;
-    Future<Storage>* next = queue_.front();
-    queue_.pop();
+    if (ready_.empty()) return nullptr;
+    Future<Storage>* next = ready_.front();
+    ready_.pop();
     return next;
   }
 
   void Notify(Future<Storage>* ready) ABSL_LOCKS_EXCLUDED(mu_) {
     absl::MutexLock l(&mu_);
     --outstanding_futures_;
-    queue_.push(ready);
+    ready_.push(ready);
   }
 
  private:
   bool AnyReady() const ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) {
-    return outstanding_futures_ == 0 || !queue_.empty();
+    return outstanding_futures_ == 0 || !ready_.empty();
   }
 
   absl::Mutex mu_;
   int outstanding_futures_ GUARDED_BY(mu_) = 0;
-  std::queue<Future<Storage>*> queue_ GUARDED_BY(mu_);
+  std::vector<std::unique_ptr<Future<Storage>>> futures_ GUARDED_BY(mu_);
+  std::queue<Future<Storage>*> ready_ GUARDED_BY(mu_);
 };
 
 template <typename Storage>

@@ -97,6 +97,7 @@ cc_test(
         ":line_board",
         "@com_google_absl//absl/flags:flag",
         "@com_google_benchmark//:benchmark",
+        "@com_google_glog//:glog",
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],

@@ -346,27 +346,28 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
               single_class_predicate_list.end(), SolutionFilter::LtByEntryId());
   }
 
-  std::vector<::thread::Future<absl::Status>> work(class_permuters_.size());
+  ::thread::FutureSet<absl::Status> work_set;
   for (const auto& class_permuter : class_permuters_) {
-    executor_->Schedule([&]() {
-      int class_int = class_permuter->class_int();
-      ::thread::Future<absl::Status>& this_status = work[class_int];
-      double old_selectivity =
-          filter_to_active_set_->active_set(class_int).Selectivity();
-      absl::Status st = filter_to_active_set_->Build(
-          class_permuter.get(), single_class_predicates[class_int]);
-      if (!st.ok()) {
-        this_status.Publish(st);
-        return;
-      }
-      VLOG(2) << "Selectivity (" << class_permuter->class_int()
-              << "): " << old_selectivity << " => "
-              << filter_to_active_set_->active_set(class_int).Selectivity();
-      this_status.Publish(absl::OkStatus());
-    });
+    ::thread::Future<absl::Status>* this_status = work_set.Create();
+    executor_->Schedule(
+        [this, this_status, &class_permuter, &single_class_predicates]() {
+          int class_int = class_permuter->class_int();
+          double old_selectivity =
+              filter_to_active_set_->active_set(class_int).Selectivity();
+          absl::Status st = filter_to_active_set_->Build(
+              class_permuter.get(), single_class_predicates[class_int]);
+          if (!st.ok()) {
+            this_status->Publish(st);
+            return;
+          }
+          VLOG(2) << "Selectivity (" << class_permuter->class_int()
+                  << "): " << old_selectivity << " => "
+                  << filter_to_active_set_->active_set(class_int).Selectivity();
+          this_status->Publish(absl::OkStatus());
+        });
   }
-  for (const auto& st : work) {
-    if (!st->ok()) return *st;
+  while (::thread::Future<absl::Status>* st = work_set.WaitForAny()) {
+    if (!(*st)->ok()) return **st;
   }
 
   if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {
