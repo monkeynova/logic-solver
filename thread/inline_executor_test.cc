@@ -16,7 +16,7 @@ TEST(InlineExecutorTest, Trivial) {
 TEST(InlineExecutorTest, Future) {
   InlineExecutor e;
   std::unique_ptr<Future<bool>> future =
-      e.ScheduleFuture<bool>([]() { return true; });
+      e.ScheduleFuture([]() { return true; });
   EXPECT_TRUE(future->has_value());
   EXPECT_TRUE(future->WaitForValue());
 }

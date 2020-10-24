@@ -348,7 +348,7 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
 
   ::thread::FutureSet<absl::Status> work_set;
   for (const auto& class_permuter : class_permuters_) {
-    executor_->ScheduleFuture<absl::Status>(
+    executor_->ScheduleFuture(
         &work_set, [this, &class_permuter, &single_class_predicates]() {
           int class_int = class_permuter->class_int();
           double old_selectivity =

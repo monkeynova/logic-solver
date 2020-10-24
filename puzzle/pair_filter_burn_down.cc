@@ -138,7 +138,7 @@ absl::Status PairFilterBurnDown::ClassBurnDown(
         active[work_pair->b()->class_int()] = true;
         active_count += 2;
       }
-      executor_->ScheduleFuture<absl::StatusOr<ClassPairSelectivity*>>(
+      executor_->ScheduleFuture(
           &work,
           [this, work_pair, &active, &active_lock, &active_count,
            pair_class_mode]() -> absl::StatusOr<ClassPairSelectivity*> {
@@ -237,7 +237,7 @@ absl::Status PairFilterBurnDown::HeapBurnDown(
     ClassPairSelectivity& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    executor_->ScheduleFuture<absl::Status>(
+    executor_->ScheduleFuture(
         &work, [this, &pair, pair_class_mode]() {
           absl::Status build_st = filter_to_active_set_->Build(
               pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
@@ -287,7 +287,7 @@ absl::Status PairFilterBurnDown::HeapBurnDown(
     VLOG(1) << "Running one more pass to generate pairs";
     ::thread::FutureSet<absl::Status> make_pairs_work;
     for (ClassPairSelectivity& pair : pairs) {
-      executor_->ScheduleFuture<absl::Status>(
+      executor_->ScheduleFuture(
           &make_pairs_work, [this, &pair]() {
             return filter_to_active_set_->Build(
                 pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),

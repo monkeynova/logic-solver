@@ -17,17 +17,17 @@ class Executor {
 
   virtual void Schedule(Fn fn) = 0;
 
-  template <typename Storage>
-  std::unique_ptr<Future<Storage>> ScheduleFuture(std::function<Storage()> fn) {
+  template <typename FnType, typename Storage=typename std::invoke_result_t<FnType>>
+  std::unique_ptr<Future<Storage>> ScheduleFuture(FnType fn) {
     std::unique_ptr<Future<Storage>> ret(new Future<Storage>());
     Future<Storage>* raw_ret = ret.get();
     Schedule([raw_ret, fn]() { raw_ret->Publish(fn()); });
     return ret;
   }
 
-  template <typename Storage>
+  template <typename FnType, typename Storage=typename std::invoke_result_t<FnType>>
   Future<Storage>* ScheduleFuture(FutureSet<Storage>* set,
-                                  std::function<Storage()> fn) {
+                                  FnType fn) {
     Future<Storage>* ret = set->Create();
     Schedule([ret, fn]() { ret->Publish(fn()); });
     return ret;
