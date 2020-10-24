@@ -10,6 +10,10 @@ ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,
           "If true, pairwise iterator pruning will always run with a mode of "
           "kMakePairs.");
 
+ABSL_FLAG(bool, puzzle_pair_class_burn_down_class, false,
+          "True for threading optimized model for pair pruning. False for a "
+          "more iterative friendly model.");
+
 extern absl::Flag<bool> FLAGS_puzzle_prune_pair_class_iterators_mode_pair;
 
 namespace puzzle {
@@ -87,7 +91,131 @@ absl::Status PairFilterBurnDown::BurnDown() {
   if (!pairs.ok()) return pairs.status();
   if (pairs->empty()) return absl::OkStatus();
 
-  if (absl::Status st = HeapBurnDown(std::move(*pairs)); !st.ok()) return st;
+  if (absl::GetFlag(FLAGS_puzzle_pair_class_burn_down_class)) {
+    if (absl::Status st = ClassBurnDown(std::move(*pairs)); !st.ok()) return st;
+  } else {
+    if (absl::Status st = HeapBurnDown(std::move(*pairs)); !st.ok()) return st;
+  }
+
+  return absl::OkStatus();
+}
+
+absl::Status PairFilterBurnDown::ClassBurnDown(
+    std::vector<ClassPairSelectivity> pairs) {
+  FilterToActiveSet::PairClassMode pair_class_mode =
+      absl::GetFlag(FLAGS_puzzle_pair_class_mode_make_pairs)
+          ? FilterToActiveSet::PairClassMode::kMakePairs
+          : FilterToActiveSet::PairClassMode::kSingleton;
+
+  ::thread::FutureSet<absl::StatusOr<ClassPairSelectivity*>> work;
+  int active_count = 0;
+  absl::Mutex active_lock;
+  std::vector<bool> active(class_permuters_.size(), false);
+  bool more_work = true;
+  while (more_work) {
+    more_work = false;
+    ClassPairSelectivity* work_pair = nullptr;
+    for (ClassPairSelectivity& pair : pairs) {
+      if (pair.computed()) continue;
+      more_work = true;
+
+      {
+        absl::MutexLock l(&active_lock);
+        if (active[pair.a()->class_int()]) continue;
+        if (active[pair.b()->class_int()]) continue;
+      }
+      if (work_pair == nullptr ||
+          work_pair->pair_selectivity() > pair.pair_selectivity()) {
+        work_pair = &pair;
+      }
+    }
+    if (work_pair) {
+      VLOG(2) << "Scheduling (" << work_pair->a()->class_int() << ", "
+              << work_pair->b()->class_int() << ")";
+      {
+        absl::MutexLock l(&active_lock);
+        active[work_pair->a()->class_int()] = true;
+        active[work_pair->b()->class_int()] = true;
+        active_count += 2;
+      }
+      executor_->ScheduleFuture<absl::StatusOr<ClassPairSelectivity*>>(
+          &work,
+          [this, work_pair, &active, &active_lock, &active_count,
+           pair_class_mode]() -> absl::StatusOr<ClassPairSelectivity*> {
+            double old_pair_selectivity = work_pair->pair_selectivity();
+            absl::Status build_st = filter_to_active_set_->Build(
+                work_pair->a(), work_pair->b(), *work_pair->filters_by_a(),
+                *work_pair->filters_by_b(), pair_class_mode);
+            if (!build_st.ok()) {
+              return build_st;
+            }
+            work_pair->set_computed_a(true);
+            work_pair->set_computed_b(true);
+            work_pair->SetPairSelectivity(filter_to_active_set_);
+            VLOG(2) << "Selectivity (" << work_pair->a()->class_int() << ", "
+                    << work_pair->b()->class_int() << "): "
+                    << static_cast<int>(old_pair_selectivity /
+                                        work_pair->pair_selectivity())
+                    << "x: " << old_pair_selectivity << " => "
+                    << work_pair->pair_selectivity();
+            {
+              absl::MutexLock l(&active_lock);
+              active[work_pair->a()->class_int()] = false;
+              active[work_pair->b()->class_int()] = false;
+              active_count -= 2;
+            }
+            return old_pair_selectivity > work_pair->pair_selectivity()
+                       ? work_pair
+                       : nullptr;
+          });
+    }
+    bool should_wait = false;
+    if (!work_pair && more_work) {
+      // We couldn't find work this round but there is more to do,
+      // wait until that changes.
+      should_wait = true;
+    }
+    if (active_count / 2 >= class_permuters_.size() / 2) {
+      // Even if we found work, if there's no classes of work we could
+      // do, avoid the next empty loop and wait now.
+      should_wait = true;
+    }
+    if (should_wait) {
+      // Nothing we can work on right now, but more work is possible.
+      // Wait for something to complete before trying again.
+      ::thread::Future<absl::StatusOr<ClassPairSelectivity*>>* next =
+          work.WaitForAny();
+      if (next == nullptr) {
+        return absl::InternalError("Work expected but not found");
+      }
+      if (!(*next)->ok()) return (*next)->status();
+
+      ClassPairSelectivity* pair = ***next;
+      if (pair) {
+        VLOG(2) << "Recevied (" << pair->a()->class_int() << ", "
+                << pair->b()->class_int() << ")";
+        for (ClassPairSelectivity& to_update : pairs) {
+          if (to_update.a() == pair->a() || to_update.a() == pair->b()) {
+            // Skip exact match.
+            if (to_update.b() != pair->a() && to_update.b() != pair->b()) {
+              to_update.set_computed_a(false);
+              to_update.SetPairSelectivity(filter_to_active_set_);
+            }
+          } else if (to_update.b() == pair->a() || to_update.b() == pair->b()) {
+            to_update.set_computed_b(false);
+            to_update.SetPairSelectivity(filter_to_active_set_);
+          }
+        }
+      }
+    }
+  }
+  // Verify no errors on oustanding work.
+  while (::thread::Future<absl::StatusOr<ClassPairSelectivity*>>* next =
+             work.WaitForAny()) {
+    if (!(*next)->ok()) return (*next)->status();
+  }
+
+  // TODO(@monkeynova): Add kMakePairs pass.
 
   return absl::OkStatus();
 }
