@@ -142,7 +142,6 @@ void FilterToActiveSet::SingleIterate(
   }
 
   ClassPermuter::iterator::ValueSkip value_skip;
-  absl::ReaderMutexLock l(&mu_);
   for (auto it = permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != permuter->end(); Advance(vs2as, value_skip, &it)) {
     mutable_solution_.SetClass(it);
@@ -172,7 +171,6 @@ FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPassThrough>(
                   return false;
                 });
   builder.AddBlockTo(false, class_permuter->permutation_count());
-  absl::WriterMutexLock l(&mu_);
   active_sets_[class_int] = builder.DoneAdding();
   return absl::OkStatus();
 }
@@ -197,7 +195,6 @@ FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPositionSet>(
                   }
                   return false;
                 });
-  absl::WriterMutexLock l(&mu_);
   active_sets_[class_int] = ActiveSetBuilder::FromPositions(
       a_matches, class_permuter->permutation_count());
   return absl::OkStatus();
@@ -250,7 +247,6 @@ void FilterToActiveSet::DualIterate(
                            ClassPermuter::iterator::ValueSkip* outer_skip) {
     on_outer_before();
     ClassPermuter::iterator::ValueSkip value_skip_inner;
-    mu_.AssertReaderHeld();
     for (auto it_inner =
              inner->begin()
                  .WithActiveSet(active_sets_[class_inner])
@@ -390,7 +386,6 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
 
     if (any_of_outer_false) {
       builder_outer.AddBlockTo(false, outer->permutation_count());
-      absl::WriterMutexLock l(&mu_);
       active_sets_[class_outer] = builder_outer.DoneAdding();
     }
   }
@@ -460,7 +455,6 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
       });
 
   builder_a.AddBlockTo(false, permuter_a->permutation_count());
-  absl::WriterMutexLock l(&mu_);
   active_sets_[class_a] = builder_a.DoneAdding();
   active_sets_[class_b] = ActiveSetBuilder::FromPositions(
       b_match_positions, permuter_b->permutation_count());
@@ -524,7 +518,6 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
       [&](const ClassPermuter::iterator& it_a,
           ClassPermuter::iterator::ValueSkip* a_skip) {});
 
-  absl::WriterMutexLock l(&mu_);
   active_sets_[class_a] = ActiveSetBuilder::FromPositions(
       a_match_positions, permuter_a->permutation_count());
   active_sets_[class_b] = ActiveSetBuilder::FromPositions(
