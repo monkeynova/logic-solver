@@ -32,6 +32,7 @@ cc_library(
         "@com_google_file_based_test_driver//:run_test_case_result",
         "@com_google_file_based_test_driver//:test_case_options",
         "@com_google_googletest//:gtest",
+	"@com_monkeynova_gunit_main//:main_lib",
         # TODO(@monkeynova): FBTD includes it's own main which interferes with
         # logging, flags etc.
         # "@com_monkeynova_gunit_main//:test_main",

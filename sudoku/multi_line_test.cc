@@ -11,6 +11,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "gtest/internal/gtest-port.h"
+#include "main_lib.h"
 #include "run_test_case_result.h"
 #include "sudoku/line_board.h"
 #include "test_case_options.h"
@@ -27,20 +28,6 @@ ABSL_FLAG(
 ABSL_FLAG(bool, puzzle_test_unique, true,
           "If true (default), tests validate that the solution found is "
           "unique.");
-
-// TODO(@monkeynova): This is horrific in that we're poking through the
-// internal abstraction to get at the original flags. Until all of ABSL,
-// googletest and FBTD play nice together or I can use my own main, I don't see
-// a different way to initialize absl flags.
-void InitializeAbslFlagsFromGtest() {
-  std::vector<std::string> string_argvs = testing::internal::GetArgvs();
-  std::vector<const char*> raw_argvs(string_argvs.size());
-  for (int i = 0; i < string_argvs.size(); ++i) {
-    raw_argvs[i] = string_argvs[i].c_str();
-  }
-  int argc = raw_argvs.size();
-  absl::ParseCommandLine(argc, const_cast<char**>(raw_argvs.data()));
-}
 
 void InitializeAbslFlagsFromOptions(std::string option_str) {
   for (const auto& flag_setting : absl::StrSplit(option_str, ",")) {
