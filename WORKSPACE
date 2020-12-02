@@ -6,25 +6,25 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository",
 git_repository(
     name = "com_google_googletest",
     remote = "git://github.com/google/googletest.git",
-    commit = "a4621888650aaae118de93f9faf8ef5a18cab303",
+    commit = "b1fbd33c06cdb0024c67733c6fdec2009d17b384",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "git://github.com/abseil/abseil-cpp.git",
-    commit = "60d00a5822bb98f18e40b294554f91ca14fb793a",
+    commit = "e9b9e38f67a008d66133535a72ada843bd66013f",
 )
 
 git_repository(
     name = "com_github_gflags_gflags",
     remote = "git://github.com/gflags/gflags.git",
-    commit = "5d5a6c550100fa9d19f18861b61be9343e94dbcb",
+    commit = "827c769e5fc98e0f2a34c47cef953cc6328abced",
 )
 
 git_repository(
     name = "com_google_protobuf",
     remote = "git://github.com/protocolbuffers/protobuf.git",
-    commit = "ce66f6047db44df3234bccd6fcf468bccc14a760",
+    commit = "9637a3b57cacda57187ef48b08d4bc8f83349faf",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -34,25 +34,25 @@ protobuf_deps()
 git_repository(
     name = "com_google_protobuf_cc",
     remote = "git://github.com/protocolbuffers/protobuf.git",
-    commit = "8a71927d74a4ce34efe2d8769fda198f52d20d12",
+    commit = "9637a3b57cacda57187ef48b08d4bc8f83349faf",
 )
 
 git_repository(
     name = "com_google_benchmark",
     remote = "git://github.com/google/benchmark.git",
-    commit = "af72911f2fe6b8114564614d2db17a449f8c4af0",
+    commit = "bf585a2789e30585b4e3ce6baf11ef2750b54677",
 )
 
 git_repository(
     name = "com_google_tcmalloc",
     remote = "git://github.com/google/tcmalloc.git",
-    commit = "db3a28f45e7dbe8c3fbecc7712212db911b88fac",
+    commit = "31d3e9f7bbf12225ae5c1248829655b137c6bc47",
 )
 
 new_git_repository(
     name = "com_google_gperftools",
     remote = "git://github.com/gperftools/gperftools.git",
-    commit = "bda3c82e11615ca9e7751d1f3cfb161026ee742a",
+    commit = "140e3481d0541044cdc27f45129b47f92d5940b7",
     build_file = "@//third_party:BUILD.gperftools",
 )
 
@@ -72,11 +72,11 @@ git_repository(
     name = "com_googlesource_code_re2",
     remote = "git://github.com/google/re2.git",
     # Must be on branch 'abseil'.
-    commit = "f39e808e2cc26a61abe0853b20bb2b079e150818",
+    commit = "5a7c0c986ba0bea21e4a7e0e9c289ddf281fda65",
 )
 
 git_repository(
     name = "com_google_file_based_test_driver",
     remote = "git://github.com/google/file-based-test-driver.git",
-    commit = "d0561d4d24117c2f3893e6fa947f1bde8c0719af",
+    commit = "5074f48f03c6a892edafab55410addc43f4a0546",
 )

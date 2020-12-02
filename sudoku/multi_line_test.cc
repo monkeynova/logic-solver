@@ -7,14 +7,14 @@
 #include "absl/strings/ascii.h"
 #include "absl/strings/str_join.h"
 #include "absl/strings/str_split.h"
-#include "file_based_test_driver.h"
+#include "file_based_test_driver/file_based_test_driver.h"
+#include "file_based_test_driver/run_test_case_result.h"
+#include "file_based_test_driver/test_case_options.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "gtest/internal/gtest-port.h"
 #include "main_lib.h"
-#include "run_test_case_result.h"
 #include "sudoku/line_board.h"
-#include "test_case_options.h"
 
 // If set, flags the test suite to ignore the result.
 static inline constexpr absl::string_view kIgnoreThisTestOption =
