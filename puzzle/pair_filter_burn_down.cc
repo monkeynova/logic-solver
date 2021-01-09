@@ -237,19 +237,18 @@ absl::Status PairFilterBurnDown::HeapBurnDown(
     ClassPairSelectivity& pair = pairs.back();
 
     double old_pair_selectivity = pair.pair_selectivity();
-    executor_->ScheduleFuture(
-        &work, [this, &pair, pair_class_mode]() {
-          absl::Status build_st = filter_to_active_set_->Build(
-              pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
-              pair_class_mode);
-          if (!build_st.ok()) {
-            return build_st;
-          }
-          pair.set_computed_a(true);
-          pair.set_computed_b(true);
-          pair.SetPairSelectivity(filter_to_active_set_);
-          return absl::OkStatus();
-        });
+    executor_->ScheduleFuture(&work, [this, &pair, pair_class_mode]() {
+      absl::Status build_st =
+          filter_to_active_set_->Build(pair.a(), pair.b(), *pair.filters_by_a(),
+                                       *pair.filters_by_b(), pair_class_mode);
+      if (!build_st.ok()) {
+        return build_st;
+      }
+      pair.set_computed_a(true);
+      pair.set_computed_b(true);
+      pair.SetPairSelectivity(filter_to_active_set_);
+      return absl::OkStatus();
+    });
     ::thread::Future<absl::Status>* st = work.WaitForAny();
     if (!(*st)->ok()) return **st;
 
@@ -287,12 +286,11 @@ absl::Status PairFilterBurnDown::HeapBurnDown(
     VLOG(1) << "Running one more pass to generate pairs";
     ::thread::FutureSet<absl::Status> make_pairs_work;
     for (ClassPairSelectivity& pair : pairs) {
-      executor_->ScheduleFuture(
-          &make_pairs_work, [this, &pair]() {
-            return filter_to_active_set_->Build(
-                pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
-                FilterToActiveSet::PairClassMode::kMakePairs);
-          });
+      executor_->ScheduleFuture(&make_pairs_work, [this, &pair]() {
+        return filter_to_active_set_->Build(
+            pair.a(), pair.b(), *pair.filters_by_a(), *pair.filters_by_b(),
+            FilterToActiveSet::PairClassMode::kMakePairs);
+      });
     }
     while (::thread::Future<absl::Status>* st = make_pairs_work.WaitForAny()) {
       if (!(*st)->ok()) return **st;

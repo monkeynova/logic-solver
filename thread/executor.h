@@ -17,7 +17,8 @@ class Executor {
 
   virtual void Schedule(Fn fn) = 0;
 
-  template <typename FnType, typename Storage=typename std::invoke_result_t<FnType>>
+  template <typename FnType,
+            typename Storage = typename std::invoke_result_t<FnType>>
   std::unique_ptr<Future<Storage>> ScheduleFuture(FnType fn) {
     std::unique_ptr<Future<Storage>> ret(new Future<Storage>());
     Future<Storage>* raw_ret = ret.get();
@@ -25,9 +26,9 @@ class Executor {
     return ret;
   }
 
-  template <typename FnType, typename Storage=typename std::invoke_result_t<FnType>>
-  Future<Storage>* ScheduleFuture(FutureSet<Storage>* set,
-                                  FnType fn) {
+  template <typename FnType,
+            typename Storage = typename std::invoke_result_t<FnType>>
+  Future<Storage>* ScheduleFuture(FutureSet<Storage>* set, FnType fn) {
     Future<Storage>* ret = set->Create();
     Schedule([ret, fn]() { ret->Publish(fn()); });
     return ret;
