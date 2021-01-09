@@ -6,12 +6,13 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository",
 git_repository(
     name = "com_google_googletest",
     remote = "git://github.com/google/googletest.git",
-    commit = "b1fbd33c06cdb0024c67733c6fdec2009d17b384",
+    commit = "389cb68b87193358358ae87cc56d257fd0d80189",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "git://github.com/abseil/abseil-cpp.git",
+    # no_update = "https://github.com/abseil/abseil-cpp/issues/848",
     commit = "e9b9e38f67a008d66133535a72ada843bd66013f",
 )
 
@@ -24,7 +25,7 @@ git_repository(
 git_repository(
     name = "com_google_protobuf",
     remote = "git://github.com/protocolbuffers/protobuf.git",
-    commit = "9637a3b57cacda57187ef48b08d4bc8f83349faf",
+    commit = "7165c34606aa00f3841a5e8a3f4586023bb59ade",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -34,25 +35,25 @@ protobuf_deps()
 git_repository(
     name = "com_google_protobuf_cc",
     remote = "git://github.com/protocolbuffers/protobuf.git",
-    commit = "9637a3b57cacda57187ef48b08d4bc8f83349faf",
+    commit = "7165c34606aa00f3841a5e8a3f4586023bb59ade",
 )
 
 git_repository(
     name = "com_google_benchmark",
     remote = "git://github.com/google/benchmark.git",
-    commit = "bf585a2789e30585b4e3ce6baf11ef2750b54677",
+    commit = "8df87f6c879cbcabd17c5cfcec7b89687df36953",
 )
 
 git_repository(
     name = "com_google_tcmalloc",
     remote = "git://github.com/google/tcmalloc.git",
-    commit = "31d3e9f7bbf12225ae5c1248829655b137c6bc47",
+    commit = "9d274df38333479d5ae6acaddc29172fd134d885",
 )
 
 new_git_repository(
     name = "com_google_gperftools",
     remote = "git://github.com/gperftools/gperftools.git",
-    commit = "140e3481d0541044cdc27f45129b47f92d5940b7",
+    commit = "d8eb315fb18f6fb0d6efa923401f166343727bc6",
     build_file = "@//third_party:BUILD.gperftools",
 )
 
@@ -65,14 +66,14 @@ git_repository(
 git_repository(
     name = "com_monkeynova_gunit_main",
     remote = "git://github.com/monkeynova/gunit-main.git",
-    commit = "9614aad52ec336f344f719b02d057ee3b133b73c",
+    commit = "0123eef05b595cf41eb180f826304d9825789088",
 )
 
 git_repository(
     name = "com_googlesource_code_re2",
     remote = "git://github.com/google/re2.git",
-    # Must be on branch 'abseil'.
-    commit = "5a7c0c986ba0bea21e4a7e0e9c289ddf281fda65",
+    # branch = "abseil",
+    commit = "29e204fb8dccb2c1b5c957f2d23ed403cc5a92dc",
 )
 
 git_repository(
