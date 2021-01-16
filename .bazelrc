@@ -1,4 +1,15 @@
-# Compile time on optimizations is made up for in reduced test time.
+# We have win/linux/mac specific options in this config so we allow processing
+# them by default. 
+build --enable_platform_specific_config
 build -c opt
+
 # file_based_test_driver requires C++ 17 idioms.
-build --cxxopt=-std=c++1z
+build:linux --cxxopt=-std=c++1z
+build:macos --cxxopt=-std=c++1z
+build:windows --cxxopt=/std:c++17
+
+# https://github.com/abseil/abseil-cpp/issues/848
+# Bazel (as of 3.3.0) has difficulty recognizing the fact that mac shared
+# object files are present as a pair. absl fails to link properly with .sos as
+# a result.
+build:macos --features=-supports_dynamic_linker
