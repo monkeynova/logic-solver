@@ -1,5 +1,15 @@
 load("//puzzle:puzzle.bzl", "puzzle_test")
 
+alias(
+    name = "cleanup",
+    actual = "@com_monkeynova_base_workspace//:cleanup",
+)
+
+alias(
+    name = "update_workspace",
+    actual = "@com_monkeynova_base_workspace//:update_workspace",
+)
+
 cc_binary(
     name = "dracula_and_friends",
     deps = [

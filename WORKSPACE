@@ -4,6 +4,12 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository",
      "new_git_repository")
 
 git_repository(
+   name = "com_monkeynova_base_workspace",
+   remote = "git://github.com/monkeynova/base-workspace.git",
+   commit = "5e8046bafaeecf4959c931aceed6b1c4cbffdd53",
+)
+
+git_repository(
     name = "com_google_googletest",
     remote = "git://github.com/google/googletest.git",
     commit = "d128fc8252d53baad6ea456fa08cbf9028d255f4",
