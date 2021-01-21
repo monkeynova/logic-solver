@@ -53,6 +53,7 @@ class Base : public ::puzzle::Problem {
   static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
   absl::Status AddValuePredicate(int row, int col, int value);
+  absl::Status AddComposedValuePredicates(int row, int col, int value);
   absl::Status AddBoardPredicates(const Board& board);
   absl::Status AddPredicates();
   absl::Status AddPredicatesCumulative();

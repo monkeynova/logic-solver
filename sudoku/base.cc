@@ -19,6 +19,15 @@ ABSL_FLAG(bool, sudoku_setup_only, false,
           "If true, only set up predicates for valid sudoku board "
           "configuration rather than solving a specific board.");
 
+// TODO(@monkeynova): Figure out how to do this composition in the puzzle
+// solver itself.
+ABSL_FLAG(bool, sudoku_setup_composed_value_predicates, true,
+          "If true, value predicates (those of the form \"this square is "
+          "exactly this value\") are composed with row and box predicates "
+          "to created implicit != predicates on the individual squares). "
+          "This currently (2021.01.21) results in a significant performance "
+          "improvement over not using them.");
+
 namespace sudoku {
 
 static puzzle::EntryDescriptor MakeEntryDescriptor() {
@@ -141,11 +150,9 @@ absl::Status Base::AddPredicatesPairwise() {
         if (box_i_y == box_j_y) continue;
 
         absl::Status st = AddPredicate(
-            absl::StrCat("No box dupes "
-                         "(",
+            absl::StrCat("No box dupes (",
                          box_i_x + 1, ",", box_i_y + 1,
-                         ") vs "
-                         "(",
+                         ") vs (",
                          box_j_x + 1, ",", box_j_y + 1, ")"),
             [box_i_x, box_i_y, box_j_x, box_j_y](const puzzle::Solution& s) {
               return s.Id(box_i_x).Class(box_i_y) !=
@@ -159,11 +166,56 @@ absl::Status Base::AddPredicatesPairwise() {
   return absl::OkStatus();
 }
 
+absl::Status Base::AddComposedValuePredicates(int row, int col, int value) {
+  for (int i = 0; i < 9; ++i) {
+    if (i == col) continue;
+    absl::Status st = AddSpecificEntryPredicate(
+        absl::StrCat("(", row + 1, ",", col + 1, ")=", value, " AND ",
+                     "No row dupes(", i + 1, ")"),
+        [i, value](const puzzle::Entry& e) { return e.Class(i) != value; },
+        {i}, row);
+    if (!st.ok()) return st;
+  }
+
+  //return absl::OkStatus();
+
+  int base_box_x = 3 * (row / 3);
+  int base_box_y = 3 * (col / 3);
+  for (int i = 0; i < 9; ++i) {
+    int test_box_x = (i / 3) + base_box_x;
+    int test_box_y = (i % 3) + base_box_y;
+    if (test_box_x == row && test_box_y == col) {
+      continue;
+    }
+    absl::Status st = AddPredicate(
+        absl::StrCat("(", row + 1, ",", col + 1, ")=", value, " AND ",
+                     "No box dupes "
+                     "(",
+                     test_box_x + 1, ",", test_box_y + 1,
+                     ")"),
+        [test_box_x, test_box_y, value](const puzzle::Solution& s) {
+          return s.Id(test_box_x).Class(test_box_y) != value;
+        },
+        absl::flat_hash_map<int, int>{{test_box_y, test_box_x}});
+    if (!st.ok()) return st;
+  }
+
+  return absl::OkStatus();
+}
+
 absl::Status Base::AddValuePredicate(int row, int col, int value) {
-  return AddSpecificEntryPredicate(
+  absl::Status st = AddSpecificEntryPredicate(
       absl::StrCat("(", row + 1, ",", col + 1, ") = ", value),
       [col, value](const puzzle::Entry& e) { return e.Class(col) == value; },
       {col}, row);
+  if (!st.ok()) return st;
+
+  if (absl::GetFlag(FLAGS_sudoku_setup_composed_value_predicates)) {
+    absl::Status st = AddComposedValuePredicates(row, col, value);
+    if (!st.ok()) return st;
+  }
+
+  return absl::OkStatus();    
 }
 
 absl::Status Base::AddBoardPredicates(const Board& board) {
