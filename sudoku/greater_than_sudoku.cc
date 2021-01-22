@@ -104,8 +104,7 @@ absl::Status GreaterThanSudoku::AddRangePredicates(
     if (prev.empty() && next.empty()) {
       // We only run over points we found in the graph. Either forward or back
       // must be non-empty to have been added.
-      return absl::InvalidArgumentError(
-         "Internal Error: No forward or backward found");
+      return absl::InternalError("No forward or backward found");
     }
 
     int prev_size = prev.size();
