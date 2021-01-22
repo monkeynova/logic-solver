@@ -1,10 +1,20 @@
 #include "sudoku/killer_sudoku.h"
 
+#include "absl/flags/flag.h"
 #include "absl/strings/str_cat.h"
+
+ABSL_FLAG(bool, sudoku_killer_composition, true,
+          "If true, adds predicates not just on the sum boxes themselves, "
+          "but also add predicates for implicit maximum values from the "
+          "potential input sums (e.g. the sum of 3 boxes being 7 implies "
+          "no value in the cage is > 4).");
 
 namespace sudoku {
 
 absl::Status KillerSudoku::AddCage(const Cage& cage) {
+  // kTriangleNumbers[i] = SUM(i) for i IN {0 .. i};
+  constexpr int kTriangleNumbers[9] = {0, 1, 3, 6, 10, 15, 21, 28, 36};
+
   if (cage.boxes.empty()) {
     return absl::InvalidArgumentError("cage cannot be empty");
   }
@@ -24,6 +34,22 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
       it->second = puzzle::Entry::kBadId;
     }
   }
+
+  if (absl::GetFlag(FLAGS_sudoku_killer_composition)) {
+    int max_cage_val = cage.expected_sum - kTriangleNumbers[cage.boxes.size() - 1];
+    if (max_cage_val < 8) {
+      for (const Box& box : cage.boxes) {
+        absl::Status st = AddSpecificEntryPredicate(
+          absl::StrCat("Cage max for ", box.DebugString(), " = ", max_cage_val),
+          [box, max_cage_val](const puzzle::Entry& e) {
+            return e.Class(box.class_id) <= max_cage_val;
+          },
+          {box.class_id}, box.entry_id);
+        if (!st.ok()) return st;
+      }
+    }
+  }
+
   return AddPredicate(
       absl::StrCat("Sum around ", cage.boxes[0].DebugString(), " = ",
                    cage.expected_sum),
