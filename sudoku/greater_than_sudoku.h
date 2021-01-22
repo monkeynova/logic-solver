@@ -22,6 +22,7 @@ class GreaterThanSudoku : public ::sudoku::Base {
 
  private:
   absl::Status AddComparison(const std::pair<Box, Box>& comparison);
+  absl::Status AddRangePredicates(const std::vector<std::pair<Box, Box>>& cmp_list);
 };
 
 }  // namespace sudoku

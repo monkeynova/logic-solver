@@ -323,11 +323,6 @@ cc_binary(
 
 sudoku_test(
     name = "ksogt20200601_test",
-    args = [
-        # This test currently (2020.09.20) takes ~25s without the uniqueness proof.
-        # Leave it off of typical testing.
-        "--puzzle_test_unique=false",
-    ],
     deps = [
         ":ksogt20200601_lib",
     ],
