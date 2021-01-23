@@ -150,10 +150,8 @@ absl::Status Base::AddPredicatesPairwise() {
         if (box_i_y == box_j_y) continue;
 
         absl::Status st = AddPredicate(
-            absl::StrCat("No box dupes (",
-                         box_i_x + 1, ",", box_i_y + 1,
-                         ") vs (",
-                         box_j_x + 1, ",", box_j_y + 1, ")"),
+            absl::StrCat("No box dupes (", box_i_x + 1, ",", box_i_y + 1,
+                         ") vs (", box_j_x + 1, ",", box_j_y + 1, ")"),
             [box_i_x, box_i_y, box_j_x, box_j_y](const puzzle::Solution& s) {
               return s.Id(box_i_x).Class(box_i_y) !=
                      s.Id(box_j_x).Class(box_j_y);
@@ -172,12 +170,12 @@ absl::Status Base::AddComposedValuePredicates(int row, int col, int value) {
     absl::Status st = AddSpecificEntryPredicate(
         absl::StrCat("(", row + 1, ",", col + 1, ")=", value, " AND ",
                      "No row dupes(", i + 1, ")"),
-        [i, value](const puzzle::Entry& e) { return e.Class(i) != value; },
-        {i}, row);
+        [i, value](const puzzle::Entry& e) { return e.Class(i) != value; }, {i},
+        row);
     if (!st.ok()) return st;
   }
 
-  //return absl::OkStatus();
+  // return absl::OkStatus();
 
   int base_box_x = 3 * (row / 3);
   int base_box_y = 3 * (col / 3);
@@ -191,8 +189,7 @@ absl::Status Base::AddComposedValuePredicates(int row, int col, int value) {
         absl::StrCat("(", row + 1, ",", col + 1, ")=", value, " AND ",
                      "No box dupes "
                      "(",
-                     test_box_x + 1, ",", test_box_y + 1,
-                     ")"),
+                     test_box_x + 1, ",", test_box_y + 1, ")"),
         [test_box_x, test_box_y, value](const puzzle::Solution& s) {
           return s.Id(test_box_x).Class(test_box_y) != value;
         },
@@ -215,7 +212,7 @@ absl::Status Base::AddValuePredicate(int row, int col, int value) {
     if (!st.ok()) return st;
   }
 
-  return absl::OkStatus();    
+  return absl::OkStatus();
 }
 
 absl::Status Base::AddBoardPredicates(const Board& board) {

@@ -42,12 +42,13 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     if (max_cage_val < 9) {
       for (const Box& box : cage.boxes) {
         absl::Status st = AddSpecificEntryPredicate(
-          absl::StrCat("Cage max for ", box.DebugString(), " = ", max_cage_val),
-          [box, max_cage_val](const puzzle::Entry& e) {
-            // Value is 0 indexed.
-            return e.Class(box.class_id) <= max_cage_val - 1;
-          },
-          {box.class_id}, box.entry_id);
+            absl::StrCat("Cage max for ", box.DebugString(), " = ",
+                         max_cage_val),
+            [box, max_cage_val](const puzzle::Entry& e) {
+              // Value is 0 indexed.
+              return e.Class(box.class_id) <= max_cage_val - 1;
+            },
+            {box.class_id}, box.entry_id);
         if (!st.ok()) return st;
       }
     }
@@ -56,12 +57,13 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     if (min_cage_val > 1) {
       for (const Box& box : cage.boxes) {
         absl::Status st = AddSpecificEntryPredicate(
-          absl::StrCat("Cage min for ", box.DebugString(), " = ", min_cage_val),
-          [box, min_cage_val](const puzzle::Entry& e) {
-            // Value is 0 indexed.
-            return e.Class(box.class_id) >= min_cage_val - 1;
-          },
-          {box.class_id}, box.entry_id);
+            absl::StrCat("Cage min for ", box.DebugString(), " = ",
+                         min_cage_val),
+            [box, min_cage_val](const puzzle::Entry& e) {
+              // Value is 0 indexed.
+              return e.Class(box.class_id) >= min_cage_val - 1;
+            },
+            {box.class_id}, box.entry_id);
         if (!st.ok()) return st;
       }
     }

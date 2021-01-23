@@ -61,8 +61,7 @@ absl::Status GreaterThanSudoku::InstanceSetup() {
 }
 
 absl::Status GreaterThanSudoku::AddRangePredicates(
-  const std::vector<std::pair<Box, Box>>& cmp_list) {
-
+    const std::vector<std::pair<Box, Box>>& cmp_list) {
   // Build a directed graph of the comparisons.
   absl::flat_hash_map<Box, std::vector<Box>> greater_than_map;
   absl::flat_hash_map<Box, std::vector<Box>> less_than_map;
@@ -114,7 +113,8 @@ absl::Status GreaterThanSudoku::AddRangePredicates(
                      "prev=", prev_size, "; next=", next_size),
         [b, prev_size, next_size](const puzzle::Entry& e) {
           // Class is 0-indexed.
-          return e.Class(b.class_id) >= prev_size && e.Class(b.class_id) <= 8 - next_size;
+          return e.Class(b.class_id) >= prev_size &&
+                 e.Class(b.class_id) <= 8 - next_size;
         },
         {b.class_id}, b.entry_id);
     if (!st.ok()) return st;
