@@ -19,7 +19,7 @@ git_repository(
 git_repository(
     name = "com_google_absl",
     remote = "git://github.com/abseil/abseil-cpp.git",
-    commit = "ff361eb3aac20f08ec7b1ccfdd3204b0aa6cbe33",
+    commit = "22771d471930ce88e1e75d0ca9dd8c65a7b0f895",
 )
 
 git_repository(
@@ -53,7 +53,7 @@ git_repository(
 git_repository(
     name = "com_google_tcmalloc",
     remote = "git://github.com/google/tcmalloc.git",
-    commit = "1ceaf9496ea9771fc61c2e2104130ceb7f7bb9b6",
+    commit = "0f461e661aeed6ea29ac09575f98f0eceff8ca4b",
 )
 
 new_git_repository(
