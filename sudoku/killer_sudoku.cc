@@ -12,8 +12,10 @@ ABSL_FLAG(bool, sudoku_killer_composition, true,
 namespace sudoku {
 
 absl::Status KillerSudoku::AddCage(const Cage& cage) {
-  // kTriangleNumbers[i] = SUM(i) for i IN {0 .. i};
-  constexpr int kTriangleNumbers[9] = {0, 1, 3, 6, 10, 15, 21, 28, 36};
+  // kMinSums[i] = SUM(i) for i IN {1 .. i};
+  constexpr int kMinSums[9] = {0, 1, 3, 6, 10, 15, 21, 28, 36};
+  // kMaxSums[i] = SUM(i) for i IN {9 - i .. 9};
+  constexpr int kMaxSums[9] = {0, 9, 17, 24, 30, 35, 39, 42, 44};
 
   if (cage.boxes.empty()) {
     return absl::InvalidArgumentError("cage cannot be empty");
@@ -36,18 +38,37 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
   }
 
   if (absl::GetFlag(FLAGS_sudoku_killer_composition)) {
-    int max_cage_val = cage.expected_sum - kTriangleNumbers[cage.boxes.size() - 1];
-    if (max_cage_val < 8) {
+    int max_cage_val = cage.expected_sum - kMinSums[cage.boxes.size() - 1];
+    if (max_cage_val < 9) {
       for (const Box& box : cage.boxes) {
         absl::Status st = AddSpecificEntryPredicate(
           absl::StrCat("Cage max for ", box.DebugString(), " = ", max_cage_val),
           [box, max_cage_val](const puzzle::Entry& e) {
-            return e.Class(box.class_id) <= max_cage_val;
+            // Value is 0 indexed.
+            return e.Class(box.class_id) <= max_cage_val - 1;
           },
           {box.class_id}, box.entry_id);
         if (!st.ok()) return st;
       }
     }
+
+    int min_cage_val = cage.expected_sum - kMaxSums[cage.boxes.size() - 1];
+    if (min_cage_val > 1) {
+      for (const Box& box : cage.boxes) {
+        absl::Status st = AddSpecificEntryPredicate(
+          absl::StrCat("Cage min for ", box.DebugString(), " = ", min_cage_val),
+          [box, min_cage_val](const puzzle::Entry& e) {
+            // Value is 0 indexed.
+            return e.Class(box.class_id) >= min_cage_val - 1;
+          },
+          {box.class_id}, box.entry_id);
+        if (!st.ok()) return st;
+      }
+    }
+
+    // TODO(@monkeynova): There are likely other restrictions possible. For
+    // example a SUM of 4 precludes the value 2 from either given the sudoku
+    // constraints.
   }
 
   return AddPredicate(
