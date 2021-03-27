@@ -48,11 +48,10 @@ void ClassPermuter::AdvancerBase::AdvanceDeltaWithSkip(int delta) {
   DCHECK(active_set_it_.value());
   active_set_it_.Advance(delta);
   if (!active_set_it_.value()) {
-    DCHECK(active_set_it_.RunSize() > 0) << "0 length false run";
     delta += active_set_it_.RunSize();
     active_set_it_.Advance(active_set_it_.RunSize());
   }
-  DCHECK(active_set_it_.value())
+  DCHECK(active_set_it_.value() || active_set_it_.offset() ==  active_set_it_.total())
       << "Value returned false after advancing past false block: it("
       << active_set_it_.offset() << " of " << active_set_it_.total()
       << "): " << active_set_->DebugValues();

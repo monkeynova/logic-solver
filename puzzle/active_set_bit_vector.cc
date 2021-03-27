@@ -27,7 +27,7 @@ std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
 
 void BitVector::SetRange(bool value, Word start, Word end) {
   DCHECK_LT(start, num_bits_);
-  DCHECK_LT(end, num_bits_);
+  DCHECK_LE(end, num_bits_);
   Word write_word = start / kBitsPerWord;
   Word end_word = end / kBitsPerWord;
   Word mask = kAllBitsSet << (start % kBitsPerWord);
