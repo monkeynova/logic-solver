@@ -1,0 +1,8 @@
+{
+    "files.exclude": {
+        "bazel-*": true
+        "benchmark-out": true
+        "**/#*#": true
+        "**/*~": true
+    }
+}

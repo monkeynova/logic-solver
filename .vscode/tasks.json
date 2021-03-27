@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Test All",
+        "type": "shell",
+        "command": "bazel test ...",
+        "group": {
+          "kind": "test",
+          "isDefault": false
+        },
+      },
+      {
+        "label": "Test current path",
+        "type": "shell",
+        "command": "bazel",
+        "args": [
+          "test",
+          "${relativeFileDirname}/..."
+        ],
+        "problemMatcher": [],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+    ]
+  }
