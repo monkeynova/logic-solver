@@ -128,7 +128,6 @@ void TestLineBoard(absl::string_view test_case,
 }
 
 TEST(MultiLineTest, FileBasedTest) {
-  InitializeAbslFlagsFromGtest();
   EXPECT_TRUE(file_based_test_driver::RunTestCasesFromFiles(
       absl::StrCat("sudoku/", absl::GetFlag(FLAGS_test_filename)),
       TestLineBoard));
