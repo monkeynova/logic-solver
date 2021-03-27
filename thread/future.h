@@ -1,6 +1,7 @@
 #ifndef THREAD_FUTURE_H_MONEKYNOVA
 #define THREAD_FUTURE_H_MONEKYNOVA
 
+#include <memory>
 #include <queue>
 
 #include "absl/synchronization/mutex.h"
