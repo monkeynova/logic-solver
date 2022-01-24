@@ -1,0 +1,88 @@
+# Profiler
+build:profile --linkopt -L/usr/local/lib
+build:profile --linkopt -lprofiler
+build:profile --linkopt -ltcmalloc
+build:profile --linkopt -Wl,-no_pie
+build:profile --copt -g
+
+# Address sanitizer
+# To use it: bazel build --config asan
+# build:asan --crosstool_top //tools/lrte:toolchain
+# build:asan --compiler clang
+build:asan --strip=never
+build:asan --copt -fsanitize=address
+build:asan --copt -DADDRESS_SANITIZER
+build:asan --copt -O1
+build:asan --copt -g
+build:asan --copt -fno-omit-frame-pointer
+build:asan --linkopt -fsanitize=address
+
+# Thread sanitizer
+# bazel build --config tsan
+# build:tsan --crosstool_top //tools/lrte:toolchain
+# build:tsan --compiler clang
+build:tsan --strip=never
+build:tsan --copt -fsanitize=thread
+build:tsan --copt -DTHREAD_SANITIZER
+build:tsan --copt -DDYNAMIC_ANNOTATIONS_ENABLED=1
+build:tsan --copt -DDYNAMIC_ANNOTATIONS_EXTERNAL_IMPL=1
+build:tsan --copt -O1
+build:tsan --copt -fno-omit-frame-pointer
+build:tsan --linkopt -fsanitize=thread
+
+# --config msan: Memory sanitizer
+# build:msan --crosstool_top //tools/lrte:toolchain
+# build:msan --compiler clang
+build:msan --strip=never
+build:msan --copt -fsanitize=memory
+build:msan --copt -DADDRESS_SANITIZER
+build:msan --copt -O1
+build:msan --copt -fno-omit-frame-pointer
+build:msan --linkopt -fsanitize=memory
+
+# --config ubsan: Undefined Behavior Sanitizer
+# build:ubsan --crosstool_top //tools/lrte:toolchain
+# build:ubsan --compiler clang
+build:ubsan --strip=never
+build:ubsan --copt -fsanitize=undefined
+build:ubsan --copt -O1
+build:ubsan --copt -fno-omit-frame-pointer
+build:ubsan --linkopt -fsanitize=undefined
+build:ubsan --linkopt -lubsan
+
+# We have win/linux/mac specific options in this config so we allow processing
+# them by default. 
+build --enable_platform_specific_config
+
+# require support for c++17 idioms
+build:linux --cxxopt=-std=c++1z --cxxopt=-Wno-sign-compare
+build:macos --cxxopt=-std=c++1z
+build:windows --cxxopt=/std:c++17
+
+# https://github.com/abseil/abseil-cpp/issues/848
+# Bazel (as of 3.3.0) has difficulty recognizing the fact that mac shared
+# object files are present as a pair. absl fails to link properly with .sos as
+# a result.
+build:macos --features=-supports_dynamic_linker
+
+run:v1 -- --logtostderr --v=1
+test:v1 --test_arg=--logtostderr
+test:v1 --test_arg=--v=1
+test:v1 --test_output=streamed
+test:v1 --nocache_test_results
+
+run:v2 -- --logtostderr --v=2
+test:v2 --test_arg=--logtostderr
+test:v2 --test_arg=--v=2
+test:v2 --test_output=streamed
+test:v2 --nocache_test_results
+
+run:v3 -- --logtostderr --v=3
+test:v3 --test_arg=--logtostderr
+test:v3 --test_arg=--v=3 
+test:v3 --test_output=streamed
+test:v3 --nocache_test_results
+
+build:dcheck --copt=-UNDEBUG
+run:dcheck --copt=-UNDEBUG
+test:dcheck --copt=-UNDEBUG

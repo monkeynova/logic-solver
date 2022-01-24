@@ -149,3 +149,12 @@ puzzle_test(
         ":six_fearsome_heroes_lib",
     ],
 )
+
+sh_test(
+    name = "diff_bazelrc_test",
+    srcs = ["diff_bazelrc_test.sh"],
+    data = [
+        "base-bazelrc",
+        "@com_monkeynova_base_workspace//:base-bazelrc-file",
+    ],
+)
