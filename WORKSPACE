@@ -7,20 +7,20 @@ git_repository(
    name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "c745dcf6695a3f64c8cc39adb3e3d1049ff678b0",
+   commit = "6e5d9f0dde4f3882b9a3bf48ca0f7adb169d9ba2",
 )
 
 git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
     # branch = "main",
-    commit = "3d81736c973fbcc938267cb296918bc3266dde12",
+    commit = "9d21db9e0a60a1ea61ec19331c9bc0dd33e907b1",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    commit = "fbbb5865a562c9a9167d71c1cf56b82025a8f065",
+    commit = "48f72c227b94b06387106f71d4450b31e88e283b",
 )
 
 git_repository(
@@ -32,7 +32,8 @@ git_repository(
 git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
-    commit = "e554bd6cbf8d6325ce13bc0fe822124a81d36008",
+    # branch = "main",
+    commit = "7f02c3b16bb76c6928f91b025cdce8f59fa8fc06",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -54,20 +55,20 @@ git_repository(
 git_repository(
     name = "com_google_tcmalloc",
     remote = "https://github.com/google/tcmalloc.git",
-    commit = "651fe931f11f981bc7e9552dda0aa8faa297f042",
+    commit = "31de29b07785394bcbeccbb238a54d1814432e2f",
 )
 
 new_git_repository(
     name = "com_google_gperftools",
     remote = "https://github.com/gperftools/gperftools.git",
-    commit = "e80652b6279a22bd4a4264e4403cd1981293e82f",
+    commit = "fe85bbdf4cb891a67a8e2109c1c22a33aa958c7e",
     build_file = "@//third_party:BUILD.gperftools",
 )
 
 git_repository(
     name = "com_google_glog",
     remote = "https://github.com/google/glog.git",
-    commit = "b0174b3dda95be3858ec54570c1375f2f00e984e",
+    commit = "b33e3bad4c46c8a6345525fd822af355e5ef9446",
 )
 
 git_repository(
@@ -80,7 +81,7 @@ git_repository(
     name = "com_googlesource_code_re2",
     remote = "https://github.com/google/re2.git",
     # branch = "abseil",
-    commit = "e8cb5ecb8ee1066611aa937a42fa10514edf30fb",
+    commit = "6260193e468194afca94e6717ec76bced9b507a8",
 )
 
 git_repository(
