@@ -7,20 +7,20 @@ git_repository(
    name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "6e5d9f0dde4f3882b9a3bf48ca0f7adb169d9ba2",
+   commit = "8d8db5a27a7c8a92034e87e438de707a3251a01a",
 )
 
 git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
     # branch = "main",
-    commit = "9d21db9e0a60a1ea61ec19331c9bc0dd33e907b1",
+    commit = "86add13493e5c881d7e4ba77fb91c1f57752b3a4",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    commit = "48f72c227b94b06387106f71d4450b31e88e283b",
+    commit = "d2c5297a3c3948de765100cb7e5cccca1210d23c",
 )
 
 git_repository(
@@ -33,7 +33,7 @@ git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main",
-    commit = "7f02c3b16bb76c6928f91b025cdce8f59fa8fc06",
+    commit = "cecbb0a70ee53d73f84bae13959acd84ddcd5b20",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -43,7 +43,8 @@ protobuf_deps()
 git_repository(
     name = "com_google_protobuf_cc",
     remote = "https://github.com/protocolbuffers/protobuf.git",
-    commit = "e554bd6cbf8d6325ce13bc0fe822124a81d36008",
+    # branch = "main"
+    commit = "cecbb0a70ee53d73f84bae13959acd84ddcd5b20",
 )
 
 git_repository(
@@ -55,33 +56,34 @@ git_repository(
 git_repository(
     name = "com_google_tcmalloc",
     remote = "https://github.com/google/tcmalloc.git",
-    commit = "31de29b07785394bcbeccbb238a54d1814432e2f",
+    commit = "256838de02a828aece1a41f99c8bfd2d3def3176",
 )
 
 new_git_repository(
     name = "com_google_gperftools",
     remote = "https://github.com/gperftools/gperftools.git",
-    commit = "fe85bbdf4cb891a67a8e2109c1c22a33aa958c7e",
+    commit = "bf8b714bf5075d0a6f2f28504b43095e2b1e11c5",
     build_file = "@//third_party:BUILD.gperftools",
 )
 
 git_repository(
     name = "com_google_glog",
     remote = "https://github.com/google/glog.git",
-    commit = "b33e3bad4c46c8a6345525fd822af355e5ef9446",
+    commit = "79d692c6459536356bdbbd4b89df2e0aee5b4eaf",
 )
 
 git_repository(
     name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
-    commit = "0123eef05b595cf41eb180f826304d9825789088",
+    # branch = "main"
+    commit = "2a5c0e8cb6e4e267fc3b7811223dbddf420c7638",
 )
 
 git_repository(
     name = "com_googlesource_code_re2",
     remote = "https://github.com/google/re2.git",
     # branch = "abseil",
-    commit = "6260193e468194afca94e6717ec76bced9b507a8",
+    commit = "a427f10b9fb4622dd6d8643032600aa1b50fbd12",
 )
 
 git_repository(
