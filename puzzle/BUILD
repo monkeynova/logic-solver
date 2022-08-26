@@ -136,7 +136,7 @@ cc_binary(
         ":class_permuter_factory",
         ":filter_to_active_set",
         ":solution_filter",
-        "@com_google_benchmark//:benchmark",
+        "@com_github_google_benchmark//:benchmark",
     ],
 )
 
@@ -180,7 +180,7 @@ cc_library(
     ],
     deps = [
         "@com_google_absl//absl/flags:flag",
-        "@com_google_benchmark//:benchmark",
+        "@com_github_google_benchmark//:benchmark",
         "@com_google_glog//:glog",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
@@ -429,7 +429,7 @@ cc_binary(
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
         "@com_google_absl//absl/strings",
-        "@com_google_benchmark//:benchmark",
+        "@com_github_google_benchmark//:benchmark",
     ],
 )
 
@@ -479,7 +479,7 @@ cc_library(
         ":problem",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
-        "@com_google_benchmark//:benchmark",
+        "@com_github_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],

@@ -48,7 +48,7 @@ git_repository(
 )
 
 git_repository(
-    name = "com_google_benchmark",
+    name = "com_github_google_benchmark",
     remote = "https://github.com/google/benchmark.git",
     commit = "e991355c02b93fe17713efe04cbc2e278e00fdbd",
 )
@@ -76,7 +76,7 @@ git_repository(
     name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main"
-    commit = "2a5c0e8cb6e4e267fc3b7811223dbddf420c7638",
+    commit = "537db9c23114a3d2c300ffd4681f194c1f1b547c",
 )
 
 git_repository(

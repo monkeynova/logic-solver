@@ -96,7 +96,7 @@ cc_test(
     deps = [
         ":line_board",
         "@com_google_absl//absl/flags:flag",
-        "@com_google_benchmark//:benchmark",
+        "@com_github_google_benchmark//:benchmark",
         "@com_google_glog//:glog",
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
@@ -206,7 +206,7 @@ cc_library(
         "//puzzle:problem",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/memory",
-        "@com_google_benchmark//:benchmark",
+        "@com_github_google_benchmark//:benchmark",
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
