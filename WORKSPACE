@@ -14,7 +14,7 @@ git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
     # branch = "main",
-    commit = "86add13493e5c881d7e4ba77fb91c1f57752b3a4",
+    commit = "afd902e992b720d1b3e106bc5e425a5768872265",
 )
 
 git_repository(
@@ -26,14 +26,14 @@ git_repository(
 git_repository(
     name = "com_github_gflags_gflags",
     remote = "https://github.com/gflags/gflags.git",
-    commit = "986e8eed00ded8168ef4eaa6f925dc6be50b40fa",
+    commit = "a738fdf9338412f83ab3f26f31ac11ed3f3ec4bd",
 )
 
 git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main",
-    commit = "cecbb0a70ee53d73f84bae13959acd84ddcd5b20",
+    commit = "ad42a9761a50dc9555339349b7da428d1c2de621",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -56,7 +56,7 @@ git_repository(
 git_repository(
     name = "com_google_tcmalloc",
     remote = "https://github.com/google/tcmalloc.git",
-    commit = "256838de02a828aece1a41f99c8bfd2d3def3176",
+    commit = "30b53b78cbfbfd2e9adee5f51c7eeeb077b51fd7",
 )
 
 new_git_repository(
@@ -69,7 +69,7 @@ new_git_repository(
 git_repository(
     name = "com_google_glog",
     remote = "https://github.com/google/glog.git",
-    commit = "79d692c6459536356bdbbd4b89df2e0aee5b4eaf",
+    commit = "b70ea80433c2a8f20b832be97b90f1f82b0d29e9",
 )
 
 git_repository(
@@ -83,7 +83,7 @@ git_repository(
     name = "com_googlesource_code_re2",
     remote = "https://github.com/google/re2.git",
     # branch = "abseil",
-    commit = "a427f10b9fb4622dd6d8643032600aa1b50fbd12",
+    commit = "4e9031c7923ad4f428ce73e97adee9b8f9c3c9e6",
 )
 
 git_repository(
