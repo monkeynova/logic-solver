@@ -7,7 +7,7 @@ git_repository(
    name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "8d8db5a27a7c8a92034e87e438de707a3251a01a",
+   commit = "21c3632e277633820f20a81b084e3c764c243a97",
 )
 
 git_repository(
@@ -29,8 +29,7 @@ git_repository(
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    # DO NOT CHANGE: https://github.com/protocolbuffers/protobuf/issues/10471
-    commit = "d2c5297a3c3948de765100cb7e5cccca1210d23c",
+    commit = "92fdbfb301f8b301b28ab5c99e7361e775c2fb8a",
 )
 
 git_repository(
@@ -43,7 +42,7 @@ git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main",
-    commit = "ad42a9761a50dc9555339349b7da428d1c2de621",
+    commit = "66ed6dd75b0b5f0d62a9bf90509638f380cbcd7f",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -54,7 +53,7 @@ git_repository(
     name = "com_google_protobuf_cc",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main"
-    commit = "ad42a9761a50dc9555339349b7da428d1c2de621",
+    commit = "66ed6dd75b0b5f0d62a9bf90509638f380cbcd7f",
 )
 
 git_repository(

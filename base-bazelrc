@@ -59,6 +59,11 @@ build:linux --cxxopt=-std=c++1z --cxxopt=-Wno-sign-compare
 build:macos --cxxopt=-std=c++1z
 build:windows --cxxopt=/std:c++17
 
+# require c++17 in tooling as well
+build:linux --host_cxxopt=-std=c++1z
+build:macos --host_cxxopt=-std=c++1z
+build:windows --host_cxxopt=/std:c++17
+
 # https://github.com/abseil/abseil-cpp/issues/848
 # Bazel (as of 3.3.0) has difficulty recognizing the fact that mac shared
 # object files are present as a pair. absl fails to link properly with .sos as
