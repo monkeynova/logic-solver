@@ -11,6 +11,15 @@ git_repository(
 )
 
 git_repository(
+    name = "rules_proto",
+    remote = "https://github.com/bazelbuild/rules_proto.git",
+    commit = "066581b14bcbf87206c89ff5fcdd6f9915fd30fb",
+)
+load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
+rules_proto_dependencies()
+rules_proto_toolchains()
+
+git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
     # branch = "main",
@@ -20,6 +29,7 @@ git_repository(
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
+    # DO NOT CHANGE: https://github.com/protocolbuffers/protobuf/issues/10471
     commit = "d2c5297a3c3948de765100cb7e5cccca1210d23c",
 )
 
@@ -44,7 +54,7 @@ git_repository(
     name = "com_google_protobuf_cc",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main"
-    commit = "cecbb0a70ee53d73f84bae13959acd84ddcd5b20",
+    commit = "ad42a9761a50dc9555339349b7da428d1c2de621",
 )
 
 git_repository(
@@ -83,7 +93,7 @@ git_repository(
     name = "com_googlesource_code_re2",
     remote = "https://github.com/google/re2.git",
     # branch = "abseil",
-    commit = "4e9031c7923ad4f428ce73e97adee9b8f9c3c9e6",
+    commit = "8c0f7738d67b1808f9bb9a93a5cdc6d33d50ede9",
 )
 
 git_repository(
