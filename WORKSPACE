@@ -1,7 +1,6 @@
 workspace(name="com_monkeynova_logic_solver")
 
-load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository",
-     "new_git_repository")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 git_repository(
    name = "com_monkeynova_base_workspace",
@@ -66,13 +65,6 @@ git_repository(
     name = "com_google_tcmalloc",
     remote = "https://github.com/google/tcmalloc.git",
     commit = "30b53b78cbfbfd2e9adee5f51c7eeeb077b51fd7",
-)
-
-new_git_repository(
-    name = "com_google_gperftools",
-    remote = "https://github.com/gperftools/gperftools.git",
-    commit = "bf8b714bf5075d0a6f2f28504b43095e2b1e11c5",
-    build_file = "@//third_party:BUILD.gperftools",
 )
 
 git_repository(
