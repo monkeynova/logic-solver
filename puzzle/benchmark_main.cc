@@ -1,8 +1,10 @@
 #include "absl/flags/flag.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/strings/str_join.h"
 #include "benchmark/benchmark.h"
-#include "glog/logging.h"
 #include "main_lib.h"
+#include "puzzle/vlog.h"
 
 ABSL_FLAG(bool, benchmark, true,
           "If false, disables benchmarks. Flag exists to provide "

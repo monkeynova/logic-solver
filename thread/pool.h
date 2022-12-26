@@ -32,18 +32,18 @@ class Pool : public Executor {
     }
   }
 
-  void Schedule(Fn fn) LOCKS_EXCLUDED(mu_) override {
+  void Schedule(Fn fn) ABSL_LOCKS_EXCLUDED(mu_) override {
     absl::MutexLock l(&mu_);
     queue_.push_back(fn);
   }
 
  private:
-  bool NoRunningThreads() EXCLUSIVE_LOCKS_REQUIRED(mu_) {
+  bool NoRunningThreads() ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) {
     mu_.AssertHeld();
     return pool_.empty();
   }
 
-  bool QueueNonEmptyOrDone() EXCLUSIVE_LOCKS_REQUIRED(mu_) {
+  bool QueueNonEmptyOrDone() ABSL_EXCLUSIVE_LOCKS_REQUIRED(mu_) {
     mu_.AssertHeld();
     return done_ || !queue_.empty();
   }
@@ -64,8 +64,8 @@ class Pool : public Executor {
 
   absl::Mutex mu_;
   std::vector<std::thread> pool_;
-  std::deque<Fn> queue_ GUARDED_BY(mu_);
-  bool done_ GUARDED_BY(mu_) = false;
+  std::deque<Fn> queue_ ABSL_GUARDED_BY(mu_);
+  bool done_ ABSL_GUARDED_BY(mu_) = false;
 };
 
 }  // namespace thread

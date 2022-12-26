@@ -2,13 +2,15 @@
 
 #include <iostream>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/strings/str_join.h"
-#include "glog/logging.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "puzzle/active_set_bit_vector.h"
 #include "puzzle/active_set_run_length.h"
 #include "puzzle/active_set_run_position.h"
+#include "puzzle/vlog.h"
 
 using ::testing::AnyOf;
 using ::testing::ElementsAre;

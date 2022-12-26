@@ -4,9 +4,12 @@
 #include <memory>
 #include <queue>
 
+#include "absl/base/thread_annotations.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/synchronization/mutex.h"
 #include "absl/synchronization/notification.h"
-#include "glog/logging.h"
+#include "puzzle/vlog.h"
 
 namespace thread {
 
@@ -60,8 +63,8 @@ class Future {
   explicit Future(FutureSet<Storage>* future_set) : future_set_(future_set) {}
 
   mutable absl::Mutex mu_;
-  bool has_value_ GUARDED_BY(mu_) = false;
-  Storage value_ GUARDED_BY(mu_);
+  bool has_value_ ABSL_GUARDED_BY(mu_) = false;
+  Storage value_ ABSL_GUARDED_BY(mu_);
   FutureSet<Storage>* future_set_ = nullptr;
 
   friend class FutureSet<Storage>;
@@ -100,9 +103,9 @@ class FutureSet {
   }
 
   absl::Mutex mu_;
-  int outstanding_futures_ GUARDED_BY(mu_) = 0;
-  std::vector<std::unique_ptr<Future<Storage>>> futures_ GUARDED_BY(mu_);
-  std::queue<Future<Storage>*> ready_ GUARDED_BY(mu_);
+  int outstanding_futures_ ABSL_GUARDED_BY(mu_) = 0;
+  std::vector<std::unique_ptr<Future<Storage>>> futures_ ABSL_GUARDED_BY(mu_);
+  std::queue<Future<Storage>*> ready_ ABSL_GUARDED_BY(mu_);
 };
 
 template <typename Storage>

@@ -5,7 +5,6 @@
 #include "absl/flags/flag.h"
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_split.h"
-#include "gflags/gflags.h"
 
 ABSL_FLAG(std::string, sudoku_problem_setup, "pairwise",
           "Sepecifies the form of the predicates passed to the puzzle "

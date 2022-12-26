@@ -1,9 +1,11 @@
 #include "puzzle/pair_filter_burn_down.h"
 
 #include "absl/flags/flag.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/synchronization/mutex.h"
-#include "glog/logging.h"
 #include "puzzle/solution_filter.h"
+#include "puzzle/vlog.h"
 #include "thread/future.h"
 
 ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,

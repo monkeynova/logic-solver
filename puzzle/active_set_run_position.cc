@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <iostream>
 
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "glog/logging.h"
+#include "puzzle/vlog.h"
 
 namespace puzzle {
 

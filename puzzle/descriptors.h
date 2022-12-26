@@ -2,10 +2,12 @@
 #define PUZZLE_DESCRIPTORS_H
 
 #include "absl/container/flat_hash_map.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "glog/logging.h"
 #include "google/protobuf/descriptor.h"
+#include "puzzle/vlog.h"
 
 namespace puzzle {
 

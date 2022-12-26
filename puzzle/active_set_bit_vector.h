@@ -5,7 +5,9 @@
 #include <vector>
 
 #include "absl/container/flat_hash_set.h"
-#include "glog/logging.h"
+#include "absl/log/check.h"
+#include "absl/log/log.h"
+#include "puzzle/vlog.h"
 
 namespace puzzle {
 
