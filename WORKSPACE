@@ -12,7 +12,7 @@ git_repository(
 git_repository(
     name = "rules_proto",
     remote = "https://github.com/bazelbuild/rules_proto.git",
-    commit = "b5e5fc85f70cf6bbef66c69b679c86168ad1bea6",
+    commit = "493169c1199dc21b9da860f7040a4502aa174676",
 )
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
@@ -22,21 +22,20 @@ git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
     # branch = "main",
-    commit = "71140c3ca7a87bb1b5b9c9f1500fea8858cce344",
+    commit = "455fcb7773dedc70ab489109fb12d8abc7fd59b6",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    commit = "f7affaf32a6a396465507dd10520a3fe183d4e40",
+    commit = "70172ada858b8739ce07e8c2f1ecd8c11c8768c7",
 )
 
 git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main",
-    # no_update = "https://github.com/protocolbuffers/protobuf/issues/11409",
-    commit = "66ed6dd75b0b5f0d62a9bf90509638f380cbcd7f",
+    commit = "5e03386555544e39c21236dca0097123edec8769",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -47,35 +46,34 @@ git_repository(
     name = "com_google_protobuf_cc",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main"
-    # no_update = "https://github.com/protocolbuffers/protobuf/issues/11409",
-    commit = "66ed6dd75b0b5f0d62a9bf90509638f380cbcd7f",
+    commit = "5e03386555544e39c21236dca0097123edec8769",
 )
 
 git_repository(
     name = "com_github_google_benchmark",
     remote = "https://github.com/google/benchmark.git",
     # branch = "main"
-    commit = "62edc4fb00e1aeab86cc69c70eafffb17219d047",
+    commit = "02a354f3f323ae8256948e1dc77ddcb1dfc297da",
 )
 
 git_repository(
     name = "com_google_tcmalloc",
     remote = "https://github.com/google/tcmalloc.git",
-    commit = "927c1433141daa1f0bcf920e6d71bf64795cc2c2",
+    commit = "4c2f6e64e5345dc004023f2202ab358299634a0e",
 )
 
 git_repository(
     name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main"
-    commit = "12e3a4ffb0ae2c2e4d1f65fbf41cd073ceedd59d",
+    commit = "7008f2cc0f8639d49282bc6a5bd46cdd206c4ab7",
 )
 
 git_repository(
     name = "com_googlesource_code_re2",
     remote = "https://github.com/google/re2.git",
     # branch = "abseil",
-    commit = "d0b1f8f2ecc2ea74956c7608b6f915175314ff0e",
+    commit = "578843a516fd1da7084ae46209a75f3613b6065e",
 )
 
 git_repository(
