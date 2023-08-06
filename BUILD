@@ -1,14 +1,7 @@
+load("@com_monkeynova_base_workspace//:default_rules.bzl", "default_rules")
 load("//puzzle:puzzle.bzl", "puzzle_test")
 
-alias(
-    name = "cleanup",
-    actual = "@com_monkeynova_base_workspace//:cleanup",
-)
-
-alias(
-    name = "update_workspace",
-    actual = "@com_monkeynova_base_workspace//:update_workspace",
-)
+default_rules()
 
 cc_binary(
     name = "dracula_and_friends",
@@ -147,14 +140,5 @@ puzzle_test(
     ],
     deps = [
         ":six_fearsome_heroes_lib",
-    ],
-)
-
-sh_test(
-    name = "diff_bazelrc_test",
-    srcs = ["diff_bazelrc_test.sh"],
-    data = [
-        "base-bazelrc",
-        "@com_monkeynova_base_workspace//:base-bazelrc-file",
     ],
 )

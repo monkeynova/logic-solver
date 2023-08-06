@@ -6,7 +6,7 @@ git_repository(
    name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "21c3632e277633820f20a81b084e3c764c243a97",
+   commit = "079048a672da87d2cede89febac49f54a5cbb165",
 )
 
 git_repository(
@@ -82,4 +82,11 @@ git_repository(
     name = "com_google_file_based_test_driver",
     remote = "https://github.com/google/file-based-test-driver.git",
     commit = "fd7661b168f640f68da39f97dad26e426eb6c339",
+)
+
+git_repository(
+    name = "aspect_bazel_lib",
+    remote = "https://github.com/aspect-build/bazel-lib.git",
+    # branch = "main",
+    commit = "e54912501619f34b7b2172a428ba0c4ebc2331af",
 )

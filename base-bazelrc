@@ -70,26 +70,30 @@ build:windows --host_cxxopt=/std:c++17
 # a result.
 build:macos --features=-supports_dynamic_linker
 
-run:v1 -- --logtostderr --v=1 --gtest_color=yes --colorlogtostderr=true
-test:v1 --test_arg=--logtostderr
+run:v1 -- --stderrthreshold=0 --v=1 --gtest_flags=--gtest_color=true
+test:v1 --test_arg=--stderrthreshold=0
+test:v1 --test_arg=--gtest_flags=--gtest_color=true
 test:v1 --test_arg=--v=1
 test:v1 --test_output=streamed
 test:v1 --nocache_test_results
 
-run:v2 -- --logtostderr --v=2 --gtest_color=yes --colorlogtostderr=true
-test:v2 --test_arg=--logtostderr
+run:v2 -- --stderrthreshold=0 --v=2 --gtest_flags=--gtest_color=true
+test:v2 --test_arg=--stderrthreshold=0
+test:v2 --test_arg=--gtest_flags=--gtest_color=true
 test:v2 --test_arg=--v=2
 test:v2 --test_output=streamed
 test:v2 --nocache_test_results
 
-run:v3 -- --logtostderr --v=3 --gtest_color=yes --colorlogtostderr=true
-test:v3 --test_arg=--logtostderr
+run:v3 -- --stderrthreshold=0 --v=3 --gtest_flags=--gtest_color=true
+test:v3 --test_arg=--stderrthreshold=0
+test:v3 --test_arg=--gtest_flags=--gtest_color=true
 test:v3 --test_arg=--v=3 
 test:v3 --test_output=streamed
 test:v3 --nocache_test_results
 
-run:v4 -- --logtostderr --v=4 --gtest_color=yes --colorlogtostderr=true
-test:v4 --test_arg=--logtostderr
+run:v4 -- --stderrthreshold=0 --v=4 --gtest_flags=--gtest_color=true
+test:v4 --test_arg=--stderrthreshold=0
+test:v4 --test_arg=--gtest_flags=--gtest_color=true
 test:v4 --test_arg=--v=4
 test:v4 --test_output=streamed
 test:v4 --nocache_test_results
