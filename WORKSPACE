@@ -12,7 +12,7 @@ git_repository(
 git_repository(
     name = "rules_proto",
     remote = "https://github.com/bazelbuild/rules_proto.git",
-    commit = "493169c1199dc21b9da860f7040a4502aa174676",
+    commit = "673e59ea247296c95c51ac01de67f4de8f7a846a",
 )
 load("@rules_proto//proto:repositories.bzl", "rules_proto_dependencies", "rules_proto_toolchains")
 rules_proto_dependencies()
@@ -22,20 +22,20 @@ git_repository(
     name = "com_google_googletest",
     remote = "https://github.com/google/googletest.git",
     # branch = "main",
-    commit = "455fcb7773dedc70ab489109fb12d8abc7fd59b6",
+    commit = "e47544ad31cb3ceecd04cc13e8fe556f8df9fe0b",
 )
 
 git_repository(
     name = "com_google_absl",
     remote = "https://github.com/abseil/abseil-cpp.git",
-    commit = "70172ada858b8739ce07e8c2f1ecd8c11c8768c7",
+    commit = "bab9544a35615c1cdcf4271c6c52c9f1559c7d3c",
 )
 
 git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main",
-    commit = "5e03386555544e39c21236dca0097123edec8769",
+    commit = "8fc05442285a08d91f05995123fb02374d8b925e",
 )
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
@@ -46,27 +46,27 @@ git_repository(
     name = "com_google_protobuf_cc",
     remote = "https://github.com/protocolbuffers/protobuf.git",
     # branch = "main"
-    commit = "5e03386555544e39c21236dca0097123edec8769",
+    commit = "8fc05442285a08d91f05995123fb02374d8b925e",
 )
 
 git_repository(
     name = "com_github_google_benchmark",
     remote = "https://github.com/google/benchmark.git",
     # branch = "main"
-    commit = "02a354f3f323ae8256948e1dc77ddcb1dfc297da",
+    commit = "7736df03049c362c7275f7573de6d6a685630e0a",
 )
 
 git_repository(
     name = "com_google_tcmalloc",
     remote = "https://github.com/google/tcmalloc.git",
-    commit = "4c2f6e64e5345dc004023f2202ab358299634a0e",
+    commit = "229908285e216cca8b844c1781bf16b838128d1b",
 )
 
 git_repository(
     name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main"
-    commit = "7008f2cc0f8639d49282bc6a5bd46cdd206c4ab7",
+    commit = "3eba1a031dd22ca8c7c1b0732a9d5c970fc68889",
 )
 
 git_repository(
@@ -86,5 +86,5 @@ git_repository(
     name = "aspect_bazel_lib",
     remote = "https://github.com/aspect-build/bazel-lib.git",
     # branch = "main",
-    commit = "e54912501619f34b7b2172a428ba0c4ebc2331af",
+    commit = "a4e997de1f946a26a5c5e3e253a74329aace9b89",
 )
