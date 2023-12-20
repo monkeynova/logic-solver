@@ -5,3 +5,4 @@ bin
 bazel-*
 benchmark-out
 cachegrind.out.*
+MODULE.bazel.lock

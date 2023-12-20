@@ -1,0 +1,10 @@
+workspace(name="com_monkeynova_logic_solver")
+workspace(name="com_monkeynova_logic_solver")
+
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
+
+git_repository(
+    name = "com_google_file_based_test_driver",
+    remote = "https://github.com/google/file-based-test-driver.git",
+    commit = "fd7661b168f640f68da39f97dad26e426eb6c339",
+)
