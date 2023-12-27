@@ -54,10 +54,10 @@ build:ubsan --linkopt -lubsan
 # them by default. 
 build --enable_platform_specific_config
 
-# require support for c++17 idioms
-build:linux --cxxopt=-std=c++1z --cxxopt=-Wno-sign-compare
-build:macos --cxxopt=-std=c++1z
-build:windows --cxxopt=/std:c++17
+# require support for c++20 idioms
+build:linux --cxxopt=-std=c++20 --cxxopt=-Wno-sign-compare
+build:macos --cxxopt=-std=c++20
+build:windows --cxxopt=/std:c++20
 
 # require c++17 in tooling as well
 build:linux --host_cxxopt=-std=c++1z
