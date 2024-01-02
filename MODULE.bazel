@@ -19,12 +19,12 @@ git_override(
    module_name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "297deeddf3bd073ca67e0bf83e185858f9c129d7",
+   commit = "dd173c809744f566a5d16a8df8a628085f27d097",
 )
 
 git_override(
     module_name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main",
-    commit = "915761f01027396caeb18207966a3a964c867e68",
+    commit = "d12e2b45200dc02b63f25e0be10a8e2aee0d480c",
 )

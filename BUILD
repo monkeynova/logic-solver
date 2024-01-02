@@ -1,7 +1,7 @@
 load("@com_monkeynova_base_workspace//:default_rules.bzl", "default_rules")
 load("//puzzle:puzzle.bzl", "puzzle_test")
 
-default_rules()
+default_rules(workspace_dep = "update_workspace.date")
 
 cc_binary(
     name = "dracula_and_friends",
