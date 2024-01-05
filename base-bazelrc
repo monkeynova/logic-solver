@@ -54,6 +54,10 @@ build:ubsan --linkopt -lubsan
 # them by default. 
 build --enable_platform_specific_config
 
+# Use a strict build environtment so different shells (like kitty, wave, or
+# vscode) don't trigger rebuilds with things like TERM=<specific terminal>.
+build --incompatible_strict_action_env=true
+
 # require support for c++20 idioms
 build:linux --cxxopt=-std=c++20 --cxxopt=-Wno-sign-compare
 build:macos --cxxopt=-std=c++20
