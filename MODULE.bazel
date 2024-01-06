@@ -26,5 +26,5 @@ git_override(
     module_name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main",
-    commit = "d12e2b45200dc02b63f25e0be10a8e2aee0d480c",
+    commit = "d2a91c9bf621e5df17bd154a7a724ac262e5eb4b",
 )

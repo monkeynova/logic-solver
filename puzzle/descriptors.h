@@ -7,7 +7,7 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
 #include "google/protobuf/descriptor.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 
 namespace puzzle {
 

@@ -95,7 +95,7 @@ cc_test(
     ],
     deps = [
         ":line_board",
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_github_google_benchmark//:benchmark",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/log",

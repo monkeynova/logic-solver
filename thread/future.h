@@ -9,7 +9,7 @@
 #include "absl/log/log.h"
 #include "absl/synchronization/mutex.h"
 #include "absl/synchronization/notification.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 
 namespace thread {
 

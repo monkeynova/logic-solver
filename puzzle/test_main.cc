@@ -5,7 +5,7 @@
 #include "benchmark/benchmark.h"
 #include "gtest/gtest.h"
 #include "puzzle/main_lib.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 
 ABSL_FLAG(bool, benchmark, false,
           "If true, runs benchmarks rather than gunit test suite.");

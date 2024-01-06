@@ -5,7 +5,7 @@
 #include "absl/log/log.h"
 #include "absl/synchronization/mutex.h"
 #include "puzzle/solution_filter.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 #include "thread/future.h"
 
 ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,

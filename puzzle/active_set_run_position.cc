@@ -7,7 +7,7 @@
 #include "absl/log/log.h"
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_join.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 
 namespace puzzle {
 

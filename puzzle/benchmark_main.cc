@@ -4,7 +4,7 @@
 #include "absl/strings/str_join.h"
 #include "benchmark/benchmark.h"
 #include "main_lib.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 
 ABSL_FLAG(bool, benchmark, true,
           "If false, disables benchmarks. Flag exists to provide "

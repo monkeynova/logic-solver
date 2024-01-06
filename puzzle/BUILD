@@ -49,7 +49,7 @@ cc_library(
     srcs = ["active_set_bit_vector.cc"],
     hdrs = ["active_set_bit_vector.h"],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
@@ -62,7 +62,7 @@ cc_library(
     srcs = ["active_set_run_length.cc"],
     hdrs = ["active_set_run_length.h"],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
@@ -75,7 +75,7 @@ cc_library(
     srcs = ["active_set_run_position.cc"],
     hdrs = ["active_set_run_position.h"],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
@@ -185,7 +185,7 @@ cc_library(
         "//visibility:public",
     ],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_github_google_benchmark//:benchmark",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/log",
@@ -226,7 +226,7 @@ cc_library(
         ":class_permuter",
         ":filter_to_active_set",
         ":solution_filter",
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "//thread:executor",
         "//thread:future",
         "@com_google_absl//absl/flags:flag",
@@ -252,7 +252,7 @@ cc_library(
         ":profiler",
         ":solution_filter",
         ":solution_permuter",
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "//thread:executor",
         "//thread:future",
         "//thread:inline_executor",
@@ -383,7 +383,7 @@ cc_library(
     srcs = [],
     hdrs = ["descriptors.h"],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_google_absl//absl/container:flat_hash_map",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
@@ -414,7 +414,7 @@ cc_library(
     srcs = ["profiler.cc"],
     hdrs = ["profiler.h"],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
@@ -499,15 +499,4 @@ cc_library(
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
-)
-
-cc_library(
-    name = "vlog",
-    srcs = ["vlog.cc"],
-    hdrs = ["vlog.h"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "@com_google_absl//absl/flags:flag",
-    ],
-    alwayslink = 1,
 )

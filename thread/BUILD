@@ -49,7 +49,7 @@ cc_library(
     name = "future",
     hdrs = ["future.h"],
     deps = [
-        "//puzzle:vlog",
+        "@com_monkeynova_gunit_main//:vlog",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
         "@com_google_absl//absl/synchronization",

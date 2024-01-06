@@ -8,7 +8,7 @@
 #include "absl/log/log.h"
 #include "absl/memory/memory.h"
 #include "absl/time/time.h"
-#include "puzzle/vlog.h"
+#include "vlog.h"
 
 ABSL_FLAG(int, puzzle_max_profile_calls, std::numeric_limits<int>::max(),
           "Maximum number of iterations before giving up in profiler. "
