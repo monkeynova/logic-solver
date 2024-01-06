@@ -95,13 +95,13 @@ cc_test(
     ],
     deps = [
         ":line_board",
-        "@com_monkeynova_gunit_main//:vlog",
         "@com_github_google_benchmark//:benchmark",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
+        "@com_monkeynova_gunit_main//:vlog",
     ],
 )
 

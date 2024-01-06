@@ -166,12 +166,12 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
 }
 
 std::string DraculaAndFriendsProblem::solution_textproto() const {
-  return R"PROTO(
+  return R"pb(
     entry { id: BOGDAN region: MUNTENIA plant: IVY century: XVI }
     entry { id: DORIAN region: DEBROGEA plant: WOLFSBANE century: XIV }
     entry { id: MATEI region: OLTENIA plant: ONION century: XVII }
     entry { id: OCTAVIAN region: BUCOVINA plant: THORNBRUSH century: XV }
-  )PROTO";
+  )pb";
 }
 
 REGISTER_PROBLEM(DraculaAndFriendsProblem);

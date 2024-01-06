@@ -9,10 +9,10 @@
 #include "puzzle/class_permuter_factory.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/pair_filter_burn_down.h"
-#include "vlog.h"
 #include "thread/future.h"
 #include "thread/inline_executor.h"
 #include "thread/pool.h"
+#include "vlog.h"
 
 ABSL_FLAG(bool, puzzle_prune_class_iterator, true,
           "If specfied, class iterators will be pruned based on single "

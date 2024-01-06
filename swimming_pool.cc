@@ -152,12 +152,12 @@ absl::Status SwimmingPoolProblem::AddPredicates() {
 }
 
 std::string SwimmingPoolProblem::solution_textproto() const {
-  return R"PROTO(
+  return R"pb(
     entry { id: BETTY lane: TWO country: USA style: DOLPHIN }
     entry { id: CAROL lane: ONE country: CANADA style: BUTTERFLY }
     entry { id: DAISY lane: FOUR country: AUSTRALIA style: BACKSTROKE }
     entry { id: EMILY lane: THREE country: UK style: FREESTYLE }
-  )PROTO";
+  )pb";
 }
 
 REGISTER_PROBLEM(SwimmingPoolProblem);

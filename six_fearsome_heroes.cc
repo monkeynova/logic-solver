@@ -210,14 +210,14 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
 }
 
 std::string SixFearsomeHeroes::solution_textproto() const {
-  return R"PROTO(
+  return R"pb(
     entry { id: PICARD hero: DATA fear: TROI trid: RANK_5 fizzbin: RANK_2 }
     entry { id: RIKER hero: PICARD fear: WORF trid: RANK_3 fizzbin: RANK_5 }
     entry { id: TROI hero: WORF fear: RIKER trid: RANK_1 fizzbin: RANK_4 }
     entry { id: GEORDI hero: RIKER fear: PICARD trid: RANK_2 fizzbin: RANK_3 }
     entry { id: DATA hero: TROI fear: GEORDI trid: RANK_4 fizzbin: RANK_1 }
     entry { id: WORF hero: GEORDI fear: DATA trid: RANK_6 fizzbin: RANK_6 }
-  )PROTO";
+  )pb";
 }
 
 absl::Status SixFearsomeHeroes::AddPredicates() {

@@ -5,8 +5,8 @@
 #include "absl/log/log.h"
 #include "absl/synchronization/mutex.h"
 #include "puzzle/solution_filter.h"
-#include "vlog.h"
 #include "thread/future.h"
+#include "vlog.h"
 
 ABSL_FLAG(bool, puzzle_pair_class_mode_make_pairs, false,
           "If true, pairwise iterator pruning will always run with a mode of "
