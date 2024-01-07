@@ -1,3 +1,27 @@
+# Use a strict build environtment so different shells (like kitty, wave, or
+# vscode) don't trigger rebuilds with things like TERM=<specific terminal>.
+build --incompatible_strict_action_env=true
+
+# We have win/linux/mac specific options in this config so we allow processing
+# them by default.
+build --enable_platform_specific_config
+
+# require support for c++20 idioms
+build:linux --cxxopt=-std=c++20 --cxxopt=-Wno-sign-compare
+build:macos --cxxopt=-std=c++20
+build:windows --cxxopt=/std:c++20
+
+# require c++20 in tooling as well
+build:linux --host_cxxopt=-std=c++20
+build:macos --host_cxxopt=-std=c++20
+build:windows --host_cxxopt=/std:c++20
+
+# https://github.com/abseil/abseil-cpp/issues/848
+# Bazel (as of 3.3.0) has difficulty recognizing the fact that mac shared
+# object files are present as a pair. absl fails to link properly with .sos as
+# a result.
+build:macos --features=-supports_dynamic_linker
+
 # Profiler
 build:profile --linkopt -L/usr/local/lib
 build:profile --linkopt -lprofiler
@@ -49,30 +73,6 @@ build:ubsan --copt -O1
 build:ubsan --copt -fno-omit-frame-pointer
 build:ubsan --linkopt -fsanitize=undefined
 build:ubsan --linkopt -lubsan
-
-# We have win/linux/mac specific options in this config so we allow processing
-# them by default. 
-build --enable_platform_specific_config
-
-# Use a strict build environtment so different shells (like kitty, wave, or
-# vscode) don't trigger rebuilds with things like TERM=<specific terminal>.
-build --incompatible_strict_action_env=true
-
-# require support for c++20 idioms
-build:linux --cxxopt=-std=c++20 --cxxopt=-Wno-sign-compare
-build:macos --cxxopt=-std=c++20
-build:windows --cxxopt=/std:c++20
-
-# require c++17 in tooling as well
-build:linux --host_cxxopt=-std=c++1z
-build:macos --host_cxxopt=-std=c++1z
-build:windows --host_cxxopt=/std:c++17
-
-# https://github.com/abseil/abseil-cpp/issues/848
-# Bazel (as of 3.3.0) has difficulty recognizing the fact that mac shared
-# object files are present as a pair. absl fails to link properly with .sos as
-# a result.
-build:macos --features=-supports_dynamic_linker
 
 run:v1 -- --stderrthreshold=0 --v=1 --gtest_flags=--gtest_color=true
 test:v1 --test_arg=--stderrthreshold=0
