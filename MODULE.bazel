@@ -5,13 +5,13 @@
 # For more details, please check https://github.com/bazelbuild/bazel/issues/18958
 ###############################################################################
 
-bazel_dep(name = "abseil-cpp", version = "20230802.0", repo_name = "com_google_absl")
-bazel_dep(name = "bazel_skylib", version = "1.4.1")
-bazel_dep(name = "googletest", version = "1.14.0", repo_name = "com_google_googletest")
-bazel_dep(name = "google_benchmark", version = "1.8.2", repo_name = "com_github_google_benchmark")
+bazel_dep(name = "abseil-cpp", version = "20230802.0.bcr.1", repo_name = "com_google_absl")
+bazel_dep(name = "bazel_skylib", version = "1.5.0")
+bazel_dep(name = "googletest", version = "1.14.0.bcr.1", repo_name = "com_google_googletest")
+bazel_dep(name = "google_benchmark", version = "1.8.3", repo_name = "com_github_google_benchmark")
 bazel_dep(name = "re2", version = "2023-11-01", repo_name = "com_googlesource_code_re2")
-bazel_dep(name = "rules_proto", version = "5.3.0-21.7")
-bazel_dep(name = "protobuf", version = "3.19.6", repo_name = "com_google_protobuf")
+bazel_dep(name = "rules_proto", version = "6.0.0-rc1")
+bazel_dep(name = "protobuf", version = "23.1", repo_name = "com_google_protobuf")
 bazel_dep(name = "com_monkeynova_base_workspace")
 bazel_dep(name = "com_monkeynova_gunit_main")
 
@@ -19,7 +19,7 @@ git_override(
    module_name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "dea43e1ff659fd5a9b23461926c0fc6791e5a667",
+   commit = "f83cfbd69962ed36231a1413de4019d40e549f35",
 )
 
 git_override(
