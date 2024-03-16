@@ -3,6 +3,8 @@
 #include <vector>
 
 #include "absl/flags/flag.h"
+#include "absl/flags/usage.h"
+#include "absl/strings/str_cat.h"
 #include "main_lib.h"
 #include "puzzle/problem.h"
 
@@ -14,13 +16,18 @@ std::string PositionHeader(const puzzle::Solution& s) {
 }
 
 int main(int argc, char** argv) {
-  std::vector<char*> args = InitMain(argc, argv);
-  CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
+  std::vector<char*> args = InitMain(
+    argc, argv,
+    absl::StrCat("Runs the given puzzle. No arguments are allowed. Usage:\n",
+                 argv[0]));
+  QCHECK_EQ(args.size(), 1)
+      << "Extra argument!" << std::endl << absl::ProgramUsageMessage();
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  CHECK(problem != nullptr) << "No puzzle found";
+  QCHECK(problem != nullptr) << "No puzzle found";
 
-  CHECK(problem->Setup().ok());
+  absl::Status setup_status = problem->Setup();
+  QCHECK(setup_status.ok()) << setup_status;
 
   int exit_code = 1;
 
@@ -28,7 +35,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "[AllSolutions]";
     absl::StatusOr<std::vector<puzzle::Solution>> all_solutions =
         problem->AllSolutions();
-    CHECK(all_solutions.ok()) << all_solutions.status();
+    QCHECK(all_solutions.ok()) << all_solutions.status();
     exit_code = all_solutions->size() > 0 ? 0 : 1;
     LOG(INFO) << "[" << all_solutions->size() << " solutions]";
     LOG(INFO) << absl::StrJoin(
@@ -37,7 +44,7 @@ int main(int argc, char** argv) {
         });
   } else {
     absl::StatusOr<puzzle::Solution> answer = problem->Solve();
-    CHECK(answer.ok()) << answer.status();
+    QCHECK(answer.ok()) << answer.status();
     if (answer->IsValid()) {
       LOG(INFO) << PositionHeader(*answer);
     }

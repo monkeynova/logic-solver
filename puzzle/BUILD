@@ -133,16 +133,16 @@ cc_library(
     ],
 )
 
-cc_binary(
+cc_test(
     name = "filter_to_active_set_benchmark",
     srcs = ["filter_to_active_set_benchmark.cc"],
     tags = ["benchmark"],
     deps = [
-        ":benchmark_main",
         ":class_permuter_factory",
         ":filter_to_active_set",
         ":solution_filter",
         "@com_github_google_benchmark//:benchmark",
+        "@com_monkeynova_gunit_main//:test_main",
     ],
 )
 
@@ -175,22 +175,6 @@ cc_test(
         ":class_permuter_factory",
         ":value_skip_to_active_set",
         "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
-
-cc_library(
-    name = "benchmark_main",
-    srcs = ["benchmark_main.cc"],
-    visibility = [
-        "//visibility:public",
-    ],
-    deps = [
-        "@com_github_google_benchmark//:benchmark",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_monkeynova_gunit_main//:main_lib",
-        "@com_monkeynova_gunit_main//:vlog",
     ],
 )
 
@@ -435,17 +419,17 @@ cc_test(
     ],
 )
 
-cc_binary(
+cc_test(
     name = "class_permuter_benchmark",
     srcs = ["class_permuter_benchmark.cc"],
     tags = ["benchmark"],
     deps = [
-        ":benchmark_main",
         ":class_permuter_factorial_radix",
         ":class_permuter_factorial_radix_delete_tracking",
         ":class_permuter_steinhaus_johnson_trotter",
         "@com_github_google_benchmark//:benchmark",
         "@com_google_absl//absl/strings",
+        "@com_monkeynova_gunit_main//:test_main",
     ],
 )
 
@@ -479,7 +463,9 @@ cc_library(
     deps = [
         ":problem",
         "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:usage",
         "@com_google_absl//absl/memory",
+        "@com_google_absl//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )

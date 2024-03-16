@@ -5,13 +5,18 @@
 # For more details, please check https://github.com/bazelbuild/bazel/issues/18958
 ###############################################################################
 
-bazel_dep(name = "abseil-cpp", version = "20230802.0.bcr.1", repo_name = "com_google_absl")
+bazel_dep(name = "abseil-cpp", version = "20240116.1", repo_name = "com_google_absl")
 bazel_dep(name = "bazel_skylib", version = "1.5.0")
 bazel_dep(name = "googletest", version = "1.14.0.bcr.1", repo_name = "com_google_googletest")
 bazel_dep(name = "google_benchmark", version = "1.8.3", repo_name = "com_github_google_benchmark")
-bazel_dep(name = "re2", version = "2023-11-01", repo_name = "com_googlesource_code_re2")
-bazel_dep(name = "rules_proto", version = "6.0.0-rc1")
-bazel_dep(name = "protobuf", version = "23.1", repo_name = "com_google_protobuf")
+bazel_dep(name = "re2", version = "2024-03-01", repo_name = "com_googlesource_code_re2")
+bazel_dep(name = "rules_proto", version = "6.0.0-rc2")
+bazel_dep(
+    name = "protobuf",
+    # no_update = "23.1 and latest abseil breaks",
+    version = "21.7",
+    repo_name = "com_google_protobuf"
+)
 bazel_dep(name = "com_monkeynova_base_workspace")
 bazel_dep(name = "com_monkeynova_gunit_main")
 
@@ -19,12 +24,12 @@ git_override(
    module_name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "f83cfbd69962ed36231a1413de4019d40e549f35",
+   commit = "c3a4f468c71fe823e846754f0fd15be5a9c730d8",
 )
 
 git_override(
     module_name = "com_monkeynova_gunit_main",
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main",
-    commit = "d2a91c9bf621e5df17bd154a7a724ac262e5eb4b",
+    commit = "71535009ee96db754c5e8c2c3a69cb565ac42215",
 )

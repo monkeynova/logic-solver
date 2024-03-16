@@ -15,6 +15,8 @@ cc_binary(
     srcs = ["multi_line.cc"],
     deps = [
         ":line_board",
+        "@com_google_absl//absl/flags:usage",
+        "@com_google_absl//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )
@@ -60,6 +62,8 @@ cc_binary(
     deps = [
         ":line_board",
         "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:usage",
+        "@com_google_absl//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )
@@ -335,6 +339,8 @@ cc_binary(
     deps = [
         ":base",
         "@com_google_absl//absl/flags:flag",
+        "@com_google_absl//absl/flags:usage",
+        "@com_google_absl//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )

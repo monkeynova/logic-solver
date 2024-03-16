@@ -2,6 +2,8 @@
 #include <memory>
 
 #include "absl/flags/flag.h"
+#include "absl/flags/usage.h"
+#include "absl/strings/str_cat.h"
 #include "main_lib.h"
 #include "sudoku/line_board.h"
 
@@ -9,8 +11,11 @@ ABSL_FLAG(std::string, sudoku_line_board, "",
           "The sudoku problem to solve as a single line");
 
 int main(int argc, char** argv) {
-  std::vector<char*> args = InitMain(argc, argv);
-  CHECK_EQ(args.size(), 1) << absl::StrJoin(args, ",");
+  std::vector<char*> args = InitMain(
+    argc, argv,
+    absl::StrCat("Solves sudoku boards from a flag. Usage:\n", argv[0]));
+  QCHECK_EQ(args.size(), 1)
+      << "Extra argument!" << std::endl << absl::ProgramUsageMessage();
 
   CHECK(!absl::GetFlag(FLAGS_sudoku_line_board).empty())
       << "--sudoku_line_board must be set";
@@ -19,11 +24,12 @@ int main(int argc, char** argv) {
       ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
   CHECK(line_board != nullptr) << "No puzzle found";
 
-  CHECK(line_board->Setup().ok());
+  absl::Status setup_status = line_board->Setup();
+  QCHECK(setup_status.ok()) << setup_status;
 
   absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
-  CHECK(answer.ok());
-  CHECK(answer->IsValid());
+  QCHECK(answer.ok()) << answer.status();
+  QCHECK(answer->IsValid());
 
   char answer_buf[82];
   char* out = answer_buf;
