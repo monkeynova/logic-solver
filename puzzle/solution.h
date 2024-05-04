@@ -118,6 +118,11 @@ class Solution {
   double permutation_count_ = 0;
 };
 
+template <typename Sink>
+void AbslStringify(Sink& sink, const Solution& solution) {
+  absl::Format(&sink, "%v", solution.DebugString());
+}
+
 inline void PrintTo(const Solution& solution, ::std::ostream* os) {
   *os << solution.DebugString();
 }
