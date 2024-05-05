@@ -55,6 +55,20 @@ class Board : public puzzle::Problem {
   absl::Status Setup() override;
   absl::Status AddBoardPredicates();
 
+  static bool IsContiguous(const Cage& cage);
+  absl::Status AddSumPredicate(int val, const std::vector<Box>& boxes,
+                               int box_id, const std::vector<int>& classes,
+                               std::optional<int> single_entry);
+  absl::Status AddMulPredicate(int val, const std::vector<Box>& boxes,
+                               int box_id, const std::vector<int>& classes,
+                               std::optional<int> single_entry);
+  absl::Status AddSubPredicate(int val, const std::vector<Box>& boxes,
+                               int box_id, const std::vector<int>& classes,
+                               std::optional<int> single_entry);
+  absl::Status AddDivPredicate(int val, const std::vector<Box>& boxes,
+                               int box_id, const std::vector<int>& classes,
+                               std::optional<int> single_entry);
+
   static puzzle::EntryDescriptor MakeEntryDescriptor();
 };
 
@@ -110,11 +124,166 @@ absl::Status Board<kWidth>::AddBoardPredicates() {
 }
 
 template <int64_t kWidth>
+bool Board<kWidth>::IsContiguous(const Cage& c) {
+  std::array<std::bitset<kWidth>, kWidth> box_found;
+  for (const Box& b : c.boxes) {
+    box_found[b.entry_id][b.class_id] = true;
+  }
+
+  int b0_contiguous_size = 0;
+  for (std::deque<Box> queue = {c.boxes[0]}; !queue.empty();
+       queue.pop_front()) {
+    ++b0_contiguous_size;
+    Box cur = queue.front();
+    box_found[cur.entry_id][cur.class_id] = false;
+    if (cur.entry_id > 0 && box_found[cur.entry_id - 1][cur.class_id]) {
+      queue.push_back({cur.entry_id - 1, cur.class_id});
+    }
+    if (cur.entry_id < kWidth - 1 &&
+        box_found[cur.entry_id + 1][cur.class_id]) {
+      queue.push_back({cur.entry_id + 1, cur.class_id});
+    }
+    if (cur.class_id > 0 && box_found[cur.entry_id][cur.class_id - 1]) {
+      queue.push_back({cur.entry_id, cur.class_id - 1});
+    }
+    if (cur.class_id < kWidth - 1 &&
+        box_found[cur.entry_id][cur.class_id + 1]) {
+      queue.push_back({cur.entry_id, cur.class_id + 1});
+    }
+  }
+  return b0_contiguous_size == c.boxes.size();
+}
+
+template <int64_t kWidth>
+absl::Status Board<kWidth>::AddSumPredicate(int val,
+                                            const std::vector<Box>& boxes,
+                                            int box_id,
+                                            const std::vector<int>& classes,
+                                            std::optional<int> single_entry) {
+  // TODO: KillerSudoku puts some bounds on elements from totals.
+  if (single_entry) {
+    return AddSpecificEntryPredicate(
+        absl::StrCat("Box #", box_id),
+        [val, boxes](const puzzle::Entry& e) {
+          int sum = 0;
+          for (const Box& b : boxes) {
+            sum += e.Class(b.class_id);
+          }
+          return sum + boxes.size() == val;  // Fenceposts.
+        },
+        classes, *single_entry);
+  }
+
+  return AddPredicate(
+      absl::StrCat("Box #", box_id),
+      [val, boxes](const puzzle::Solution& s) {
+        int sum = 0;
+        for (const Box& b : boxes) {
+          sum += s.Id(b.entry_id).Class(b.class_id);
+        }
+        return sum + boxes.size() == val;  // Fenceposts.
+      },
+      classes);
+}
+
+template <int64_t kWidth>
+absl::Status Board<kWidth>::AddMulPredicate(int val,
+                                            const std::vector<Box>& boxes,
+                                            int box_id,
+                                            const std::vector<int>& classes,
+                                            std::optional<int> single_entry) {
+  // TODO: We can put requirements based on factorization.
+  if (single_entry) {
+    return AddSpecificEntryPredicate(
+        absl::StrCat("Box #", box_id),
+        [val, boxes](const puzzle::Entry& e) {
+          int product = 1;
+          for (const Box& b : boxes) {
+            product *= e.Class(b.class_id) + 1;
+          }
+          return product == val;
+        },
+        classes, *single_entry);
+  }
+
+  return AddPredicate(
+      absl::StrCat("Box #", box_id),
+      [val, boxes](const puzzle::Solution& s) {
+        int product = 1;
+        for (const Box& b : boxes) {
+          product *= s.Id(b.entry_id).Class(b.class_id) + 1;
+        }
+        return product == val;
+      },
+      classes);
+}
+
+template <int64_t kWidth>
+absl::Status Board<kWidth>::AddSubPredicate(int val,
+                                            const std::vector<Box>& boxes,
+                                            int box_id,
+                                            const std::vector<int>& classes,
+                                            std::optional<int> single_entry) {
+  if (boxes.size() != 2) {
+    return absl::InvalidArgumentError(
+        absl::StrCat("Subtraction only for 2 boxes"));
+  }
+  if (single_entry) {
+    return AddSpecificEntryPredicate(
+        absl::StrCat("Box #", box_id),
+        [val, boxes](const puzzle::Entry& e) {
+          int b1 = e.Class(boxes[0].class_id);
+          int b2 = e.Class(boxes[1].class_id);
+          return b2 - b1 == val || b1 - b2 == val;
+        },
+        classes, *single_entry);
+  }
+
+  return AddPredicate(
+      absl::StrCat("Box #", box_id),
+      [val, boxes](const puzzle::Solution& s) {
+        int b1 = s.Id(boxes[0].entry_id).Class(boxes[0].class_id);
+        int b2 = s.Id(boxes[1].entry_id).Class(boxes[1].class_id);
+        return b2 - b1 == val || b1 - b2 == val;
+      },
+      classes);
+}
+
+template <int64_t kWidth>
+absl::Status Board<kWidth>::AddDivPredicate(int val,
+                                            const std::vector<Box>& boxes,
+                                            int box_id,
+                                            const std::vector<int>& classes,
+                                            std::optional<int> single_entry) {
+  if (boxes.size() != 2) {
+    return absl::InvalidArgumentError(
+        absl::StrCat("Division only for 2 boxes"));
+  }
+  if (single_entry) {
+    return AddSpecificEntryPredicate(
+        absl::StrCat("Box #", box_id),
+        [val, boxes](const puzzle::Entry& e) {
+          int b1 = e.Class(boxes[0].class_id) + 1;
+          int b2 = e.Class(boxes[1].class_id) + 1;
+          return b1 == val * b2 || b2 == val * b1;
+        },
+        classes, *single_entry);
+  }
+  return AddPredicate(
+      absl::StrCat("Box #", box_id),
+      [val, boxes](const puzzle::Solution& s) {
+        int b1 = s.Id(boxes[0].entry_id).Class(boxes[0].class_id) + 1;
+        int b2 = s.Id(boxes[1].entry_id).Class(boxes[1].class_id) + 1;
+        return b1 == val * b2 || b2 == val * b1;
+      },
+      classes);
+}
+
+template <int64_t kWidth>
 absl::Status Board<kWidth>::AddCagePredicates() {
   std::vector<Cage> cages = GetCages();
 
-  std::vector<std::vector<bool>> found(kWidth,
-                                       std::vector<bool>(kWidth, false));
+  std::array<std::bitset<kWidth>, kWidth> found;
 
   int box_id = 0;
   for (const Cage& c : cages) {
@@ -124,11 +293,13 @@ absl::Status Board<kWidth>::AddCagePredicates() {
     }
     std::optional<int> single_entry = c.boxes[0].entry_id;
     std::vector<int> classes;
+    std::array<std::bitset<kWidth>, kWidth> box_found;
     for (const Box& b : c.boxes) {
       if (found[b.entry_id][b.class_id]) {
         return absl::InvalidArgumentError(absl::StrCat("Dup box: ", b));
       }
       found[b.entry_id][b.class_id] = true;
+      box_found[b.entry_id][b.class_id] = true;
       if (single_entry && *single_entry != b.entry_id) {
         single_entry = std::nullopt;
       }
@@ -136,120 +307,31 @@ absl::Status Board<kWidth>::AddCagePredicates() {
         classes.push_back(b.class_id);
       }
     }
-    // TODO: Could also validate contiguous.
+
+    if (!IsContiguous(c)) {
+      return absl::InvalidArgumentError("Cage isn't contiguous");
+    }
+
     absl::c_sort(classes);
     switch (c.op) {
       case Cage::kAdd: {
-        // TODO: KillerSudoku puts some bounds on elements from totals.
-        if (single_entry) {
-          RETURN_IF_ERROR(AddSpecificEntryPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Entry& e) {
-                int sum = 0;
-                for (const Box& b : c.boxes) {
-                  sum += e.Class(b.class_id) + 1;
-                }
-                return sum == c.val;
-              },
-              classes, *single_entry));
-        } else {
-          RETURN_IF_ERROR(AddPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Solution& s) {
-                int sum = 0;
-                for (const Box& b : c.boxes) {
-                  sum += s.Id(b.entry_id).Class(b.class_id) + 1;
-                }
-                return sum == c.val;
-              },
-              classes));
-        }
+        RETURN_IF_ERROR(
+            AddSumPredicate(c.val, c.boxes, box_id, classes, single_entry));
         break;
       }
       case Cage::kMul: {
-        // TODO: We can put requirements based on factorization.
-        if (single_entry) {
-          RETURN_IF_ERROR(AddSpecificEntryPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Entry& e) {
-                int product = 1;
-                for (const Box& b : c.boxes) {
-                  product *= e.Class(b.class_id) + 1;
-                }
-                return product == c.val;
-              },
-              classes, *single_entry));
-
-        } else {
-          RETURN_IF_ERROR(AddPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Solution& s) {
-                int product = 1;
-                for (const Box& b : c.boxes) {
-                  product *= s.Id(b.entry_id).Class(b.class_id) + 1;
-                }
-                return product == c.val;
-              },
-              classes));
-        }
+        RETURN_IF_ERROR(
+            AddMulPredicate(c.val, c.boxes, box_id, classes, single_entry));
         break;
       }
       case Cage::kSub: {
-        if (c.boxes.size() != 2) {
-          return absl::InvalidArgumentError(
-              absl::StrCat("Subtraction only for 2 boxes"));
-        }
-        if (single_entry) {
-          RETURN_IF_ERROR(AddSpecificEntryPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Entry& e) {
-                int b1 = e.Class(c.boxes[0].class_id) + 1;
-                int b2 = e.Class(c.boxes[1].class_id) + 1;
-                return b2 - b1 == c.val || b1 - b2 == c.val;
-              },
-              classes, *single_entry));
-
-        } else {
-          RETURN_IF_ERROR(AddPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Solution& s) {
-                int b1 =
-                    s.Id(c.boxes[0].entry_id).Class(c.boxes[0].class_id) + 1;
-                int b2 =
-                    s.Id(c.boxes[1].entry_id).Class(c.boxes[1].class_id) + 1;
-                return b2 - b1 == c.val || b1 - b2 == c.val;
-              },
-              classes));
-        }
+        RETURN_IF_ERROR(
+            AddSubPredicate(c.val, c.boxes, box_id, classes, single_entry));
         break;
       }
       case Cage::kDiv: {
-        if (c.boxes.size() != 2) {
-          return absl::InvalidArgumentError(
-              absl::StrCat("Division only for 2 boxes"));
-        }
-        if (single_entry) {
-          RETURN_IF_ERROR(AddSpecificEntryPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Entry& e) {
-                int b1 = e.Class(c.boxes[0].class_id) + 1;
-                int b2 = e.Class(c.boxes[1].class_id) + 1;
-                return b1 == c.val * b2 || b2 == c.val * b1;
-              },
-              classes, *single_entry));
-
-        } else {
-          RETURN_IF_ERROR(AddPredicate(
-              absl::StrCat("Box #", box_id),
-              [c](const puzzle::Solution& s) {
-                int b1 =
-                    s.Id(c.boxes[0].entry_id).Class(c.boxes[0].class_id) + 1;
-                int b2 =
-                    s.Id(c.boxes[1].entry_id).Class(c.boxes[1].class_id) + 1;
-                return b1 == c.val * b2 || b2 == c.val * b1;
-              },
-              classes));
-        }
+        RETURN_IF_ERROR(
+            AddDivPredicate(c.val, c.boxes, box_id, classes, single_entry));
         break;
       }
       default:
