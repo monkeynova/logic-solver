@@ -3,7 +3,7 @@
 #include "absl/flags/flag.h"
 #include "absl/strings/str_cat.h"
 
-ABSL_FLAG(bool, sudoku_killer_composition, false,
+ABSL_FLAG(bool, sudoku_killer_composition, true,
           "If true, adds predicates not just on the sum boxes themselves, "
           "but also add predicates for implicit maximum values from the "
           "potential input sums (e.g. the sum of 3 boxes being 7 implies "
@@ -36,10 +36,17 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     }
   }
 
-  if (absl::GetFlag(FLAGS_sudoku_killer_composition)) {
-    // TODO: This isn't right! We're assuming a distinctness across boxes.
-    //       This needs to have the right distinctness check before adding
-    //       back.
+  bool all_one_class = absl::c_all_of(
+    cage.boxes,
+    [&](const Box& b) { return b.class_id == cage.boxes[0].class_id; });
+
+  bool all_one_entry = absl::c_all_of(
+    cage.boxes,
+    [&](const Box& b) { return b.entry_id == cage.boxes[0].entry_id; });
+
+  bool min_max_sum_eligible = all_one_class || all_one_entry;
+
+  if (absl::GetFlag(FLAGS_sudoku_killer_composition) && min_max_sum_eligible) {
     int max_cage_val = cage.expected_sum - kMinSums[cage.boxes.size() - 1];
     if (max_cage_val < 9) {
       for (const Box& box : cage.boxes) {
