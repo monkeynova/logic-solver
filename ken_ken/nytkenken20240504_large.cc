@@ -8,113 +8,29 @@ class NYTKenKen20240504Large : public Board<6> {
  public:
   NYTKenKen20240504Large() = default;
 
+  std::vector<Cage> GetCages() const override;
+
  private:
-  absl::Status Setup() override;
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 };
 
-absl::Status NYTKenKen20240504Large::Setup() {
-  RETURN_IF_ERROR(AddBoardPredicates());
-  
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 1", [](const puzzle::Solution& s) {
-      return Val(s, 0, 0) + Val(s, 1, 0) == 8;
-    },
-    {0});
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 2", [](const puzzle::Entry& e) {
-      return Val(e, 1) * Val(e, 2) == 10;
-    },
-    {1, 2}, 0);
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 3", [](const puzzle::Solution& s) {
-      return Val(s, 0, 3) + Val(s, 0, 4) + Val(s, 1, 3) == 12;
-    },
-    {3, 4});
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 4", [](const puzzle::Solution& s) {
-      return Val(s, 0, 5) * Val(s, 1, 4) * Val(s, 1, 5) * Val(s, 2, 5) == 30;
-    },
-    {5, 4});
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 5", [](const puzzle::Entry& e) {
-      return Val(e, 1) - Val(e, 2) == 1 || Val(e, 2) - Val(e, 1) == 1;
-    },
-    {1, 2}, 1);
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 6", [](const puzzle::Entry& e) {
-      return Val(e, 0) - Val(e, 1) == 2 || Val(e, 1) - Val(e, 0) == 2;
-    },
-    {0, 1}, 2);
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 7", [](const puzzle::Entry& e) {
-      return Val(e, 2) + Val(e, 3) + Val(e, 4) == 6;
-    },
-    {2, 3, 4}, 2);
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 8", [](const puzzle::Entry& e) {
-      return Val(e, 0) == 2 * Val(e, 1) || Val(e, 1) == 2 * Val(e, 0);
-    },
-    {0, 1}, 3);
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 9", [](const puzzle::Solution& s) {
-      return Val(s, 3, 2) + Val(s, 4, 1) + Val(s, 4, 2) + Val(s, 5, 1) == 18;
-    },
-    {1, 2});
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 10", [](const puzzle::Solution& s) {
-      return Val(s, 3, 3) * Val(s, 4, 3) * Val(s, 5, 3) * Val(s, 5, 4) == 180;
-    },
-    {3, 4});
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 11", [](const puzzle::Entry& e) {
-      return Val(e, 4) - Val(e, 5) == 2 || Val(e, 5) - Val(e, 4) == 2;
-    },
-    {4, 5}, 3);
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 12", [](const puzzle::Solution& s) {
-      return Val(s, 4, 0) == 2 * Val(s, 5, 0) || Val(s, 5, 0) == 2 * Val(s, 4, 0);
-    },
-    {0});
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 13", [](const puzzle::Solution& s) {
-      return Val(s, 4, 4) + Val(s, 4, 5) + Val(s, 5, 5) == 10;
-    },
-    {4, 5});
-  );
-
-  RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    "Box 14", [](const puzzle::Entry& e) {
-      return Val(e, 2) == 1;
-    },
-    {2}, 5);
-  );
-
-  return absl::OkStatus();
+std::vector<Board<6>::Cage> NYTKenKen20240504Large::GetCages() const {
+  return std::vector<Cage>{
+    {8, Cage::kAdd, {{0, 0}, {1, 0}}},
+    {10, Cage::kMul, {{0, 1}, {0, 2}}},
+    {12, Cage::kAdd, {{0, 3}, {0, 4}, {1, 3}}},
+    {30, Cage::kMul, {{0, 5}, {1, 4}, {1, 5}, {2, 5}}},
+    {1, Cage::kSub, {{1, 1}, {1, 2}}},
+    {2, Cage::kSub, {{2, 0}, {2, 1}}},
+    {6, Cage::kAdd, {{2, 2}, {2, 3}, {2, 4}}},
+    {2, Cage::kDiv, {{3, 0}, {3, 1}}},
+    {18, Cage::kAdd, {{3, 2}, {4, 1}, {4, 2}, {5, 1}}},
+    {180, Cage::kMul, {{3, 3}, {4, 3}, {5, 3}, {5, 4}}},
+    {2, Cage::kSub, {{3, 4}, {3, 5}}},
+    {2, Cage::kDiv, {{4, 0}, {5, 0}}},
+    {10, Cage::kAdd, {{4, 4}, {4, 5}, {5, 5}}},
+    {1, Cage::kAdd, {{5, 2}}},
+  };
 }
 
 absl::StatusOr<puzzle::Solution> NYTKenKen20240504Large::GetSolution() const {

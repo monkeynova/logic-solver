@@ -8,66 +8,21 @@ class NYTKenKen20240504Small : public Board<4> {
  public:
   NYTKenKen20240504Small() = default;
 
+  std::vector<Cage> GetCages() const override;
+
  private:
-  absl::Status Setup() override;
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 };
 
-absl::Status NYTKenKen20240504Small::Setup() {
-  RETURN_IF_ERROR(AddBoardPredicates());
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 1", [](const puzzle::Solution& s) {
-      return Val(s, 0, 0) + Val(s, 1, 0) == 7;
-    },
-    {0});
-  );
-
-  if (true) {
-    RETURN_IF_ERROR(AddSpecificEntryPredicate(
-      "Box 2", [](const puzzle::Entry& e) {
-        return Val(e, 1) + Val(e, 2) + Val(e, 3) == 7;
-      },
-      {1, 2, 3}, 0);
-    );
-  } else {
-    RETURN_IF_ERROR(AddPredicate(
-      "Box 2", [](const puzzle::Solution& s) {
-        return Val(s, 0, 1) + Val(s, 0, 2) + Val(s, 0, 3) == 7;
-      },
-      {1, 2, 3});
-    );
-  }
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 3", [](const puzzle::Solution& s) {
-      return Val(s, 1, 1) + Val(s, 2, 0) + Val(s, 2, 1) + Val(s, 3, 0) == 10;
-    },
-    {0, 1});
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 4", [](const puzzle::Solution& s) {
-      return Val(s, 1, 2) + Val(s, 1, 3) + Val(s, 2, 3) == 6;
-    },
-    {2, 3});
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 5", [](const puzzle::Solution& s) {
-      return Val(s, 2, 2) == 1;
-    },
-    {2});
-  );
-
-  RETURN_IF_ERROR(AddPredicate(
-    "Box 6", [](const puzzle::Solution& s) {
-      return Val(s, 3, 1) + Val(s, 3, 2) + Val(s, 3, 3) == 9;
-    },
-    {1, 2, 3});
-  );
-
-  return absl::OkStatus();
+std::vector<Board<4>::Cage> NYTKenKen20240504Small::GetCages() const {
+  return std::vector<Cage>{
+    {7, Cage::kAdd, {{0, 0}, {1, 0}}},
+    {7, Cage::kAdd, {{0, 1}, {0, 2}, {0, 3}}},
+    {10, Cage::kAdd, {{1, 1}, {2, 0}, {2, 1}, {3, 0}}},
+    {6, Cage::kAdd, {{1, 2}, {1, 3}, {2, 3}}},
+    {1, Cage::kAdd, {{2, 2}}},
+    {9, Cage::kAdd, {{3, 1}, {3, 2}, {3, 3}}},
+  };
 }
 
 absl::StatusOr<puzzle::Solution> NYTKenKen20240504Small::GetSolution() const {
