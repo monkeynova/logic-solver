@@ -110,18 +110,14 @@ absl::Status Board<kWidth>::Setup() {
 
 template <int64_t kWidth>
 absl::Status Board<kWidth>::AddBoardPredicates() {
-  std::vector<int> cols = {0};
-  for (int i = 1; i < kWidth; ++i) {
-    cols.push_back(i);
-    RETURN_IF_ERROR(AddAllEntryPredicate(
-        absl::StrCat("No row dupes ", i + 1),
-        [i](const puzzle::Entry& e) {
-          for (int j = 0; j < i; ++j) {
-            if (e.Class(i) == e.Class(j)) return false;
-          }
-          return true;
-        },
-        cols));
+  for (int i = 0; i < kWidth; ++i) {
+    for (int j = i + 1; j < kWidth; ++j) {
+      absl::Status st = AddAllEntryPredicate(
+          absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
+          [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
+          {i, j});
+      if (!st.ok()) return st;
+    }
   }
 
   return absl::OkStatus();
@@ -195,7 +191,6 @@ absl::Status Board<kWidth>::AddSumPredicate(int val,
     }
   }
 
-  // TODO: KillerSudoku puts some bounds on elements from totals.
   if (single_entry) {
     return AddSpecificEntryPredicate(
         absl::StrCat("Box #", box_id),
@@ -228,13 +223,43 @@ absl::Status Board<kWidth>::AddMulPredicate(int val,
                                             const std::vector<int>& classes,
                                             std::optional<int> single_entry) {
   for (const Box& box : boxes) {
+    if (boxes.size() < 2) continue;
     RETURN_IF_ERROR(AddSpecificEntryPredicate(
         absl::StrCat("Cage factors for ", box, " = ", val),
         [box, val](const puzzle::Entry& e) {
           // Value is 0 indexed.
-          return val % (e.Class(box.class_id) + 1) == 0;
+          int factor = e.Class(box.class_id) + 1;
+          return val % factor == 0;
         },
         {box.class_id}, box.entry_id));
+
+    if (boxes.size() < 3) continue;
+    for (const Box& box2 : boxes) {
+      if (box.entry_id == box2.entry_id) {
+        if (box.class_id == box2.class_id) continue;
+        RETURN_IF_ERROR(AddSpecificEntryPredicate(
+            absl::StrCat("Cage factors for ", box, " = ", val),
+            [box, box2, val](const puzzle::Entry& e) {
+              // Value is 0 indexed.
+              int factor = e.Class(box.class_id) + 1;
+              factor *= e.Class(box2.class_id) + 1;
+              return val % factor == 0;
+            },
+            {box.class_id, box2.class_id}, box.entry_id));
+      } else {
+        std::vector<int> cols = {box.class_id};
+        if (box2.class_id != box.class_id) cols.push_back(box2.class_id);
+        RETURN_IF_ERROR(AddPredicate(
+            absl::StrCat("Cage factors for ", box, " * ", box2, " = ", val),
+            [box, box2, val](const puzzle::Solution& s) {
+              // Value is 0 indexed.
+              int factor = s.Id(box.entry_id).Class(box.class_id) + 1;
+              factor *= s.Id(box2.entry_id).Class(box2.class_id) + 1;
+              return val % factor == 0;
+            },
+            cols));
+      }
+    }
   }
 
   if (single_entry) {

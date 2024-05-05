@@ -61,7 +61,22 @@ NNNVVVTTT)BOARD";
 }
 
 absl::StatusOr<puzzle::Solution> ConceptisPuzzles::GetSolution() const {
-  return absl::UnimplementedError("Unsolved");
+  const std::vector<std::vector<int>> res = {
+      {9, 2, 7, 3, 5, 1, 4, 6, 8}, {2, 9, 3, 6, 4, 7, 5, 8, 1},
+      {1, 7, 8, 5, 2, 3, 9, 4, 6}, {6, 1, 9, 4, 8, 5, 2, 7, 3},
+      {7, 8, 2, 1, 9, 6, 3, 5, 4}, {3, 4, 6, 7, 1, 9, 8, 2, 5},
+      {5, 3, 1, 8, 6, 4, 7, 9, 2}, {4, 6, 5, 2, 7, 8, 1, 3, 9},
+      {8, 5, 4, 9, 3, 2, 6, 1, 7},
+  };
+  std::vector<puzzle::Entry> entries;
+  for (int i = 0; i < 9; ++i) {
+    std::vector<int> vals = res[i];
+    // Fencepost.
+    for (int& v : vals) --v;
+    entries.emplace_back(i, vals, entry_descriptor());
+  }
+
+  return puzzle::Solution(entry_descriptor(), &entries).Clone();
 };
 
 REGISTER_PROBLEM(ConceptisPuzzles);

@@ -78,10 +78,9 @@ cc_library(
     alwayslink = 1,
 )
 
-# TODO: Unable once it runs in reasonable time.
-#puzzle_test(
-#    name = "conceptis_puzzles_test",
-#    deps = [
-#        ":conceptis_puzzles_lib",
-#    ],
-#)
+puzzle_test(
+    name = "conceptis_puzzles_test",
+    deps = [
+        ":conceptis_puzzles_lib",
+    ],
+)
