@@ -23,8 +23,9 @@ class Base : public ::puzzle::Problem {
     int entry_id;
     int class_id;
 
-    std::string DebugString() const {
-      return absl::StrCat("(", entry_id, ", ", class_id, ")");
+    template <typename Sink>
+    friend void AbslStringify(Sink& sink, const Box& b) {
+      absl::Format(&sink, "(%v, %v)", b.entry_id, b.class_id);
     }
 
     template <typename H>
@@ -59,10 +60,6 @@ class Base : public ::puzzle::Problem {
   absl::Status AddPredicatesCumulative();
   absl::Status AddPredicatesPairwise();
 };
-
-inline std::ostream& operator<<(std::ostream& out, const Base::Box& box) {
-  return out << box.DebugString();
-}
 
 }  // namespace sudoku
 

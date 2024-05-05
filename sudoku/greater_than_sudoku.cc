@@ -26,7 +26,7 @@ absl::Status GreaterThanSudoku::AddComparison(const std::pair<Box, Box>& cmp) {
   }
   if (cmp.first.entry_id == cmp.second.entry_id) {
     return AddSpecificEntryPredicate(
-        absl::StrCat(cmp.first.DebugString(), " > ", cmp.second.DebugString()),
+        absl::StrCat(cmp.first, " > ", cmp.second),
         [cmp](const puzzle::Entry& e) {
           return e.Class(cmp.first.class_id) > e.Class(cmp.second.class_id);
         },
@@ -37,7 +37,7 @@ absl::Status GreaterThanSudoku::AddComparison(const std::pair<Box, Box>& cmp) {
         "Comparison must be on neighboring boxes");
   }
   return AddPredicate(
-      absl::StrCat(cmp.first.DebugString(), " > ", cmp.second.DebugString()),
+      absl::StrCat(cmp.first, " > ", cmp.second),
       [cmp](const puzzle::Solution& s) {
         return s.Id(cmp.first.entry_id).Class(cmp.first.class_id) >
                s.Id(cmp.second.entry_id).Class(cmp.second.class_id);

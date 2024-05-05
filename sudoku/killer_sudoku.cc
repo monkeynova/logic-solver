@@ -24,7 +24,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
   for (const Box& box : cage.boxes) {
     if (box_used_.contains(box)) {
       return absl::InvalidArgumentError(
-          absl::StrCat("Duplicate entry: ", box.DebugString()));
+          absl::StrCat("Duplicate entry: ", box));
     }
     box_used_.insert(box);
     auto it = class_to_entry.find(box.class_id);
@@ -42,8 +42,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     if (max_cage_val < 9) {
       for (const Box& box : cage.boxes) {
         absl::Status st = AddSpecificEntryPredicate(
-            absl::StrCat("Cage max for ", box.DebugString(), " = ",
-                         max_cage_val),
+            absl::StrCat("Cage max for ", box, " = ", max_cage_val),
             [box, max_cage_val](const puzzle::Entry& e) {
               // Value is 0 indexed.
               return e.Class(box.class_id) <= max_cage_val - 1;
@@ -57,8 +56,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     if (min_cage_val > 1) {
       for (const Box& box : cage.boxes) {
         absl::Status st = AddSpecificEntryPredicate(
-            absl::StrCat("Cage min for ", box.DebugString(), " = ",
-                         min_cage_val),
+            absl::StrCat("Cage min for ", box, " = ", min_cage_val),
             [box, min_cage_val](const puzzle::Entry& e) {
               // Value is 0 indexed.
               return e.Class(box.class_id) >= min_cage_val - 1;
@@ -74,8 +72,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
   }
 
   return AddPredicate(
-      absl::StrCat("Sum around ", cage.boxes[0].DebugString(), " = ",
-                   cage.expected_sum),
+      absl::StrCat("Sum around ", cage.boxes[0], " = ", cage.expected_sum),
       [cage](const puzzle::Solution& s) {
         // Solution values are 0-indexed, rather than 1-indexed like the sum.
         int sum = cage.boxes.size();
@@ -98,7 +95,7 @@ absl::Status KillerSudoku::InstanceSetup() {
       Box b = {entry_id, class_id};
       if (!box_used_.contains(b)) {
         return absl::InvalidArgumentError(
-            absl::StrCat("Missing entry: ", b.DebugString()));
+            absl::StrCat("Missing entry: ", b));
       }
     }
   }
