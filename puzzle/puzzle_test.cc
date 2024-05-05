@@ -23,7 +23,8 @@ extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  ASSERT_TRUE(problem->Setup().ok());
+  absl::Status setup_status = problem->Setup();
+  ASSERT_TRUE(setup_status.ok()) << setup_status;
 
   absl::StatusOr<puzzle::Solution> got = problem->Solve();
   ASSERT_TRUE(got.ok()) << got.status();
@@ -37,7 +38,8 @@ TEST(Puzzle, UniqueAnswer) {
   if (!absl::GetFlag(FLAGS_puzzle_test_unique)) return;
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  ASSERT_TRUE(problem->Setup().ok());
+  absl::Status setup_status = problem->Setup();
+  ASSERT_TRUE(setup_status.ok()) << setup_status;
 
   absl::StatusOr<std::vector<puzzle::Solution>> solutions =
       problem->AllSolutions(/*limit=*/2);

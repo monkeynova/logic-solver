@@ -2,27 +2,30 @@
 #include "puzzle/problem.h"
 #include "vlog.h"
 
-namespace KenKen {
+namespace ken_ken {
 
 class NYTKenKen20240504Small : public Board<4> {
  public:
   NYTKenKen20240504Small() = default;
 
-  std::vector<Cage> GetCages() const override;
+  absl::StatusOr<std::string_view> GetCageBoard() const override;
 
  private:
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 };
 
-std::vector<Board<4>::Cage> NYTKenKen20240504Small::GetCages() const {
-  return std::vector<Cage>{
-      {7, Cage::kAdd, {{0, 0}, {1, 0}}},
-      {7, Cage::kAdd, {{0, 1}, {0, 2}, {0, 3}}},
-      {10, Cage::kAdd, {{1, 1}, {2, 0}, {2, 1}, {3, 0}}},
-      {6, Cage::kAdd, {{1, 2}, {1, 3}, {2, 3}}},
-      {1, Cage::kAdd, {{2, 2}}},
-      {9, Cage::kAdd, {{3, 1}, {3, 2}, {3, 3}}},
-  };
+absl::StatusOr<std::string_view> NYTKenKen20240504Small::GetCageBoard() const {
+  return R"BOARD(7+
+7+
+10+
+6+
+1+
+9+
+
+0111
+0233
+2243
+2555)BOARD";
 }
 
 absl::StatusOr<puzzle::Solution> NYTKenKen20240504Small::GetSolution() const {
@@ -36,4 +39,4 @@ absl::StatusOr<puzzle::Solution> NYTKenKen20240504Small::GetSolution() const {
 
 REGISTER_PROBLEM(NYTKenKen20240504Small);
 
-}  // namespace KenKen
+}  // namespace ken_ken

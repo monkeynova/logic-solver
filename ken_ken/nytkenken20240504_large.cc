@@ -2,35 +2,40 @@
 #include "puzzle/problem.h"
 #include "vlog.h"
 
-namespace KenKen {
+namespace ken_ken {
 
 class NYTKenKen20240504Large : public Board<6> {
  public:
   NYTKenKen20240504Large() = default;
 
-  std::vector<Cage> GetCages() const override;
+  absl::StatusOr<std::string_view> GetCageBoard() const override;
 
  private:
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 };
 
-std::vector<Board<6>::Cage> NYTKenKen20240504Large::GetCages() const {
-  return std::vector<Cage>{
-      {8, Cage::kAdd, {{0, 0}, {1, 0}}},
-      {10, Cage::kMul, {{0, 1}, {0, 2}}},
-      {12, Cage::kAdd, {{0, 3}, {0, 4}, {1, 3}}},
-      {30, Cage::kMul, {{0, 5}, {1, 4}, {1, 5}, {2, 5}}},
-      {1, Cage::kSub, {{1, 1}, {1, 2}}},
-      {2, Cage::kSub, {{2, 0}, {2, 1}}},
-      {6, Cage::kAdd, {{2, 2}, {2, 3}, {2, 4}}},
-      {2, Cage::kDiv, {{3, 0}, {3, 1}}},
-      {18, Cage::kAdd, {{3, 2}, {4, 1}, {4, 2}, {5, 1}}},
-      {180, Cage::kMul, {{3, 3}, {4, 3}, {5, 3}, {5, 4}}},
-      {2, Cage::kSub, {{3, 4}, {3, 5}}},
-      {2, Cage::kDiv, {{4, 0}, {5, 0}}},
-      {10, Cage::kAdd, {{4, 4}, {4, 5}, {5, 5}}},
-      {1, Cage::kAdd, {{5, 2}}},
-  };
+absl::StatusOr<std::string_view> NYTKenKen20240504Large::GetCageBoard() const {
+  return R"BOARD(8+
+10*
+12+
+30*
+1-
+2-
+6+
+2/
+18+
+180*
+2-
+2/
+10+
+1+
+
+011223
+044233
+556663
+7789AA
+B889CC
+B8D99C)BOARD";
 }
 
 absl::StatusOr<puzzle::Solution> NYTKenKen20240504Large::GetSolution() const {
@@ -52,4 +57,4 @@ absl::StatusOr<puzzle::Solution> NYTKenKen20240504Large::GetSolution() const {
 
 REGISTER_PROBLEM(NYTKenKen20240504Large);
 
-}  // namespace KenKen
+}  // namespace ken_ken

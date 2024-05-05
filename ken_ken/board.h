@@ -3,9 +3,11 @@
 
 #include <cstdint>
 
+#include "absl/strings/str_split.h"
 #include "puzzle/problem.h"
+#include "re2/re2.h"
 
-namespace KenKen {
+namespace ken_ken {
 
 template <int64_t kWidth>
 class Board : public puzzle::Problem {
@@ -48,7 +50,9 @@ class Board : public puzzle::Problem {
   }
   static int Val(const puzzle::Entry& e, int y) { return e.Class(y) + 1; }
 
-  virtual std::vector<Cage> GetCages() const = 0;
+  absl::StatusOr<std::vector<Cage>> GetCages() const;
+  virtual absl::StatusOr<std::string_view> GetCageBoard() const = 0;
+
   virtual absl::Status AddCagePredicates();
 
  private:
@@ -281,7 +285,7 @@ absl::Status Board<kWidth>::AddDivPredicate(int val,
 
 template <int64_t kWidth>
 absl::Status Board<kWidth>::AddCagePredicates() {
-  std::vector<Cage> cages = GetCages();
+  ASSIGN_OR_RETURN(std::vector<Cage> cages, GetCages());
 
   std::array<std::bitset<kWidth>, kWidth> found;
 
@@ -351,6 +355,69 @@ absl::Status Board<kWidth>::AddCagePredicates() {
   return absl::OkStatus();
 }
 
-}  // namespace KenKen
+template <int64_t kWidth>
+absl::StatusOr<std::vector<typename Board<kWidth>::Cage>>
+Board<kWidth>::GetCages() const {
+  ASSIGN_OR_RETURN(std::string_view parsable, GetCageBoard());
+
+  std::vector<Cage> ret;
+  std::optional<int> board_line;
+  for (std::string_view line : absl::StrSplit(parsable, "\n")) {
+    if (line.empty()) {
+      board_line = 0;
+    } else if (board_line) {
+      if (line.size() != kWidth) {
+        return absl::InvalidArgumentError(
+            absl::StrCat("Line too narrow: ", line));
+      }
+      for (int i = 0; i < kWidth; ++i) {
+        int val = -1;
+        if (line[i] >= '0' && line[i] <= '9') val = line[i] - '0';
+        if (line[i] >= 'A' && line[i] <= 'Z') val = line[i] - 'A' + 10;
+        if (val < 0) {
+          return absl::InvalidArgumentError(
+              absl::StrCat("Index too small: ", line, " @", i));
+        }
+        if (val > ret.size()) {
+          return absl::InvalidArgumentError(
+              absl::StrCat("Index too big: ", line, " @", i));
+        }
+        ret[val].boxes.push_back({*board_line, i});
+      }
+      ++*board_line;
+    } else {
+      int val;
+      char op_char;
+      if (!RE2::FullMatch(line, "(\\d+)([\\+\\-\\*\\/])", &val, &op_char)) {
+        return absl::InvalidArgumentError(absl::StrCat("Bad line: ", line));
+      }
+      typename Cage::Op op;
+      switch (op_char) {
+        case '+':
+          op = Cage::kAdd;
+          break;
+        case '-':
+          op = Cage::kSub;
+          break;
+        case '*':
+          op = Cage::kMul;
+          break;
+        case '/':
+          op = Cage::kDiv;
+          break;
+        default:
+          LOG(FATAL) << "Bad op_char";
+      }
+      ret.push_back(Cage{.val = val, .op = op});
+    }
+  }
+  if (!board_line || *board_line != kWidth) {
+    return absl::InvalidArgumentError("Board too short");
+  }
+
+  return ret;
+}
+
+}  // namespace ken_ken
 
 #endif  // KEN_KEB_BOARD_H

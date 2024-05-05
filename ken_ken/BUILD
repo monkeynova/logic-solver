@@ -6,6 +6,7 @@ cc_library(
     hdrs = ["board.h"],
     deps = [
         "//puzzle:problem",
+        "@com_googlesource_code_re2//:re2",
     ],
 )
 
@@ -58,3 +59,29 @@ puzzle_test(
         ":nytkenken20240504_large_lib",
     ],
 )
+
+cc_binary(
+    name = "conceptis_puzzles",
+    deps = [
+        ":conceptis_puzzles_lib",
+        "//puzzle:puzzle_main",
+    ],
+)
+
+cc_library(
+    name = "conceptis_puzzles_lib",
+    srcs = ["conceptis_puzzles.cc"],
+    deps = [
+        ":board",
+        "@com_monkeynova_gunit_main//:vlog",
+    ],
+    alwayslink = 1,
+)
+
+# TODO: Unable once it runs in reasonable time.
+#puzzle_test(
+#    name = "conceptis_puzzles_test",
+#    deps = [
+#        ":conceptis_puzzles_lib",
+#    ],
+#)
