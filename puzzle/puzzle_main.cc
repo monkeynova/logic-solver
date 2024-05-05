@@ -17,11 +17,11 @@ std::string PositionHeader(const puzzle::Solution& s) {
 
 int main(int argc, char** argv) {
   std::vector<char*> args = InitMain(
-    argc, argv,
-    absl::StrCat("Runs the given puzzle. No arguments are allowed. Usage:\n",
-                 argv[0]));
-  QCHECK_EQ(args.size(), 1)
-      << "Extra argument!" << std::endl << absl::ProgramUsageMessage();
+      argc, argv,
+      absl::StrCat("Runs the given puzzle. No arguments are allowed. Usage:\n",
+                   argv[0]));
+  QCHECK_EQ(args.size(), 1) << "Extra argument!" << std::endl
+                            << absl::ProgramUsageMessage();
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   QCHECK(problem != nullptr) << "No puzzle found";

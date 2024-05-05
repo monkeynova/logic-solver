@@ -9,10 +9,10 @@
 
 int main(int argc, char** argv) {
   std::vector<char*> args = InitMain(
-    argc, argv,
-    absl::StrCat("Solves sudoku boards from STDIN. Usage:\n", argv[0]));
-  QCHECK_EQ(args.size(), 1)
-      << "Extra argument!" << std::endl << absl::ProgramUsageMessage();
+      argc, argv,
+      absl::StrCat("Solves sudoku boards from STDIN. Usage:\n", argv[0]));
+  QCHECK_EQ(args.size(), 1) << "Extra argument!" << std::endl
+                            << absl::ProgramUsageMessage();
 
   int exit_code = 0;
 

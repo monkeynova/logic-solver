@@ -473,7 +473,6 @@ cc_library(
 cc_library(
     name = "puzzle_test",
     testonly = 1,
-    alwayslink = 1,
     srcs = ["puzzle_test.cc"],
     visibility = [
         "//visibility:public",
@@ -486,4 +485,5 @@ cc_library(
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
+    alwayslink = 1,
 )

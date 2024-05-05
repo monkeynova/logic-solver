@@ -43,7 +43,9 @@ class Board : public puzzle::Problem {
   Board() : puzzle::Problem(MakeEntryDescriptor()) {}
 
  protected:
-  static int Val(const puzzle::Solution& s, int x, int y) { return s.Id(x).Class(y) + 1; }
+  static int Val(const puzzle::Solution& s, int x, int y) {
+    return s.Id(x).Class(y) + 1;
+  }
   static int Val(const puzzle::Entry& e, int y) { return e.Class(y) + 1; }
 
   virtual std::vector<Cage> GetCages() const = 0;
@@ -103,7 +105,7 @@ absl::Status Board<kWidth>::AddBoardPredicates() {
         },
         cols));
   }
-  
+
   return absl::OkStatus();
 }
 
@@ -111,8 +113,8 @@ template <int64_t kWidth>
 absl::Status Board<kWidth>::AddCagePredicates() {
   std::vector<Cage> cages = GetCages();
 
-  std::vector<std::vector<bool>> found(
-    kWidth, std::vector<bool>(kWidth, false));
+  std::vector<std::vector<bool>> found(kWidth,
+                                       std::vector<bool>(kWidth, false));
 
   int box_id = 0;
   for (const Cage& c : cages) {
@@ -141,26 +143,26 @@ absl::Status Board<kWidth>::AddCagePredicates() {
         // TODO: KillerSudoku puts some bounds on elements from totals.
         if (single_entry) {
           RETURN_IF_ERROR(AddSpecificEntryPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Entry& e) {
-              int sum = 0;
-              for (const Box& b : c.boxes) {
-                sum += e.Class(b.class_id) + 1;
-              }
-              return sum == c.val;
-            },
-            classes, *single_entry));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Entry& e) {
+                int sum = 0;
+                for (const Box& b : c.boxes) {
+                  sum += e.Class(b.class_id) + 1;
+                }
+                return sum == c.val;
+              },
+              classes, *single_entry));
         } else {
           RETURN_IF_ERROR(AddPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Solution& s) {
-              int sum = 0;
-              for (const Box& b : c.boxes) {
-                sum += s.Id(b.entry_id).Class(b.class_id) + 1;
-              }
-              return sum == c.val;
-            },
-            classes));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Solution& s) {
+                int sum = 0;
+                for (const Box& b : c.boxes) {
+                  sum += s.Id(b.entry_id).Class(b.class_id) + 1;
+                }
+                return sum == c.val;
+              },
+              classes));
         }
         break;
       }
@@ -168,93 +170,98 @@ absl::Status Board<kWidth>::AddCagePredicates() {
         // TODO: We can put requirements based on factorization.
         if (single_entry) {
           RETURN_IF_ERROR(AddSpecificEntryPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Entry& e) {
-              int product = 1;
-              for (const Box& b : c.boxes) {
-                product *= e.Class(b.class_id) + 1;
-              }
-              return product == c.val;
-            },
-            classes, *single_entry));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Entry& e) {
+                int product = 1;
+                for (const Box& b : c.boxes) {
+                  product *= e.Class(b.class_id) + 1;
+                }
+                return product == c.val;
+              },
+              classes, *single_entry));
 
         } else {
           RETURN_IF_ERROR(AddPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Solution& s) {
-              int product = 1;
-              for (const Box& b : c.boxes) {
-                product *= s.Id(b.entry_id).Class(b.class_id) + 1;
-              }
-              return product == c.val;
-            },
-            classes));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Solution& s) {
+                int product = 1;
+                for (const Box& b : c.boxes) {
+                  product *= s.Id(b.entry_id).Class(b.class_id) + 1;
+                }
+                return product == c.val;
+              },
+              classes));
         }
         break;
       }
       case Cage::kSub: {
         if (c.boxes.size() != 2) {
-          return absl::InvalidArgumentError(absl::StrCat(
-            "Subtraction only for 2 boxes")); 
+          return absl::InvalidArgumentError(
+              absl::StrCat("Subtraction only for 2 boxes"));
         }
         if (single_entry) {
           RETURN_IF_ERROR(AddSpecificEntryPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Entry& e) {
-              int b1 = e.Class(c.boxes[0].class_id) + 1;
-              int b2 = e.Class(c.boxes[1].class_id) + 1;
-              return b2 - b1 == c.val || b1 - b2 == c.val;
-            },
-            classes, *single_entry));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Entry& e) {
+                int b1 = e.Class(c.boxes[0].class_id) + 1;
+                int b2 = e.Class(c.boxes[1].class_id) + 1;
+                return b2 - b1 == c.val || b1 - b2 == c.val;
+              },
+              classes, *single_entry));
 
         } else {
           RETURN_IF_ERROR(AddPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Solution& s) {
-              int b1 = s.Id(c.boxes[0].entry_id).Class(c.boxes[0].class_id) + 1;
-              int b2 = s.Id(c.boxes[1].entry_id).Class(c.boxes[1].class_id) + 1;
-              return b2 - b1 == c.val || b1 - b2 == c.val;
-            },
-            classes));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Solution& s) {
+                int b1 =
+                    s.Id(c.boxes[0].entry_id).Class(c.boxes[0].class_id) + 1;
+                int b2 =
+                    s.Id(c.boxes[1].entry_id).Class(c.boxes[1].class_id) + 1;
+                return b2 - b1 == c.val || b1 - b2 == c.val;
+              },
+              classes));
         }
         break;
       }
       case Cage::kDiv: {
         if (c.boxes.size() != 2) {
-          return absl::InvalidArgumentError(absl::StrCat(
-            "Division only for 2 boxes")); 
+          return absl::InvalidArgumentError(
+              absl::StrCat("Division only for 2 boxes"));
         }
         if (single_entry) {
           RETURN_IF_ERROR(AddSpecificEntryPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Entry& e) {
-              int b1 = e.Class(c.boxes[0].class_id) + 1;
-              int b2 = e.Class(c.boxes[1].class_id) + 1;
-              return b1 == c.val * b2 || b2 == c.val * b1;
-            },
-            classes, *single_entry));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Entry& e) {
+                int b1 = e.Class(c.boxes[0].class_id) + 1;
+                int b2 = e.Class(c.boxes[1].class_id) + 1;
+                return b1 == c.val * b2 || b2 == c.val * b1;
+              },
+              classes, *single_entry));
 
         } else {
           RETURN_IF_ERROR(AddPredicate(
-            absl::StrCat("Box #", box_id),
-            [c](const puzzle::Solution& s) {
-              int b1 = s.Id(c.boxes[0].entry_id).Class(c.boxes[0].class_id) + 1;
-              int b2 = s.Id(c.boxes[1].entry_id).Class(c.boxes[1].class_id) + 1;
-              return b1 == c.val * b2 || b2 == c.val * b1;
-            },
-            classes));
+              absl::StrCat("Box #", box_id),
+              [c](const puzzle::Solution& s) {
+                int b1 =
+                    s.Id(c.boxes[0].entry_id).Class(c.boxes[0].class_id) + 1;
+                int b2 =
+                    s.Id(c.boxes[1].entry_id).Class(c.boxes[1].class_id) + 1;
+                return b1 == c.val * b2 || b2 == c.val * b1;
+              },
+              classes));
         }
         break;
       }
       default:
-        return absl::InvalidArgumentError("Bad Op"); 
+        return absl::InvalidArgumentError("Bad Op");
     }
   }
 
   for (int x = 0; x < kWidth; ++x) {
     for (int y = 0; y < kWidth; ++y) {
       if (!found[x][y]) {
-        return absl::InvalidArgumentError(absl::StrCat("Missing box: ", x, ",", y )); 
+        return absl::InvalidArgumentError(
+            absl::StrCat("Missing box: ", x, ",", y));
       }
     }
   }

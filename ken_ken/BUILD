@@ -22,7 +22,7 @@ cc_library(
     srcs = ["nytkenken20240504_small.cc"],
     deps = [
         ":board",
-        "@com_monkeynova_gunit_main//:vlog"
+        "@com_monkeynova_gunit_main//:vlog",
     ],
     alwayslink = 1,
 )
@@ -47,7 +47,7 @@ cc_library(
     srcs = ["nytkenken20240504_large.cc"],
     deps = [
         ":board",
-        "@com_monkeynova_gunit_main//:vlog"
+        "@com_monkeynova_gunit_main//:vlog",
     ],
     alwayslink = 1,
 )

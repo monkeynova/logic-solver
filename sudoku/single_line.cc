@@ -12,10 +12,10 @@ ABSL_FLAG(std::string, sudoku_line_board, "",
 
 int main(int argc, char** argv) {
   std::vector<char*> args = InitMain(
-    argc, argv,
-    absl::StrCat("Solves sudoku boards from a flag. Usage:\n", argv[0]));
-  QCHECK_EQ(args.size(), 1)
-      << "Extra argument!" << std::endl << absl::ProgramUsageMessage();
+      argc, argv,
+      absl::StrCat("Solves sudoku boards from a flag. Usage:\n", argv[0]));
+  QCHECK_EQ(args.size(), 1) << "Extra argument!" << std::endl
+                            << absl::ProgramUsageMessage();
 
   CHECK(!absl::GetFlag(FLAGS_sudoku_line_board).empty())
       << "--sudoku_line_board must be set";

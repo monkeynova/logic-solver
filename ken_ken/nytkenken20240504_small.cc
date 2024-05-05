@@ -16,12 +16,12 @@ class NYTKenKen20240504Small : public Board<4> {
 
 std::vector<Board<4>::Cage> NYTKenKen20240504Small::GetCages() const {
   return std::vector<Cage>{
-    {7, Cage::kAdd, {{0, 0}, {1, 0}}},
-    {7, Cage::kAdd, {{0, 1}, {0, 2}, {0, 3}}},
-    {10, Cage::kAdd, {{1, 1}, {2, 0}, {2, 1}, {3, 0}}},
-    {6, Cage::kAdd, {{1, 2}, {1, 3}, {2, 3}}},
-    {1, Cage::kAdd, {{2, 2}}},
-    {9, Cage::kAdd, {{3, 1}, {3, 2}, {3, 3}}},
+      {7, Cage::kAdd, {{0, 0}, {1, 0}}},
+      {7, Cage::kAdd, {{0, 1}, {0, 2}, {0, 3}}},
+      {10, Cage::kAdd, {{1, 1}, {2, 0}, {2, 1}, {3, 0}}},
+      {6, Cage::kAdd, {{1, 2}, {1, 3}, {2, 3}}},
+      {1, Cage::kAdd, {{2, 2}}},
+      {9, Cage::kAdd, {{3, 1}, {3, 2}, {3, 3}}},
   };
 }
 

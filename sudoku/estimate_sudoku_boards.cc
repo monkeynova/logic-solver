@@ -25,11 +25,12 @@ class EmptySudoku : public sudoku::Base {
 
 int main(int argc, char** argv) {
   std::vector<char*> args = InitMain(
-    argc, argv,
-    absl::StrCat("Estimates the number of total sudoku solution boards. No "
-                 "arguments are allowed. Usage:\n", argv[0]));
-  QCHECK_EQ(args.size(), 1)
-      << "Extra argument!" << std::endl << absl::ProgramUsageMessage();
+      argc, argv,
+      absl::StrCat("Estimates the number of total sudoku solution boards. No "
+                   "arguments are allowed. Usage:\n",
+                   argv[0]));
+  QCHECK_EQ(args.size(), 1) << "Extra argument!" << std::endl
+                            << absl::ProgramUsageMessage();
 
   // Pruning pair class iterators with an empty board involves basically
   // solving all sudoku problems before being able to return any. For

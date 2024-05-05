@@ -23,8 +23,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
   absl::flat_hash_map<int, int> class_to_entry;
   for (const Box& box : cage.boxes) {
     if (box_used_.contains(box)) {
-      return absl::InvalidArgumentError(
-          absl::StrCat("Duplicate entry: ", box));
+      return absl::InvalidArgumentError(absl::StrCat("Duplicate entry: ", box));
     }
     box_used_.insert(box);
     auto it = class_to_entry.find(box.class_id);
@@ -94,8 +93,7 @@ absl::Status KillerSudoku::InstanceSetup() {
     for (int class_id = 0; class_id < 9; ++class_id) {
       Box b = {entry_id, class_id};
       if (!box_used_.contains(b)) {
-        return absl::InvalidArgumentError(
-            absl::StrCat("Missing entry: ", b));
+        return absl::InvalidArgumentError(absl::StrCat("Missing entry: ", b));
       }
     }
   }
