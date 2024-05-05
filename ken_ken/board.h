@@ -164,6 +164,37 @@ absl::Status Board<kWidth>::AddSumPredicate(int val,
                                             int box_id,
                                             const std::vector<int>& classes,
                                             std::optional<int> single_entry) {
+  // kMinSums[i] = SUM(i) for i IN {1 .. i};
+  constexpr int kMinSums[9] = {0, 1, 3, 6, 10, 15, 21, 28, 36};
+  // kMaxSums[i] = SUM(i) for i IN {9 - i .. 9};
+  constexpr int kMaxSums[9] = {0, 9, 17, 24, 30, 35, 39, 42, 44};
+
+  int max_cage_val = val - kMinSums[boxes.size() - 1];
+  if (max_cage_val < 9) {
+    for (const Box& box : boxes) {
+      RETURN_IF_ERROR(AddSpecificEntryPredicate(
+          absl::StrCat("Cage max for ", box, " = ", max_cage_val),
+          [box, max_cage_val](const puzzle::Entry& e) {
+            // Value is 0 indexed.
+            return e.Class(box.class_id) <= max_cage_val - 1;
+          },
+          {box.class_id}, box.entry_id));
+    }
+  }
+
+  int min_cage_val = val - kMaxSums[boxes.size() - 1];
+  if (min_cage_val > 1) {
+    for (const Box& box : boxes) {
+      RETURN_IF_ERROR(AddSpecificEntryPredicate(
+          absl::StrCat("Cage min for ", box, " = ", min_cage_val),
+          [box, min_cage_val](const puzzle::Entry& e) {
+            // Value is 0 indexed.
+            return e.Class(box.class_id) >= min_cage_val - 1;
+          },
+          {box.class_id}, box.entry_id));
+    }
+  }
+
   // TODO: KillerSudoku puts some bounds on elements from totals.
   if (single_entry) {
     return AddSpecificEntryPredicate(
@@ -196,7 +227,16 @@ absl::Status Board<kWidth>::AddMulPredicate(int val,
                                             int box_id,
                                             const std::vector<int>& classes,
                                             std::optional<int> single_entry) {
-  // TODO: We can put requirements based on factorization.
+  for (const Box& box : boxes) {
+    RETURN_IF_ERROR(AddSpecificEntryPredicate(
+        absl::StrCat("Cage factors for ", box, " = ", val),
+        [box, val](const puzzle::Entry& e) {
+          // Value is 0 indexed.
+          return val % (e.Class(box.class_id) + 1) == 0;
+        },
+        {box.class_id}, box.entry_id));
+  }
+
   if (single_entry) {
     return AddSpecificEntryPredicate(
         absl::StrCat("Box #", box_id),
