@@ -4,6 +4,7 @@ load("//puzzle:puzzle.bzl", "puzzle_test")
 cc_library(
     name = "board",
     hdrs = ["board.h"],
+    srcs = ["board.cc"],
     deps = [
         "//puzzle:problem",
         "@com_googlesource_code_re2//:re2",
