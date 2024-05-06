@@ -41,13 +41,25 @@ class Entry {
   const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
   template <typename Sink>
-  friend void AbslStringify(Sink& sink, const Entry& entry) {
-    absl::Format(&sink, "%v", entry.DebugString());
+  friend void AbslStringify(Sink& sink, const Entry& e) {
+    if (e.entry_descriptor_ != nullptr) {
+      absl::Format(&sink, "%v", e.entry_descriptor_->Id(e.id_));
+    } else {
+      absl::Format(&sink, "%v", e.id_);
+    }
+    absl::Format(&sink, ":");
+    for (unsigned int i = 0; i < e.classes_.size(); ++i) {
+      if (e.entry_descriptor_) {
+        absl::Format(&sink, " %v=%v", e.entry_descriptor_->Class(i),
+                     e.entry_descriptor_->Name(i, e.classes_[i]));
+      } else {
+        absl::Format(&sink, " %v", e.classes_[i]);
+      }
+    }
   }
 
  private:
   Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
-  std::string DebugString() const;
 
   int id_;
   std::vector<int> classes_;
@@ -107,16 +119,23 @@ class Solution {
   }
 
   template <typename Sink>
-  friend void AbslStringify(Sink& sink, const Solution& solution) {
-    absl::Format(&sink, "%v", solution.DebugString());
+  friend void AbslStringify(Sink& sink, const Solution& s) {
+    if (s.entries_ == nullptr) absl::Format(&sink, "<invalid>");
+    else if (s.entries_->size() == 0) absl::Format(&sink, "<empty>");
+    else {
+      bool first = true;
+      for (const Entry& e : *s.entries_) {
+        if (first) first = false;
+        else absl::Format(&sink, "\n");
+        absl::Format(&sink, "%v", e);
+      }
+    }
   }
   friend std::ostream& operator<<(std::ostream& o, const Solution& solution) {
     return o << absl::StreamFormat("%v", solution);
   }
 
  private:
-  std::string DebugString() const;
-
   const EntryDescriptor* entry_descriptor_ = nullptr;  // Not owned
 
   const std::vector<Entry>* entries_ = nullptr;

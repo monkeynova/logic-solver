@@ -1,29 +1,8 @@
 #include "puzzle/solution.h"
 
-#include <sstream>
-
 namespace puzzle {
 
 Entry Entry::invalid_(-1);
-
-std::string Entry::DebugString() const {
-  std::stringstream ret;
-  if (entry_descriptor_ != nullptr) {
-    ret << entry_descriptor_->Id(id_);
-  } else {
-    ret << id_;
-  }
-  ret << ":";
-  for (unsigned int i = 0; i < classes_.size(); ++i) {
-    if (entry_descriptor_) {
-      ret << " " << entry_descriptor_->Class(i) << "="
-          << entry_descriptor_->Name(i, classes_[i]);
-    } else {
-      ret << " " << classes_[i];
-    }
-  }
-  return ret.str();
-}
 
 Solution& Solution::operator=(Solution&& other) {
   entry_descriptor_ = other.entry_descriptor_;
@@ -53,13 +32,6 @@ bool Solution::operator==(const Solution& other) const {
     return entries_ == other.entries_;
   }
   return *entries_ == *other.entries_;
-}
-
-std::string Solution::DebugString() const {
-  if (entries_ == nullptr) return "<invalid>";
-  if (entries_->size() == 0) return "<empty>";
-
-  return absl::StrJoin(*entries_, "\n");
 }
 
 }  // namespace puzzle
