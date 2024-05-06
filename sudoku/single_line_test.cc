@@ -47,8 +47,8 @@ TEST(Puzzle, UniqueAnswer) {
   ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());
   ASSERT_EQ(solutions->size(), 1) << "\n0:\n"
-                                  << solutions->at(0).DebugString() << "\n1:\n"
-                                  << solutions->at(1).DebugString();
+                                  << solutions->at(0)<< "\n1:\n"
+                                  << solutions->at(1);
 }
 
 static void BM_Solver(benchmark::State& state) {

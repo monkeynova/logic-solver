@@ -101,7 +101,7 @@ void TestLineBoard(absl::string_view test_case,
   }
   if (!answer->IsValid()) {
     test_result->AddTestOutput(
-        absl::StrCat("ERROR: Could not solve puzzle: ", answer->DebugString()));
+        absl::StrCat("ERROR: Could not solve puzzle: ", answer));
     return;
   }
   if (absl::GetFlag(FLAGS_puzzle_test_unique)) {

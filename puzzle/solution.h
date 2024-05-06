@@ -36,13 +36,19 @@ class Entry {
   int id() const { return id_; }
   int Class(int classname) const { return classes_[classname]; }
   void SetClass(int classname, int value) { classes_[classname] = value; }
-  std::string DebugString() const;
 
   static const Entry& Invalid() { return invalid_; }
   const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
+  template <typename Sink>
+  friend void AbslStringify(Sink& sink, const Entry& entry) {
+    absl::Format(&sink, "%v", entry.DebugString());
+  }
+
  private:
   Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
+  std::string DebugString() const;
+
   int id_;
   std::vector<int> classes_;
   const EntryDescriptor* entry_descriptor_;
@@ -99,9 +105,18 @@ class Solution {
     LOG(ERROR) << "Cannot find an entry for the given predicate";
     return Entry::Invalid();
   }
-  std::string DebugString() const;
+
+  template <typename Sink>
+  friend void AbslStringify(Sink& sink, const Solution& solution) {
+    absl::Format(&sink, "%v", solution.DebugString());
+  }
+  friend std::ostream& operator<<(std::ostream& o, const Solution& solution) {
+    return o << absl::StreamFormat("%v", solution);
+  }
 
  private:
+  std::string DebugString() const;
+
   const EntryDescriptor* entry_descriptor_ = nullptr;  // Not owned
 
   const std::vector<Entry>* entries_ = nullptr;
@@ -117,15 +132,6 @@ class Solution {
   // 'entry_descriptor_'.
   double permutation_count_ = 0;
 };
-
-template <typename Sink>
-void AbslStringify(Sink& sink, const Solution& solution) {
-  absl::Format(&sink, "%v", solution.DebugString());
-}
-
-inline void PrintTo(const Solution& solution, ::std::ostream* os) {
-  *os << solution.DebugString();
-}
 
 }  // namespace puzzle
 

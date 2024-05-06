@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
     LOG(INFO) << "[" << all_solutions->size() << " solutions]";
     LOG(INFO) << absl::StrJoin(
         *all_solutions, "\n", [](std::string* out, const puzzle::Solution& s) {
-          absl::StrAppend(out, PositionHeader(s), "\n", s.DebugString());
+          absl::StrAppend(out, PositionHeader(s), "\n", s);
         });
   } else {
     absl::StatusOr<puzzle::Solution> answer = problem->Solve();
@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     if (answer->IsValid()) {
       LOG(INFO) << PositionHeader(*answer);
     }
-    std::cout << answer->DebugString() << std::endl;
+    std::cout << answer << std::endl;
     exit_code = answer->IsValid() ? 0 : 1;
   }
 

@@ -30,14 +30,13 @@ TEST(FilteredSolutionPermuterTest, Simple) {
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), solutions.size());
-    EXPECT_THAT(history.insert(it->DebugString()).second, true)
-        << it->DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 6 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
-        << solution.DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(solution)).second, false)
+        << solution;
   }
 }
 
@@ -64,16 +63,15 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it.position(), Ge(solutions.size()));
-    EXPECT_THAT(history.insert(it->DebugString()).second, true)
-        << it->DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(1).Class(0), 1);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
-        << solution.DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(solution)).second, false)
+        << solution;
   }
 }
 
@@ -104,16 +102,15 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
   for (auto it = p.begin(); it != p.end(); ++it) {
     LOG(INFO) << "Got Next" << std::endl;
     EXPECT_THAT(it.position(), Ge(solutions.size()));
-    EXPECT_THAT(history.insert(it->DebugString()).second, true)
-        << it->DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(1).Class(1), 2);
     solutions.emplace_back(it->Clone());
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
-        << solution.DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(solution)).second, false)
+        << solution;
   }
 }
 
@@ -151,8 +148,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   for (auto it = p.begin(); it != p.end(); ++it) {
     LOG(INFO) << "Got Next";
     EXPECT_THAT(it.position(), Ge(solutions.size()));
-    EXPECT_THAT(history.insert(it->DebugString()).second, true)
-        << it->DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(0).Class(0), 1);
     EXPECT_THAT(it->Id(1).Class(1), 2);
@@ -160,8 +156,8 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   }
   EXPECT_THAT(solutions.size(), 2 * 2);
   for (const auto& solution : solutions) {
-    EXPECT_THAT(history.insert(solution.DebugString()).second, false)
-        << solution.DebugString();
+    EXPECT_THAT(history.insert(absl::StrCat(solution)).second, false)
+        << solution;
   }
 }
 

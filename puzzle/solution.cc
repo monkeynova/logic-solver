@@ -59,9 +59,7 @@ std::string Solution::DebugString() const {
   if (entries_ == nullptr) return "<invalid>";
   if (entries_->size() == 0) return "<empty>";
 
-  return absl::StrJoin(*entries_, "\n", [](std::string* out, const Entry& e) {
-    absl::StrAppend(out, e.DebugString());
-  });
+  return absl::StrJoin(*entries_, "\n");
 }
 
 }  // namespace puzzle

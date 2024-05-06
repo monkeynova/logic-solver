@@ -45,8 +45,8 @@ TEST(Puzzle, UniqueAnswer) {
       problem->AllSolutions(/*limit=*/2);
   ASSERT_TRUE(solutions.ok());
   ASSERT_FALSE(solutions->empty());
-  ASSERT_EQ(solutions->size(), 1) << "\n0: " << solutions->at(0).DebugString()
-                                  << "\n1: " << solutions->at(1).DebugString();
+  ASSERT_EQ(solutions->size(), 1) << "\n0: " << solutions->at(0)
+                                  << "\n1: " << solutions->at(1);
 }
 
 static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
