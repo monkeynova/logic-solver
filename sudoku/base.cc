@@ -30,7 +30,7 @@ ABSL_FLAG(bool, sudoku_setup_composed_value_predicates, true,
 namespace sudoku {
 
 static puzzle::EntryDescriptor MakeEntryDescriptor() {
-  // Descriptors are built so solution.DebugString(), kinda, sorta looks like
+  // Descriptors are built so absl::StrCat(solution), kinda, sorta looks like
   // a sudoku board.
   std::vector<std::string> id_names(9);
   for (int i = 0; i < 9; i += 3) {
