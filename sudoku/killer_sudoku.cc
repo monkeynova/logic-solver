@@ -12,11 +12,6 @@ ABSL_FLAG(bool, sudoku_killer_composition, true,
 namespace sudoku {
 
 absl::Status KillerSudoku::AddCage(const Cage& cage) {
-  // kMinSums[i] = SUM(i) for i IN {1 .. i};
-  constexpr int kMinSums[9] = {0, 1, 3, 6, 10, 15, 21, 28, 36};
-  // kMaxSums[i] = SUM(i) for i IN {9 - i .. 9};
-  constexpr int kMaxSums[9] = {0, 9, 17, 24, 30, 35, 39, 42, 44};
-
   if (cage.boxes.empty()) {
     return absl::InvalidArgumentError("cage cannot be empty");
   }
@@ -36,42 +31,52 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     }
   }
 
-  bool all_one_class = absl::c_all_of(
-    cage.boxes,
-    [&](const Box& b) { return b.class_id == cage.boxes[0].class_id; });
+  if (absl::GetFlag(FLAGS_sudoku_killer_composition)) {
+    std::vector<int> count_by_entry(9, 0);
+    std::vector<int> count_by_class(9, 0);
+    for (const Box& box : cage.boxes) {
+      ++count_by_entry[box.entry_id];
+      ++count_by_class[box.class_id];
+    }
+    int min_by_entry = 0;
+    int min_by_class = 0;
+    int max_by_entry = 0;
+    int max_by_class = 0;
+    for (int i = 0; i < 9; ++i) {
+      min_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2;
+      min_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2;
+      max_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2 + 
+          (9 - count_by_entry[i]) * count_by_entry[i];
+      max_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2 + 
+          (9 - count_by_class[i]) * count_by_class[i];
+    }
+    int min_cage = std::min(min_by_entry, min_by_class);
+    int max_cage = std::min(max_by_entry, max_by_class);
 
-  bool all_one_entry = absl::c_all_of(
-    cage.boxes,
-    [&](const Box& b) { return b.entry_id == cage.boxes[0].entry_id; });
-
-  bool min_max_sum_eligible = all_one_class || all_one_entry;
-
-  if (absl::GetFlag(FLAGS_sudoku_killer_composition) && min_max_sum_eligible) {
-    int max_cage_val = cage.expected_sum - kMinSums[cage.boxes.size() - 1];
-    if (max_cage_val < 9) {
-      for (const Box& box : cage.boxes) {
-        absl::Status st = AddSpecificEntryPredicate(
+    for (const Box& box : cage.boxes) {
+      int biggest_remove = std::max(count_by_entry[box.entry_id],
+                                    count_by_class[box.class_id]);
+      int max_cage_val = cage.expected_sum - (min_cage - biggest_remove);
+      if (max_cage_val < 9) {
+        RETURN_IF_ERROR(AddSpecificEntryPredicate(
             absl::StrCat("Cage max for ", box, " = ", max_cage_val),
             [box, max_cage_val](const puzzle::Entry& e) {
               // Value is 0 indexed.
               return e.Class(box.class_id) <= max_cage_val - 1;
             },
-            {box.class_id}, box.entry_id);
-        if (!st.ok()) return st;
+            {box.class_id}, box.entry_id));
       }
-    }
 
-    int min_cage_val = cage.expected_sum - kMaxSums[cage.boxes.size() - 1];
-    if (min_cage_val > 1) {
-      for (const Box& box : cage.boxes) {
-        absl::Status st = AddSpecificEntryPredicate(
+      int smallest_remove = 9 + 1 - biggest_remove;
+      int min_cage_val = cage.expected_sum  - (max_cage - smallest_remove);
+      if (min_cage_val > 1) {
+        RETURN_IF_ERROR(AddSpecificEntryPredicate(
             absl::StrCat("Cage min for ", box, " = ", min_cage_val),
             [box, min_cage_val](const puzzle::Entry& e) {
               // Value is 0 indexed.
               return e.Class(box.class_id) >= min_cage_val - 1;
             },
-            {box.class_id}, box.entry_id);
-        if (!st.ok()) return st;
+            {box.class_id}, box.entry_id));
       }
     }
 

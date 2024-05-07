@@ -89,8 +89,62 @@ absl::Status Board<kWidth>::AddSumPredicate(int val,
                                             int box_id,
                                             const std::vector<int>& classes,
                                             std::optional<int> single_entry) {
-  // TODO: KillerSudoku tried to add a min/max value check based on triangular
-  // numbers. It's not right, but if we fix it, it could apply here as well.
+  if (true) {
+    // TODO: This is copy&paste-d from killer_sudoku.cc. This should be common,
+    // but that kinda requires that they use the same definition of 'Box' and
+    // maybe the same problem.
+    std::vector<int> count_by_entry(kWidth, 0);
+    std::vector<int> count_by_class(kWidth, 0);
+    for (const Box& box : boxes) {
+      ++count_by_entry[box.entry_id];
+      ++count_by_class[box.class_id];
+    }
+    int min_by_entry = 0;
+    int min_by_class = 0;
+    int max_by_entry = 0;
+    int max_by_class = 0;
+    for (int i = 0; i < kWidth; ++i) {
+      min_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2;
+      min_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2;
+      max_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2 + 
+          (kWidth - count_by_entry[i]) * count_by_entry[i];
+      max_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2 + 
+          (kWidth - count_by_class[i]) * count_by_class[i];
+    }
+    int min_cage = std::min(min_by_entry, min_by_class);
+    int max_cage = std::min(max_by_entry, max_by_class);
+
+    for (const Box& box : boxes) {
+      int biggest_remove = std::max(count_by_entry[box.entry_id],
+                                    count_by_class[box.class_id]);
+      int max_cage_val = val - (min_cage - biggest_remove);
+      if (max_cage_val < 9) {
+        RETURN_IF_ERROR(AddSpecificEntryPredicate(
+            absl::StrCat("Cage max for ", box, " = ", max_cage_val),
+            [box, max_cage_val](const puzzle::Entry& e) {
+              // Value is 0 indexed.
+              return e.Class(box.class_id) <= max_cage_val - 1;
+            },
+            {box.class_id}, box.entry_id));
+      }
+
+      int smallest_remove = kWidth + 1 - biggest_remove;
+      int min_cage_val = val - (max_cage - smallest_remove);
+      if (min_cage_val > 1) {
+        RETURN_IF_ERROR(AddSpecificEntryPredicate(
+            absl::StrCat("Cage min for ", box, " = ", min_cage_val),
+            [box, min_cage_val](const puzzle::Entry& e) {
+              // Value is 0 indexed.
+              return e.Class(box.class_id) >= min_cage_val - 1;
+            },
+            {box.class_id}, box.entry_id));
+      }
+    }
+
+    // TODO(@monkeynova): There are likely other restrictions possible. For
+    // example a SUM of 4 precludes the value 2 from either given the sudoku
+    // constraints.
+  }
 
   if (single_entry) {
     return AddSpecificEntryPredicate(
