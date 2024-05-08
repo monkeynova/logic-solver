@@ -2,11 +2,22 @@ load("@com_monkeynova_base_workspace//:default_rules.bzl", "default_rules")
 load("//puzzle:puzzle.bzl", "puzzle_test")
 
 cc_library(
+    name = "grid",
+    srcs = ["grid.cc"],
+    hdrs = ["grid.h"],
+    deps = [
+        "//puzzle:problem",
+        "@com_googlesource_code_re2//:re2",
+    ],
+)
+
+cc_library(
     name = "ken_ken",
     srcs = ["ken_ken.cc"],
     hdrs = ["ken_ken.h"],
     deps = [
-        "//puzzle:problem",
+        ":grid",
+        "@com_google_absl//absl/strings",
         "@com_googlesource_code_re2//:re2",
     ],
 )

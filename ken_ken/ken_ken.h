@@ -3,31 +3,16 @@
 
 #include <cstdint>
 
-#include "puzzle/problem.h"
+#include "ken_ken/grid.h"
 
 namespace ken_ken {
 
 template <int64_t kWidth>
-class KenKen : public puzzle::Problem {
+class KenKen : public Grid<kWidth> {
  public:
-  struct Box {
-    int entry_id;
-    int class_id;
-
-    template <typename Sink>
-    friend void AbslStringify(Sink& sink, const Box& b) {
-      absl::Format(&sink, "(%v, %v)", b.entry_id, b.class_id);
-    }
-
-    template <typename H>
-    friend H AbslHashValue(H h, const Box& box) {
-      return H::combine(std::move(h), box.entry_id, box.class_id);
-    }
-
-    bool operator==(const Box& other) const {
-      return entry_id == other.entry_id && class_id == other.class_id;
-    }
-  };
+  using Box = Grid<kWidth>::Box;
+  using ::puzzle::Solver::AddSpecificEntryPredicate;
+  using ::puzzle::Solver::AddPredicate;
 
   struct Cage {
     int val;
@@ -40,7 +25,7 @@ class KenKen : public puzzle::Problem {
     std::vector<Box> boxes;
   };
 
-  KenKen() : puzzle::Problem(MakeEntryDescriptor()) {}
+  KenKen() = default;
 
  protected:
   absl::StatusOr<std::vector<Cage>> GetCages() const;
@@ -49,8 +34,7 @@ class KenKen : public puzzle::Problem {
   virtual absl::Status AddCagePredicates();
 
  private:
-  absl::Status Setup() final;
-  absl::Status AddKenKenPredicates();
+  absl::Status AddGridPredicates() final;
 
   static bool IsContiguous(const Cage& cage);
   absl::Status AddSumPredicate(int val, const std::vector<Box>& boxes,
@@ -65,8 +49,6 @@ class KenKen : public puzzle::Problem {
   absl::Status AddDivPredicate(int val, const std::vector<Box>& boxes,
                                int box_id, const std::vector<int>& classes,
                                std::optional<int> single_entry);
-
-  static puzzle::EntryDescriptor MakeEntryDescriptor();
 };
 
 extern template class KenKen<4>;
