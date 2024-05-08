@@ -10,9 +10,7 @@ namespace sudoku {
   }
   const char* data = line.data();
   Board b;
-  b.resize(9);
   for (int row = 0; row < 9; ++row) {
-    b[row].resize(9);
     for (int col = 0; col < 9; ++col) {
       if (*data == '.') {
         b[row][col] = -1;

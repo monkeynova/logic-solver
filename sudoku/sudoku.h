@@ -15,9 +15,20 @@ class Sudoku : public ::puzzle::Problem {
  public:
   Sudoku();
 
-  using Board = std::vector<std::vector<int>>;
+  using Board = std::array<std::array<int, 9>, 9>;
 
-  static Board EmptyBoard() { return Board(9, std::vector<int>(9, 0)); }
+  static Board EmptyBoard() {
+    return Board{
+      std::array<int, 9>{0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0},
+      {0, 0, 0, 0, 0, 0, 0, 0, 0}};
+  }
 
   struct Box {
     int entry_id;

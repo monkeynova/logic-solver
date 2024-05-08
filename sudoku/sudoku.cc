@@ -237,19 +237,13 @@ absl::StatusOr<puzzle::Solution> Sudoku::GetSolution() const {
   if (!board.ok()) return board.status();
 
   std::vector<puzzle::Entry> entries;
-  if (board->size() != 9) {
-    return absl::InvalidArgumentError("Board must have 9 rows");
-  }
   for (size_t row = 0; row < board->size(); ++row) {
-    if ((*board)[row].size() != 9) {
-      return absl::InvalidArgumentError(
-          "Board must have 9 columns in each row");
-    }
+    std::vector<int> entry_vals(9, 0);
     for (size_t col = 0; col < (*board)[row].size(); ++col) {
       // Translate to 0-indexed solution space.
-      --(*board)[row][col];
+      entry_vals[col] = (*board)[row][col] - 1;
     }
-    entries.emplace_back(row, (*board)[row], entry_descriptor());
+    entries.emplace_back(row, entry_vals, entry_descriptor());
   }
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
@@ -261,6 +255,7 @@ absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(const absl::string_view board) 
   if (rows.size() != /*data=*/9 + /*spacer=*/2) {
     return absl::InvalidArgumentError("# of rows isn't 11");
   }
+  int row_idx = 0;
   for (const absl::string_view row : rows) {
     if (row == "- - - + - - - + - - -") continue;
 
@@ -268,7 +263,7 @@ absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(const absl::string_view board) 
     if (cols.size() != /*data=*/9 + /*spacer=*/2) {
       return absl::InvalidArgumentError("Length of row isn't 11");
     }
-    std::vector<int> cur_cols;
+    int col_idx = 0;
     for (const absl::string_view col : cols) {
       if (col == "|") continue;
       int val = -1;
@@ -278,9 +273,10 @@ absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(const absl::string_view board) 
               absl::StrCat("Not a number: ", col));
         }
       }
-      cur_cols.push_back(val);
+      ret[row_idx][col_idx] = val;
+      ++col_idx;
     }
-    ret.push_back(cur_cols);
+    ++row_idx;
   }
   return ret;
 }
