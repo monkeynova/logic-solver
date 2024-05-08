@@ -249,7 +249,8 @@ absl::StatusOr<puzzle::Solution> Sudoku::GetSolution() const {
 }
 
 // static
-absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(const absl::string_view board) {
+absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(
+    const absl::string_view board) {
   Board ret;
   std::vector<std::string> rows = absl::StrSplit(board, "\n");
   if (rows.size() != /*data=*/9 + /*spacer=*/2) {

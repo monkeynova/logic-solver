@@ -45,17 +45,17 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
     for (int i = 0; i < 9; ++i) {
       min_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2;
       min_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2;
-      max_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2 + 
-          (9 - count_by_entry[i]) * count_by_entry[i];
-      max_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2 + 
-          (9 - count_by_class[i]) * count_by_class[i];
+      max_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2 +
+                      (9 - count_by_entry[i]) * count_by_entry[i];
+      max_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2 +
+                      (9 - count_by_class[i]) * count_by_class[i];
     }
     int min_cage = std::min(min_by_entry, min_by_class);
     int max_cage = std::min(max_by_entry, max_by_class);
 
     for (const Box& box : cage.boxes) {
-      int biggest_remove = std::max(count_by_entry[box.entry_id],
-                                    count_by_class[box.class_id]);
+      int biggest_remove =
+          std::max(count_by_entry[box.entry_id], count_by_class[box.class_id]);
       int max_cage_val = cage.expected_sum - (min_cage - biggest_remove);
       if (max_cage_val < 9) {
         RETURN_IF_ERROR(AddSpecificEntryPredicate(
@@ -68,7 +68,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
       }
 
       int smallest_remove = 9 + 1 - biggest_remove;
-      int min_cage_val = cage.expected_sum  - (max_cage - smallest_remove);
+      int min_cage_val = cage.expected_sum - (max_cage - smallest_remove);
       if (min_cage_val > 1) {
         RETURN_IF_ERROR(AddSpecificEntryPredicate(
             absl::StrCat("Cage min for ", box, " = ", min_cage_val),

@@ -47,7 +47,7 @@ TEST(Puzzle, UniqueAnswer) {
   ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());
   ASSERT_EQ(solutions->size(), 1) << "\n0:\n"
-                                  << solutions->at(0)<< "\n1:\n"
+                                  << solutions->at(0) << "\n1:\n"
                                   << solutions->at(1);
 }
 

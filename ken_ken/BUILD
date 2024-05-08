@@ -3,8 +3,8 @@ load("//puzzle:puzzle.bzl", "puzzle_test")
 
 cc_library(
     name = "ken_ken",
-    hdrs = ["ken_ken.h"],
     srcs = ["ken_ken.cc"],
+    hdrs = ["ken_ken.h"],
     deps = [
         "//puzzle:problem",
         "@com_googlesource_code_re2//:re2",

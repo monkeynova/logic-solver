@@ -85,10 +85,10 @@ bool KenKen<kWidth>::IsContiguous(const Cage& c) {
 
 template <int64_t kWidth>
 absl::Status KenKen<kWidth>::AddSumPredicate(int val,
-                                            const std::vector<Box>& boxes,
-                                            int box_id,
-                                            const std::vector<int>& classes,
-                                            std::optional<int> single_entry) {
+                                             const std::vector<Box>& boxes,
+                                             int box_id,
+                                             const std::vector<int>& classes,
+                                             std::optional<int> single_entry) {
   if (true) {
     // TODO: This is copy&paste-d from killer_sudoku.cc. This should be common,
     // but that kinda requires that they use the same definition of 'Box' and
@@ -106,17 +106,17 @@ absl::Status KenKen<kWidth>::AddSumPredicate(int val,
     for (int i = 0; i < kWidth; ++i) {
       min_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2;
       min_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2;
-      max_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2 + 
-          (kWidth - count_by_entry[i]) * count_by_entry[i];
-      max_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2 + 
-          (kWidth - count_by_class[i]) * count_by_class[i];
+      max_by_entry += count_by_entry[i] * (count_by_entry[i] + 1) / 2 +
+                      (kWidth - count_by_entry[i]) * count_by_entry[i];
+      max_by_class += count_by_class[i] * (count_by_class[i] + 1) / 2 +
+                      (kWidth - count_by_class[i]) * count_by_class[i];
     }
     int min_cage = std::min(min_by_entry, min_by_class);
     int max_cage = std::min(max_by_entry, max_by_class);
 
     for (const Box& box : boxes) {
-      int biggest_remove = std::max(count_by_entry[box.entry_id],
-                                    count_by_class[box.class_id]);
+      int biggest_remove =
+          std::max(count_by_entry[box.entry_id], count_by_class[box.class_id]);
       int max_cage_val = val - (min_cage - biggest_remove);
       if (max_cage_val < 9) {
         RETURN_IF_ERROR(AddSpecificEntryPredicate(
@@ -173,10 +173,10 @@ absl::Status KenKen<kWidth>::AddSumPredicate(int val,
 
 template <int64_t kWidth>
 absl::Status KenKen<kWidth>::AddMulPredicate(int val,
-                                            const std::vector<Box>& boxes,
-                                            int box_id,
-                                            const std::vector<int>& classes,
-                                            std::optional<int> single_entry) {
+                                             const std::vector<Box>& boxes,
+                                             int box_id,
+                                             const std::vector<int>& classes,
+                                             std::optional<int> single_entry) {
   for (const Box& box : boxes) {
     if (boxes.size() < 2) continue;
     RETURN_IF_ERROR(AddSpecificEntryPredicate(
@@ -244,10 +244,10 @@ absl::Status KenKen<kWidth>::AddMulPredicate(int val,
 
 template <int64_t kWidth>
 absl::Status KenKen<kWidth>::AddSubPredicate(int val,
-                                            const std::vector<Box>& boxes,
-                                            int box_id,
-                                            const std::vector<int>& classes,
-                                            std::optional<int> single_entry) {
+                                             const std::vector<Box>& boxes,
+                                             int box_id,
+                                             const std::vector<int>& classes,
+                                             std::optional<int> single_entry) {
   if (boxes.size() != 2) {
     return absl::InvalidArgumentError(
         absl::StrCat("Subtraction only for 2 boxes"));
@@ -275,10 +275,10 @@ absl::Status KenKen<kWidth>::AddSubPredicate(int val,
 
 template <int64_t kWidth>
 absl::Status KenKen<kWidth>::AddDivPredicate(int val,
-                                            const std::vector<Box>& boxes,
-                                            int box_id,
-                                            const std::vector<int>& classes,
-                                            std::optional<int> single_entry) {
+                                             const std::vector<Box>& boxes,
+                                             int box_id,
+                                             const std::vector<int>& classes,
+                                             std::optional<int> single_entry) {
   if (boxes.size() != 2) {
     return absl::InvalidArgumentError(
         absl::StrCat("Division only for 2 boxes"));
@@ -291,17 +291,17 @@ absl::Status KenKen<kWidth>::AddDivPredicate(int val,
     }
   }
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    absl::StrCat("Div Allowed (1) #", box_id),
-    [allowed_by_bit, boxes](const puzzle::Entry& e) {
+      absl::StrCat("Div Allowed (1) #", box_id),
+      [allowed_by_bit, boxes](const puzzle::Entry& e) {
         return allowed_by_bit & (1 << e.Class(boxes[0].class_id));
       },
-    {boxes[0].class_id}, boxes[0].entry_id));
+      {boxes[0].class_id}, boxes[0].entry_id));
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
-    absl::StrCat("Div Allowed (2) #", box_id),
-    [allowed_by_bit, boxes](const puzzle::Entry& e) {
+      absl::StrCat("Div Allowed (2) #", box_id),
+      [allowed_by_bit, boxes](const puzzle::Entry& e) {
         return allowed_by_bit & (1 << e.Class(boxes[1].class_id));
       },
-    {boxes[1].class_id}, boxes[1].entry_id));
+      {boxes[1].class_id}, boxes[1].entry_id));
 
   if (single_entry) {
     return AddSpecificEntryPredicate(

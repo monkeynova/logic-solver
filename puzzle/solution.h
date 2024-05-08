@@ -120,13 +120,17 @@ class Solution {
 
   template <typename Sink>
   friend void AbslStringify(Sink& sink, const Solution& s) {
-    if (s.entries_ == nullptr) absl::Format(&sink, "<invalid>");
-    else if (s.entries_->size() == 0) absl::Format(&sink, "<empty>");
+    if (s.entries_ == nullptr)
+      absl::Format(&sink, "<invalid>");
+    else if (s.entries_->size() == 0)
+      absl::Format(&sink, "<empty>");
     else {
       bool first = true;
       for (const Entry& e : *s.entries_) {
-        if (first) first = false;
-        else absl::Format(&sink, "\n");
+        if (first)
+          first = false;
+        else
+          absl::Format(&sink, "\n");
         absl::Format(&sink, "%v", e);
       }
     }
