@@ -1,4 +1,4 @@
-#include "ken_ken/board.h"
+#include "ken_ken/ken_ken.h"
 
 #include "absl/strings/str_split.h"
 #include "re2/re2.h"
@@ -6,7 +6,7 @@
 namespace ken_ken {
 
 template <int64_t kWidth>
-puzzle::EntryDescriptor Board<kWidth>::MakeEntryDescriptor() {
+puzzle::EntryDescriptor KenKen<kWidth>::MakeEntryDescriptor() {
   std::vector<std::string> id_names(kWidth);
   for (int i = 0; i < kWidth; ++i) {
     id_names[i] = ("");
@@ -31,14 +31,14 @@ puzzle::EntryDescriptor Board<kWidth>::MakeEntryDescriptor() {
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::Setup() {
-  RETURN_IF_ERROR(AddBoardPredicates());
+absl::Status KenKen<kWidth>::Setup() {
+  RETURN_IF_ERROR(AddKenKenPredicates());
   RETURN_IF_ERROR(AddCagePredicates());
   return absl::OkStatus();
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::AddBoardPredicates() {
+absl::Status KenKen<kWidth>::AddKenKenPredicates() {
   for (int i = 0; i < kWidth; ++i) {
     for (int j = i + 1; j < kWidth; ++j) {
       absl::Status st = AddAllEntryPredicate(
@@ -53,7 +53,7 @@ absl::Status Board<kWidth>::AddBoardPredicates() {
 }
 
 template <int64_t kWidth>
-bool Board<kWidth>::IsContiguous(const Cage& c) {
+bool KenKen<kWidth>::IsContiguous(const Cage& c) {
   std::array<std::bitset<kWidth>, kWidth> box_found;
   for (const Box& b : c.boxes) {
     box_found[b.entry_id][b.class_id] = true;
@@ -84,7 +84,7 @@ bool Board<kWidth>::IsContiguous(const Cage& c) {
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::AddSumPredicate(int val,
+absl::Status KenKen<kWidth>::AddSumPredicate(int val,
                                             const std::vector<Box>& boxes,
                                             int box_id,
                                             const std::vector<int>& classes,
@@ -172,7 +172,7 @@ absl::Status Board<kWidth>::AddSumPredicate(int val,
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::AddMulPredicate(int val,
+absl::Status KenKen<kWidth>::AddMulPredicate(int val,
                                             const std::vector<Box>& boxes,
                                             int box_id,
                                             const std::vector<int>& classes,
@@ -243,7 +243,7 @@ absl::Status Board<kWidth>::AddMulPredicate(int val,
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::AddSubPredicate(int val,
+absl::Status KenKen<kWidth>::AddSubPredicate(int val,
                                             const std::vector<Box>& boxes,
                                             int box_id,
                                             const std::vector<int>& classes,
@@ -274,7 +274,7 @@ absl::Status Board<kWidth>::AddSubPredicate(int val,
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::AddDivPredicate(int val,
+absl::Status KenKen<kWidth>::AddDivPredicate(int val,
                                             const std::vector<Box>& boxes,
                                             int box_id,
                                             const std::vector<int>& classes,
@@ -324,7 +324,7 @@ absl::Status Board<kWidth>::AddDivPredicate(int val,
 }
 
 template <int64_t kWidth>
-absl::Status Board<kWidth>::AddCagePredicates() {
+absl::Status KenKen<kWidth>::AddCagePredicates() {
   ASSIGN_OR_RETURN(std::vector<Cage> cages, GetCages());
 
   std::array<std::bitset<kWidth>, kWidth> found;
@@ -396,9 +396,9 @@ absl::Status Board<kWidth>::AddCagePredicates() {
 }
 
 template <int64_t kWidth>
-absl::StatusOr<std::vector<typename Board<kWidth>::Cage>>
-Board<kWidth>::GetCages() const {
-  ASSIGN_OR_RETURN(std::string_view parsable, GetCageBoard());
+absl::StatusOr<std::vector<typename KenKen<kWidth>::Cage>>
+KenKen<kWidth>::GetCages() const {
+  ASSIGN_OR_RETURN(std::string_view parsable, GetCageKenKen());
 
   std::vector<Cage> ret;
   std::optional<int> board_line;
@@ -452,14 +452,14 @@ Board<kWidth>::GetCages() const {
     }
   }
   if (!board_line || *board_line != kWidth) {
-    return absl::InvalidArgumentError("Board too short");
+    return absl::InvalidArgumentError("KenKen too short");
   }
 
   return ret;
 }
 
-template class Board<4>;
-template class Board<6>;
-template class Board<9>;
+template class KenKen<4>;
+template class KenKen<6>;
+template class KenKen<9>;
 
 }  // namespace ken_ken

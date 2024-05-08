@@ -1,20 +1,20 @@
-#include "ken_ken/board.h"
+#include "ken_ken/ken_ken.h"
 
 namespace ken_ken {
 
 // This specific problem comes from
 // https://www.conceptispuzzles.com/index.aspx?uri=info/article/424
-class ConceptisPuzzles : public Board<9> {
+class ConceptisPuzzles : public KenKen<9> {
  public:
   ConceptisPuzzles() = default;
 
-  absl::StatusOr<std::string_view> GetCageBoard() const override;
+  absl::StatusOr<std::string_view> GetCageKenKen() const override;
 
  private:
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 };
 
-absl::StatusOr<std::string_view> ConceptisPuzzles::GetCageBoard() const {
+absl::StatusOr<std::string_view> ConceptisPuzzles::GetCageKenKen() const {
   return R"BOARD(21+
 60*
 25+

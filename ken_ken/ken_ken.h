@@ -1,5 +1,5 @@
-#ifndef KEN_KEB_BOARD_H
-#define KEN_KEB_BOARD_H
+#ifndef KEN_KEN_KEN_KEN_H
+#define KEN_KEN_KEN_KEN_H
 
 #include <cstdint>
 
@@ -8,7 +8,7 @@
 namespace ken_ken {
 
 template <int64_t kWidth>
-class Board : public puzzle::Problem {
+class KenKen : public puzzle::Problem {
  public:
   struct Box {
     int entry_id;
@@ -40,17 +40,17 @@ class Board : public puzzle::Problem {
     std::vector<Box> boxes;
   };
 
-  Board() : puzzle::Problem(MakeEntryDescriptor()) {}
+  KenKen() : puzzle::Problem(MakeEntryDescriptor()) {}
 
  protected:
   absl::StatusOr<std::vector<Cage>> GetCages() const;
-  virtual absl::StatusOr<std::string_view> GetCageBoard() const = 0;
+  virtual absl::StatusOr<std::string_view> GetCageKenKen() const = 0;
 
   virtual absl::Status AddCagePredicates();
 
  private:
   absl::Status Setup() final;
-  absl::Status AddBoardPredicates();
+  absl::Status AddKenKenPredicates();
 
   static bool IsContiguous(const Cage& cage);
   absl::Status AddSumPredicate(int val, const std::vector<Box>& boxes,
@@ -69,10 +69,10 @@ class Board : public puzzle::Problem {
   static puzzle::EntryDescriptor MakeEntryDescriptor();
 };
 
-extern template class Board<4>;
-extern template class Board<6>;
-extern template class Board<9>;
+extern template class KenKen<4>;
+extern template class KenKen<6>;
+extern template class KenKen<9>;
 
 }  // namespace ken_ken
 
-#endif  // KEN_KEB_BOARD_H
+#endif  // KEN_KEN_KEN_KEN_H

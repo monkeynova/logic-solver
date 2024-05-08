@@ -2,9 +2,9 @@ load("@com_monkeynova_base_workspace//:default_rules.bzl", "default_rules")
 load("//puzzle:puzzle.bzl", "puzzle_test")
 
 cc_library(
-    name = "board",
-    hdrs = ["board.h"],
-    srcs = ["board.cc"],
+    name = "ken_ken",
+    hdrs = ["ken_ken.h"],
+    srcs = ["ken_ken.cc"],
     deps = [
         "//puzzle:problem",
         "@com_googlesource_code_re2//:re2",
@@ -23,7 +23,7 @@ cc_library(
     name = "nytkenken20240504_small_lib",
     srcs = ["nytkenken20240504_small.cc"],
     deps = [
-        ":board",
+        ":ken_ken",
         "@com_monkeynova_gunit_main//:vlog",
     ],
     alwayslink = 1,
@@ -48,7 +48,7 @@ cc_library(
     name = "nytkenken20240504_large_lib",
     srcs = ["nytkenken20240504_large.cc"],
     deps = [
-        ":board",
+        ":ken_ken",
         "@com_monkeynova_gunit_main//:vlog",
     ],
     alwayslink = 1,
@@ -73,7 +73,7 @@ cc_library(
     name = "conceptis_puzzles_lib",
     srcs = ["conceptis_puzzles.cc"],
     deps = [
-        ":board",
+        ":ken_ken",
         "@com_monkeynova_gunit_main//:vlog",
     ],
     alwayslink = 1,

@@ -1,20 +1,20 @@
-#include "ken_ken/board.h"
+#include "ken_ken/ken_ken.h"
 #include "puzzle/problem.h"
 #include "vlog.h"
 
 namespace ken_ken {
 
-class NYTKenKen20240504Large : public Board<6> {
+class NYTKenKen20240504Large : public KenKen<6> {
  public:
   NYTKenKen20240504Large() = default;
 
-  absl::StatusOr<std::string_view> GetCageBoard() const override;
+  absl::StatusOr<std::string_view> GetCageKenKen() const override;
 
  private:
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
 };
 
-absl::StatusOr<std::string_view> NYTKenKen20240504Large::GetCageBoard() const {
+absl::StatusOr<std::string_view> NYTKenKen20240504Large::GetCageKenKen() const {
   return R"BOARD(8+
 10*
 12+
