@@ -1,13 +1,13 @@
-#include "sudoku/base.h"
+#include "sudoku/sudoku.h"
 
 namespace sudoku {
 
-class NYT20180102Medium : public Base {
+class NYT20180102Medium : public Sudoku {
   absl::StatusOr<Board> GetInstanceBoard() const override;
   absl::StatusOr<Board> GetSolutionBoard() const override;
 };
 
-absl::StatusOr<Base::Board> NYT20180102Medium::GetInstanceBoard() const {
+absl::StatusOr<Sudoku::Board> NYT20180102Medium::GetInstanceBoard() const {
   return ParseBoard(
       "? 9 ? | ? ? 3 | ? 1 2\n"
       "5 ? ? | ? ? ? | ? ? ?\n"
@@ -22,7 +22,7 @@ absl::StatusOr<Base::Board> NYT20180102Medium::GetInstanceBoard() const {
       "? 3 ? | 4 5 ? | ? ? 6");
 }
 
-absl::StatusOr<Base::Board> NYT20180102Medium::GetSolutionBoard() const {
+absl::StatusOr<Sudoku::Board> NYT20180102Medium::GetSolutionBoard() const {
   /*
 I1017 17:48:58.072470 2793841472 puzzle_main.cc:44] 0: 1=8 2=9 3=6 4=5 5=7 6=3
 7=4 8=1 9=2 1: 1=5 2=2 3=3 4=1 5=9 6=4 7=6 8=7 9=8 2: 1=4 2=7 3=1 4=8 5=6 6=2

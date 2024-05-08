@@ -3,7 +3,7 @@
 namespace sudoku {
 
 // static
-::sudoku::Base::Board LineBoard::ToBoard(absl::string_view line) {
+::sudoku::Sudoku::Board LineBoard::ToBoard(absl::string_view line) {
   if (line.size() != 81) {
     LOG(ERROR) << "line length (" << line.size() << ") != 81";
     return Board();

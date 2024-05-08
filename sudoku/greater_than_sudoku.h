@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "sudoku/base.h"
+#include "sudoku/sudoku.h"
 
 namespace sudoku {
 
@@ -11,7 +11,7 @@ namespace sudoku {
 GreaterThan sudoku are problems where the initial constraints are inequalitiy
 relations on pairs of values rather than some initial values.
  */
-class GreaterThanSudoku : public ::sudoku::Base {
+class GreaterThanSudoku : public ::sudoku::Sudoku {
  public:
   absl::StatusOr<Board> GetInstanceBoard() const override { return Board(); }
 

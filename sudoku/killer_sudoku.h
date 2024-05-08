@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "sudoku/base.h"
+#include "sudoku/sudoku.h"
 
 namespace sudoku {
 
@@ -11,7 +11,7 @@ namespace sudoku {
 Killer sudoku are problems where the initial constraints are mathematical
 constraints on sets of values (like sums) rather than some initial values.
  */
-class KillerSudoku : public ::sudoku::Base {
+class KillerSudoku : public ::sudoku::Sudoku {
  public:
   struct Cage {
     int expected_sum;

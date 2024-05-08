@@ -5,7 +5,7 @@
 #include "absl/flags/usage.h"
 #include "absl/strings/str_cat.h"
 #include "main_lib.h"
-#include "sudoku/base.h"
+#include "sudoku/sudoku.h"
 
 ABSL_FLAG(int, solutions, 1000,
           "The number of sudoku solutions to compute to estimate the "
@@ -13,7 +13,7 @@ ABSL_FLAG(int, solutions, 1000,
 
 extern absl::Flag<bool> FLAGS_puzzle_prune_pair_class_iterators;
 
-class EmptySudoku : public sudoku::Base {
+class EmptySudoku : public sudoku::Sudoku {
  public:
   absl::StatusOr<Board> GetInstanceBoard() const override {
     return EmptyBoard();

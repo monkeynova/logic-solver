@@ -69,7 +69,7 @@ class KSOGT20200601 : public GreaterThanSudoku {
             {{8, 8}, {8, 7}}};
   }
 
-  absl::StatusOr<Base::Board> GetSolutionBoard() const override {
+  absl::StatusOr<Sudoku::Board> GetSolutionBoard() const override {
     return Board{{6, 8, 9, 4, 7, 2, 3, 5, 1}, {7, 4, 3, 6, 5, 1, 2, 8, 9},
                  {2, 5, 1, 8, 3, 9, 7, 4, 6}, {5, 6, 8, 1, 9, 7, 4, 3, 2},
                  {3, 9, 4, 2, 8, 6, 5, 1, 7}, {1, 2, 7, 5, 4, 3, 6, 9, 8},

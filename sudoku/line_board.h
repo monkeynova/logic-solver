@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "sudoku/base.h"
+#include "sudoku/sudoku.h"
 
 namespace sudoku {
 
-class LineBoard : public Base {
+class LineBoard : public Sudoku {
  private:
   class PassKey {};
 

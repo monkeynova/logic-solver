@@ -127,7 +127,7 @@ void TestLineBoard(absl::string_view test_case,
   test_result->AddTestOutput(::sudoku::LineBoard::ToString(*answer));
 }
 
-TEST(MultiLineTest, FileBasedTest) {
+TEST(MultiLineTest, FileSudokudTest) {
   EXPECT_TRUE(file_based_test_driver::RunTestCasesFromFiles(
       absl::StrCat("sudoku/", absl::GetFlag(FLAGS_test_filename)),
       TestLineBoard));

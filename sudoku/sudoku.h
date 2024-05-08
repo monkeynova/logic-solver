@@ -1,5 +1,5 @@
-#ifndef SUDOKU_BASE_H
-#define SUDOKU_BASE_H
+#ifndef SUDOKU_SUDOKU_H
+#define SUDOKU_SUDOKU_H
 
 #include <string>
 #include <vector>
@@ -11,9 +11,9 @@ namespace sudoku {
 /*
 Logic solver repurposed for sudoku
  */
-class Base : public ::puzzle::Problem {
+class Sudoku : public ::puzzle::Problem {
  public:
-  Base();
+  Sudoku();
 
   using Board = std::vector<std::vector<int>>;
 
@@ -63,4 +63,4 @@ class Base : public ::puzzle::Problem {
 
 }  // namespace sudoku
 
-#endif  // SUDOKU_BASE_H
+#endif  // SUDOKU_SUDOKU_H

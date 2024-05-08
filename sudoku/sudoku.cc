@@ -1,4 +1,4 @@
-#include "sudoku/base.h"
+#include "sudoku/sudoku.h"
 
 #include <iostream>
 
@@ -68,9 +68,9 @@ static puzzle::EntryDescriptor MakeEntryDescriptor() {
       std::move(class_descriptors));
 }
 
-Base::Base() : ::puzzle::Problem(MakeEntryDescriptor()) {}
+Sudoku::Sudoku() : ::puzzle::Problem(MakeEntryDescriptor()) {}
 
-absl::Status Base::AddPredicatesCumulative() {
+absl::Status Sudoku::AddPredicatesCumulative() {
   std::vector<int> cols = {0};
   for (int i = 1; i < 9; ++i) {
     cols.push_back(i);
@@ -115,7 +115,7 @@ absl::Status Base::AddPredicatesCumulative() {
   return absl::OkStatus();
 }
 
-absl::Status Base::AddPredicatesPairwise() {
+absl::Status Sudoku::AddPredicatesPairwise() {
   for (int i = 0; i < 9; ++i) {
     for (int j = i + 1; j < 9; ++j) {
       absl::Status st = AddAllEntryPredicate(
@@ -163,7 +163,7 @@ absl::Status Base::AddPredicatesPairwise() {
   return absl::OkStatus();
 }
 
-absl::Status Base::AddComposedValuePredicates(int row, int col, int value) {
+absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
   for (int i = 0; i < 9; ++i) {
     if (i == col) continue;
     absl::Status st = AddSpecificEntryPredicate(
@@ -199,7 +199,7 @@ absl::Status Base::AddComposedValuePredicates(int row, int col, int value) {
   return absl::OkStatus();
 }
 
-absl::Status Base::AddValuePredicate(int row, int col, int value) {
+absl::Status Sudoku::AddValuePredicate(int row, int col, int value) {
   absl::Status st = AddSpecificEntryPredicate(
       absl::StrCat("(", row + 1, ",", col + 1, ") = ", value),
       [col, value](const puzzle::Entry& e) { return e.Class(col) == value; },
@@ -214,7 +214,7 @@ absl::Status Base::AddValuePredicate(int row, int col, int value) {
   return absl::OkStatus();
 }
 
-absl::Status Base::AddBoardPredicates(const Board& board) {
+absl::Status Sudoku::AddBoardPredicates(const Board& board) {
   if (board.size() != 9) {
     return absl::InvalidArgumentError("Board must have 9 rows");
   }
@@ -232,7 +232,7 @@ absl::Status Base::AddBoardPredicates(const Board& board) {
   return absl::OkStatus();
 }
 
-absl::StatusOr<puzzle::Solution> Base::GetSolution() const {
+absl::StatusOr<puzzle::Solution> Sudoku::GetSolution() const {
   absl::StatusOr<Board> board = GetSolutionBoard();
   if (!board.ok()) return board.status();
 
@@ -255,7 +255,7 @@ absl::StatusOr<puzzle::Solution> Base::GetSolution() const {
 }
 
 // static
-absl::StatusOr<Base::Board> Base::ParseBoard(const absl::string_view board) {
+absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(const absl::string_view board) {
   Board ret;
   std::vector<std::string> rows = absl::StrSplit(board, "\n");
   if (rows.size() != /*data=*/9 + /*spacer=*/2) {
@@ -285,13 +285,13 @@ absl::StatusOr<Base::Board> Base::ParseBoard(const absl::string_view board) {
   return ret;
 }
 
-absl::Status Base::InstanceSetup() {
+absl::Status Sudoku::InstanceSetup() {
   absl::StatusOr<Board> instance = GetInstanceBoard();
   if (!instance.ok()) return instance.status();
   return AddBoardPredicates(*instance);
 }
 
-absl::Status Base::Setup() {
+absl::Status Sudoku::Setup() {
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
     if (absl::Status st = AddPredicatesCumulative(); !st.ok()) return st;
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {

@@ -1,9 +1,9 @@
 load("sudoku.bzl", "sudoku_test")
 
 cc_library(
-    name = "base",
-    srcs = ["base.cc"],
-    hdrs = ["base.h"],
+    name = "sudoku",
+    srcs = ["sudoku.cc"],
+    hdrs = ["sudoku.h"],
     deps = [
         "//puzzle:problem",
         "@com_google_absl//absl/flags:flag",
@@ -114,7 +114,7 @@ cc_library(
     srcs = ["line_board.cc"],
     hdrs = ["line_board.h"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
 )
 
@@ -130,7 +130,7 @@ cc_library(
     name = "nyt20171202_lib",
     srcs = ["nyt20171202.cc"],
     deps = [
-        ":base",
+        ":sudoku",
         "//puzzle:puzzle_main",
     ],
     alwayslink = 1,
@@ -155,7 +155,7 @@ cc_library(
     name = "nyt20180101easy_lib",
     srcs = ["nyt20180101easy.cc"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
     alwayslink = 1,
 )
@@ -189,7 +189,7 @@ cc_library(
     name = "nyt20180102medium_lib",
     srcs = ["nyt20180102medium.cc"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
     alwayslink = 1,
 )
@@ -231,7 +231,7 @@ cc_library(
     name = "nyt20181019easy_lib",
     srcs = ["nyt20181019easy.cc"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
     alwayslink = 1,
 )
@@ -255,7 +255,7 @@ cc_library(
     name = "nyt20181019hard_lib",
     srcs = ["nyt20181019hard.cc"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
     alwayslink = 1,
 )
@@ -272,7 +272,7 @@ cc_library(
     srcs = ["killer_sudoku.cc"],
     hdrs = ["killer_sudoku.h"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
 )
 
@@ -305,7 +305,7 @@ cc_library(
     srcs = ["greater_than_sudoku.cc"],
     hdrs = ["greater_than_sudoku.h"],
     deps = [
-        ":base",
+        ":sudoku",
     ],
 )
 
@@ -337,7 +337,7 @@ cc_binary(
     name = "estimate_sudoku_boards",
     srcs = ["estimate_sudoku_boards.cc"],
     deps = [
-        ":base",
+        ":sudoku",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/flags:usage",
         "@com_google_absl//absl/strings",
