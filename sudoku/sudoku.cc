@@ -6,13 +6,7 @@
 #include "absl/strings/numbers.h"
 #include "absl/strings/str_split.h"
 
-ABSL_FLAG(std::string, sudoku_problem_setup, "pairwise",
-          "Sepecifies the form of the predicates passed to the puzzle "
-          "solver to validate sudoku boards. Valid vaules are 'cumulative' "
-          "and 'pairwise'. 'cumulative' is faster if predicate reordering "
-          "is disabled, but 'pairwise' is better suited for predicate "
-          "reordering and results in faster overall evaluation if "
-          "reordering is enabled.");
+extern absl::Flag<std::string> FLAGS_sudoku_problem_setup;
 
 ABSL_FLAG(bool, sudoku_setup_only, false,
           "If true, only set up predicates for valid sudoku board "
@@ -29,6 +23,7 @@ ABSL_FLAG(bool, sudoku_setup_composed_value_predicates, true,
 
 namespace sudoku {
 
+// TODO: Move this to ken_ken::Grid?
 static puzzle::EntryDescriptor MakeEntryDescriptor() {
   // Descriptors are built so absl::StrCat(solution), kinda, sorta looks like
   // a sudoku board.
@@ -68,24 +63,8 @@ static puzzle::EntryDescriptor MakeEntryDescriptor() {
       std::move(class_descriptors));
 }
 
-Sudoku::Sudoku() : ::puzzle::Problem(MakeEntryDescriptor()) {}
-
 absl::Status Sudoku::AddPredicatesCumulative() {
-  std::vector<int> cols = {0};
-  for (int i = 1; i < 9; ++i) {
-    cols.push_back(i);
-    absl::Status st = AddAllEntryPredicate(
-        absl::StrCat("No row dupes ", i + 1),
-        [i](const puzzle::Entry& e) {
-          for (int j = 0; j < i; ++j) {
-            if (e.Class(i) == e.Class(j)) return false;
-          }
-          return true;
-        },
-        cols);
-    if (!st.ok()) return st;
-  }
-
+  std::vector<int> cols;
   for (int i = 0; i < 9; ++i) {
     if (i % 3 == 0) {
       cols = {i};
@@ -116,16 +95,6 @@ absl::Status Sudoku::AddPredicatesCumulative() {
 }
 
 absl::Status Sudoku::AddPredicatesPairwise() {
-  for (int i = 0; i < 9; ++i) {
-    for (int j = i + 1; j < 9; ++j) {
-      absl::Status st = AddAllEntryPredicate(
-          absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
-          [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
-          {i, j});
-      if (!st.ok()) return st;
-    }
-  }
-
   for (int box = 0; box < 9; ++box) {
     const int box_base_x = 3 * (box / 3);
     const int box_base_y = 3 * (box % 3);
@@ -173,8 +142,6 @@ absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
         row);
     if (!st.ok()) return st;
   }
-
-  // return absl::OkStatus();
 
   int base_box_x = 3 * (row / 3);
   int base_box_y = 3 * (col / 3);
@@ -288,7 +255,7 @@ absl::Status Sudoku::InstanceSetup() {
   return AddBoardPredicates(*instance);
 }
 
-absl::Status Sudoku::Setup() {
+absl::Status Sudoku::AddGridPredicates() {
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
     if (absl::Status st = AddPredicatesCumulative(); !st.ok()) return st;
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {

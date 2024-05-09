@@ -7,8 +7,10 @@ cc_library(
     hdrs = ["grid.h"],
     deps = [
         "//puzzle:problem",
+        "@com_google_absl//absl/flags:flag",
         "@com_googlesource_code_re2//:re2",
     ],
+    visibility = ["//visibility:public"],
 )
 
 cc_library(

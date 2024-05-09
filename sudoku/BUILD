@@ -5,7 +5,7 @@ cc_library(
     srcs = ["sudoku.cc"],
     hdrs = ["sudoku.h"],
     deps = [
-        "//puzzle:problem",
+        "//ken_ken:grid",
         "@com_google_absl//absl/flags:flag",
     ],
 )

@@ -1,5 +1,15 @@
 #include "ken_ken/grid.h"
 
+#include "absl/flags/flag.h"
+
+ABSL_FLAG(std::string, sudoku_problem_setup, "pairwise",
+          "Sepecifies the form of the predicates passed to the puzzle "
+          "solver to validate sudoku boards. Valid vaules are 'cumulative' "
+          "and 'pairwise'. 'cumulative' is faster if predicate reordering "
+          "is disabled, but 'pairwise' is better suited for predicate "
+          "reordering and results in faster overall evaluation if "
+          "reordering is enabled.");
+
 namespace ken_ken {
 
 template <int64_t kWidth>
@@ -29,13 +39,28 @@ puzzle::EntryDescriptor Grid<kWidth>::MakeEntryDescriptor() {
 
 template <int64_t kWidth>
 absl::Status Grid<kWidth>::Setup() {
-  for (int i = 0; i < kWidth; ++i) {
-    for (int j = i + 1; j < kWidth; ++j) {
-      absl::Status st = AddAllEntryPredicate(
-          absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
-          [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
-          {i, j});
-      if (!st.ok()) return st;
+  if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
+    std::vector<int> cols = {0};
+    for (int i = 1; i < 9; ++i) {
+      cols.push_back(i);
+      RETURN_IF_ERROR(AddAllEntryPredicate(
+          absl::StrCat("No row dupes ", i + 1),
+          [i](const puzzle::Entry& e) {
+            for (int j = 0; j < i; ++j) {
+              if (e.Class(i) == e.Class(j)) return false;
+            }
+            return true;
+          },
+          cols));
+    }
+  } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {
+    for (int i = 0; i < kWidth; ++i) {
+      for (int j = i + 1; j < kWidth; ++j) {
+        RETURN_IF_ERROR(AddAllEntryPredicate(
+            absl::StrCat("No row dupes (", i + 1, ", ", j + 1, ")"),
+            [i, j](const puzzle::Entry& e) { return e.Class(i) != e.Class(j); },
+            {i, j}));
+      }
     }
   }
 
