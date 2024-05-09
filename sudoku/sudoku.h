@@ -13,22 +13,20 @@ Logic solver repurposed for sudoku
  */
 class Sudoku : public ::ken_ken::Grid<9> {
  public:
-  using Box = ::ken_ken::Grid<9>::Box;
+  static constexpr int kWidth = 9;
+  static constexpr int kSubHeight = 3;
+  static_assert(kWidth % kSubHeight == 0, "Sub box must fit");
 
-  using Board = std::array<std::array<int, 9>, 9>;
+  using Box = ::ken_ken::Grid<kWidth>::Box;
+  using Board = std::array<std::array<int, kWidth>, kWidth>;
 
   Sudoku() = default;
 
   static Board EmptyBoard() {
-    return Board{std::array<int, 9>{0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0},
-                 {0, 0, 0, 0, 0, 0, 0, 0, 0}};
+    Board ret;
+    absl::c_for_each(ret, [](auto row) {
+      absl::c_for_each(row, [](int& cell) { cell = 0; }); });
+    return ret;
   }
 
   static absl::StatusOr<Board> ParseBoard(const absl::string_view board);
@@ -51,6 +49,8 @@ class Sudoku : public ::ken_ken::Grid<9> {
   absl::Status AddBoardPredicates(const Board& board);
   absl::Status AddPredicatesCumulative();
   absl::Status AddPredicatesPairwise();
+
+  static puzzle::EntryDescriptor MakeEntryDescriptor();
 };
 
 }  // namespace sudoku
