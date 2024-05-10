@@ -100,8 +100,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
 
 absl::Status KillerSudoku::InstanceSetup() {
   for (const Cage& cage : GetCages()) {
-    absl::Status st = AddCage(cage);
-    if (!st.ok()) return st;
+    RETURN_IF_ERROR(AddCage(cage));
   }
 
   for (int entry_id = 0; entry_id < 9; ++entry_id) {

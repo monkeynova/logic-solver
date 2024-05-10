@@ -73,7 +73,7 @@ absl::Status Sudoku::AddPredicatesCumulative() {
     }
 
     cols.push_back(i);
-    absl::Status st = AddPredicate(
+    RETURN_IF_ERROR(AddPredicate(
         absl::StrCat("No box dupes ", i + 1),
         [i](const puzzle::Solution& s) {
           for (int row = 0; row < kWidth; ++row) {
@@ -89,8 +89,7 @@ absl::Status Sudoku::AddPredicatesCumulative() {
           }
           return true;
         },
-        cols);
-    if (!st.ok()) return st;
+        cols));
   }
   return absl::OkStatus();
 }
@@ -118,15 +117,14 @@ absl::Status Sudoku::AddPredicatesPairwise() {
         // Handled by row predicate.
         if (box_i_y == box_j_y) continue;
 
-        absl::Status st = AddPredicate(
+        RETURN_IF_ERROR(AddPredicate(
             absl::StrCat("No box dupes (", box_i_x + 1, ",", box_i_y + 1,
                          ") vs (", box_j_x + 1, ",", box_j_y + 1, ")"),
             [box_i_x, box_i_y, box_j_x, box_j_y](const puzzle::Solution& s) {
               return s.Id(box_i_x).Class(box_i_y) !=
                      s.Id(box_j_x).Class(box_j_y);
             },
-            {{box_i_y, box_i_x}, {box_j_y, box_j_x}});
-        if (!st.ok()) return st;
+            {{box_i_y, box_i_x}, {box_j_y, box_j_x}}));
       }
     }
   }
@@ -136,12 +134,11 @@ absl::Status Sudoku::AddPredicatesPairwise() {
 absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
   for (int i = 0; i < kWidth; ++i) {
     if (i == col) continue;
-    absl::Status st = AddSpecificEntryPredicate(
+    RETURN_IF_ERROR(AddSpecificEntryPredicate(
         absl::StrCat("(", row + 1, ",", col + 1, ")=", value, " AND ",
                      "No row dupes(", i + 1, ")"),
         [i, value](const puzzle::Entry& e) { return e.Class(i) != value; }, {i},
-        row);
-    if (!st.ok()) return st;
+        row));
   }
 
   int base_box_x = kSubHeight * (row / kSubHeight);
@@ -152,7 +149,7 @@ absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
     if (test_box_x == row && test_box_y == col) {
       continue;
     }
-    absl::Status st = AddPredicate(
+    RETURN_IF_ERROR(AddPredicate(
         absl::StrCat("(", row + 1, ",", col + 1, ")=", value, " AND ",
                      "No box dupes "
                      "(",
@@ -160,23 +157,20 @@ absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
         [test_box_x, test_box_y, value](const puzzle::Solution& s) {
           return s.Id(test_box_x).Class(test_box_y) != value;
         },
-        absl::flat_hash_map<int, int>{{test_box_y, test_box_x}});
-    if (!st.ok()) return st;
+        absl::flat_hash_map<int, int>{{test_box_y, test_box_x}}));
   }
 
   return absl::OkStatus();
 }
 
 absl::Status Sudoku::AddValuePredicate(int row, int col, int value) {
-  absl::Status st = AddSpecificEntryPredicate(
+  RETURN_IF_ERROR(AddSpecificEntryPredicate(
       absl::StrCat("(", row + 1, ",", col + 1, ") = ", value),
       [col, value](const puzzle::Entry& e) { return e.Class(col) == value; },
-      {col}, row);
-  if (!st.ok()) return st;
+      {col}, row));
 
   if (absl::GetFlag(FLAGS_sudoku_setup_composed_value_predicates)) {
-    absl::Status st = AddComposedValuePredicates(row, col, value);
-    if (!st.ok()) return st;
+    RETURN_IF_ERROR(AddComposedValuePredicates(row, col, value));
   }
 
   return absl::OkStatus();
@@ -192,8 +186,7 @@ absl::Status Sudoku::AddBoardPredicates(const Board& board) {
     }
     for (size_t col = 0; col < board[row].size(); ++col) {
       if (board[row][col] > 0) {
-        absl::Status st = AddValuePredicate(row, col, board[row][col] - 1);
-        if (!st.ok()) return st;
+        RETURN_IF_ERROR(AddValuePredicate(row, col, board[row][col] - 1));
       }
     }
   }
@@ -201,15 +194,14 @@ absl::Status Sudoku::AddBoardPredicates(const Board& board) {
 }
 
 absl::StatusOr<puzzle::Solution> Sudoku::GetSolution() const {
-  absl::StatusOr<Board> board = GetSolutionBoard();
-  if (!board.ok()) return board.status();
+  ASSIGN_OR_RETURN(Board board, GetSolutionBoard());
 
   std::vector<puzzle::Entry> entries;
-  for (size_t row = 0; row < board->size(); ++row) {
+  for (size_t row = 0; row < board.size(); ++row) {
     std::vector<int> entry_vals(kWidth, 0);
-    for (size_t col = 0; col < (*board)[row].size(); ++col) {
+    for (size_t col = 0; col < board[row].size(); ++col) {
       // Translate to 0-indexed solution space.
-      entry_vals[col] = (*board)[row][col] - 1;
+      entry_vals[col] = board[row][col] - 1;
     }
     entries.emplace_back(row, entry_vals, entry_descriptor());
   }
@@ -251,16 +243,15 @@ absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(
 }
 
 absl::Status Sudoku::InstanceSetup() {
-  absl::StatusOr<Board> instance = GetInstanceBoard();
-  if (!instance.ok()) return instance.status();
-  return AddBoardPredicates(*instance);
+  ASSIGN_OR_RETURN(Board instance, GetInstanceBoard());
+  return AddBoardPredicates(instance);
 }
 
 absl::Status Sudoku::AddGridPredicates() {
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
-    if (absl::Status st = AddPredicatesCumulative(); !st.ok()) return st;
+    RETURN_IF_ERROR(AddPredicatesCumulative());
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {
-    if (absl::Status st = AddPredicatesPairwise(); !st.ok()) return st;
+    RETURN_IF_ERROR(AddPredicatesPairwise());
   } else {
     return absl::InternalError(
         absl::StrCat("Unrecognized option for sudoku_problem_setup '",
@@ -270,8 +261,7 @@ absl::Status Sudoku::AddGridPredicates() {
   }
 
   if (!absl::GetFlag(FLAGS_sudoku_setup_only)) {
-    absl::Status st = InstanceSetup();
-    if (!st.ok()) return st;
+    RETURN_IF_ERROR(InstanceSetup());
   }
 
   return absl::OkStatus();

@@ -12,25 +12,22 @@ Solver::Solver(EntryDescriptor entry_descriptor)
           CreateSolutionPermuter(&entry_descriptor_, profiler_.get())) {}
 
 absl::Status Solver::AddFilter(SolutionFilter solution_filter) {
-  absl::StatusOr<bool> added = solution_permuter_->AddFilter(solution_filter);
-  if (!added.ok()) return added.status();
-  if (*added) {
-    // Permuter guarantees no need to evaluate the predicate further.
-  } else {
+  ASSIGN_OR_RETURN(bool full_used, solution_permuter_->AddFilter(solution_filter));
+  if (!full_used) {
+    // Permuter indicated that it can't fully evaluate the filter.
     on_solution_.push_back(solution_filter);
   }
   return absl::OkStatus();
 }
 
 absl::StatusOr<Solution> Solver::Solve() {
-  absl::StatusOr<std::vector<Solution>> ret = AllSolutions(1);
-  if (!ret.ok()) return ret.status();
-  if (ret->empty()) return absl::NotFoundError("No solution found");
-  return std::move(ret->at(0));
+  ASSIGN_OR_RETURN(std::vector<Solution> ret, AllSolutions(1));
+  if (ret.empty()) return absl::NotFoundError("No solution found");
+  return std::move(ret[0]);
 }
 
 absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
-  if (absl::Status st = solution_permuter_->Prepare(); !st.ok()) return st;
+  RETURN_IF_ERROR(solution_permuter_->Prepare());
 
   std::vector<Solution> ret;
   for (auto it = solution_permuter_->begin(); it != solution_permuter_->end();

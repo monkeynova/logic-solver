@@ -50,11 +50,11 @@ absl::Status GreaterThanSudoku::InstanceSetup() {
 
   // Add the pairwise comparisons.
   for (const std::pair<Box, Box>& cmp : cmp_list) {
-    if (absl::Status st = AddComparison(cmp); !st.ok()) return st;
+    RETURN_IF_ERROR(AddComparison(cmp));
   }
 
   if (absl::GetFlag(FLAGS_sudoku_greater_than_composition)) {
-    if (absl::Status st = AddRangePredicates(cmp_list); !st.ok()) return st;
+    RETURN_IF_ERROR(AddRangePredicates(cmp_list));
   }
 
   return absl::OkStatus();
@@ -108,7 +108,7 @@ absl::Status GreaterThanSudoku::AddRangePredicates(
 
     int prev_size = prev.size();
     int next_size = next.size();
-    absl::Status st = AddSpecificEntryPredicate(
+    RETURN_IF_ERROR(AddSpecificEntryPredicate(
         absl::StrCat("(", b.entry_id, ",", b.class_id, ") chain; ",
                      "prev=", prev_size, "; next=", next_size),
         [b, prev_size, next_size](const puzzle::Entry& e) {
@@ -116,8 +116,7 @@ absl::Status GreaterThanSudoku::AddRangePredicates(
           return e.Class(b.class_id) >= prev_size &&
                  e.Class(b.class_id) <= 8 - next_size;
         },
-        {b.class_id}, b.entry_id);
-    if (!st.ok()) return st;
+        {b.class_id}, b.entry_id));
   }
 
   return absl::OkStatus();
