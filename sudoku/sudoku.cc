@@ -178,11 +178,13 @@ absl::Status Sudoku::AddValuePredicate(int row, int col, int value) {
 
 absl::Status Sudoku::AddBoardPredicates(const Board& board) {
   if (board.size() != kWidth) {
-    return absl::InvalidArgumentError(absl::StrCat("Board must have ", kWidth, " rows"));
+    return absl::InvalidArgumentError(
+        absl::StrCat("Board must have ", kWidth, " rows"));
   }
   for (size_t row = 0; row < board.size(); ++row) {
     if (board[row].size() != kWidth) {
-      return absl::InvalidArgumentError(absl::StrCat("Each board row must have ", kWidth, " columns"));
+      return absl::InvalidArgumentError(
+          absl::StrCat("Each board row must have ", kWidth, " columns"));
     }
     for (size_t col = 0; col < board[row].size(); ++col) {
       if (board[row][col] > 0) {

@@ -25,7 +25,8 @@ class Sudoku : public ::ken_ken::Grid<9> {
   static Board EmptyBoard() {
     Board ret;
     absl::c_for_each(ret, [](auto row) {
-      absl::c_for_each(row, [](int& cell) { cell = 0; }); });
+      absl::c_for_each(row, [](int& cell) { cell = 0; });
+    });
     return ret;
   }
 

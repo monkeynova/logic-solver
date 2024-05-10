@@ -5,12 +5,12 @@ cc_library(
     name = "grid",
     srcs = ["grid.cc"],
     hdrs = ["grid.h"],
+    visibility = ["//visibility:public"],
     deps = [
         "//puzzle:problem",
         "@com_google_absl//absl/flags:flag",
         "@com_googlesource_code_re2//:re2",
     ],
-    visibility = ["//visibility:public"],
 )
 
 cc_library(

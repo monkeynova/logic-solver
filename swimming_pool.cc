@@ -127,14 +127,14 @@ absl::Status SwimmingPoolProblem::AddPredicates() {
       },
       {STYLE, COUNTRY, LANE}));
 
-  RETURN_IF_ERROR(AddPredicate("5. The American swimmer is next to Carol.",
-                    [](const puzzle::Solution& s) {
-                      return IsNextTo(s.Id(CAROL),
-                                      s.Find([](const puzzle::Entry& e) {
-                                        return e.Class(COUNTRY) == USA;
-                                      }));
-                    },
-                    {COUNTRY, LANE}));
+  RETURN_IF_ERROR(AddPredicate(
+      "5. The American swimmer is next to Carol.",
+      [](const puzzle::Solution& s) {
+        return IsNextTo(s.Id(CAROL), s.Find([](const puzzle::Entry& e) {
+          return e.Class(COUNTRY) == USA;
+        }));
+      },
+      {COUNTRY, LANE}));
 
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
       "6. Daisy is not swimming in lane #2.",

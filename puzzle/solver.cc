@@ -12,7 +12,8 @@ Solver::Solver(EntryDescriptor entry_descriptor)
           CreateSolutionPermuter(&entry_descriptor_, profiler_.get())) {}
 
 absl::Status Solver::AddFilter(SolutionFilter solution_filter) {
-  ASSIGN_OR_RETURN(bool full_used, solution_permuter_->AddFilter(solution_filter));
+  ASSIGN_OR_RETURN(bool full_used,
+                   solution_permuter_->AddFilter(solution_filter));
   if (!full_used) {
     // Permuter indicated that it can't fully evaluate the filter.
     on_solution_.push_back(solution_filter);

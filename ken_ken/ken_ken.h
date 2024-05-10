@@ -11,8 +11,8 @@ template <int64_t kWidth>
 class KenKen : public Grid<kWidth> {
  public:
   using Box = Grid<kWidth>::Box;
-  using ::puzzle::Solver::AddSpecificEntryPredicate;
   using ::puzzle::Solver::AddPredicate;
+  using ::puzzle::Solver::AddSpecificEntryPredicate;
 
   struct Cage {
     int val;

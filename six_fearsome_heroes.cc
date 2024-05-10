@@ -102,18 +102,19 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
       [](const puzzle::Entry& e) { return e.Class(TRID) == RANK_2; }, {TRID},
       GEORDI));
 
-  RETURN_IF_ERROR(AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
-                    [](const puzzle::Solution& s) {
-                      return s.Id(PICARD).Class(FIZZBIN) ==
-                             s.Id(TROI).Class(FIZZBIN) - 2;
-                    },
-                    {FIZZBIN}));
+  RETURN_IF_ERROR(AddPredicate(
+      "2. Picard ranks two positions behind Troi at Fizzbin.",
+      [](const puzzle::Solution& s) {
+        return s.Id(PICARD).Class(FIZZBIN) == s.Id(TROI).Class(FIZZBIN) - 2;
+      },
+      {FIZZBIN}));
 
-  RETURN_IF_ERROR(AddPredicate("3. Troi is feared by the person Geordi fears.",
-                    [](const puzzle::Solution& s) {
-                      return s.Id(s.Id(GEORDI).Class(FEAR)).Class(FEAR) == TROI;
-                    },
-                    {FEAR}));
+  RETURN_IF_ERROR(
+      AddPredicate("3. Troi is feared by the person Geordi fears.",
+                   [](const puzzle::Solution& s) {
+                     return s.Id(s.Id(GEORDI).Class(FEAR)).Class(FEAR) == TROI;
+                   },
+                   {FEAR}));
 
   RETURN_IF_ERROR(AddPredicate(
       "4. Worf's hero ranks 3 times lower at Tri-D Chess than "
@@ -127,23 +128,24 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
       },
       {HERO, TRID, FIZZBIN}));
 
-  RETURN_IF_ERROR(AddPredicate("5. Picard's hero fears Geordi.",
-                    [](const puzzle::Solution& s) {
-                      return s.Id(s.Id(PICARD).Class(HERO)).Class(FEAR) ==
-                             GEORDI;
-                    },
-                    {HERO, FEAR}));
+  RETURN_IF_ERROR(AddPredicate(
+      "5. Picard's hero fears Geordi.",
+      [](const puzzle::Solution& s) {
+        return s.Id(s.Id(PICARD).Class(HERO)).Class(FEAR) == GEORDI;
+      },
+      {HERO, FEAR}));
 
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
       "6. Data's hero is not Geordi.",
       [](const puzzle::Entry& e) { return e.Class(HERO) != GEORDI; }, {HERO},
       DATA));
 
-  RETURN_IF_ERROR(AddPredicate("7. Data is the hero of Riker's hero.",
-                    [](const puzzle::Solution& s) {
-                      return s.Id(s.Id(RIKER).Class(HERO)).Class(HERO) == DATA;
-                    },
-                    {HERO}));
+  RETURN_IF_ERROR(
+      AddPredicate("7. Data is the hero of Riker's hero.",
+                   [](const puzzle::Solution& s) {
+                     return s.Id(s.Id(RIKER).Class(HERO)).Class(HERO) == DATA;
+                   },
+                   {HERO}));
 
   RETURN_IF_ERROR(AddPredicate(
       "8. The person who is worst at Fizzbin is better than Troi "
@@ -155,38 +157,40 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
       },
       {TRID, FIZZBIN}));
 
-  RETURN_IF_ERROR(AddPredicate(
-      "9. The person ranked number 3 at Tri-D Chess is ranked 4 "
-      "positions higher than Data at Fizzbin.",
-      [](const puzzle::Solution& s) {
-        return s.Find([](const puzzle::Entry& e) {
-                  return e.Class(TRID) == RANK_3;
-                }).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
-      },
-      {TRID, FIZZBIN}));
+  RETURN_IF_ERROR(
+      AddPredicate("9. The person ranked number 3 at Tri-D Chess is ranked 4 "
+                   "positions higher than Data at Fizzbin.",
+                   [](const puzzle::Solution& s) {
+                     return s.Find([](const puzzle::Entry& e) {
+                               return e.Class(TRID) == RANK_3;
+                             }).Class(FIZZBIN) == 4 + s.Id(DATA).Class(FIZZBIN);
+                   },
+                   {TRID, FIZZBIN}));
 
-  RETURN_IF_ERROR(AddPredicate("10. Riker is feared by the person Picard fears...",
+  RETURN_IF_ERROR(
+      AddPredicate("10. Riker is feared by the person Picard fears...",
                    [](const puzzle::Solution& s) {
                      return s.Id(s.Id(PICARD).Class(FEAR)).Class(FEAR) == RIKER;
                    },
                    {FEAR}));
 
-  RETURN_IF_ERROR(AddPredicate("10(cont). ... and is the hero of Worf's hero.",
-                    [](const puzzle::Solution& s) {
-                      return s.Id(s.Id(WORF).Class(HERO)).Class(HERO) == RIKER;
-                    },
-                    {HERO}));
+  RETURN_IF_ERROR(
+      AddPredicate("10(cont). ... and is the hero of Worf's hero.",
+                   [](const puzzle::Solution& s) {
+                     return s.Id(s.Id(WORF).Class(HERO)).Class(HERO) == RIKER;
+                   },
+                   {HERO}));
 
-  RETURN_IF_ERROR(AddPredicate(
-      "11. Riker is ranked 2 lower at Tri-D Chess than the crew "
-      "member ranked 2 at Fizzbin.",
-      [](const puzzle::Solution& s) {
-        return s.Id(RIKER).Class(TRID) + 2 ==
-               s.Find([](const puzzle::Entry& e) {
-                  return e.Class(FIZZBIN) == RANK_2;
-                }).Class(TRID);
-      },
-      {TRID, FIZZBIN}));
+  RETURN_IF_ERROR(
+      AddPredicate("11. Riker is ranked 2 lower at Tri-D Chess than the crew "
+                   "member ranked 2 at Fizzbin.",
+                   [](const puzzle::Solution& s) {
+                     return s.Id(RIKER).Class(TRID) + 2 ==
+                            s.Find([](const puzzle::Entry& e) {
+                               return e.Class(FIZZBIN) == RANK_2;
+                             }).Class(TRID);
+                   },
+                   {TRID, FIZZBIN}));
 
   return absl::OkStatus();
 }
