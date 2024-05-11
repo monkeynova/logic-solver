@@ -1,5 +1,3 @@
-load("sudoku.bzl", "sudoku_test")
-
 cc_library(
     name = "sudoku",
     srcs = ["sudoku.cc"],
@@ -136,10 +134,12 @@ cc_library(
     alwayslink = 1,
 )
 
-sudoku_test(
+cc_test(
     name = "nyt20171202_test",
+    tags = ["benchmark"],
     deps = [
         ":nyt20171202_lib",
+        ":sudoku_test",
     ],
 )
 
@@ -160,20 +160,24 @@ cc_library(
     alwayslink = 1,
 )
 
-sudoku_test(
+cc_test(
     name = "nyt20180101easy_test",
+    tags = ["benchmark"],
     deps = [
         ":nyt20180101easy_lib",
+        ":sudoku_test",
     ],
 )
 
-sudoku_test(
+cc_test(
     name = "nyt20180101easy_nopairs_test",
     args = [
         "--puzzle_prune_pair_class_iterators_mode_pair=false",
     ],
+    tags = ["benchmark"],
     deps = [
         ":nyt20180101easy_lib",
+        ":sudoku_test",
     ],
 )
 
@@ -194,10 +198,12 @@ cc_library(
     alwayslink = 1,
 )
 
-sudoku_test(
+cc_test(
     name = "nyt20180102medium_test",
+    tags = ["benchmark"],
     deps = [
         ":nyt20180102medium_lib",
+        ":sudoku_test",
     ],
 )
 
@@ -236,10 +242,12 @@ cc_library(
     alwayslink = 1,
 )
 
-sudoku_test(
+cc_test(
     name = "nyt20181019easy_test",
+    tags = ["benchmark"],
     deps = [
         ":nyt20181019easy_lib",
+        ":sudoku_test",
     ],
 )
 
@@ -260,10 +268,12 @@ cc_library(
     alwayslink = 1,
 )
 
-sudoku_test(
+cc_test(
     name = "nyt20181019hard_test",
+    tags = ["benchmark"],
     deps = [
         ":nyt20181019hard_lib",
+        ":sudoku_test",
     ],
 )
 
@@ -293,10 +303,12 @@ cc_binary(
     ],
 )
 
-sudoku_test(
+cc_test(
     name = "conceptis_puzzles_test",
+    tags = ["benchmark"],
     deps = [
         ":conceptis_puzzles_lib",
+        ":sudoku_test",
     ],
 )
 
@@ -326,10 +338,12 @@ cc_binary(
     ],
 )
 
-sudoku_test(
+cc_test(
     name = "ksogt20200601_test",
+    tags = ["benchmark"],
     deps = [
         ":ksogt20200601_lib",
+        ":sudoku_test",
     ],
 )
 
