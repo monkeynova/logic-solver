@@ -6,9 +6,9 @@
 
 namespace puzzle {
 
-class ProtoProblem : public Problem {
+class ProtoProblemBase : public Problem {
  public:
-  explicit ProtoProblem(const google::protobuf::Descriptor* problem_descriptor);
+  explicit ProtoProblemBase(const google::protobuf::Descriptor* problem_descriptor);
 
   absl::Status Setup() override;
   absl::StatusOr<puzzle::Solution> GetSolution() const override;
@@ -21,6 +21,12 @@ class ProtoProblem : public Problem {
 
  private:
   const google::protobuf::Descriptor* problem_descriptor_;
+};
+
+template <class Proto>
+class ProtoProblem : public ProtoProblemBase {
+ public:
+  ProtoProblem() : ProtoProblemBase(Proto::descriptor()) {}
 };
 
 }  // namespace puzzle

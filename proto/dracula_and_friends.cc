@@ -27,11 +27,7 @@ OCTAVIAN: region=BUCOVINA plants=THORNBRUSH century=XV
 #include "proto/dracula_and_friends.pb.h"
 #include "proto/proto_problem.h"
 
-class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
- public:
-  DraculaAndFriendsProblem()
-      : puzzle::ProtoProblem(DraculaAndFriendsInfo::descriptor()) {}
-
+class DraculaAndFriendsProblem : public puzzle::ProtoProblem<DraculaAndFriendsInfo> {
  private:
   enum Who {
     BOGDAN = DraculaAndFriendsInfo::Entry::BOGDAN,

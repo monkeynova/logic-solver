@@ -48,7 +48,7 @@ static absl::StatusOr<EntryDescriptor> MakeEntryDescriptor(
     if (enum_type == nullptr) {
       return absl::InvalidArgumentError("fields must be of type enum");
     }
-    // TODO(@monkeynova): -2 here takes the first non-id feild (2) and maps it
+    // TODO(@monkeynova): -2 here takes the first non-id field (2) and maps it
     // to the first class (0). This is an awful, hard-coded translation and a
     // better data model should be found.
     class_names[field->number() - 2] = field->name();
@@ -71,12 +71,12 @@ static EntryDescriptor CheckDescriptor(
   return std::move(*entry_descriptor);
 }
 
-ProtoProblem::ProtoProblem(
+ProtoProblemBase::ProtoProblemBase(
     const google::protobuf::Descriptor* problem_descriptor)
     : Problem(CheckDescriptor(MakeEntryDescriptor(problem_descriptor))),
       problem_descriptor_(problem_descriptor) {}
 
-absl::StatusOr<Solution> ProtoProblem::GetSolution() const {
+absl::StatusOr<Solution> ProtoProblemBase::GetSolution() const {
   google::protobuf::DynamicMessageFactory factory;
   const google::protobuf::Descriptor* proto_descriptor = problem_descriptor();
 
@@ -145,6 +145,6 @@ absl::StatusOr<Solution> ProtoProblem::GetSolution() const {
   return Solution(entry_descriptor(), &entries).Clone();
 }
 
-absl::Status ProtoProblem::Setup() { return AddPredicates(); }
+absl::Status ProtoProblemBase::Setup() { return AddPredicates(); }
 
 }  // namespace puzzle

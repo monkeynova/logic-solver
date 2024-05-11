@@ -44,11 +44,7 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 #include "proto/proto_problem.h"
 #include "proto/six_fearsome_heroes.pb.h"
 
-class SixFearsomeHeroes : public puzzle::ProtoProblem {
- public:
-  SixFearsomeHeroes()
-      : puzzle::ProtoProblem(SixFearsomeHeroesInfo::descriptor()) {}
-
+class SixFearsomeHeroes : public puzzle::ProtoProblem<SixFearsomeHeroesInfo> {
  private:
   enum Who {
     PICARD = SixFearsomeHeroesInfo::Entry::PICARD,

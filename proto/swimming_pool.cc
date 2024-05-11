@@ -24,11 +24,7 @@ Emily: style=Freestyle country=UK lane=3
 #include "proto/proto_problem.h"
 #include "proto/swimming_pool.pb.h"
 
-class SwimmingPoolProblem : public puzzle::ProtoProblem {
- public:
-  SwimmingPoolProblem()
-      : puzzle::ProtoProblem(SwimmingPoolProblemInfo::descriptor()) {}
-
+class SwimmingPoolProblem : public puzzle::ProtoProblem<SwimmingPoolProblemInfo> {
  private:
   enum Who {
     BETTY = SwimmingPoolProblemInfo::Entry::BETTY,

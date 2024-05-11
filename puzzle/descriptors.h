@@ -17,7 +17,7 @@ class Descriptor {
 
   virtual int size() const = 0;
 
-  virtual std::string DebugString(int i) const { return absl::StrCat(i); }
+  virtual std::string DebugString(int i) const = 0;
 };
 
 class IntRangeDescriptor : public Descriptor {
@@ -26,6 +26,8 @@ class IntRangeDescriptor : public Descriptor {
   ~IntRangeDescriptor() override {}
 
   int size() const override { return size_; }
+
+  std::string DebugString(int i) const override { return absl::StrCat(i); }
 
  private:
   int size_;
