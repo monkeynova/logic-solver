@@ -15,12 +15,13 @@ Puzzles in this repo are included from (among other locations):
 
 This repository is split into a few pieces.
 
- * At the top-level are a few logic puzzles that have been converted from
-   natural English to lambda expression that can then be solved
  * puzzle/... contains all the library code to iterate and find a solution to a
-   logic puzzle
- * sudoku/... maps sudoku problems into a logic puzzle like lambda space
- * ken_ken/... does the same as sudoku, but for 'KenKen' problems
+   logic puzzle.
+ * proto/... contains a few logic puzzles that have been converted from
+   natural English to lambda expression that can then be solved. They all use
+   proto enums to describe the values being chosen.
+ * sudoku/... maps sudoku problems into a logic puzzle like lambda space.
+ * ken_ken/... does the same as sudoku, but for 'KenKen' problems.
 
 ## Purpose
 

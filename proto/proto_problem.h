@@ -1,5 +1,5 @@
-#ifndef PUZZLE_PROTOT_PROBLEM_H
-#define PUZZLE_PROTOT_PROBLEM_H
+#ifndef PROTO_PROTO_PROBLEM_H
+#define PROTO_PROTO_PROBLEM_H
 
 #include "google/protobuf/descriptor.h"
 #include "puzzle/problem.h"
@@ -25,4 +25,4 @@ class ProtoProblem : public Problem {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_PROTOT_PROBLEM_H
+#endif  // PROTO_PROTO_PROBLEM_H

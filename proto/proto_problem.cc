@@ -1,4 +1,4 @@
-#include "puzzle/proto_problem.h"
+#include "proto/proto_problem.h"
 
 #include "google/protobuf/dynamic_message.h"
 #include "google/protobuf/text_format.h"

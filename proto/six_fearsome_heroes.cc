@@ -41,8 +41,8 @@ Worf: hero=Geordi fear=Data trid=6 fizzbin=6
 #include <iostream>
 #include <memory>
 
-#include "puzzle/proto_problem.h"
-#include "six_fearsome_heroes.pb.h"
+#include "proto/proto_problem.h"
+#include "proto/six_fearsome_heroes.pb.h"
 
 class SixFearsomeHeroes : public puzzle::ProtoProblem {
  public:

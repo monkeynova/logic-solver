@@ -350,19 +350,6 @@ cc_library(
 )
 
 cc_library(
-    name = "proto_problem",
-    srcs = ["proto_problem.cc"],
-    hdrs = ["proto_problem.h"],
-    visibility = [
-        "//visibility:public",
-    ],
-    deps = [
-        ":problem",
-        "@com_google_protobuf//:protobuf",
-    ],
-)
-
-cc_library(
     name = "descriptors",
     srcs = [],
     hdrs = ["descriptors.h"],

@@ -21,8 +21,8 @@ Carol: style=Butterfly country=CA lane=1
 Daisy: style=Backstroke country=AU lane=4
 Emily: style=Freestyle country=UK lane=3
  */
-#include "puzzle/proto_problem.h"
-#include "swimming_pool.pb.h"
+#include "proto/proto_problem.h"
+#include "proto/swimming_pool.pb.h"
 
 class SwimmingPoolProblem : public puzzle::ProtoProblem {
  public:

@@ -24,7 +24,7 @@ DORIAN: region=DEBROGEA plants=WOLFSBANE century=XIV
 MATEI: region=OLTENIA plants=ONION century=XVII
 OCTAVIAN: region=BUCOVINA plants=THORNBRUSH century=XV
 */
-#include "dracula_and_friends.pb.h"
+#include "proto/dracula_and_friends.pb.h"
 #include "proto/proto_problem.h"
 
 class DraculaAndFriendsProblem : public puzzle::ProtoProblem {
