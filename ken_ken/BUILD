@@ -1,6 +1,3 @@
-load("@com_monkeynova_base_workspace//:default_rules.bzl", "default_rules")
-load("//puzzle:puzzle.bzl", "puzzle_test")
-
 cc_library(
     name = "grid",
     srcs = ["grid.cc"],
@@ -42,10 +39,12 @@ cc_library(
     alwayslink = 1,
 )
 
-puzzle_test(
+cc_test(
     name = "nytkenken20240504_small_test",
+    tags = ["benchmark"],
     deps = [
         ":nytkenken20240504_small_lib",
+        "//puzzle:puzzle_test",
     ],
 )
 
@@ -67,10 +66,12 @@ cc_library(
     alwayslink = 1,
 )
 
-puzzle_test(
+cc_test(
     name = "nytkenken20240504_large_test",
+    tags = ["benchmark"],
     deps = [
         ":nytkenken20240504_large_lib",
+        "//puzzle:puzzle_test",
     ],
 )
 
@@ -92,9 +93,11 @@ cc_library(
     alwayslink = 1,
 )
 
-puzzle_test(
+cc_test(
     name = "conceptis_puzzles_test",
+    tags = ["benchmark"],
     deps = [
         ":conceptis_puzzles_lib",
+        "//puzzle:puzzle_test",
     ],
 )
