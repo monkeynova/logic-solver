@@ -9,7 +9,7 @@ class Profiler {
  public:
   static std::unique_ptr<Profiler> Create();
 
-  virtual ~Profiler() {}
+  virtual ~Profiler() = default;
   virtual void NoteFinish() {}
   virtual bool Done() { return false; }
   virtual double Seconds() { return 0; }

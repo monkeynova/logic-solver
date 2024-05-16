@@ -16,7 +16,7 @@ class SolutionPermuter {
    public:
     explicit AdvancerBase(const EntryDescriptor* entry_descriptor);
 
-    virtual ~AdvancerBase() {}
+    virtual ~AdvancerBase() = default;
 
     bool done() const { return done_; }
     void set_done() { done_ = true; }

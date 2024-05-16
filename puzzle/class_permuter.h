@@ -214,7 +214,7 @@ class ClassPermuter {
       : permutation_size_(permutation_size),
         permutation_count_(PermutationCount(permutation_size_)),
         class_int_(class_int) {}
-  virtual ~ClassPermuter() {}
+  virtual ~ClassPermuter() = default;
 
   virtual iterator begin() const = 0;
 

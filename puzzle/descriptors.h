@@ -13,7 +13,7 @@ namespace puzzle {
 
 class Descriptor {
  public:
-  virtual ~Descriptor() {}
+  virtual ~Descriptor() = default;
 
   virtual int size() const = 0;
 

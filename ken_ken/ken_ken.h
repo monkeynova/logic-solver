@@ -31,7 +31,7 @@ class KenKen : public Grid<kWidth> {
   absl::StatusOr<std::vector<Cage>> GetCages() const;
   virtual absl::StatusOr<std::string_view> GetCageKenKen() const = 0;
 
-  virtual absl::Status AddCagePredicates();
+  absl::Status AddCagePredicates();
 
  private:
   absl::Status AddGridPredicates() final;
