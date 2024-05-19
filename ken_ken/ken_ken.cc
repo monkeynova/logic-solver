@@ -6,8 +6,8 @@
 namespace ken_ken {
 
 template <int64_t kWidth>
-absl::Status KenKen<kWidth>::AddGridPredicates() {
-  return AddCagePredicates();
+absl::Status KenKen<kWidth>::AddGridPredicates(Grid<kWidth>::Orientation o) {
+  return AddCagePredicates(o);
 }
 
 template <int64_t kWidth>
@@ -282,8 +282,22 @@ absl::Status KenKen<kWidth>::AddDivPredicate(int val,
 }
 
 template <int64_t kWidth>
-absl::Status KenKen<kWidth>::AddCagePredicates() {
+absl::Status KenKen<kWidth>::AddCagePredicates(
+    Grid<kWidth>::Orientation o) {
   ASSIGN_OR_RETURN(std::vector<Cage> cages, GetCages());
+
+  switch (o) {
+    case Grid<kWidth>::Orientation::kDefault:
+      break;
+    case Grid<kWidth>::Orientation::kTranspose: {
+      for (Cage& c : cages) {
+        for (Box& b : c.boxes) {
+          b.Transpose();
+        }
+      }
+      break;
+    }
+  }
 
   std::array<std::bitset<kWidth>, kWidth> found;
 

@@ -43,7 +43,7 @@ TEST(Puzzle, UniqueAnswer) {
 
   absl::StatusOr<std::vector<puzzle::Solution>> solutions =
       problem->AllSolutions(/*limit=*/2);
-  ASSERT_TRUE(solutions.ok());
+  ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());
   ASSERT_EQ(solutions->size(), 1)
       << "\n0: " << solutions->at(0) << "\n1: " << solutions->at(1);

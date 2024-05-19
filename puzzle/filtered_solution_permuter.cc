@@ -236,6 +236,15 @@ absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
   return true;
 }
 
+double FilteredSolutionPermuter::Selectivity() const {
+  double selectivity = 1.0;
+  for (const auto& permuter : class_permuters_) {
+    selectivity *=
+        filter_to_active_set_->active_set(permuter->class_int()).Selectivity();
+  }
+  return selectivity;
+}
+
 absl::Status FilteredSolutionPermuter::Prepare() {
   if (prepared_) {
     return absl::FailedPreconditionError("Already prepared");
@@ -285,7 +294,7 @@ absl::Status FilteredSolutionPermuter::Prepare() {
               SolutionFilter::LtByEntryId());
   }
 
-  if (VLOG_IS_ON(1)) {
+  if (VLOG_IS_ON(2)) {
     for (const auto& permuter : class_permuters_) {
       double selectivity =
           filter_to_active_set_->active_set(permuter->class_int())
@@ -298,7 +307,7 @@ absl::Status FilteredSolutionPermuter::Prepare() {
                     [](std::string* out, const SolutionFilter& filter) {
                       absl::StrAppend(out, filter.name());
                     });
-      VLOG(1) << "Predicates at " << permuter->class_int() << " ("
+      VLOG(2) << "Predicates at " << permuter->class_int() << " ("
               << selectivity << "="
               << selectivity * permuter->permutation_count()
               << "): " << class_predicates_[permuter->class_int()].size()
@@ -403,11 +412,10 @@ void FilteredSolutionPermuter::ReorderEvaluation() {
           << absl::StrJoin(class_permuters_, ", ",
                            [this](std::string* out,
                                   const std::unique_ptr<ClassPermuter>& a) {
+                             const ActiveSet& set =
+                                 filter_to_active_set_->active_set(a->class_int());
                              absl::StrAppend(out, "(", a->class_int(), ",",
-                                             filter_to_active_set_
-                                                 ->active_set(a->class_int())
-                                                 .Selectivity(),
-                                             ")");
+                                             set.matches(), ")");
                            });
 }
 

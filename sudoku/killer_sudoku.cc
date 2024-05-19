@@ -17,10 +17,6 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
   }
   absl::flat_hash_map<int, int> class_to_entry;
   for (const Box& box : cage.boxes) {
-    if (box_used_.contains(box)) {
-      return absl::InvalidArgumentError(absl::StrCat("Duplicate entry: ", box));
-    }
-    box_used_.insert(box);
     auto it = class_to_entry.find(box.class_id);
     if (it == class_to_entry.end()) {
       class_to_entry.emplace(box.class_id, box.entry_id);
@@ -98,15 +94,38 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
       std::move(class_to_entry));
 }
 
-absl::Status KillerSudoku::InstanceSetup() {
-  for (const Cage& cage : GetCages()) {
+absl::Status KillerSudoku::InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) {
+  std::vector<Cage> cages = GetCages();
+
+  switch (o) {
+    case Grid<kWidth>::Orientation::kDefault:
+      break;
+    case Grid<kWidth>::Orientation::kTranspose: {
+      for (Cage& c : cages) {
+        for (Box& b : c.boxes) {
+          b.Transpose();
+        }
+      }
+      break;
+    }
+  }
+
+  absl::flat_hash_set<Box> box_used;
+
+  for (const Cage& cage : cages) {
+    for (const Box& box : cage.boxes) {
+      if (box_used.contains(box)) {
+        return absl::InvalidArgumentError(absl::StrCat("Duplicate entry: ", box));
+      }
+      box_used.insert(box);
+    }
     RETURN_IF_ERROR(AddCage(cage));
   }
 
   for (int entry_id = 0; entry_id < 9; ++entry_id) {
     for (int class_id = 0; class_id < 9; ++class_id) {
       Box b = {entry_id, class_id};
-      if (!box_used_.contains(b)) {
+      if (!box_used.contains(b)) {
         return absl::InvalidArgumentError(absl::StrCat("Missing entry: ", b));
       }
     }

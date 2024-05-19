@@ -95,6 +95,8 @@ absl::Status Sudoku::AddPredicatesCumulative() {
 }
 
 absl::Status Sudoku::AddPredicatesPairwise() {
+  static_assert(kSubHeight == kWidth / kSubHeight, "Need to handle transpose if not square");
+
   for (int box = 0; box < kWidth; ++box) {
     const int box_base_x = kSubHeight * (box / kSubHeight);
     const int box_base_y = kSubHeight * (box % kSubHeight);
@@ -132,6 +134,7 @@ absl::Status Sudoku::AddPredicatesPairwise() {
 }
 
 absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
+  static_assert(kSubHeight == kWidth / kSubHeight, "Need to handle transpose if not square");
   for (int i = 0; i < kWidth; ++i) {
     if (i == col) continue;
     RETURN_IF_ERROR(AddSpecificEntryPredicate(
@@ -241,15 +244,35 @@ absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(
     }
     ++row_idx;
   }
+
   return ret;
 }
 
-absl::Status Sudoku::InstanceSetup() {
+absl::Status Sudoku::InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) {
   ASSIGN_OR_RETURN(Board instance, GetInstanceBoard());
+
+  VLOG(1) << "InstanceSetup: " << static_cast<int>(o);
+
+  switch (o) {
+    case ::ken_ken::Grid<kWidth>::Orientation::kDefault:
+      break;
+    case ::ken_ken::Grid<kWidth>::Orientation::kTranspose: {
+      for (int row_idx = 0; row_idx < 9; ++row_idx) {
+        for (int col_idx = row_idx + 1; col_idx < 9; ++col_idx) {
+          std::swap(instance[row_idx][col_idx], instance[col_idx][row_idx]);
+        }
+      }
+      break;
+    }
+    default:
+      return absl::UnimplementedError("Cannot handle orientation");
+  }
+
   return AddBoardPredicates(instance);
 }
 
-absl::Status Sudoku::AddGridPredicates() {
+absl::Status Sudoku::AddGridPredicates(
+    ::ken_ken::Grid<kWidth>::Orientation o) {
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
     RETURN_IF_ERROR(AddPredicatesCumulative());
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {
@@ -263,7 +286,7 @@ absl::Status Sudoku::AddGridPredicates() {
   }
 
   if (!absl::GetFlag(FLAGS_sudoku_setup_only)) {
-    RETURN_IF_ERROR(InstanceSetup());
+    RETURN_IF_ERROR(InstanceSetup(o));
   }
 
   return absl::OkStatus();

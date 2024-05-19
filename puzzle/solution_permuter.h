@@ -77,6 +77,7 @@ class SolutionPermuter {
     return false;
   }
 
+  virtual double Selectivity() const = 0;
   virtual absl::Status Prepare() = 0;
 
   virtual iterator begin() const = 0;

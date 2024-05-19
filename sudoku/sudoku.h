@@ -36,14 +36,12 @@ class Sudoku : public ::ken_ken::Grid<9> {
   virtual absl::StatusOr<Board> GetSolutionBoard() const = 0;
 
  protected:
-  virtual absl::Status InstanceSetup();
+  virtual absl::Status InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o);
 
  private:
   // ::puzzle::Problem methods. Final to prevent missing parts.
-  absl::Status AddGridPredicates() final;
+  absl::Status AddGridPredicates(::ken_ken::Grid<kWidth>::Orientation o) final;
   absl::StatusOr<::puzzle::Solution> GetSolution() const final;
-
-  static bool IsNextTo(const puzzle::Entry& e, const puzzle::Entry& b);
 
   absl::Status AddValuePredicate(int row, int col, int value);
   absl::Status AddComposedValuePredicates(int row, int col, int value);

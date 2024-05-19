@@ -306,6 +306,7 @@ cc_binary(
 cc_test(
     name = "conceptis_puzzles_test",
     tags = ["benchmark"],
+    args = ["--grid_try_transpose=false"],
     deps = [
         ":conceptis_puzzles_lib",
         ":sudoku_test",

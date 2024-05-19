@@ -10,6 +10,8 @@ ABSL_FLAG(std::string, sudoku_problem_setup, "pairwise",
           "reordering and results in faster overall evaluation if "
           "reordering is enabled.");
 
+ABSL_FLAG(bool, grid_try_transpose, true, "...");
+
 namespace ken_ken {
 
 template <int64_t kWidth>
@@ -39,6 +41,11 @@ puzzle::EntryDescriptor Grid<kWidth>::MakeEntryDescriptor() {
 
 template <int64_t kWidth>
 absl::Status Grid<kWidth>::Setup() {
+  default_id_ = DefaultAlternate();
+  if (absl::GetFlag(FLAGS_grid_try_transpose)) {
+    ASSIGN_OR_RETURN(transpose_id_, CreateAlternate());
+  }
+
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
     std::vector<int> cols = {0};
     for (int i = 1; i < 9; ++i) {
@@ -64,9 +71,37 @@ absl::Status Grid<kWidth>::Setup() {
     }
   }
 
-  RETURN_IF_ERROR(AddGridPredicates());
+  SetAlternate(default_id_);
+  RETURN_IF_ERROR(AddGridPredicates(Orientation::kDefault));
+  if (absl::GetFlag(FLAGS_grid_try_transpose)) {
+    SetAlternate(transpose_id_);
+    RETURN_IF_ERROR(AddGridPredicates(Orientation::kTranspose));
+  }
+  SetAlternate(std::nullopt);
+
   return absl::OkStatus();
 }
+
+template <int64_t kWidth>
+absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(puzzle::Solution in, AlternateId alternate) const {
+  if (alternate == transpose_id_) {
+    if (!absl::GetFlag(FLAGS_grid_try_transpose)) {
+      return absl::InternalError("Transpose disabled");
+    }
+    std::vector<puzzle::Entry> copy = in.entries();
+    for (int i = 0; i < kWidth; ++i) {
+      for (int j = 0; j < kWidth; ++j) {
+        copy[j].SetClass(i, in.Id(i).Class(j));
+      }
+    }
+    return puzzle::Solution(in.descriptor(), &copy).Clone();
+  }
+  if (alternate != default_id_) {
+    return absl::InternalError("Bad alternate");
+  }
+  return in;
+}
+
 
 template class Grid<4>;
 template class Grid<6>;

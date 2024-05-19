@@ -14,6 +14,10 @@ class Grid : public puzzle::Problem {
     int entry_id;
     int class_id;
 
+    void Transpose() {
+      std::swap(entry_id, class_id);
+    }
+
     template <typename Sink>
     friend void AbslStringify(Sink& sink, const Box& b) {
       absl::Format(&sink, "(%v, %v)", b.entry_id, b.class_id);
@@ -32,12 +36,21 @@ class Grid : public puzzle::Problem {
   Grid() : puzzle::Problem(MakeEntryDescriptor()) {}
 
  protected:
-  virtual absl::Status AddGridPredicates() = 0;
+  enum class Orientation {
+    kDefault = 0,
+    kTranspose = 1,
+  };
+  virtual absl::Status AddGridPredicates(Orientation o) = 0;
 
  private:
+  absl::StatusOr<puzzle::Solution> TransformAlternate(puzzle::Solution in, AlternateId alternate) const final;
+
   absl::Status Setup() final;
 
   static puzzle::EntryDescriptor MakeEntryDescriptor();
+
+  puzzle::Solver::AlternateId default_id_;
+  puzzle::Solver::AlternateId transpose_id_;
 };
 
 extern template class Grid<4>;

@@ -23,12 +23,10 @@ class KillerSudoku : public ::sudoku::Sudoku {
   virtual std::vector<Cage> GetCages() const = 0;
 
  protected:
-  absl::Status InstanceSetup() override;
+  absl::Status InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) override;
 
  private:
   absl::Status AddCage(const Cage& cage);
-
-  absl::flat_hash_set<Box> box_used_;
 };
 
 }  // namespace sudoku

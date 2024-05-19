@@ -18,7 +18,7 @@ class GreaterThanSudoku : public ::sudoku::Sudoku {
   virtual std::vector<std::pair<Box, Box>> GetComparisons() const = 0;
 
  protected:
-  absl::Status InstanceSetup() override;
+  absl::Status InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) override;
 
  private:
   absl::Status AddComparison(const std::pair<Box, Box>& comparison);

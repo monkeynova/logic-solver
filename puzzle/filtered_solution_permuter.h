@@ -70,6 +70,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     return iterator(absl::make_unique<Advancer>(nullptr));
   }
 
+  double Selectivity() const override;
   double permutation_count() const;
   const ClassPermuter* class_permuter(int class_int) const {
     return class_permuters_[class_int].get();

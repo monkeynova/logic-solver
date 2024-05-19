@@ -17,6 +17,7 @@ class Problem : public Solver {
   virtual ~Problem() = default;
 
   virtual absl::Status Setup() = 0;
+
   virtual absl::StatusOr<puzzle::Solution> GetSolution() const = 0;
 
   static std::unique_ptr<Problem> GetInstance();

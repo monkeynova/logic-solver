@@ -81,19 +81,62 @@ class Solver {
     return descriptor;
   }
 
+ protected:
+  // The following methods allow for constructing multiple concurrent
+  // concurrent representations of the filters uses to specify the problem
+  // being solved. If utilized, multiple `SolutionPermuter`s are constructed
+  // and `Prepare`d and the one with the smallest `Selectivity` is used
+  // to iterate through results.
+  // This is used to allow Sudoku and other Grid problems to make a dynamic
+  // choice between a default representation of the problem and the transpose
+  // which is equivalent, but might have different filter performance depending
+  // on which axis is aligned with the `Entry`s.
+  // Each alternate version of the filters corresponds to a single AlternateId.
+  class AlternateId {
+   public:
+    bool operator==(const AlternateId&) const = default;
+
+   private:
+    friend class Solver;
+    int id_;
+  };
+
+  // Returns the default AlternateId, that is the one created by constructing
+  // this Solver, as opposed to any constructed by CreateAlternate.
+  AlternateId DefaultAlternate() const;
+  // Creates another version of the problem to solve. Must be called before any
+  // filters have been added.
+  absl::StatusOr<AlternateId> CreateAlternate();
+  // Sets the current behavior when adding filters. All subsequent
+  // Add*Predicate alls affect only `alternate`. If `alternate` is std::nullopt
+  // resets to having Add*Predicate calls add to all alternates.
+  void SetAlternate(std::optional<AlternateId> alternate) {
+    current_alternate_ = alternate;
+  }
+  // Called on any solution found if the chosen alternate was not the default.
+  // `in` is the result that was created to be returned `Solve`.
+  // `alternate` represents which choice was used to create `in`.
+  // This call must return the solution as it should be returned from `Solve`.
+  // As an example, for Grid transposition, this un-transposes the result.
+  virtual absl::StatusOr<Solution> TransformAlternate(
+    Solution in, AlternateId alternate) const;
+
  private:
   absl::Status AddFilter(SolutionFilter solution_filter);
 
   const EntryDescriptor entry_descriptor_;
 
+  bool filter_added_ = false;
   int test_calls_ = 0;
 
   std::string last_debug_statistics_;
 
-  std::vector<SolutionFilter> on_solution_;
-
   std::unique_ptr<Profiler> profiler_;
-  std::unique_ptr<SolutionPermuter> solution_permuter_;
+
+  std::optional<AlternateId> current_alternate_;
+  std::vector<std::unique_ptr<SolutionPermuter>> alternates_;
+  std::vector<std::vector<SolutionFilter>> residual_;
+  AlternateId chosen_alternate_;
 
   std::vector<std::unique_ptr<puzzle::Descriptor>> descriptors_;
 };

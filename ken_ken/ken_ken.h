@@ -31,10 +31,10 @@ class KenKen : public Grid<kWidth> {
   absl::StatusOr<std::vector<Cage>> GetCages() const;
   virtual absl::StatusOr<std::string_view> GetCageKenKen() const = 0;
 
-  absl::Status AddCagePredicates();
+  absl::Status AddCagePredicates(Grid<kWidth>::Orientation o);
 
  private:
-  absl::Status AddGridPredicates() final;
+  absl::Status AddGridPredicates(Grid<kWidth>::Orientation o) final;
 
   static bool IsContiguous(const Cage& cage);
   absl::Status AddSumPredicate(int val, const std::vector<Box>& boxes,

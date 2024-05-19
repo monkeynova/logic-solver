@@ -23,10 +23,11 @@ extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
 
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  ASSERT_TRUE(problem->Setup().ok());
+  absl::Status setup_status = problem->Setup();
+  ASSERT_TRUE(setup_status.ok()) << setup_status;
 
   absl::StatusOr<puzzle::Solution> got = problem->Solve();
-  ASSERT_TRUE(got.ok());
+  ASSERT_TRUE(got.ok()) << got.status();
   ASSERT_TRUE(got->IsValid());
   absl::StatusOr<puzzle::Solution> expected = problem->GetSolution();
   ASSERT_TRUE(expected.ok()) << expected.status();
@@ -38,11 +39,12 @@ TEST(Puzzle, UniqueAnswer) {
   if (!absl::GetFlag(FLAGS_puzzle_test_unique)) return;
 
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
-  ASSERT_TRUE(problem->Setup().ok());
+  absl::Status setup_status = problem->Setup();
+  ASSERT_TRUE(setup_status.ok()) << setup_status;
 
   absl::StatusOr<std::vector<puzzle::Solution>> solutions =
       problem->AllSolutions(/*limit=*/2);
-  ASSERT_TRUE(solutions.ok());
+  ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());
   ASSERT_EQ(solutions->size(), 1) << "\n0:\n"
                                   << solutions->at(0) << "\n1:\n"
