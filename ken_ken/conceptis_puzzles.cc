@@ -60,7 +60,8 @@ NUUPVRWWT
 NNNVVVTTT)BOARD";
 }
 
-absl::StatusOr<ConceptisPuzzles::Board> ConceptisPuzzles::GetSolutionBoard() const {
+absl::StatusOr<ConceptisPuzzles::Board> ConceptisPuzzles::GetSolutionBoard()
+    const {
   return ToBoard(
       "927351468"
       "293647581"
@@ -70,8 +71,7 @@ absl::StatusOr<ConceptisPuzzles::Board> ConceptisPuzzles::GetSolutionBoard() con
       "346719825"
       "531864792"
       "465278139"
-      "854932617"
-  );
+      "854932617");
 };
 
 REGISTER_PROBLEM(ConceptisPuzzles);

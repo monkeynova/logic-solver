@@ -38,7 +38,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   BruteSolutionPermuter& operator=(BruteSolutionPermuter&&) = default;
 
   absl::Status PrepareCheap() override;
-  absl::Status PrepareFull()override;
+  absl::Status PrepareFull() override;
 
   double Selectivity() const override { return 1.0; }
 

@@ -393,9 +393,9 @@ absl::Status FilteredSolutionPermuter::BuildActiveSetsFull() {
 
   VLOG(1) << "Generating pair selectivities";
 
-  PairFilterBurnDown burn_down(class_permuters_,
-                               std::move(prepare_cheap_state_.pair_class_predicates),
-                               filter_to_active_set_.get(), executor_.get());
+  PairFilterBurnDown burn_down(
+      class_permuters_, std::move(prepare_cheap_state_.pair_class_predicates),
+      filter_to_active_set_.get(), executor_.get());
 
   RETURN_IF_ERROR(burn_down.BurnDown());
 

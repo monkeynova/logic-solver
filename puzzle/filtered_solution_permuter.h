@@ -79,7 +79,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) override;
 
   absl::Status PrepareCheap() override;
-  absl::Status PrepareFull()override;
+  absl::Status PrepareFull() override;
 
  private:
   // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
@@ -106,7 +106,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   struct PrepareCheapState {
     std::vector<SolutionFilter> residual;
     absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
-      pair_class_predicates;
+        pair_class_predicates;
   } prepare_cheap_state_;
 
   // Ordered by the evaluation order that is configured for 'class_predicates_'.

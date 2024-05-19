@@ -28,8 +28,13 @@ absl::StatusOr<std::string_view> NYTKenKen20240504Small::GetCageKenKen() const {
 2555)BOARD";
 }
 
-absl::StatusOr<NYTKenKen20240504Small::Board> NYTKenKen20240504Small::GetSolutionBoard() const {
-  return ToBoard("3142" "4321" "2413" "1234");
+absl::StatusOr<NYTKenKen20240504Small::Board>
+NYTKenKen20240504Small::GetSolutionBoard() const {
+  return ToBoard(
+      "3142"
+      "4321"
+      "2413"
+      "1234");
 }
 
 REGISTER_PROBLEM(NYTKenKen20240504Small);

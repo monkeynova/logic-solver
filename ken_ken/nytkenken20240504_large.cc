@@ -38,8 +38,15 @@ B889CC
 B8D99C)BOARD";
 }
 
-absl::StatusOr<NYTKenKen20240504Large::Board> NYTKenKen20240504Large::GetSolutionBoard() const {
-  return ToBoard("352641" "534216" "643125" "125364" "216453" "461532");
+absl::StatusOr<NYTKenKen20240504Large::Board>
+NYTKenKen20240504Large::GetSolutionBoard() const {
+  return ToBoard(
+      "352641"
+      "534216"
+      "643125"
+      "125364"
+      "216453"
+      "461532");
 }
 
 REGISTER_PROBLEM(NYTKenKen20240504Large);

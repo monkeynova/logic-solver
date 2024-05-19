@@ -89,9 +89,7 @@ absl::Status BruteSolutionPermuter::PrepareCheap() {
   return absl::OkStatus();
 }
 
-absl::Status BruteSolutionPermuter::PrepareFull() {
-  return absl::OkStatus();
-}
+absl::Status BruteSolutionPermuter::PrepareFull() { return absl::OkStatus(); }
 
 double BruteSolutionPermuter::permutation_count() const {
   double count = 1;

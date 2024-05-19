@@ -96,9 +96,11 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(
 
 // static
 template <int64_t kWidth>
-absl::StatusOr<typename Grid<kWidth>::Board> Grid<kWidth>::ToBoard(absl::string_view line) {
+absl::StatusOr<typename Grid<kWidth>::Board> Grid<kWidth>::ToBoard(
+    absl::string_view line) {
   if (line.size() != kWidth * kWidth) {
-    return absl::FailedPreconditionError(absl::StrCat("line length (", line.size(), ") != ", kWidth * kWidth));
+    return absl::FailedPreconditionError(
+        absl::StrCat("line length (", line.size(), ") != ", kWidth * kWidth));
   }
   const char* data = line.data();
   Board b;
@@ -159,7 +161,6 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::GetSolution() const {
   }
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }
-
 
 template class Grid<4>;
 template class Grid<6>;
