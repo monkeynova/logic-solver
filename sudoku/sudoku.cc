@@ -200,21 +200,6 @@ absl::Status Sudoku::AddBoardPredicates(const Board& board) {
   return absl::OkStatus();
 }
 
-absl::StatusOr<puzzle::Solution> Sudoku::GetSolution() const {
-  ASSIGN_OR_RETURN(Board board, GetSolutionBoard());
-
-  std::vector<puzzle::Entry> entries;
-  for (size_t row = 0; row < board.size(); ++row) {
-    std::vector<int> entry_vals(kWidth, 0);
-    for (size_t col = 0; col < board[row].size(); ++col) {
-      // Translate to 0-indexed solution space.
-      entry_vals[col] = board[row][col] - 1;
-    }
-    entries.emplace_back(row, entry_vals, entry_descriptor());
-  }
-  return puzzle::Solution(entry_descriptor(), &entries).Clone();
-}
-
 // static
 absl::StatusOr<Sudoku::Board> Sudoku::ParseBoard(
     const absl::string_view board) {

@@ -33,7 +33,6 @@ class Sudoku : public ::ken_ken::Grid<9> {
   static absl::StatusOr<Board> ParseBoard(const absl::string_view board);
 
   virtual absl::StatusOr<Board> GetInstanceBoard() const = 0;
-  virtual absl::StatusOr<Board> GetSolutionBoard() const = 0;
 
  protected:
   virtual absl::Status InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o);
@@ -41,7 +40,6 @@ class Sudoku : public ::ken_ken::Grid<9> {
  private:
   // ::puzzle::Problem methods. Final to prevent missing parts.
   absl::Status AddGridPredicates(::ken_ken::Grid<kWidth>::Orientation o) final;
-  absl::StatusOr<::puzzle::Solution> GetSolution() const final;
 
   absl::Status AddValuePredicate(int row, int col, int value);
   absl::Status AddComposedValuePredicates(int row, int col, int value);

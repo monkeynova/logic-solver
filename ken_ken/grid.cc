@@ -138,6 +138,29 @@ std::string Grid<kWidth>::ToString(const ::puzzle::Solution& solution) {
   return ret;
 }
 
+template <int64_t kWidth>
+absl::StatusOr<puzzle::Solution> Grid<kWidth>::GetSolution() const {
+  ASSIGN_OR_RETURN(Board board, GetSolutionBoard());
+  if (board.size() != kWidth) {
+    return absl::FailedPreconditionError("Bad height");
+  }
+
+  std::vector<puzzle::Entry> entries;
+  for (size_t row = 0; row < board.size(); ++row) {
+    std::vector<int> entry_vals(kWidth, 0);
+    for (size_t col = 0; col < board[row].size(); ++col) {
+      if (board[row].size() != kWidth) {
+        return absl::FailedPreconditionError("Bad width");
+      }
+      // Translate to 0-indexed solution space.
+      entry_vals[col] = board[row][col] - 1;
+    }
+    entries.emplace_back(row, entry_vals, entry_descriptor());
+  }
+  return puzzle::Solution(entry_descriptor(), &entries).Clone();
+}
+
+
 template class Grid<4>;
 template class Grid<6>;
 template class Grid<9>;

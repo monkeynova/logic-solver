@@ -11,7 +11,7 @@ class NYTKenKen20240504Small : public KenKen<4> {
   absl::StatusOr<std::string_view> GetCageKenKen() const override;
 
  private:
-  absl::StatusOr<puzzle::Solution> GetSolution() const override;
+  absl::StatusOr<Board> GetSolutionBoard() const override;
 };
 
 absl::StatusOr<std::string_view> NYTKenKen20240504Small::GetCageKenKen() const {
@@ -28,13 +28,8 @@ absl::StatusOr<std::string_view> NYTKenKen20240504Small::GetCageKenKen() const {
 2555)BOARD";
 }
 
-absl::StatusOr<puzzle::Solution> NYTKenKen20240504Small::GetSolution() const {
-  std::vector<puzzle::Entry> entries;
-  entries.emplace_back(0, std::vector<int>{2, 0, 3, 1}, entry_descriptor());
-  entries.emplace_back(1, std::vector<int>{3, 2, 1, 0}, entry_descriptor());
-  entries.emplace_back(2, std::vector<int>{1, 3, 0, 2}, entry_descriptor());
-  entries.emplace_back(3, std::vector<int>{0, 1, 2, 3}, entry_descriptor());
-  return puzzle::Solution(entry_descriptor(), &entries).Clone();
+absl::StatusOr<NYTKenKen20240504Small::Board> NYTKenKen20240504Small::GetSolutionBoard() const {
+  return ToBoard("3142" "4321" "2413" "1234");
 }
 
 REGISTER_PROBLEM(NYTKenKen20240504Small);

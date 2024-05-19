@@ -35,6 +35,7 @@ class Grid : public puzzle::Problem {
   Grid() : puzzle::Problem(MakeEntryDescriptor()) {}
 
   absl::Status Setup() final;
+  absl::StatusOr<::puzzle::Solution> GetSolution() const final;
 
  protected:
   enum class Orientation {
@@ -45,6 +46,8 @@ class Grid : public puzzle::Problem {
 
   static std::string ToString(const ::puzzle::Solution& solution);
   static absl::StatusOr<Board> ToBoard(absl::string_view line);
+
+  virtual absl::StatusOr<Board> GetSolutionBoard() const = 0;
 
  private:
   absl::StatusOr<puzzle::Solution> TransformAlternate(
