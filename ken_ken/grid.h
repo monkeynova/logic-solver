@@ -14,9 +14,7 @@ class Grid : public puzzle::Problem {
     int entry_id;
     int class_id;
 
-    void Transpose() {
-      std::swap(entry_id, class_id);
-    }
+    void Transpose() { std::swap(entry_id, class_id); }
 
     template <typename Sink>
     friend void AbslStringify(Sink& sink, const Box& b) {
@@ -43,7 +41,8 @@ class Grid : public puzzle::Problem {
   virtual absl::Status AddGridPredicates(Orientation o) = 0;
 
  private:
-  absl::StatusOr<puzzle::Solution> TransformAlternate(puzzle::Solution in, AlternateId alternate) const final;
+  absl::StatusOr<puzzle::Solution> TransformAlternate(
+      puzzle::Solution in, AlternateId alternate) const final;
 
   absl::Status Setup() final;
 

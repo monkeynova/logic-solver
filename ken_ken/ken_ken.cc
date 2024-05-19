@@ -282,8 +282,7 @@ absl::Status KenKen<kWidth>::AddDivPredicate(int val,
 }
 
 template <int64_t kWidth>
-absl::Status KenKen<kWidth>::AddCagePredicates(
-    Grid<kWidth>::Orientation o) {
+absl::Status KenKen<kWidth>::AddCagePredicates(Grid<kWidth>::Orientation o) {
   ASSIGN_OR_RETURN(std::vector<Cage> cages, GetCages());
 
   switch (o) {

@@ -45,7 +45,8 @@ absl::Status GreaterThanSudoku::AddComparison(const std::pair<Box, Box>& cmp) {
       {cmp.first.class_id});
 }
 
-absl::Status GreaterThanSudoku::InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) {
+absl::Status GreaterThanSudoku::InstanceSetup(
+    ::ken_ken::Grid<kWidth>::Orientation o) {
   std::vector<std::pair<Box, Box>> cmp_list = GetComparisons();
 
   switch (o) {

@@ -94,7 +94,8 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
       std::move(class_to_entry));
 }
 
-absl::Status KillerSudoku::InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) {
+absl::Status KillerSudoku::InstanceSetup(
+    ::ken_ken::Grid<kWidth>::Orientation o) {
   std::vector<Cage> cages = GetCages();
 
   switch (o) {
@@ -115,7 +116,8 @@ absl::Status KillerSudoku::InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o)
   for (const Cage& cage : cages) {
     for (const Box& box : cage.boxes) {
       if (box_used.contains(box)) {
-        return absl::InvalidArgumentError(absl::StrCat("Duplicate entry: ", box));
+        return absl::InvalidArgumentError(
+            absl::StrCat("Duplicate entry: ", box));
       }
       box_used.insert(box);
     }

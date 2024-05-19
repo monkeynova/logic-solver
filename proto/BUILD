@@ -67,8 +67,8 @@ cc_library(
     name = "six_fearsome_heroes_lib",
     srcs = ["six_fearsome_heroes.cc"],
     deps = [
-        ":six_fearsome_heroes_cc_proto",
         ":proto_problem",
+        ":six_fearsome_heroes_cc_proto",
     ],
     alwayslink = 1,
 )
@@ -85,8 +85,8 @@ cc_library(
     name = "swimming_pool_lib",
     srcs = ["swimming_pool.cc"],
     deps = [
-        ":swimming_pool_cc_proto",
         ":proto_problem",
+        ":swimming_pool_cc_proto",
     ],
     alwayslink = 1,
 )
@@ -142,7 +142,10 @@ cc_test(
 cc_test(
     name = "six_fearsome_heroes_noprune_test",
     args = ["--puzzle_prune_class_iterator=false"],
-    tags = ["slowbenchmark", "benchmark"],
+    tags = [
+        "benchmark",
+        "slowbenchmark",
+    ],
     deps = [
         ":six_fearsome_heroes_lib",
         "//puzzle:puzzle_test",

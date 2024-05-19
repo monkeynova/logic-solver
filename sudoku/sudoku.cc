@@ -95,7 +95,8 @@ absl::Status Sudoku::AddPredicatesCumulative() {
 }
 
 absl::Status Sudoku::AddPredicatesPairwise() {
-  static_assert(kSubHeight == kWidth / kSubHeight, "Need to handle transpose if not square");
+  static_assert(kSubHeight == kWidth / kSubHeight,
+                "Need to handle transpose if not square");
 
   for (int box = 0; box < kWidth; ++box) {
     const int box_base_x = kSubHeight * (box / kSubHeight);
@@ -134,7 +135,8 @@ absl::Status Sudoku::AddPredicatesPairwise() {
 }
 
 absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
-  static_assert(kSubHeight == kWidth / kSubHeight, "Need to handle transpose if not square");
+  static_assert(kSubHeight == kWidth / kSubHeight,
+                "Need to handle transpose if not square");
   for (int i = 0; i < kWidth; ++i) {
     if (i == col) continue;
     RETURN_IF_ERROR(AddSpecificEntryPredicate(
@@ -271,8 +273,7 @@ absl::Status Sudoku::InstanceSetup(::ken_ken::Grid<kWidth>::Orientation o) {
   return AddBoardPredicates(instance);
 }
 
-absl::Status Sudoku::AddGridPredicates(
-    ::ken_ken::Grid<kWidth>::Orientation o) {
+absl::Status Sudoku::AddGridPredicates(::ken_ken::Grid<kWidth>::Orientation o) {
   if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "cumulative") {
     RETURN_IF_ERROR(AddPredicatesCumulative());
   } else if (absl::GetFlag(FLAGS_sudoku_problem_setup) == "pairwise") {

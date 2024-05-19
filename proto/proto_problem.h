@@ -8,7 +8,8 @@ namespace puzzle {
 
 class ProtoProblemBase : public Problem {
  public:
-  explicit ProtoProblemBase(const google::protobuf::Descriptor* problem_descriptor);
+  explicit ProtoProblemBase(
+      const google::protobuf::Descriptor* problem_descriptor);
 
   absl::Status Setup() override;
   absl::StatusOr<puzzle::Solution> GetSolution() const override;

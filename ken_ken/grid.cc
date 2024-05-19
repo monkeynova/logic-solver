@@ -83,7 +83,8 @@ absl::Status Grid<kWidth>::Setup() {
 }
 
 template <int64_t kWidth>
-absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(puzzle::Solution in, AlternateId alternate) const {
+absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(
+    puzzle::Solution in, AlternateId alternate) const {
   if (alternate == transpose_id_) {
     if (!absl::GetFlag(FLAGS_grid_try_transpose)) {
       return absl::InternalError("Transpose disabled");
@@ -101,7 +102,6 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(puzzle::Soluti
   }
   return in;
 }
-
 
 template class Grid<4>;
 template class Grid<6>;

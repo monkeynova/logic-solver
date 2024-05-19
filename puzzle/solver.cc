@@ -8,7 +8,8 @@ namespace puzzle {
 Solver::Solver(EntryDescriptor entry_descriptor)
     : entry_descriptor_(std::move(entry_descriptor)),
       profiler_(Profiler::Create()) {
-  alternates_.push_back(CreateSolutionPermuter(&entry_descriptor_, profiler_.get()));
+  alternates_.push_back(
+      CreateSolutionPermuter(&entry_descriptor_, profiler_.get()));
   residual_.push_back({});
 }
 
@@ -50,7 +51,8 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
     }
   }
 
-  VLOG_IF(1, alternates_.size() > 1) << "Chose alternate: " << chosen_alternate_.id_;
+  VLOG_IF(1, alternates_.size() > 1)
+      << "Chose alternate: " << chosen_alternate_.id_;
 
   std::vector<Solution> ret;
   for (auto it = solution_permuter->begin(); it != solution_permuter->end();
@@ -63,7 +65,8 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
     if (AllMatch(on_solution, *it)) {
       puzzle::Solution copy = it->Clone();
       if (chosen_alternate_.id_ != 0) {
-        ASSIGN_OR_RETURN(copy, TransformAlternate(copy.Clone(), chosen_alternate_));
+        ASSIGN_OR_RETURN(copy,
+                         TransformAlternate(copy.Clone(), chosen_alternate_));
       }
       ret.push_back(std::move(copy));
       if (limit >= 0 && ret.size() >= static_cast<size_t>(limit)) {
@@ -81,7 +84,7 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
                    (profiler_ ? profiler_->Seconds()
                               : std::numeric_limits<double>::quiet_NaN()),
                    "s]");
-  
+
   VLOG(1) << last_debug_statistics_;
 
   return ret;
@@ -97,11 +100,13 @@ Solver::AlternateId Solver::DefaultAlternate() const {
 
 absl::StatusOr<Solver::AlternateId> Solver::CreateAlternate() {
   if (filter_added_) {
-    return absl::FailedPreconditionError("Cannot create alternative after adding a filter");
+    return absl::FailedPreconditionError(
+        "Cannot create alternative after adding a filter");
   }
   AlternateId ret;
   ret.id_ = alternates_.size();
-  alternates_.push_back(CreateSolutionPermuter(&entry_descriptor_, profiler_.get()));
+  alternates_.push_back(
+      CreateSolutionPermuter(&entry_descriptor_, profiler_.get()));
   residual_.push_back({});
   return ret;
 }

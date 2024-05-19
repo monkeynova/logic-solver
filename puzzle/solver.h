@@ -119,7 +119,7 @@ class Solver {
   // This call must return the solution as it should be returned from `Solve`.
   // As an example, for Grid transposition, this un-transposes the result.
   virtual absl::StatusOr<Solution> TransformAlternate(
-    Solution in, AlternateId alternate) const;
+      Solution in, AlternateId alternate) const;
 
  private:
   absl::Status AddFilter(SolutionFilter solution_filter);

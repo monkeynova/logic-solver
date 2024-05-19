@@ -409,14 +409,15 @@ void FilteredSolutionPermuter::ReorderEvaluation() {
       });
 
   VLOG(1) << "Reordered to: "
-          << absl::StrJoin(class_permuters_, ", ",
-                           [this](std::string* out,
-                                  const std::unique_ptr<ClassPermuter>& a) {
-                             const ActiveSet& set =
-                                 filter_to_active_set_->active_set(a->class_int());
-                             absl::StrAppend(out, "(", a->class_int(), ",",
-                                             set.matches(), ")");
-                           });
+          << absl::StrJoin(
+                 class_permuters_, ", ",
+                 [this](std::string* out,
+                        const std::unique_ptr<ClassPermuter>& a) {
+                   const ActiveSet& set =
+                       filter_to_active_set_->active_set(a->class_int());
+                   absl::StrAppend(out, "(", a->class_int(), ",", set.matches(),
+                                   ")");
+                 });
 }
 
 double FilteredSolutionPermuter::permutation_count() const {
