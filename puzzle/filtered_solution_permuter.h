@@ -78,13 +78,15 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
   absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) override;
 
-  absl::Status Prepare() override;
+  absl::Status PrepareCheap() override;
+  absl::Status PrepareFull()override;
 
  private:
   // Builds ActiveSet for each element in 'class_permuters_' (if flag enabled).
   // Elements in 'filters' that are not completely evaluated by these active
   // sets are returned in 'residual'.
-  absl::Status BuildActiveSets(std::vector<SolutionFilter>* residual);
+  absl::Status BuildActiveSetsCheap(std::vector<SolutionFilter>* residual);
+  absl::Status BuildActiveSetsFull();
 
   // Reorders 'class_permuters_' by increasing selectivity. The effect of this
   // is to mean that any filter evaluated on a partial set of 'class_permuters_'
@@ -95,7 +97,17 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
   Profiler* profiler_;
 
-  bool prepared_ = false;
+  enum class PrepareState {
+    kUnprepared = 0,
+    kCheap = 1,
+    kFull = 2,
+  };
+  PrepareState prepare_state_ = PrepareState::kUnprepared;
+  struct PrepareCheapState {
+    std::vector<SolutionFilter> residual;
+    absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
+      pair_class_predicates;
+  } prepare_cheap_state_;
 
   // Ordered by the evaluation order that is configured for 'class_predicates_'.
   // That is, if the first N permuters have been updated then permuting entries

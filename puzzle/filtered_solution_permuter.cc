@@ -221,7 +221,7 @@ FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,
 
 absl::StatusOr<bool> FilteredSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {
-  if (prepared_) {
+  if (prepare_state_ != PrepareState::kUnprepared) {
     return absl::FailedPreconditionError("Permuter already prepared");
   }
   // TODO(@monkeynova): Maybe test for full sized list as well.
@@ -245,11 +245,11 @@ double FilteredSolutionPermuter::Selectivity() const {
   return selectivity;
 }
 
-absl::Status FilteredSolutionPermuter::Prepare() {
-  if (prepared_) {
+absl::Status FilteredSolutionPermuter::PrepareCheap() {
+  if (prepare_state_ != PrepareState::kUnprepared) {
     return absl::FailedPreconditionError("Already prepared");
   }
-  prepared_ = true;
+  prepare_state_ = PrepareState::kCheap;
   filter_to_active_set_ =
       absl::make_unique<FilterToActiveSet>(entry_descriptor(), profiler_);
 
@@ -261,13 +261,22 @@ absl::Status FilteredSolutionPermuter::Prepare() {
         MakeClassPermuter(class_descriptor, class_int));
   }
 
-  std::vector<SolutionFilter> unhandled;
-  RETURN_IF_ERROR(BuildActiveSets(&unhandled));
+  RETURN_IF_ERROR(BuildActiveSetsCheap(&prepare_cheap_state_.residual));
+  return absl::OkStatus();
+}
+
+absl::Status FilteredSolutionPermuter::PrepareFull() {
+  if (prepare_state_ != PrepareState::kCheap) {
+    return absl::FailedPreconditionError("Already prepared");
+  }
+  prepare_state_ = PrepareState::kFull;
+
+  RETURN_IF_ERROR(BuildActiveSetsFull());
   ReorderEvaluation();
 
   class_predicates_.clear();
   class_predicates_.resize(class_permuters_.size());
-  for (const auto& filter : unhandled) {
+  for (const auto& filter : prepare_cheap_state_.residual) {
     bool added = false;
     for (auto it = class_permuters_.rbegin(); it != class_permuters_.rend();
          ++it) {
@@ -317,7 +326,7 @@ absl::Status FilteredSolutionPermuter::Prepare() {
   return absl::OkStatus();
 }
 
-absl::Status FilteredSolutionPermuter::BuildActiveSets(
+absl::Status FilteredSolutionPermuter::BuildActiveSetsCheap(
     std::vector<SolutionFilter>* residual) {
   if (!absl::GetFlag(FLAGS_puzzle_prune_class_iterator)) {
     for (const auto& filter : predicates_) {
@@ -327,8 +336,6 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
   }
 
   std::vector<std::vector<SolutionFilter>> single_class_predicates;
-  absl::flat_hash_map<std::pair<int, int>, std::vector<SolutionFilter>>
-      pair_class_predicates;
   single_class_predicates.resize(class_permuters_.size());
   for (const auto& filter : predicates_) {
     if (filter.classes().size() == 1) {
@@ -339,8 +346,8 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
           std::make_pair(filter.classes()[0], filter.classes()[1]);
       std::pair<int, int> key2 =
           std::make_pair(filter.classes()[1], filter.classes()[0]);
-      pair_class_predicates[key1].push_back(filter);
-      pair_class_predicates[key2].push_back(filter);
+      prepare_cheap_state_.pair_class_predicates[key1].push_back(filter);
+      prepare_cheap_state_.pair_class_predicates[key2].push_back(filter);
       if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators) ||
           !absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators_mode_pair)) {
         residual->push_back(filter);
@@ -376,7 +383,10 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
   while (::thread::Future<absl::Status>* st = work_set.WaitForAny()) {
     if (!(*st)->ok()) return **st;
   }
+  return absl::OkStatus();
+}
 
+absl::Status FilteredSolutionPermuter::BuildActiveSetsFull() {
   if (!absl::GetFlag(FLAGS_puzzle_prune_pair_class_iterators)) {
     return absl::OkStatus();
   }
@@ -384,7 +394,7 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
   VLOG(1) << "Generating pair selectivities";
 
   PairFilterBurnDown burn_down(class_permuters_,
-                               std::move(pair_class_predicates),
+                               std::move(prepare_cheap_state_.pair_class_predicates),
                                filter_to_active_set_.get(), executor_.get());
 
   RETURN_IF_ERROR(burn_down.BurnDown());

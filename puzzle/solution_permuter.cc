@@ -2,6 +2,12 @@
 
 namespace puzzle {
 
+absl::Status SolutionPermuter::Prepare() {
+  RETURN_IF_ERROR(PrepareCheap());
+  RETURN_IF_ERROR(PrepareFull());
+  return absl::OkStatus();
+}
+
 SolutionPermuter::AdvancerBase::AdvancerBase(
     const EntryDescriptor* entry_descriptor)
     : mutable_solution_(entry_descriptor) {

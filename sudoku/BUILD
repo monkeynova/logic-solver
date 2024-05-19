@@ -305,7 +305,7 @@ cc_binary(
 
 cc_test(
     name = "conceptis_puzzles_test",
-    args = ["--grid_try_transpose=false"],
+    args = ["--puzzle_solver_full_selectivity_check=false"],
     tags = ["benchmark"],
     deps = [
         ":conceptis_puzzles_lib",

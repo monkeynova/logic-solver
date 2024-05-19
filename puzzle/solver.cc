@@ -1,7 +1,10 @@
 #include "puzzle/solver.h"
 
+#include "absl/flags/flag.h"
 #include "puzzle/all_match.h"
 #include "puzzle/solution_permuter_factory.h"
+
+ABSL_FLAG(bool, puzzle_solver_full_selectivity_check, true, "...");
 
 namespace puzzle {
 
@@ -41,7 +44,10 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
 
   double best_selectivity = 1.1;
   for (int i = 0; i < alternates_.size(); ++i) {
-    RETURN_IF_ERROR(alternates_[i]->Prepare());
+    RETURN_IF_ERROR(alternates_[i]->PrepareCheap());
+    if (absl::GetFlag(FLAGS_puzzle_solver_full_selectivity_check)) {
+      RETURN_IF_ERROR(alternates_[i]->PrepareFull());
+    }
     double alternate_selectivity = alternates_[i]->Selectivity();
     if (alternate_selectivity < best_selectivity) {
       chosen_alternate_.id_ = i;
@@ -49,6 +55,10 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
       solution_permuter = alternates_[i].get();
       on_solution = residual_[i];
     }
+  }
+
+  if (!absl::GetFlag(FLAGS_puzzle_solver_full_selectivity_check)) {
+    RETURN_IF_ERROR(solution_permuter->PrepareFull());
   }
 
   VLOG_IF(1, alternates_.size() > 1)
