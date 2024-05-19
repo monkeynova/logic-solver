@@ -30,8 +30,11 @@ class Grid : public puzzle::Problem {
       return entry_id == other.entry_id && class_id == other.class_id;
     }
   };
+  using Board = std::array<std::array<int, kWidth>, kWidth>;
 
   Grid() : puzzle::Problem(MakeEntryDescriptor()) {}
+
+  absl::Status Setup() final;
 
  protected:
   enum class Orientation {
@@ -40,11 +43,12 @@ class Grid : public puzzle::Problem {
   };
   virtual absl::Status AddGridPredicates(Orientation o) = 0;
 
+  static std::string ToString(const ::puzzle::Solution& solution);
+  static absl::StatusOr<Board> ToBoard(absl::string_view line);
+
  private:
   absl::StatusOr<puzzle::Solution> TransformAlternate(
       puzzle::Solution in, AlternateId alternate) const final;
-
-  absl::Status Setup() final;
 
   static puzzle::EntryDescriptor MakeEntryDescriptor();
 

@@ -94,6 +94,50 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(
   return in;
 }
 
+// static
+template <int64_t kWidth>
+absl::StatusOr<typename Grid<kWidth>::Board> Grid<kWidth>::ToBoard(absl::string_view line) {
+  if (line.size() != kWidth * kWidth) {
+    return absl::FailedPreconditionError(absl::StrCat("line length (", line.size(), ") != ", kWidth * kWidth));
+  }
+  const char* data = line.data();
+  Board b;
+  for (int row = 0; row < kWidth; ++row) {
+    for (int col = 0; col < kWidth; ++col) {
+      if (*data == '.') {
+        b[row][col] = -1;
+      } else {
+        if (*data < '0' || *data > '0' + kWidth) {
+          LOG(ERROR) << "Bad input: \"" << *data << "\"";
+          return Board();
+        } else {
+          b[row][col] = *data - '0';
+        }
+      }
+      ++data;
+    }
+  }
+
+  return b;
+}
+
+// static
+template <int64_t kWidth>
+std::string Grid<kWidth>::ToString(const ::puzzle::Solution& solution) {
+  DCHECK(solution.IsValid());
+  std::string ret;
+  ret.resize(kWidth * kWidth);
+  char* out = const_cast<char*>(ret.data());
+  for (int row = 0; row < kWidth; ++row) {
+    for (int col = 0; col < kWidth; ++col) {
+      // Translate from 0-indexed solution space to 1-indexed sudoku board.
+      *out = solution.Id(row).Class(col) + '1';
+      ++out;
+    }
+  }
+  return ret;
+}
+
 template class Grid<4>;
 template class Grid<6>;
 template class Grid<9>;

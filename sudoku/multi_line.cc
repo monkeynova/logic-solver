@@ -19,14 +19,12 @@ int main(int argc, char** argv) {
   for (std::string buf; std::getline(std::cin, buf);) {
     std::cout << "In:  " << buf << std::endl;
     absl::Time start = absl::Now();
-    std::unique_ptr<::puzzle::Problem> line_board =
-        ::sudoku::LineBoard::Create(buf);
-    QCHECK(line_board != nullptr) << "No puzzle found";
+    ::sudoku::LineBoard line_board(buf);
 
-    absl::Status setup_status = line_board->Setup();
+    absl::Status setup_status = line_board.Setup();
     QCHECK(setup_status.ok()) << setup_status;
 
-    absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+    absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
     QCHECK(answer.ok()) << answer.status();
     if (answer->IsValid()) {
       absl::Time done = absl::Now();

@@ -20,14 +20,11 @@ int main(int argc, char** argv) {
   CHECK(!absl::GetFlag(FLAGS_sudoku_line_board).empty())
       << "--sudoku_line_board must be set";
 
-  std::unique_ptr<::puzzle::Problem> line_board =
-      ::sudoku::LineBoard::Create(absl::GetFlag(FLAGS_sudoku_line_board));
-  CHECK(line_board != nullptr) << "No puzzle found";
-
-  absl::Status setup_status = line_board->Setup();
+  ::sudoku::LineBoard line_board(absl::GetFlag(FLAGS_sudoku_line_board));
+  absl::Status setup_status = line_board.Setup();
   QCHECK(setup_status.ok()) << setup_status;
 
-  absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+  absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
   QCHECK(answer.ok()) << answer.status();
   QCHECK(answer->IsValid());
 

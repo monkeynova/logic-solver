@@ -81,19 +81,13 @@ void TestLineBoard(absl::string_view test_case,
 
   absl::StripAsciiWhitespace(&test_case_without_options);
 
-  std::unique_ptr<::puzzle::Problem> line_board =
-      ::sudoku::LineBoard::Create(test_case_without_options);
-  if (line_board == nullptr) {
-    test_result->AddTestOutput(absl::StrCat("ERROR: Failed to parse board: ",
-                                            test_case_without_options));
-    return;
-  }
-  if (absl::Status st = line_board->Setup(); !st.ok()) {
+  ::sudoku::LineBoard line_board(test_case_without_options);
+  if (absl::Status st = line_board.Setup(); !st.ok()) {
     test_result->AddTestOutput(
         absl::StrCat("ERROR: Could not setup puzzle: ", st.message()));
     return;
   }
-  absl::StatusOr<::puzzle::Solution> answer = line_board->Solve();
+  absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
   if (!answer.ok()) {
     test_result->AddTestOutput(absl::StrCat("ERROR: Could not solve puzzle: ",
                                             answer.status().message()));
@@ -105,16 +99,15 @@ void TestLineBoard(absl::string_view test_case,
     return;
   }
   if (absl::GetFlag(FLAGS_puzzle_test_unique)) {
-    std::unique_ptr<::puzzle::Problem> line_board =
-        ::sudoku::LineBoard::Create(test_case_without_options);
-    if (absl::Status st = line_board->Setup(); !st.ok()) {
+    ::sudoku::LineBoard line_board(test_case_without_options);
+    if (absl::Status st = line_board.Setup(); !st.ok()) {
       test_result->AddTestOutput(
           absl::StrCat("ERROR: Could not setup puzzle: ", st.message()));
       return;
     }
 
     absl::StatusOr<std::vector<puzzle::Solution>> solutions =
-        line_board->AllSolutions(/*limit=*/2);
+        line_board.AllSolutions(/*limit=*/2);
     if (!solutions.ok()) {
       test_result->AddTestOutput(absl::StrCat("ERROR: Could not solve puzzle: ",
                                               solutions.status().message()));

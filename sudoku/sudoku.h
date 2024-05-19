@@ -18,7 +18,7 @@ class Sudoku : public ::ken_ken::Grid<9> {
   static_assert(kWidth % kSubHeight == 0, "Sub box must fit");
 
   using Box = ::ken_ken::Grid<kWidth>::Box;
-  using Board = std::array<std::array<int, kWidth>, kWidth>;
+  using Board = ::ken_ken::Grid<kWidth>::Board;
 
   Sudoku() = default;
 

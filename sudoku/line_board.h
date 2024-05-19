@@ -8,26 +8,17 @@
 namespace sudoku {
 
 class LineBoard : public Sudoku {
- private:
-  class PassKey {};
-
  public:
-  explicit LineBoard(Board board, PassKey) : board_(std::move(board)) {}
+  using Grid<9>::ToString;
+  using Grid<9>::ToBoard;
 
-  static std::unique_ptr<LineBoard> Create(absl::string_view line) {
-    Board b = ToBoard(line);
-    if (b.empty()) return nullptr;
-    return absl::make_unique<LineBoard>(std::move(b), PassKey());
-  }
-
-  static std::string ToString(const ::puzzle::Solution& solution);
-  static Board ToBoard(absl::string_view line);
+  explicit LineBoard(absl::string_view line) : board_(ToBoard(line)) {}
 
   absl::StatusOr<Board> GetInstanceBoard() const override { return board_; }
   absl::StatusOr<Board> GetSolutionBoard() const override { return board_; }
 
  private:
-  Board board_;
+  absl::StatusOr<Board> board_;
 };
 
 }  // namespace sudoku

@@ -109,7 +109,6 @@ cc_test(
 
 cc_library(
     name = "line_board",
-    srcs = ["line_board.cc"],
     hdrs = ["line_board.h"],
     deps = [
         ":sudoku",
