@@ -95,7 +95,6 @@ cc_library(
 
 cc_test(
     name = "conceptis_puzzles_test",
-    args = ["--grid_try_transpose=false"],
     tags = ["benchmark"],
     deps = [
         ":conceptis_puzzles_lib",
