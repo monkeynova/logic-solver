@@ -94,9 +94,9 @@ absl::Status PairFilterBurnDown::BurnDown() {
   if (pairs->empty()) return absl::OkStatus();
 
   if (absl::GetFlag(FLAGS_puzzle_pair_class_burn_down_class)) {
-    if (absl::Status st = ClassBurnDown(std::move(*pairs)); !st.ok()) return st;
+    RETURN_IF_ERROR(ClassBurnDown(std::move(*pairs)));
   } else {
-    if (absl::Status st = HeapBurnDown(std::move(*pairs)); !st.ok()) return st;
+    RETURN_IF_ERROR(HeapBurnDown(std::move(*pairs)));
   }
 
   return absl::OkStatus();

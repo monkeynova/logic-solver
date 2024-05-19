@@ -262,7 +262,7 @@ absl::Status FilteredSolutionPermuter::Prepare() {
   }
 
   std::vector<SolutionFilter> unhandled;
-  if (absl::Status st = BuildActiveSets(&unhandled); !st.ok()) return st;
+  RETURN_IF_ERROR(BuildActiveSets(&unhandled));
   ReorderEvaluation();
 
   class_predicates_.clear();
@@ -387,7 +387,7 @@ absl::Status FilteredSolutionPermuter::BuildActiveSets(
                                std::move(pair_class_predicates),
                                filter_to_active_set_.get(), executor_.get());
 
-  if (absl::Status st = burn_down.BurnDown(); !st.ok()) return st;
+  RETURN_IF_ERROR(burn_down.BurnDown());
 
   return absl::OkStatus();
 }

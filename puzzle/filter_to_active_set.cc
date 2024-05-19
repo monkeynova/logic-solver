@@ -156,8 +156,7 @@ FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPassThrough>(
     const std::vector<SolutionFilter>& predicates) {
   if (predicates.empty()) return absl::OkStatus();
 
-  if (absl::Status st = SetupBuild(class_permuter, predicates); !st.ok())
-    return st;
+  RETURN_IF_ERROR(SetupBuild(class_permuter, predicates));
 
   const int class_int = class_permuter->class_int();
   ActiveSetBuilder builder(class_permuter->permutation_count());
@@ -182,8 +181,7 @@ FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPositionSet>(
     const std::vector<SolutionFilter>& predicates) {
   if (predicates.empty()) return absl::OkStatus();
 
-  if (absl::Status st = SetupBuild(class_permuter, predicates); !st.ok())
-    return st;
+  RETURN_IF_ERROR(SetupBuild(class_permuter, predicates));
 
   const int class_int = class_permuter->class_int();
   std::vector<int> a_matches;
@@ -278,10 +276,8 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  if (absl::Status st = SetupPairBuild(permuter_a, permuter_b, predicates_by_a,
-                                       predicates_by_b);
-      !st.ok())
-    return st;
+  RETURN_IF_ERROR(
+      SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b));
 
   // Since we expect 'a' to be the smaller of the iterations, we use it as the
   // inner loop first, hoping to prune 'b' for its iteration.
@@ -399,10 +395,9 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  if (absl::Status st = SetupPairBuild(permuter_a, permuter_b, predicates_by_a,
-                                       predicates_by_b);
-      !st.ok())
-    return st;
+  RETURN_IF_ERROR(
+      SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b));
+
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
@@ -476,10 +471,9 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
     const std::vector<SolutionFilter>& predicates_by_a,
     const std::vector<SolutionFilter>& predicates_by_b,
     FilterToActiveSet::PairClassMode pair_class_mode) {
-  if (absl::Status st = SetupPairBuild(permuter_a, permuter_b, predicates_by_a,
-                                       predicates_by_b);
-      !st.ok())
-    return st;
+  RETURN_IF_ERROR(
+      SetupPairBuild(permuter_a, permuter_b, predicates_by_a, predicates_by_b));
+
   int class_a = permuter_a->class_int();
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
