@@ -1,5 +1,4 @@
 workspace(name="com_monkeynova_logic_solver")
-workspace(name="com_monkeynova_logic_solver")
 
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
