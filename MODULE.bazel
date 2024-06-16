@@ -18,6 +18,7 @@ bazel_dep(
 )
 bazel_dep(name = "com_monkeynova_base_workspace")
 bazel_dep(name = "com_monkeynova_gunit_main")
+bazel_dep(name = "com_google_file_based_test_driver")
 
 git_override(
    module_name = "com_monkeynova_base_workspace",
@@ -31,4 +32,12 @@ git_override(
     remote = "https://github.com/monkeynova/gunit-main.git",
     # branch = "main",
     commit = "33b6b882e19d8a2fd835f18184c3c7f1d19cfe25",
+)
+
+git_override(
+    module_name = "com_google_file_based_test_driver",
+    remote = "https://github.com/google/file-based-test-driver.git",
+    commit = "fd7661b168f640f68da39f97dad26e426eb6c339",
+    patches = ["fbtd.patch"],
+    patch_strip = 1,
 )

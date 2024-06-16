@@ -1,0 +1,20 @@
+diff -ruN -x b file-based-test-driver/MODULE.bazel file-based-test-driver.new/MODULE.bazel
+--- file-based-test-driver/MODULE.bazel	1969-12-31 16:00:00
++++ file-based-test-driver.new/MODULE.bazel	2024-06-16 16:19:37
+@@ -0,0 +1,11 @@
++###############################################################################
++# Bazel now uses Bzlmod by default to manage external dependencies.
++# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
++#
++# For more details, please check https://github.com/bazelbuild/bazel/issues/18958
++###############################################################################
++
++module(name="com_google_file_based_test_driver")
++bazel_dep(name = "abseil-cpp", version = "20240116.2", repo_name = "com_google_absl")
++bazel_dep(name = "googletest", version = "1.14.0.bcr.1", repo_name = "com_google_googletest")
++bazel_dep(name = "re2", version = "2024-06-01", repo_name = "com_googlesource_code_re2")
+diff -ruN -x b file-based-test-driver/WORKSPACE.bazel file-based-test-driver.new/WORKSPACE.bazel
+--- file-based-test-driver/WORKSPACE.bazel	1969-12-31 16:00:00
++++ file-based-test-driver.new/WORKSPACE.bazel	2024-06-16 16:02:58
+@@ -0,0 +1 @@
++workspace(name="com_google_file_based_test_driver")
