@@ -10,7 +10,7 @@ class ProtoProblemBase : public Problem {
  public:
   explicit ProtoProblemBase(
       const google::protobuf::Descriptor* problem_descriptor)
-    : ProtoProblemBase(MakeInit(problem_descriptor)) {}
+      : ProtoProblemBase(MakeInit(problem_descriptor)) {}
 
   absl::Status Setup() override;
   absl::StatusOr<puzzle::Solution> GetSolution() const override;

@@ -9,8 +9,8 @@ namespace puzzle {
 absl::StatusOr<ProtoProblemBase::Init> ProtoProblemBase::MakeInit(
     const google::protobuf::Descriptor* proto_descriptor) {
   Init ret = {
-    .problem_descriptor = proto_descriptor,
-    .entry_descriptor = EntryDescriptor(nullptr, nullptr, {}),
+      .problem_descriptor = proto_descriptor,
+      .entry_descriptor = EntryDescriptor(nullptr, nullptr, {}),
   };
 
   if (proto_descriptor->field_count() != 1) {
@@ -41,11 +41,13 @@ absl::StatusOr<ProtoProblemBase::Init> ProtoProblemBase::MakeInit(
 
   int class_field_count = ret.entry_message_descriptor->field_count() - 1;
   std::vector<std::string> class_names(class_field_count);
-  std::vector<std::unique_ptr<const Descriptor>> class_descriptors(class_field_count);
+  std::vector<std::unique_ptr<const Descriptor>> class_descriptors(
+      class_field_count);
   ret.class_fields.clear();
   ret.class_fields.reserve(class_field_count);
   for (int i = 0; i < ret.entry_message_descriptor->field_count(); ++i) {
-    const google::protobuf::FieldDescriptor* field = ret.entry_message_descriptor->field(i);
+    const google::protobuf::FieldDescriptor* field =
+        ret.entry_message_descriptor->field(i);
     if (field == ret.id_field) {
       continue;
     }
@@ -60,22 +62,21 @@ absl::StatusOr<ProtoProblemBase::Init> ProtoProblemBase::MakeInit(
     ret.class_fields.push_back(field);
   }
 
-  ret.entry_descriptor = EntryDescriptor(
-      absl::make_unique<ProtoEnumDescriptor>(id_enum),
-      absl::make_unique<StringDescriptor>(class_names),
-      std::move(class_descriptors));
+  ret.entry_descriptor =
+      EntryDescriptor(absl::make_unique<ProtoEnumDescriptor>(id_enum),
+                      absl::make_unique<StringDescriptor>(class_names),
+                      std::move(class_descriptors));
 
   return ret;
 }
 
-ProtoProblemBase::ProtoProblemBase(
-    absl::StatusOr<ProtoProblemBase::Init> init)
-  : Problem(std::move(init->entry_descriptor)),
-    problem_descriptor_(init->problem_descriptor),
-    entry_field_(init->entry_field),
-    entry_message_descriptor_(init->entry_message_descriptor),
-    id_field_(init->id_field),
-    class_fields_(std::move(init->class_fields)) {}
+ProtoProblemBase::ProtoProblemBase(absl::StatusOr<ProtoProblemBase::Init> init)
+    : Problem(std::move(init->entry_descriptor)),
+      problem_descriptor_(init->problem_descriptor),
+      entry_field_(init->entry_field),
+      entry_message_descriptor_(init->entry_message_descriptor),
+      id_field_(init->id_field),
+      class_fields_(std::move(init->class_fields)) {}
 
 absl::StatusOr<Solution> ProtoProblemBase::GetSolution() const {
   google::protobuf::DynamicMessageFactory factory;
@@ -98,7 +99,8 @@ absl::StatusOr<Solution> ProtoProblemBase::GetSolution() const {
     int id = entry.GetReflection()->GetEnumValue(entry, id_field_);
     std::vector<int> class_values(entry_descriptor()->AllClasses()->size(), 0);
     for (int i = 0; i < class_fields_.size(); ++i) {
-      class_values[i] = entry.GetReflection()->GetEnumValue(entry, class_fields_[i]);
+      class_values[i] =
+          entry.GetReflection()->GetEnumValue(entry, class_fields_[i]);
     }
     entries.emplace_back(id, std::move(class_values), entry_descriptor());
   }

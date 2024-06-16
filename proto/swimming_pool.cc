@@ -65,10 +65,12 @@ absl::Status SwimmingPoolProblem::AddPredicates() {
         const puzzle::Entry& backstroker = s.Find([](const puzzle::Entry& e) {
           return e.Class(STYLE) == P::BACKSTROKE;
         });
-        if (emily.Class(COUNTRY) == P::UK && backstroker.Class(LANE) == P::FOUR) {
+        if (emily.Class(COUNTRY) == P::UK &&
+            backstroker.Class(LANE) == P::FOUR) {
           return true;
         }
-        if (backstroker.Class(COUNTRY) == P::UK && emily.Class(LANE) == P::FOUR) {
+        if (backstroker.Class(COUNTRY) == P::UK &&
+            emily.Class(LANE) == P::FOUR) {
           return true;
         }
         return false;
@@ -79,7 +81,8 @@ absl::Status SwimmingPoolProblem::AddPredicates() {
       "3. Carol is not swimming Backstroke nor Dolphin. She is "
       "not Australian, and is not swiming in lates #2 nor #4.",
       [](const puzzle::Entry& e) {
-        return e.Class(STYLE) != P::BACKSTROKE && e.Class(STYLE) != P::DOLPHIN &&
+        return e.Class(STYLE) != P::BACKSTROKE &&
+               e.Class(STYLE) != P::DOLPHIN &&
                e.Class(COUNTRY) != P::AUSTRALIA && e.Class(LANE) != P::TWO &&
                e.Class(LANE) != P::FOUR;
       },

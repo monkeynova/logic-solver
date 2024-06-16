@@ -68,9 +68,10 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
         int from_mutenia_century = s.Find([](const puzzle::Entry& e) {
                                       return e.Class(REGION) == P::MUNTENIA;
                                     }).Class(CENTURY);
-        int hated_thornbrush_century = s.Find([](const puzzle::Entry& e) {
-                                          return e.Class(PLANT) == P::THORNBRUSH;
-                                        }).Class(CENTURY);
+        int hated_thornbrush_century =
+            s.Find([](const puzzle::Entry& e) {
+               return e.Class(PLANT) == P::THORNBRUSH;
+             }).Class(CENTURY);
         return hated_thornbrush_century == from_mutenia_century - 1;
       },
       {REGION, PLANT, CENTURY}));
@@ -78,8 +79,9 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
       "4. 100 years after Dorian's death, another vamipre rised "
       "in Bucovina, but this wasn't Bogdan.",
       [](const puzzle::Solution& s) {
-        const puzzle::Entry& from_bucovina = s.Find(
-            [](const puzzle::Entry& e) { return e.Class(REGION) == P::BUCOVINA; });
+        const puzzle::Entry& from_bucovina = s.Find([](const puzzle::Entry& e) {
+          return e.Class(REGION) == P::BUCOVINA;
+        });
         return from_bucovina.id() != P::BOGDAN &&
                (from_bucovina.Class(CENTURY) ==
                 s.Id(P::DORIAN).Class(CENTURY) + 1);
@@ -105,12 +107,12 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
       {{REGION, P::MATEI}, {PLANT, P::BOGDAN}}));
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
       "7a. The vampire from XIV century wasn't Octavian nor Bogdan. (Octavian)",
-      [](const puzzle::Entry& e) { return e.Class(CENTURY) != P::XIV; }, {CENTURY},
-      P::OCTAVIAN));
+      [](const puzzle::Entry& e) { return e.Class(CENTURY) != P::XIV; },
+      {CENTURY}, P::OCTAVIAN));
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
       "7b. The vampire from XIV century wasn't Octavian nor Bogdan. (Bogdan)",
-      [](const puzzle::Entry& e) { return e.Class(CENTURY) != P::XIV; }, {CENTURY},
-      P::BOGDAN));
+      [](const puzzle::Entry& e) { return e.Class(CENTURY) != P::XIV; },
+      {CENTURY}, P::BOGDAN));
   RETURN_IF_ERROR(AddSpecificEntryPredicate(
       "8. Villagers didn't grow thornbrush against Dorian.",
       [](const puzzle::Entry& e) { return e.Class(PLANT) != P::THORNBRUSH; },

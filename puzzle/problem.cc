@@ -9,7 +9,7 @@ std::unique_ptr<Problem> Problem::GetInstance() {
 
 Problem::Generator Problem::SetGenerator(Generator generator) {
   CHECK(global_problem_generator_ == &MissingGenerator)
-    << "Multiple REGISTER_PROBLEM calls linked in binary";
+      << "Multiple REGISTER_PROBLEM calls linked in binary";
   return global_problem_generator_ = generator;
 }
 
