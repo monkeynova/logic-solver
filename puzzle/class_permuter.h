@@ -177,7 +177,9 @@ class ClassPermuter {
       return *this;
     }
 
-    int position() const { return advancer_->position(); }
+    int position() const {
+      return advancer_ == nullptr ? 0 : advancer_->position();
+    }
     double Completion() const {
       return static_cast<double>(position()) / advancer_->permutation_count();
     }
