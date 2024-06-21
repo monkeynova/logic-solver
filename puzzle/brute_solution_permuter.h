@@ -17,8 +17,7 @@ class BruteSolutionPermuter final : public SolutionPermuter {
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;
 
-    double position() const override;
-    double completion() const override;
+    Solution::Position position() const override;
 
    private:
     void Advance() override;

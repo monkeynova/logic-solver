@@ -69,6 +69,19 @@ class Entry {
 
 class Solution {
  public:
+  struct Position {
+    double position;
+    double count;
+    double Completion() const {
+      if (count == 0) return 0;
+      return position / count;
+    }
+    template <typename Sink>
+    friend void AbslStringify(Sink& sink, const Position& p) {
+      absl::Format(&sink, "%e/%e (%f)", p.position, p.count, p.Completion());
+    }
+  };
+
   using Predicate = std::function<bool(const Solution&)>;
 
   Solution() {}
@@ -93,16 +106,11 @@ class Solution {
 
   const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
-  double permutation_position() const { return permutation_position_; }
-  void set_permutation_position(double position) {
-    permutation_position_ = position;
+  Position position() const {
+    return permutation_position_;
   }
-
-  double permutation_count() const { return permutation_count_; }
-  void set_permutation_count(double count) { permutation_count_ = count; }
-
-  double Completion() const {
-    return permutation_position_ / permutation_count_;
+  void set_position(Position position) {
+    permutation_position_ = position;
   }
 
   bool IsValid() const { return entries_ != nullptr; }
@@ -149,7 +157,7 @@ class Solution {
 
   // The position of in iterating through all permutations of solutions which
   // this represents.
-  double permutation_position_ = 0;
+  Position permutation_position_ = {.position = 0, .count = 0};
 
   // The total number of all permutations that can be generated from
   // 'entry_descriptor_'.

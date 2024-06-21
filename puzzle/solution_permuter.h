@@ -21,13 +21,13 @@ class SolutionPermuter {
     bool done() const { return done_; }
     void set_done() { done_ = true; }
 
-    virtual double position() const = 0;
-    virtual double completion() const = 0;
+    virtual Solution::Position position() const = 0;
     virtual void Advance() = 0;
 
     const Solution& current() const { return current_; }
 
    protected:
+    // TODO(@monkeynova): -> private and interface.
     MutableSolution mutable_solution_;
     Solution current_;  // Bound to mutable_solution_.
     bool done_ = false;
@@ -62,8 +62,7 @@ class SolutionPermuter {
       return *this;
     }
 
-    double position() const { return advancer_->position(); }
-    double completion() const { return advancer_->completion(); }
+    Solution::Position position() const { return advancer_->position(); }
 
    private:
     std::unique_ptr<AdvancerBase> advancer_;

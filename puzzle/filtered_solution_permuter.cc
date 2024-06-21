@@ -59,13 +59,14 @@ FilteredSolutionPermuter::Advancer::Advancer(
   }
 
   if (FindNextValid(/*class_position=*/0)) {
-    current_.set_permutation_count(permuter_->permutation_count());
-    current_.set_permutation_position(position());
+    current_.set_position(position());
   } else {
     set_done();
     current_ = Solution();
-    current_.set_permutation_count(permuter_->permutation_count());
-    current_.set_permutation_position(permuter_->permutation_count());
+    current_.set_position({
+      .position = permuter_->permutation_count(),
+      .count = permuter_->permutation_count(),
+    });
   }
 }
 
@@ -150,8 +151,10 @@ bool FilteredSolutionPermuter::Advancer::NotePositionForProfiler(
 
   if (permuter_->profiler_ == nullptr) return false;
 
-  if (permuter_->profiler_->NotePermutation(position(),
-                                            permuter_->permutation_count())) {
+  Solution::Position position = this->position();
+
+  if (permuter_->profiler_->NotePermutation(position.position,
+                                            position.count)) {
     std::cout << "; FindNextValid(" << class_position << ") ("
               << IterationDebugString() << ")" << std::flush;
   }
@@ -180,18 +183,19 @@ void FilteredSolutionPermuter::Advancer::Advance() {
     }
   }
   if (found_value && FindNextValid(0)) {
-    current_.set_permutation_count(permuter_->permutation_count());
-    current_.set_permutation_position(position());
+    current_.set_position(position());
   } else {
     set_done();
     current_ = Solution();
-    current_.set_permutation_count(permuter_->permutation_count());
-    current_.set_permutation_position(permuter_->permutation_count());
+    current_.set_position({
+      .position = permuter_->permutation_count(),
+      .count = permuter_->permutation_count(),
+    });
   }
 }
 
-double FilteredSolutionPermuter::Advancer::position() const {
-  if (permuter_ == nullptr) return -1;
+Solution::Position FilteredSolutionPermuter::Advancer::position() const {
+  if (permuter_ == nullptr) return {.position = 0, .count = 0};
 
   double position = 0;
 
@@ -200,12 +204,10 @@ double FilteredSolutionPermuter::Advancer::position() const {
     position += iterators_[class_permuter->class_int()].position();
   }
 
-  return position;
-}
-
-double FilteredSolutionPermuter::Advancer::completion() const {
-  if (permuter_ == nullptr) return 1;
-  return 1.0 * position() / permuter_->permutation_count();
+  return {
+    .position = position,
+    .count = permuter_->permutation_count(),
+  };
 }
 
 FilteredSolutionPermuter::FilteredSolutionPermuter(const EntryDescriptor* e,

@@ -29,7 +29,7 @@ TEST(FilteredSolutionPermuterTest, Simple) {
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_THAT(it.position(), solutions.size());
+    EXPECT_THAT(it.position().position, solutions.size());
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
     solutions.emplace_back(it->Clone());
   }
@@ -62,7 +62,7 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_THAT(it.position(), Ge(solutions.size()));
+    EXPECT_THAT(it.position().position, Ge(solutions.size()));
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(1).Class(0), 1);
@@ -101,7 +101,7 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     LOG(INFO) << "Got Next" << std::endl;
-    EXPECT_THAT(it.position(), Ge(solutions.size()));
+    EXPECT_THAT(it.position().position, Ge(solutions.size()));
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(1).Class(1), 2);
@@ -147,7 +147,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     LOG(INFO) << "Got Next";
-    EXPECT_THAT(it.position(), Ge(solutions.size()));
+    EXPECT_THAT(it.position().position, Ge(solutions.size()));
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(0).Class(0), 1);

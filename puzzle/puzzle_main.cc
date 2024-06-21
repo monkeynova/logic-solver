@@ -11,8 +11,7 @@
 ABSL_FLAG(bool, all, false, "Show all solutions");
 
 std::string PositionHeader(const puzzle::Solution& s) {
-  return absl::StrCat("[position=", s.permutation_position(), "/",
-                      s.permutation_count(), " (", s.Completion(), ")]");
+  return absl::StrCat("[position=", s.position(), "]");
 }
 
 int main(int argc, char** argv) {

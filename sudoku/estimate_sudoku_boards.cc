@@ -50,10 +50,10 @@ int main(int argc, char** argv) {
   int i = num_solutions;
   const auto& solution = solutions->at(i - 1);
   QCHECK(solution.IsValid());
-  std::cout << solution.permutation_position() << " of "
-            << solution.permutation_count() << " => "
-            << (solution.permutation_count() * i /
-                (solution.permutation_position() + 1))
+  puzzle::Solution::Position position = solution.position();
+  std::cout << position.position << " of "
+            << position.count << " => "
+            << (position.count* i / (position.position + 1))
             << std::endl;
 
   return 0;

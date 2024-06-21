@@ -22,8 +22,10 @@ BruteSolutionPermuter::Advancer::Advancer(
     mutable_solution_.SetClass(iterators_[class_int]);
   }
 
-  current_.set_permutation_count(permuter_->permutation_count());
-  current_.set_permutation_position(0);
+  current_.set_position({
+    .position = 0, 
+    .count = permuter_->permutation_count(),
+  });
 }
 
 void BruteSolutionPermuter::Advancer::Advance() {
@@ -49,15 +51,22 @@ void BruteSolutionPermuter::Advancer::Advance() {
   if (at_end) {
     set_done();
     current_ = Solution();
-    current_.set_permutation_count(permuter_->permutation_count());
-    current_.set_permutation_position(permuter_->permutation_count());
+    current_.set_position({
+      .position = permuter_->permutation_count(),
+      .count = permuter_->permutation_count(),
+    });
   } else {
-    current_.set_permutation_position(current_.permutation_position() + 1);
+    current_.set_position({
+      .position = permuter_->permutation_count() + 1,
+      .count = current_.position().count,
+    });
   }
 }
 
-double BruteSolutionPermuter::Advancer::position() const {
-  if (permuter_ == nullptr) return -1;
+Solution::Position BruteSolutionPermuter::Advancer::position() const {
+  if (permuter_ == nullptr) {
+    return {.position = 0, .count = 0};
+  }
 
   double position = 0;
 
@@ -66,12 +75,10 @@ double BruteSolutionPermuter::Advancer::position() const {
     position += iterators_[class_int].position();
   }
 
-  return position;
-}
-
-double BruteSolutionPermuter::Advancer::completion() const {
-  if (permuter_ == nullptr) return 1;
-  return 1.0 * position() / permuter_->permutation_count();
+  return {
+    .position = position,
+    .count = permuter_->permutation_count(),
+  };
 }
 
 BruteSolutionPermuter::BruteSolutionPermuter(const EntryDescriptor* e)

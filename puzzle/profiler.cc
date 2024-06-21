@@ -49,6 +49,7 @@ class AbslTimeProfiler : public Profiler {
               << "%, effective=" << permutations_per_milli
               << "Kp/ms true=" << (permutations() / full_delta) << "Kp/ms"
               << std::flush;
+
     last_permutation_ = now;
     last_position_ = position;
     return true;
