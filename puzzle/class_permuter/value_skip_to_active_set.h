@@ -1,5 +1,5 @@
-#ifndef PUZZLE_SOLUTION_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
-#define PUZZLE_SOLUTION_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
+#ifndef PUZZLE_CLASS_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
+#define PUZZLE_CLASS_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
 
 #include "absl/container/flat_hash_map.h"
 #include "puzzle/active_set/active_set.h"
@@ -17,9 +17,8 @@ class ValueSkipToActiveSet {
     return active_set_[position][value];
   }
 
-  const ActiveSet& value_skip_set(
-      const ClassPermuter::iterator& it,
-      ClassPermuter::iterator::ValueSkip value_skip) const {
+  const ActiveSet& value_skip_set(const ClassPermuter::iterator& it,
+                                  ValueSkip value_skip) const {
     return value_skip_set(/*position=*/value_skip.value_index,
                           /*value=*/(*it)[value_skip.value_index]);
   }
@@ -31,4 +30,4 @@ class ValueSkipToActiveSet {
 
 }  // namespace puzzle
 
-#endif  //  PUZZLE_SOLUTION_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
+#endif  //  PUZZLE_CLASS_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H

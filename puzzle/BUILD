@@ -6,10 +6,10 @@ cc_library(
         "//visibility:public",
     ],
     deps = [
+        "//puzzle/base:all_match",
         "//puzzle/base:profiler",
         "//puzzle/base:solution",
         "//puzzle/solution_permuter",
-        "//puzzle/solution_permuter:all_match",
         "//puzzle/solution_permuter:solution_permuter_factory",
         "@com_google_absl//absl/status",
     ],

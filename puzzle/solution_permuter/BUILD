@@ -1,37 +1,17 @@
 cc_library(
-    name = "all_match",
-    hdrs = ["all_match.h"],
-    visibility = ["//puzzle:__subpackages__"],
-    deps = [
-        "//puzzle/base:solution",
-        "//puzzle/base:solution_filter",
-        "//puzzle/class_permuter",
-    ],
-)
-
-cc_test(
-    name = "all_match_test",
-    srcs = ["all_match_test.cc"],
-    deps = [
-        ":all_match",
-        "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
-
-cc_library(
     name = "filter_to_active_set",
     srcs = ["filter_to_active_set.cc"],
     hdrs = ["filter_to_active_set.h"],
     deps = [
-        ":all_match",
         ":mutable_solution",
-        ":value_skip_to_active_set",
         "//puzzle/active_set",
         "//puzzle/active_set:pair",
+        "//puzzle/base:all_match",
         "//puzzle/base:profiler",
         "//puzzle/base:solution",
         "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
+        "//puzzle/class_permuter:value_skip_to_active_set",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/functional:function_ref",
@@ -60,26 +40,6 @@ cc_test(
         ":filter_to_active_set",
         ":mutable_solution",
         "//puzzle/base:solution_filter",
-        "//puzzle/class_permuter:factory",
-        "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
-
-cc_library(
-    name = "value_skip_to_active_set",
-    srcs = ["value_skip_to_active_set.cc"],
-    hdrs = ["value_skip_to_active_set.h"],
-    deps = [
-        "//puzzle/active_set",
-        "//puzzle/class_permuter",
-    ],
-)
-
-cc_test(
-    name = "value_skip_to_active_set_test",
-    srcs = ["value_skip_to_active_set_test.cc"],
-    deps = [
-        ":value_skip_to_active_set",
         "//puzzle/class_permuter:factory",
         "@com_monkeynova_gunit_main//:test_main",
     ],
@@ -134,11 +94,11 @@ cc_library(
     srcs = ["filtered_solution_permuter.cc"],
     hdrs = ["filtered_solution_permuter.h"],
     deps = [
-        ":all_match",
         ":filter_to_active_set",
         ":mutable_solution",
         ":pair_filter_burn_down",
         ":solution_permuter",
+        "//puzzle/base:all_match",
         "//puzzle/base:profiler",
         "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",

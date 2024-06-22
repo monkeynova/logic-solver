@@ -1,4 +1,4 @@
-#include "puzzle/solution_permuter/all_match.h"
+#include "puzzle/base/all_match.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -32,7 +32,7 @@ TEST(AllMatchTest, PairFalse) {
 }
 
 TEST(AllMatchTest, ValueSkip) {
-  ClassPermuter::iterator::ValueSkip value_skip;
+  ValueSkip value_skip;
   std::vector<Entry> entries;
   entries.emplace_back(0, std::vector<int>{}, nullptr);
   entries.emplace_back(1, std::vector<int>{}, nullptr);

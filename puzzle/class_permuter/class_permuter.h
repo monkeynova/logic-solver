@@ -2,6 +2,7 @@
 #define PUZZLE_CLASS_PERMUTER_H
 
 #include "puzzle/active_set/active_set.h"
+#include "puzzle/base/all_match.h"
 #include "puzzle/base/solution.h"
 
 namespace puzzle {
@@ -10,15 +11,6 @@ class ClassPermuter {
  public:
   class AdvancerBase {
    public:
-    // Argument type for operator+= to advance until a sepecific position in the
-    // permutation changes values.
-    struct ValueSkip {
-      int value_index = Entry::kBadId;
-    };
-    static_assert(sizeof(ValueSkip) < 16,
-                  "ValueSkip is assumed to be small enough for pass-by-value "
-                  "semantics.");
-
     explicit AdvancerBase(const ClassPermuter* permuter);
 
     // Non-default copy constructor to maintain `active_set_it_` as a reference
@@ -119,7 +111,6 @@ class ClassPermuter {
   class iterator {
    public:
     constexpr static int kInlineSize = 10;
-    using ValueSkip = typename AdvancerBase::ValueSkip;
 
     typedef std::forward_iterator_tag iterator_category;
     typedef int difference_type;

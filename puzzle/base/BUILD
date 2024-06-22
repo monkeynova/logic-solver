@@ -1,6 +1,26 @@
 package(default_visibility = ["//puzzle:__subpackages__"])
 
 cc_library(
+    name = "all_match",
+    hdrs = ["all_match.h"],
+    visibility = ["//puzzle:__subpackages__"],
+    deps = [
+        "//puzzle/base:solution",
+        "//puzzle/base:solution_filter",
+    ],
+)
+
+cc_test(
+    name = "all_match_test",
+    srcs = ["all_match_test.cc"],
+    deps = [
+        ":all_match",
+        "//puzzle:solver",
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
+
+cc_library(
     name = "descriptors",
     srcs = [],
     hdrs = ["descriptors.h"],

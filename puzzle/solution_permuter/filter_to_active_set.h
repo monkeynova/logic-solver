@@ -10,8 +10,8 @@
 #include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
+#include "puzzle/class_permuter/value_skip_to_active_set.h"
 #include "puzzle/solution_permuter/mutable_solution.h"
-#include "puzzle/solution_permuter/value_skip_to_active_set.h"
 
 namespace puzzle {
 
@@ -104,8 +104,7 @@ class FilterToActiveSet {
 
  private:
   // Advances `it` based on `value_skip`.
-  void Advance(const ValueSkipToActiveSet* vs2as,
-               ClassPermuter::iterator::ValueSkip value_skip,
+  void Advance(const ValueSkipToActiveSet* vs2as, ValueSkip value_skip,
                ClassPermuter::iterator* it) const;
 
   absl::Status SetupBuild(const ClassPermuter* permuter,
@@ -121,7 +120,7 @@ class FilterToActiveSet {
   inline void SingleIterate(
       const ClassPermuter* permuter,
       absl::FunctionRef<bool(const ClassPermuter::iterator& it,
-                             ClassPermuter::iterator::ValueSkip* value_skip)>
+                             ValueSkip* value_skip)>
           on_item);
 
   inline void DualIterate(
@@ -129,10 +128,10 @@ class FilterToActiveSet {
       absl::FunctionRef<void(void)> on_outer_before,
       absl::FunctionRef<bool(const ClassPermuter::iterator& it_outer,
                              const ClassPermuter::iterator& it_inner,
-                             ClassPermuter::iterator::ValueSkip* inner_skip)>
+                             ValueSkip* inner_skip)>
           on_inner,
       absl::FunctionRef<void(const ClassPermuter::iterator& it_outer,
-                             ClassPermuter::iterator::ValueSkip* outer_skip)>
+                             ValueSkip* outer_skip)>
           on_outer_after);
 
   // Maps class_int to it's built ActiveSet.

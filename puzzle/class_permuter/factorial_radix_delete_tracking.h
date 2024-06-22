@@ -40,7 +40,6 @@ class ClassPermuterFactorialRadixDeleteTracking final : public ClassPermuter {
  public:
   class Advancer final : public AdvancerStaticStorage<kStorageSize> {
    public:
-    using ValueSkip = AdvancerBase::ValueSkip;
     using Base = AdvancerStaticStorage<kStorageSize>;
 
     explicit Advancer(

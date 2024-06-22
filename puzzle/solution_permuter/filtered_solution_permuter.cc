@@ -5,8 +5,8 @@
 #include "absl/log/log.h"
 #include "absl/synchronization/notification.h"
 #include "puzzle/active_set/active_set.h"
+#include "puzzle/base/all_match.h"
 #include "puzzle/class_permuter/factory.h"
-#include "puzzle/solution_permuter/all_match.h"
 #include "puzzle/solution_permuter/filter_to_active_set.h"
 #include "puzzle/solution_permuter/pair_filter_burn_down.h"
 #include "thread/future.h"
@@ -108,7 +108,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
 
   const std::vector<SolutionFilter>& solution_predicates =
       permuter_->class_predicates_[class_int];
-  ClassPermuter::iterator::ValueSkip value_skip;
+  ValueSkip value_skip;
   for (; iterators_[class_int] != class_permuter->end();
        iterators_[class_int] += value_skip) {
     mutable_solution_.SetClass(iterators_[class_int]);

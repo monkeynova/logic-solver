@@ -1,21 +1,30 @@
-#ifndef PUZZLE_ALL_MATCH_H
-#define PUZZLE_ALL_MATCH_H
+#ifndef PUZZLE_BASE_ALL_MATCH_H
+#define PUZZLE_BASE_ALL_MATCH_H
 
 #include <vector>
 
 #include "absl/types/span.h"
 #include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
-#include "puzzle/class_permuter/class_permuter.h"
 
 namespace puzzle {
+
+// Argument type for operator+= to advance until a sepecific position in the
+// permutation changes values.
+struct ValueSkip {
+  int value_index = Entry::kBadId;
+};
+
+static_assert(sizeof(ValueSkip) < 16,
+              "ValueSkip is assumed to be small enough for pass-by-value "
+              "semantics.");
 
 // Returns true if all entries in `predicates` are true for `solution`.
 // If `value_skip` is non-nullptr, returns the entry_id for the corresponding
 // `class_int` on the first predicate that evaluates to false.
 inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
                      const Solution& solution, int class_int = -1,
-                     ClassPermuter::iterator::ValueSkip* value_skip = nullptr) {
+                     ValueSkip* value_skip = nullptr) {
   if (value_skip == nullptr) {
     return std::all_of(
         predicates.begin(), predicates.end(),
@@ -49,4 +58,4 @@ inline int UnmatchedEntrySkips(absl::Span<const SolutionFilter> predicates,
 
 };  // namespace puzzle
 
-#endif  // PUZZLE_ALL_MATCH_H
+#endif  // PUZZLE_BASE_ALL_MATCH_H

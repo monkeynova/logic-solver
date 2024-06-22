@@ -1,7 +1,7 @@
 #include "puzzle/solver.h"
 
 #include "absl/flags/flag.h"
-#include "puzzle/solution_permuter/all_match.h"
+#include "puzzle/base/all_match.h"
 #include "puzzle/solution_permuter/solution_permuter_factory.h"
 
 ABSL_FLAG(bool, puzzle_solver_full_selectivity_check, true, "...");

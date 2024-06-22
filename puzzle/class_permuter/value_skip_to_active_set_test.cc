@@ -1,4 +1,4 @@
-#include "puzzle/solution_permuter/value_skip_to_active_set.h"
+#include "puzzle/class_permuter/value_skip_to_active_set.h"
 
 #include "benchmark/benchmark.h"
 #include "gmock/gmock.h"

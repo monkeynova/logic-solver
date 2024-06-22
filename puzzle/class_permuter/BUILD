@@ -7,6 +7,7 @@ cc_library(
     ],
     deps = [
         "//puzzle/active_set",
+        "//puzzle/base:all_match",
         "//puzzle/base:solution",
         "@com_google_absl//absl/container:inlined_vector",
     ],
@@ -79,6 +80,29 @@ cc_test(
         ":steinhaus_johnson_trotter",
         "@com_github_google_benchmark//:benchmark",
         "@com_google_absl//absl/strings",
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
+
+cc_library(
+    name = "value_skip_to_active_set",
+    srcs = ["value_skip_to_active_set.cc"],
+    hdrs = ["value_skip_to_active_set.h"],
+    visibility = [
+        "//puzzle:__subpackages__",
+    ],
+    deps = [
+        "//puzzle/active_set",
+        "//puzzle/class_permuter",
+    ],
+)
+
+cc_test(
+    name = "value_skip_to_active_set_test",
+    srcs = ["value_skip_to_active_set_test.cc"],
+    deps = [
+        ":value_skip_to_active_set",
+        "//puzzle/class_permuter:factory",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )

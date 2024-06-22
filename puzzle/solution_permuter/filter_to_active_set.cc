@@ -2,7 +2,7 @@
 
 #include "absl/container/flat_hash_set.h"
 #include "absl/flags/flag.h"
-#include "puzzle/solution_permuter/all_match.h"
+#include "puzzle/base/all_match.h"
 
 ABSL_FLAG(bool, puzzle_value_skip_to_active_set, false,
           "If true, uses ValueSkipToActiveSet to restrict iterations through "
@@ -105,7 +105,7 @@ absl::Status FilterToActiveSet::SetupBuild(
 }
 
 void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
-                                ClassPermuter::iterator::ValueSkip value_skip,
+                                ValueSkip value_skip,
                                 ClassPermuter::iterator* it) const {
   DCHECK(it != nullptr);
   if (vs2as == nullptr) {
@@ -132,7 +132,7 @@ void FilterToActiveSet::Advance(const ValueSkipToActiveSet* vs2as,
 void FilterToActiveSet::SingleIterate(
     const ClassPermuter* permuter,
     absl::FunctionRef<bool(const ClassPermuter::iterator& it,
-                           ClassPermuter::iterator::ValueSkip* value_skip)>
+                           ValueSkip* value_skip)>
         on_item) {
   const int class_int = permuter->class_int();
   ValueSkipToActiveSet* vs2as = nullptr;
@@ -141,7 +141,7 @@ void FilterToActiveSet::SingleIterate(
     vs2as = it->second.get();
   }
 
-  ClassPermuter::iterator::ValueSkip value_skip;
+  ValueSkip value_skip;
   for (auto it = permuter->begin().WithActiveSet(active_sets_[class_int]);
        it != permuter->end(); Advance(vs2as, value_skip, &it)) {
     mutable_solution_.SetClass(it);
@@ -161,8 +161,7 @@ FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPassThrough>(
   const int class_int = class_permuter->class_int();
   ActiveSet::Builder builder(class_permuter->permutation_count());
   SingleIterate(class_permuter,
-                [&](const ClassPermuter::iterator& it,
-                    ClassPermuter::iterator::ValueSkip* value_skip) {
+                [&](const ClassPermuter::iterator& it, ValueSkip* value_skip) {
                   if (AllMatch(predicates, solution_, class_int, value_skip)) {
                     builder.AddBlockTo(false, it.position());
                     builder.Add(true);
@@ -186,8 +185,7 @@ FilterToActiveSet::Build<FilterToActiveSet::SingleClassBuild::kPositionSet>(
   const int class_int = class_permuter->class_int();
   std::vector<int> a_matches;
   SingleIterate(class_permuter,
-                [&](const ClassPermuter::iterator& it,
-                    ClassPermuter::iterator::ValueSkip* value_skip) {
+                [&](const ClassPermuter::iterator& it, ValueSkip* value_skip) {
                   if (AllMatch(predicates, solution_, class_int, value_skip)) {
                     a_matches.push_back(it.position());
                   }
@@ -230,10 +228,10 @@ void FilterToActiveSet::DualIterate(
     absl::FunctionRef<void(void)> on_outer_before,
     absl::FunctionRef<bool(const ClassPermuter::iterator& it_outer,
                            const ClassPermuter::iterator& it_inner,
-                           ClassPermuter::iterator::ValueSkip* inner_skip)>
+                           ValueSkip* inner_skip)>
         on_inner,
     absl::FunctionRef<void(const ClassPermuter::iterator& it_outer,
-                           ClassPermuter::iterator::ValueSkip* outer_skip)>
+                           ValueSkip* outer_skip)>
         on_outer_after) {
   const int class_outer = outer->class_int();
   const int class_inner = inner->class_int();
@@ -242,9 +240,9 @@ void FilterToActiveSet::DualIterate(
       value_skip_to_active_set_[inner->descriptor()].get();
 
   SingleIterate(outer, [&](const ClassPermuter::iterator& it_outer,
-                           ClassPermuter::iterator::ValueSkip* outer_skip) {
+                           ValueSkip* outer_skip) {
     on_outer_before();
-    ClassPermuter::iterator::ValueSkip value_skip_inner;
+    ValueSkip value_skip_inner;
     for (auto it_inner =
              inner->begin()
                  .WithActiveSet(active_sets_[class_inner])
@@ -321,8 +319,7 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
         },
         // Inner.
         [&](const ClassPermuter::iterator& it_outer,
-            const ClassPermuter::iterator& it_inner,
-            ClassPermuter::iterator::ValueSkip* inner_skip) {
+            const ClassPermuter::iterator& it_inner, ValueSkip* inner_skip) {
           if (AllMatch(predicates_by_inner, solution_, class_inner,
                        inner_skip)) {
             any_of_inner_true = true;
@@ -338,8 +335,7 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
           return false;
         },
         // Outer, after inner.
-        [&](const ClassPermuter::iterator& it_outer,
-            ClassPermuter::iterator::ValueSkip* outer_skip) {
+        [&](const ClassPermuter::iterator& it_outer, ValueSkip* outer_skip) {
           if (outer_skip != nullptr) {
             outer_skip->value_index = Entry::kBadId;
           }
@@ -351,17 +347,16 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
             if (pair_prune_skip_outer && outer_skip != nullptr &&
                 all_entry_skips && all_entry_skips != 0xffffffff) {
               all_entry_skips = 0xffffffff;
-              SingleIterate(
-                  inner, [&](const ClassPermuter::iterator& it_inner,
-                             ClassPermuter::iterator::ValueSkip* inner_skip) {
-                    // Test all inners.
-                    inner_skip->value_index = Entry::kBadId;
-                    all_entry_skips &= UnmatchedEntrySkips(
-                        outer_skip_preds, solution_, class_outer);
-                    // Stop iteration if we can't return something
-                    // useful.
-                    return all_entry_skips == 0;
-                  });
+              SingleIterate(inner, [&](const ClassPermuter::iterator& it_inner,
+                                       ValueSkip* inner_skip) {
+                // Test all inners.
+                inner_skip->value_index = Entry::kBadId;
+                all_entry_skips &= UnmatchedEntrySkips(outer_skip_preds,
+                                                       solution_, class_outer);
+                // Stop iteration if we can't return something
+                // useful.
+                return all_entry_skips == 0;
+              });
               if (all_entry_skips && all_entry_skips != 0xffffffff) {
 #ifdef _MSC_VER
                 unsigned long smallest_entry;
@@ -417,8 +412,7 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
       },
       // Inner.
       [&](const ClassPermuter::iterator& it_a,
-          const ClassPermuter::iterator& it_b,
-          ClassPermuter::iterator::ValueSkip* b_skip) {
+          const ClassPermuter::iterator& it_b, ValueSkip* b_skip) {
         if (pair_class_mode == PairClassMode::kSingleton && any_of_b &&
             b_match_positions.find(it_b.position()) !=
                 b_match_positions.end()) {
@@ -437,8 +431,7 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPassThroughA>(
         return false;
       },
       // Outer after inner.
-      [&](const ClassPermuter::iterator& it_a,
-          ClassPermuter::iterator::ValueSkip* a_skip) {
+      [&](const ClassPermuter::iterator& it_a, ValueSkip* a_skip) {
         if (pair_class_mode == PairClassMode::kMakePairs) {
           a_b_builder.AddBlockTo(false, permuter_b->permutation_count());
           a_b_pair.Assign(it_a.position(), a_b_builder.DoneAdding());
@@ -490,8 +483,7 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
       [&]() {},
       // Inner.
       [&](const ClassPermuter::iterator& it_a,
-          const ClassPermuter::iterator& it_b,
-          ClassPermuter::iterator::ValueSkip* b_skip) {
+          const ClassPermuter::iterator& it_b, ValueSkip* b_skip) {
         if (pair_class_mode == PairClassMode::kSingleton &&
             a_match_positions.count(it_a.position()) > 0 &&
             b_match_positions.count(it_b.position()) > 0) {
@@ -509,8 +501,7 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
         return false;
       },
       // Outer after inner.
-      [&](const ClassPermuter::iterator& it_a,
-          ClassPermuter::iterator::ValueSkip* a_skip) {});
+      [&](const ClassPermuter::iterator& it_a, ValueSkip* a_skip) {});
 
   active_sets_[class_a] = ActiveSet::Builder::FromPositions(
       a_match_positions, permuter_a->permutation_count());
