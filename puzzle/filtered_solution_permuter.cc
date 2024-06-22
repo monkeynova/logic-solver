@@ -6,7 +6,7 @@
 #include "absl/synchronization/notification.h"
 #include "puzzle/active_set/active_set.h"
 #include "puzzle/all_match.h"
-#include "puzzle/class_permuter_factory.h"
+#include "puzzle/class_permuter/factory.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/pair_filter_burn_down.h"
 #include "thread/future.h"

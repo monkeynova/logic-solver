@@ -3,7 +3,7 @@
 
 #include "absl/memory/memory.h"
 #include "absl/status/statusor.h"
-#include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"

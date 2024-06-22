@@ -2,10 +2,10 @@
 
 #include "absl/strings/substitute.h"
 #include "benchmark/benchmark.h"
-#include "puzzle/class_permuter.h"
-#include "puzzle/class_permuter_factorial_radix.h"
-#include "puzzle/class_permuter_factorial_radix_delete_tracking.h"
-#include "puzzle/class_permuter_steinhaus_johnson_trotter.h"
+#include "puzzle/class_permuter/class_permuter.h"
+#include "puzzle/class_permuter/factorial_radix.h"
+#include "puzzle/class_permuter/factorial_radix_delete_tracking.h"
+#include "puzzle/class_permuter/steinhaus_johnson_trotter.h"
 
 namespace puzzle {
 

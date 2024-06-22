@@ -1,7 +1,7 @@
 #ifndef PUZZLE_BRUTE_SOLUTION_PERMUTER_H
 #define PUZZLE_BRUTE_SOLUTION_PERMUTER_H
 
-#include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_permuter.h"
 

@@ -1,4 +1,4 @@
-#include "puzzle/class_permuter_factorial_radix_delete_tracking.h"
+#include "puzzle/class_permuter/factorial_radix_delete_tracking.h"
 
 #include "absl/synchronization/mutex.h"
 

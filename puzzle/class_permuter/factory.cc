@@ -1,9 +1,9 @@
-#include "puzzle/class_permuter_factory.h"
+#include "puzzle/class_permuter/factory.h"
 
 #include "absl/flags/flag.h"
-#include "puzzle/class_permuter_factorial_radix.h"
-#include "puzzle/class_permuter_factorial_radix_delete_tracking.h"
-#include "puzzle/class_permuter_steinhaus_johnson_trotter.h"
+#include "puzzle/class_permuter/factorial_radix.h"
+#include "puzzle/class_permuter/factorial_radix_delete_tracking.h"
+#include "puzzle/class_permuter/steinhaus_johnson_trotter.h"
 
 enum class ClassPermuterType {
   kUnknown = 0,

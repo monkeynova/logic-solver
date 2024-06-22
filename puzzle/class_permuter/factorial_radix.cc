@@ -1,4 +1,4 @@
-#include "puzzle/class_permuter_factorial_radix.h"
+#include "puzzle/class_permuter/factorial_radix.h"
 
 namespace puzzle {
 

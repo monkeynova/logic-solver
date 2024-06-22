@@ -4,7 +4,7 @@
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
 #include "puzzle/class_pair_selectivity.h"
-#include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/filter_to_active_set.h"
 #include "thread/executor.h"
 

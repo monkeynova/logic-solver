@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/solution_filter.h"
 

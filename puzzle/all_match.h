@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "absl/types/span.h"
-#include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/solution.h"
 #include "puzzle/solution_filter.h"
 

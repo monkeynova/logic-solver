@@ -1,5 +1,5 @@
 #include "benchmark/benchmark.h"
-#include "puzzle/class_permuter_factory.h"
+#include "puzzle/class_permuter/factory.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/solution_filter.h"
 

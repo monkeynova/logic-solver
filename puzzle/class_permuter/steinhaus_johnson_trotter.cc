@@ -1,4 +1,4 @@
-#include "puzzle/class_permuter_steinhaus_johnson_trotter.h"
+#include "puzzle/class_permuter/steinhaus_johnson_trotter.h"
 
 namespace puzzle {
 

@@ -1,7 +1,7 @@
 #ifndef PUZZLE_CLASS_PERMUTER_FACTORIAL_RADIX_H
 #define PUZZLE_CLASS_PERMUTER_FACTORIAL_RADIX_H
 
-#include "puzzle/class_permuter.h"
+#include "puzzle/class_permuter/class_permuter.h"
 
 namespace puzzle {
 

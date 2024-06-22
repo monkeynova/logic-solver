@@ -1,6 +1,6 @@
 #include "puzzle/brute_solution_permuter.h"
 
-#include "puzzle/class_permuter_factory.h"
+#include "puzzle/class_permuter/factory.h"
 
 namespace puzzle {
 
