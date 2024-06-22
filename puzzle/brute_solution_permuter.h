@@ -1,8 +1,8 @@
 #ifndef PUZZLE_BRUTE_SOLUTION_PERMUTER_H
 #define PUZZLE_BRUTE_SOLUTION_PERMUTER_H
 
+#include "puzzle/base/solution.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/solution.h"
 #include "puzzle/solution_permuter.h"
 
 namespace puzzle {

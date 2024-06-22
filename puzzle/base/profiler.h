@@ -1,9 +1,7 @@
-#ifndef PUZZLE_PROFILER_H
-#define PUZZLE_PROFILER_H
+#ifndef PUZZLE_BASE_PROFILER_H
+#define PUZZLE_BASE_PROFILER_H
 
 #include <memory>
-
-#include "vlog.h"
 
 namespace puzzle {
 
@@ -42,4 +40,4 @@ class Profiler {
 
 }  // namespace puzzle
 
-#endif
+#endif  // PUZZLE_BASE_PROFILER_H

@@ -1,5 +1,5 @@
-#ifndef PUZZLE_SOLUTION_H
-#define PUZZLE_SOLUTION_H
+#ifndef PUZZLE_BASE_SOLUTION_H
+#define PUZZLE_BASE_SOLUTION_H
 
 #include <algorithm>
 #include <functional>
@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "puzzle/descriptors.h"
+#include "puzzle/base/descriptors.h"
 
 namespace puzzle {
 
@@ -162,4 +162,4 @@ class Solution {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_SOLUTION_H
+#endif  // PUZZLE_BASE_SOLUTION_H

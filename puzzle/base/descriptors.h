@@ -1,5 +1,5 @@
-#ifndef PUZZLE_DESCRIPTORS_H
-#define PUZZLE_DESCRIPTORS_H
+#ifndef PUZZLE_BASE_DESCRIPTORS_H
+#define PUZZLE_BASE_DESCRIPTORS_H
 
 #include "absl/container/flat_hash_map.h"
 #include "absl/log/check.h"
@@ -105,4 +105,4 @@ class EntryDescriptor {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_DESCRIPTORS_H
+#endif  // PUZZLE_BASE_DESCRIPTORS_H

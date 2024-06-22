@@ -3,8 +3,8 @@
 
 #include <memory>
 
-#include "puzzle/profiler.h"
-#include "puzzle/solution.h"
+#include "puzzle/base/profiler.h"
+#include "puzzle/base/solution.h"
 #include "puzzle/solution_permuter.h"
 
 namespace puzzle {

@@ -4,9 +4,9 @@
 #include <vector>
 
 #include "absl/types/span.h"
+#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/solution.h"
-#include "puzzle/solution_filter.h"
 
 namespace puzzle {
 

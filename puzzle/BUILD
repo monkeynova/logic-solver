@@ -7,10 +7,10 @@ cc_library(
     ],
     deps = [
         ":all_match",
-        ":profiler",
-        ":solution",
         ":solution_permuter",
         ":solution_permuter_factory",
+        "//puzzle/base:profiler",
+        "//puzzle/base:solution",
         "@com_google_absl//absl/status",
     ],
 )
@@ -19,8 +19,8 @@ cc_library(
     name = "all_match",
     hdrs = ["all_match.h"],
     deps = [
-        ":solution",
-        ":solution_filter",
+        "//puzzle/base:solution",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
     ],
 )
@@ -41,12 +41,12 @@ cc_library(
     deps = [
         ":all_match",
         ":mutable_solution",
-        ":profiler",
-        ":solution",
-        ":solution_filter",
         ":value_skip_to_active_set",
         "//puzzle/active_set",
         "//puzzle/active_set:pair",
+        "//puzzle/base:profiler",
+        "//puzzle/base:solution",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/flags:flag",
@@ -62,7 +62,7 @@ cc_test(
     tags = ["benchmark"],
     deps = [
         ":filter_to_active_set",
-        ":solution_filter",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter:factory",
         "@com_github_google_benchmark//:benchmark",
         "@com_monkeynova_gunit_main//:test_main",
@@ -75,7 +75,7 @@ cc_test(
     deps = [
         ":filter_to_active_set",
         ":mutable_solution",
-        ":solution_filter",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter:factory",
         "@com_monkeynova_gunit_main//:test_main",
     ],
@@ -107,8 +107,8 @@ cc_library(
     hdrs = ["brute_solution_permuter.h"],
     deps = [
         ":mutable_solution",
-        ":solution_filter",
         ":solution_permuter",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
         "//puzzle/class_permuter:factory",
     ],
@@ -119,7 +119,7 @@ cc_library(
     hdrs = ["class_pair_selectivity.h"],
     deps = [
         ":filter_to_active_set",
-        ":solution_filter",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
     ],
 )
@@ -131,7 +131,7 @@ cc_library(
     deps = [
         ":class_pair_selectivity",
         ":filter_to_active_set",
-        ":solution_filter",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
         "//thread:executor",
         "//thread:future",
@@ -154,9 +154,9 @@ cc_library(
         ":filter_to_active_set",
         ":mutable_solution",
         ":pair_filter_burn_down",
-        ":profiler",
-        ":solution_filter",
         ":solution_permuter",
+        "//puzzle/base:profiler",
+        "//puzzle/base:solution_filter",
         "//puzzle/class_permuter",
         "//puzzle/class_permuter:factory",
         "//thread:executor",
@@ -177,8 +177,8 @@ cc_library(
     hdrs = ["solution_permuter.h"],
     deps = [
         ":mutable_solution",
-        ":solution",
-        ":solution_filter",
+        "//puzzle/base:solution",
+        "//puzzle/base:solution_filter",
         "@com_google_absl//absl/status:statusor",
     ],
 )
@@ -190,9 +190,9 @@ cc_library(
     deps = [
         ":brute_solution_permuter",
         ":filtered_solution_permuter",
-        ":profiler",
-        ":solution",
         ":solution_permuter",
+        "//puzzle/base:profiler",
+        "//puzzle/base:solution",
         "@com_google_absl//absl/flags:flag",
     ],
 )
@@ -201,7 +201,7 @@ cc_library(
     name = "mutable_solution",
     hdrs = ["mutable_solution.h"],
     deps = [
-        ":solution",
+        "//puzzle/base:solution",
         "//puzzle/class_permuter",
     ],
 )
@@ -216,51 +216,6 @@ cc_library(
     deps = [
         ":solver",
         "@com_google_absl//absl/status:statusor",
-    ],
-)
-
-cc_library(
-    name = "descriptors",
-    srcs = [],
-    hdrs = ["descriptors.h"],
-    deps = [
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/strings",
-        "@com_google_protobuf//:protobuf",
-        "@com_monkeynova_gunit_main//:vlog",
-    ],
-)
-
-cc_library(
-    name = "solution",
-    srcs = ["solution.cc"],
-    hdrs = ["solution.h"],
-    visibility = ["__subpackages__"],
-    deps = [
-        ":descriptors",
-    ],
-)
-
-cc_library(
-    name = "solution_filter",
-    hdrs = ["solution_filter.h"],
-    deps = [
-        ":solution",
-    ],
-)
-
-cc_library(
-    name = "profiler",
-    srcs = ["profiler.cc"],
-    hdrs = ["profiler.h"],
-    deps = [
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/memory",
-        "@com_monkeynova_gunit_main//:vlog",
     ],
 )
 
@@ -279,7 +234,7 @@ cc_test(
     srcs = ["filtered_solution_permuter_test.cc"],
     deps = [
         ":filtered_solution_permuter",
-        ":solution_filter",
+        "//puzzle/base:solution_filter",
         "@com_google_googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],

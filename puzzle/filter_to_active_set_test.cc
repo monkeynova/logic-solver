@@ -6,10 +6,10 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "puzzle/active_set/active_set.h"
+#include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/class_permuter/factory.h"
 #include "puzzle/mutable_solution.h"
-#include "puzzle/solution_filter.h"
 
 using ::testing::ElementsAreArray;
 using ::testing::Eq;

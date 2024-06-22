@@ -1,4 +1,4 @@
-#include "puzzle/solution.h"
+#include "puzzle/base/solution.h"
 
 namespace puzzle {
 

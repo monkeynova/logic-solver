@@ -1,10 +1,10 @@
-#ifndef PUZZLE_SOLUTION_FILTER_H
-#define PUZZLE_SOLUTION_FILTER_H
+#ifndef PUZZLE_BASE_SOLUTION_FILTER_H
+#define PUZZLE_BASE_SOLUTION_FILTER_H
 
 #include <string>
 #include <vector>
 
-#include "puzzle/solution.h"
+#include "puzzle/base/solution.h"
 
 namespace puzzle {
 
@@ -90,4 +90,4 @@ class SolutionFilter {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_SOLUTION_FILTER_H
+#endif  // PUZZLE_BASE_SOLUTION_FILTER_H

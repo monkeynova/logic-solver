@@ -4,9 +4,9 @@
 #include <memory>
 
 #include "absl/status/statusor.h"
+#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_filter.h"
 #include "puzzle/mutable_solution.h"
-#include "puzzle/solution.h"
-#include "puzzle/solution_filter.h"
 
 namespace puzzle {
 

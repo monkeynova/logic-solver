@@ -7,7 +7,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "puzzle/solution_filter.h"
+#include "puzzle/base/solution_filter.h"
 
 using ::testing::Ge;
 

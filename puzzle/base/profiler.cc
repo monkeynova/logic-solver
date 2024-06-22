@@ -1,4 +1,4 @@
-#include "puzzle/profiler.h"
+#include "puzzle/base/profiler.h"
 
 #include <iomanip>
 #include <iostream>

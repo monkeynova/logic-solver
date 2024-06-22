@@ -2,7 +2,7 @@
 #define PUZZLE_CLASS_PERMUTER_H
 
 #include "puzzle/active_set/active_set.h"
-#include "puzzle/solution.h"
+#include "puzzle/base/solution.h"
 
 namespace puzzle {
 

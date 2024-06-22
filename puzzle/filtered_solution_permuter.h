@@ -3,12 +3,12 @@
 
 #include "absl/memory/memory.h"
 #include "absl/status/statusor.h"
+#include "puzzle/base/profiler.h"
+#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/filter_to_active_set.h"
 #include "puzzle/mutable_solution.h"
-#include "puzzle/profiler.h"
-#include "puzzle/solution.h"
-#include "puzzle/solution_filter.h"
 #include "puzzle/solution_permuter.h"
 #include "thread/executor.h"
 

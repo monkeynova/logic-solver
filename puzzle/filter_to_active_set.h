@@ -6,11 +6,11 @@
 #include "absl/status/status.h"
 #include "absl/synchronization/mutex.h"
 #include "puzzle/active_set/pair.h"
+#include "puzzle/base/profiler.h"
+#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/mutable_solution.h"
-#include "puzzle/profiler.h"
-#include "puzzle/solution.h"
-#include "puzzle/solution_filter.h"
 #include "puzzle/value_skip_to_active_set.h"
 
 namespace puzzle {

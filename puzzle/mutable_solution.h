@@ -3,8 +3,8 @@
 
 #include <vector>
 
+#include "puzzle/base/solution.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/solution.h"
 
 namespace puzzle {
 

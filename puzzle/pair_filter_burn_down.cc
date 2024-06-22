@@ -4,7 +4,7 @@
 #include "absl/log/check.h"
 #include "absl/log/log.h"
 #include "absl/synchronization/mutex.h"
-#include "puzzle/solution_filter.h"
+#include "puzzle/base/solution_filter.h"
 #include "thread/future.h"
 #include "vlog.h"
 
