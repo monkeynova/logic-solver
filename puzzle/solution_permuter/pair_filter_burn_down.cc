@@ -1,4 +1,4 @@
-#include "puzzle/pair_filter_burn_down.h"
+#include "puzzle/solution_permuter/pair_filter_burn_down.h"
 
 #include "absl/flags/flag.h"
 #include "absl/log/check.h"

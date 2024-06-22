@@ -1,11 +1,11 @@
-#ifndef PUZZLE_PAIR_FILTER_BURN_DOWN_H
-#define PUZZLE_PAIR_FILTER_BURN_DOWN_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_PAIR_FILTER_BURN_DOWN_H
+#define PUZZLE_SOLUTION_PERMUTER_PAIR_FILTER_BURN_DOWN_H
 
 #include "absl/status/status.h"
 #include "absl/status/statusor.h"
-#include "puzzle/class_pair_selectivity.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/filter_to_active_set.h"
+#include "puzzle/solution_permuter/class_pair_selectivity.h"
+#include "puzzle/solution_permuter/filter_to_active_set.h"
 #include "thread/executor.h"
 
 namespace puzzle {
@@ -40,4 +40,4 @@ class PairFilterBurnDown {
 
 };  // namespace puzzle
 
-#endif  // PUZZLE_PAIR_FILTER_BURN_DOWN_H
+#endif  // PUZZLE_SOLUTION_PERMUTER_PAIR_FILTER_BURN_DOWN_H

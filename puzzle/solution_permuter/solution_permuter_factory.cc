@@ -1,8 +1,8 @@
-#include "puzzle/solution_permuter_factory.h"
+#include "puzzle/solution_permuter/solution_permuter_factory.h"
 
 #include "absl/flags/flag.h"
-#include "puzzle/brute_solution_permuter.h"
-#include "puzzle/filtered_solution_permuter.h"
+#include "puzzle/solution_permuter/brute_solution_permuter.h"
+#include "puzzle/solution_permuter/filtered_solution_permuter.h"
 
 ABSL_FLAG(bool, puzzle_brute_force, false,
           "Brute force all possible solutions");

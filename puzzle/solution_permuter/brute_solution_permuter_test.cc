@@ -1,4 +1,4 @@
-#include "puzzle/brute_solution_permuter.h"
+#include "puzzle/solution_permuter/brute_solution_permuter.h"
 
 #include <iostream>
 #include <string>

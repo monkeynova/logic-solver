@@ -1,9 +1,9 @@
-#ifndef PUZZLE_BRUTE_SOLUTION_PERMUTER_H
-#define PUZZLE_BRUTE_SOLUTION_PERMUTER_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_BRUTE_SOLUTION_PERMUTER_H
+#define PUZZLE_SOLUTION_PERMUTER_BRUTE_SOLUTION_PERMUTER_H
 
 #include "puzzle/base/solution.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/solution_permuter.h"
+#include "puzzle/solution_permuter/solution_permuter.h"
 
 namespace puzzle {
 
@@ -61,4 +61,4 @@ class BruteSolutionPermuter final : public SolutionPermuter {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_BRUTE_SOLUTION_PERMUTER_H
+#endif  // PUZZLE_SOLUTION_PERMUTER_BRUTE_SOLUTION_PERMUTER_H

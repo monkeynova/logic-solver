@@ -1,5 +1,5 @@
-#ifndef PUZZLE_FILTER_TO_ACTIVE_SET_H_
-#define PUZZLE_FILTER_TO_ACTIVE_SET_H_
+#ifndef PUZZLE_SOLUTION_PERMUTER_FILTER_TO_ACTIVE_SET_H_
+#define PUZZLE_SOLUTION_PERMUTER_FILTER_TO_ACTIVE_SET_H_
 
 #include "absl/base/thread_annotations.h"
 #include "absl/functional/function_ref.h"
@@ -10,8 +10,8 @@
 #include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/mutable_solution.h"
-#include "puzzle/value_skip_to_active_set.h"
+#include "puzzle/solution_permuter/mutable_solution.h"
+#include "puzzle/solution_permuter/value_skip_to_active_set.h"
 
 namespace puzzle {
 
@@ -159,4 +159,4 @@ std::ostream& operator<<(std::ostream& out,
 
 }  // namespace puzzle
 
-#endif  //  PUZZLE_FILTER_TO_ACTIVE_SET_H_
+#endif  //  PUZZLE_SOLUTION_PERMUTER_FILTER_TO_ACTIVE_SET_H_

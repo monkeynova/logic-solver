@@ -1,11 +1,11 @@
-#ifndef PUZZLE_CLASS_PAIR_SELECTIVITY_H
-#define PUZZLE_CLASS_PAIR_SELECTIVITY_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_CLASS_PAIR_SELECTIVITY_H
+#define PUZZLE_SOLUTION_PERMUTER_CLASS_PAIR_SELECTIVITY_H
 
 #include <vector>
 
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/filter_to_active_set.h"
+#include "puzzle/solution_permuter/filter_to_active_set.h"
 
 namespace puzzle {
 
@@ -91,4 +91,4 @@ struct ClassPairSelectivityGreaterThan {
 };
 
 }  // namespace puzzle
-#endif  // PUZZLE_CLASS_PAIR_SELECTIVITY_H
+#endif  // PUZZLE_SOLUTION_PERMUTER_CLASS_PAIR_SELECTIVITY_H

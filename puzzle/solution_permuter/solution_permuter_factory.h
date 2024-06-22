@@ -1,11 +1,11 @@
-#ifndef PUZZLE_SOLUTION_PERMUTER_FACTORY_H
-#define PUZZLE_SOLUTION_PERMUTER_FACTORY_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_SOLUTION_PERMUTER_FACTORY_H
+#define PUZZLE_SOLUTION_PERMUTER_SOLUTION_PERMUTER_FACTORY_H
 
 #include <memory>
 
 #include "puzzle/base/profiler.h"
 #include "puzzle/base/solution.h"
-#include "puzzle/solution_permuter.h"
+#include "puzzle/solution_permuter/solution_permuter.h"
 
 namespace puzzle {
 
@@ -14,4 +14,4 @@ std::unique_ptr<SolutionPermuter> CreateSolutionPermuter(
 
 }  // namespace puzzle
 
-#endif  //  PUZZLE_SOLUTION_PERMUTER_FACTORY_H
+#endif  //  PUZZLE_SOLUTION_PERMUTER_SOLUTION_PERMUTER_FACTORY_H

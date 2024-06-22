@@ -1,8 +1,8 @@
-#include "puzzle/filter_to_active_set.h"
+#include "puzzle/solution_permuter/filter_to_active_set.h"
 
 #include "absl/container/flat_hash_set.h"
 #include "absl/flags/flag.h"
-#include "puzzle/all_match.h"
+#include "puzzle/solution_permuter/all_match.h"
 
 ABSL_FLAG(bool, puzzle_value_skip_to_active_set, false,
           "If true, uses ValueSkipToActiveSet to restrict iterations through "

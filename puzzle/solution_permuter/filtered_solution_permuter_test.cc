@@ -1,4 +1,4 @@
-#include "puzzle/filtered_solution_permuter.h"
+#include "puzzle/solution_permuter/filtered_solution_permuter.h"
 
 #include <iostream>
 #include <string>

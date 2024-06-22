@@ -1,5 +1,5 @@
-#ifndef PUZZLE_MUTABLE_SOLUTION_H_
-#define PUZZLE_MUTABLE_SOLUTION_H_
+#ifndef PUZZLE_SOLUTION_PERMUTER_MUTABLE_SOLUTION_H_
+#define PUZZLE_SOLUTION_PERMUTER_MUTABLE_SOLUTION_H_
 
 #include <vector>
 
@@ -43,4 +43,4 @@ class MutableSolution {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_MUTABLE_SOLUTION_H_
+#endif  // PUZZLE_SOLUTION_PERMUTER_MUTABLE_SOLUTION_H_

@@ -1,12 +1,12 @@
-#ifndef PUZZLE_SOLUTION_PERMUTER_H_
-#define PUZZLE_SOLUTION_PERMUTER_H_
+#ifndef PUZZLE_SOLUTION_PERMUTER_SOLUTION_PERMUTER_H_
+#define PUZZLE_SOLUTION_PERMUTER_SOLUTION_PERMUTER_H_
 
 #include <memory>
 
 #include "absl/status/statusor.h"
 #include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
-#include "puzzle/mutable_solution.h"
+#include "puzzle/solution_permuter/mutable_solution.h"
 
 namespace puzzle {
 
@@ -94,4 +94,4 @@ class SolutionPermuter {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_SOLUTION_PERMUTER_H_
+#endif  // PUZZLE_SOLUTION_PERMUTER_SOLUTION_PERMUTER_H_

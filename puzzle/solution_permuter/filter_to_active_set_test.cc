@@ -1,4 +1,4 @@
-#include "puzzle/filter_to_active_set.h"
+#include "puzzle/solution_permuter/filter_to_active_set.h"
 
 #include <iostream>
 
@@ -9,7 +9,7 @@
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/class_permuter/factory.h"
-#include "puzzle/mutable_solution.h"
+#include "puzzle/solution_permuter/mutable_solution.h"
 
 using ::testing::ElementsAreArray;
 using ::testing::Eq;

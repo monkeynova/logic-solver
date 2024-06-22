@@ -1,4 +1,4 @@
-#include "puzzle/all_match.h"
+#include "puzzle/solution_permuter/all_match.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

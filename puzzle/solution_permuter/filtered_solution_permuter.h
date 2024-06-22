@@ -1,5 +1,5 @@
-#ifndef PUZZLE_FILTERED_SOLUTION_PERMUTER_H
-#define PUZZLE_FILTERED_SOLUTION_PERMUTER_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_FILTERED_SOLUTION_PERMUTER_H
+#define PUZZLE_SOLUTION_PERMUTER_FILTERED_SOLUTION_PERMUTER_H
 
 #include "absl/memory/memory.h"
 #include "absl/status/statusor.h"
@@ -7,9 +7,9 @@
 #include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
-#include "puzzle/filter_to_active_set.h"
-#include "puzzle/mutable_solution.h"
-#include "puzzle/solution_permuter.h"
+#include "puzzle/solution_permuter/filter_to_active_set.h"
+#include "puzzle/solution_permuter/mutable_solution.h"
+#include "puzzle/solution_permuter/solution_permuter.h"
 #include "thread/executor.h"
 
 namespace puzzle {
@@ -127,4 +127,4 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_FILTERED_SOLUTION_PERMUTER_H
+#endif  // PUZZLE_SOLUTION_PERMUTER_FILTERED_SOLUTION_PERMUTER_H

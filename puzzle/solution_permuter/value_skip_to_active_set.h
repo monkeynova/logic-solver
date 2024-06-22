@@ -1,5 +1,5 @@
-#ifndef PUZZLE_VALUE_SKIP_TO_ACTIVE_SET_H
-#define PUZZLE_VALUE_SKIP_TO_ACTIVE_SET_H
+#ifndef PUZZLE_SOLUTION_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
+#define PUZZLE_SOLUTION_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H
 
 #include "absl/container/flat_hash_map.h"
 #include "puzzle/active_set/active_set.h"
@@ -31,4 +31,4 @@ class ValueSkipToActiveSet {
 
 }  // namespace puzzle
 
-#endif  //  PUZZLE_VALUE_SKIP_TO_ACTIVE_SET_H
+#endif  //  PUZZLE_SOLUTION_PERMUTER_VALUE_SKIP_TO_ACTIVE_SET_H

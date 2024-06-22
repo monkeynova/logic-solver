@@ -1,7 +1,7 @@
 #include "benchmark/benchmark.h"
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/factory.h"
-#include "puzzle/filter_to_active_set.h"
+#include "puzzle/solution_permuter/filter_to_active_set.h"
 
 namespace puzzle {
 

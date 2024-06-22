@@ -7,7 +7,7 @@
 #include "absl/status/status.h"
 #include "puzzle/base/profiler.h"
 #include "puzzle/base/solution.h"
-#include "puzzle/solution_permuter.h"
+#include "puzzle/solution_permuter/solution_permuter.h"
 
 namespace puzzle {
 

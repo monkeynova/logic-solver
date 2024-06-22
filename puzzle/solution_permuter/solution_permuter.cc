@@ -1,4 +1,4 @@
-#include "puzzle/solution_permuter.h"
+#include "puzzle/solution_permuter/solution_permuter.h"
 
 namespace puzzle {
 
