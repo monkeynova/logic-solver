@@ -1,6 +1,7 @@
 import "%workspace%/base-bazelrc"
 
 build -c opt
+build:macos --linkopt=-Wl,-no_warn_duplicate_libraries
 
 test --test_verbose_timeout_warnings
 test --test_summary=terse
