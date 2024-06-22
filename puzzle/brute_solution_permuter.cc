@@ -23,8 +23,8 @@ BruteSolutionPermuter::Advancer::Advancer(
   }
 
   current_.set_position({
-    .position = 0, 
-    .count = permuter_->permutation_count(),
+      .position = 0,
+      .count = permuter_->permutation_count(),
   });
 }
 
@@ -52,13 +52,13 @@ void BruteSolutionPermuter::Advancer::Advance() {
     set_done();
     current_ = Solution();
     current_.set_position({
-      .position = permuter_->permutation_count(),
-      .count = permuter_->permutation_count(),
+        .position = permuter_->permutation_count(),
+        .count = permuter_->permutation_count(),
     });
   } else {
     current_.set_position({
-      .position = permuter_->permutation_count() + 1,
-      .count = current_.position().count,
+        .position = permuter_->permutation_count() + 1,
+        .count = current_.position().count,
     });
   }
 }
@@ -76,8 +76,8 @@ Solution::Position BruteSolutionPermuter::Advancer::position() const {
   }
 
   return {
-    .position = position,
-    .count = permuter_->permutation_count(),
+      .position = position,
+      .count = permuter_->permutation_count(),
   };
 }
 

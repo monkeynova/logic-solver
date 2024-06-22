@@ -2,6 +2,7 @@
 #define PUZZLE_PROFILER_H
 
 #include <memory>
+
 #include "vlog.h"
 
 namespace puzzle {

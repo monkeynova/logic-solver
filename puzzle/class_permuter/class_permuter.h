@@ -182,8 +182,8 @@ class ClassPermuter {
     }
     double Completion() const {
       if (is_end()) return 1.0;
-      return static_cast<double>(advancer_->position()) / 
-          advancer_->permutation_count();
+      return static_cast<double>(advancer_->position()) /
+             advancer_->permutation_count();
     }
     int class_int() const { return advancer_->class_int(); }
 

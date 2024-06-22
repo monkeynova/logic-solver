@@ -64,8 +64,8 @@ FilteredSolutionPermuter::Advancer::Advancer(
     set_done();
     current_ = Solution();
     current_.set_position({
-      .position = permuter_->permutation_count(),
-      .count = permuter_->permutation_count(),
+        .position = permuter_->permutation_count(),
+        .count = permuter_->permutation_count(),
     });
   }
 }
@@ -188,8 +188,8 @@ void FilteredSolutionPermuter::Advancer::Advance() {
     set_done();
     current_ = Solution();
     current_.set_position({
-      .position = permuter_->permutation_count(),
-      .count = permuter_->permutation_count(),
+        .position = permuter_->permutation_count(),
+        .count = permuter_->permutation_count(),
     });
   }
 }
@@ -205,8 +205,8 @@ Solution::Position FilteredSolutionPermuter::Advancer::position() const {
   }
 
   return {
-    .position = position,
-    .count = permuter_->permutation_count(),
+      .position = position,
+      .count = permuter_->permutation_count(),
   };
 }
 

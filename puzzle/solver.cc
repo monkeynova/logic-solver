@@ -69,8 +69,7 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
        ++it) {
     VLOG(1) << "Solution found @" << it->position();
     if (profiler_ != nullptr) {
-      profiler_->NotePermutation(it->position().position,
-                                 it->position().count);
+      profiler_->NotePermutation(it->position().position, it->position().count);
     }
     ++test_calls_;
     if (AllMatch(on_solution, *it)) {

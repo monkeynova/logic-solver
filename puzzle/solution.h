@@ -106,12 +106,8 @@ class Solution {
 
   const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
-  Position position() const {
-    return permutation_position_;
-  }
-  void set_position(Position position) {
-    permutation_position_ = position;
-  }
+  Position position() const { return permutation_position_; }
+  void set_position(Position position) { permutation_position_ = position; }
 
   bool IsValid() const { return entries_ != nullptr; }
   const std::vector<Entry>& entries() const { return *entries_; }

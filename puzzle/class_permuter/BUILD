@@ -2,13 +2,13 @@ cc_library(
     name = "class_permuter",
     srcs = ["class_permuter.cc"],
     hdrs = ["class_permuter.h"],
-    deps = [
-        "//puzzle/active_set",
-        "//puzzle:solution",
-        "@com_google_absl//absl/container:inlined_vector",
-    ],
     visibility = [
         "//puzzle:__subpackages__",
+    ],
+    deps = [
+        "//puzzle:solution",
+        "//puzzle/active_set",
+        "@com_google_absl//absl/container:inlined_vector",
     ],
 )
 
@@ -44,15 +44,15 @@ cc_library(
     name = "factory",
     srcs = ["factory.cc"],
     hdrs = ["factory.h"],
+    visibility = [
+        "//puzzle:__subpackages__",
+    ],
     deps = [
         ":class_permuter",
         ":factorial_radix",
         ":factorial_radix_delete_tracking",
         ":steinhaus_johnson_trotter",
         "@com_google_absl//absl/flags:flag",
-    ],
-    visibility = [
-        "//puzzle:__subpackages__",
     ],
 )
 
@@ -82,4 +82,3 @@ cc_test(
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
-

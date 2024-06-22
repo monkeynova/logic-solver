@@ -51,10 +51,8 @@ int main(int argc, char** argv) {
   const auto& solution = solutions->at(i - 1);
   QCHECK(solution.IsValid());
   puzzle::Solution::Position position = solution.position();
-  std::cout << position.position << " of "
-            << position.count << " => "
-            << (position.count* i / (position.position + 1))
-            << std::endl;
+  std::cout << position.position << " of " << position.count << " => "
+            << (position.count * i / (position.position + 1)) << std::endl;
 
   return 0;
 }

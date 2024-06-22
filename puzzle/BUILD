@@ -19,9 +19,9 @@ cc_library(
     name = "all_match",
     hdrs = ["all_match.h"],
     deps = [
-        "//puzzle/class_permuter",
         ":solution",
         ":solution_filter",
+        "//puzzle/class_permuter",
     ],
 )
 
@@ -34,21 +34,20 @@ cc_test(
     ],
 )
 
-
 cc_library(
     name = "filter_to_active_set",
     srcs = ["filter_to_active_set.cc"],
     hdrs = ["filter_to_active_set.h"],
     deps = [
-        "//puzzle/active_set",
-        "//puzzle/active_set:pair",
         ":all_match",
-        "//puzzle/class_permuter",
         ":mutable_solution",
         ":profiler",
         ":solution",
         ":solution_filter",
         ":value_skip_to_active_set",
+        "//puzzle/active_set",
+        "//puzzle/active_set:pair",
+        "//puzzle/class_permuter",
         "@com_google_absl//absl/container:flat_hash_set",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/functional:function_ref",
@@ -62,9 +61,9 @@ cc_test(
     srcs = ["filter_to_active_set_benchmark.cc"],
     tags = ["benchmark"],
     deps = [
-        "//puzzle/class_permuter:factory",
         ":filter_to_active_set",
         ":solution_filter",
+        "//puzzle/class_permuter:factory",
         "@com_github_google_benchmark//:benchmark",
         "@com_monkeynova_gunit_main//:test_main",
     ],
@@ -74,10 +73,10 @@ cc_test(
     name = "filter_to_active_set_test",
     srcs = ["filter_to_active_set_test.cc"],
     deps = [
-        "//puzzle/class_permuter:factory",
         ":filter_to_active_set",
         ":mutable_solution",
         ":solution_filter",
+        "//puzzle/class_permuter:factory",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -96,8 +95,8 @@ cc_test(
     name = "value_skip_to_active_set_test",
     srcs = ["value_skip_to_active_set_test.cc"],
     deps = [
-        "//puzzle/class_permuter:factory",
         ":value_skip_to_active_set",
+        "//puzzle/class_permuter:factory",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -107,11 +106,11 @@ cc_library(
     srcs = ["brute_solution_permuter.cc"],
     hdrs = ["brute_solution_permuter.h"],
     deps = [
-        "//puzzle/class_permuter",
-        "//puzzle/class_permuter:factory",
         ":mutable_solution",
         ":solution_filter",
         ":solution_permuter",
+        "//puzzle/class_permuter",
+        "//puzzle/class_permuter:factory",
     ],
 )
 
@@ -119,9 +118,9 @@ cc_library(
     name = "class_pair_selectivity",
     hdrs = ["class_pair_selectivity.h"],
     deps = [
-        "//puzzle/class_permuter",
         ":filter_to_active_set",
         ":solution_filter",
+        "//puzzle/class_permuter",
     ],
 )
 
@@ -131,9 +130,9 @@ cc_library(
     hdrs = ["pair_filter_burn_down.h"],
     deps = [
         ":class_pair_selectivity",
-        "//puzzle/class_permuter",
         ":filter_to_active_set",
         ":solution_filter",
+        "//puzzle/class_permuter",
         "//thread:executor",
         "//thread:future",
         "@com_google_absl//absl/flags:flag",
@@ -152,14 +151,14 @@ cc_library(
     hdrs = ["filtered_solution_permuter.h"],
     deps = [
         ":all_match",
-        "//puzzle/class_permuter",
-        "//puzzle/class_permuter:factory",
         ":filter_to_active_set",
         ":mutable_solution",
         ":pair_filter_burn_down",
         ":profiler",
         ":solution_filter",
         ":solution_permuter",
+        "//puzzle/class_permuter",
+        "//puzzle/class_permuter:factory",
         "//thread:executor",
         "//thread:future",
         "//thread:inline_executor",
@@ -198,13 +197,12 @@ cc_library(
     ],
 )
 
-
 cc_library(
     name = "mutable_solution",
     hdrs = ["mutable_solution.h"],
     deps = [
-        "//puzzle/class_permuter",
         ":solution",
+        "//puzzle/class_permuter",
     ],
 )
 
@@ -239,10 +237,10 @@ cc_library(
     name = "solution",
     srcs = ["solution.cc"],
     hdrs = ["solution.h"],
+    visibility = ["__subpackages__"],
     deps = [
         ":descriptors",
     ],
-    visibility = ["__subpackages__"],
 )
 
 cc_library(
