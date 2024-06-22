@@ -5,7 +5,7 @@
 #include "absl/functional/function_ref.h"
 #include "absl/status/status.h"
 #include "absl/synchronization/mutex.h"
-#include "puzzle/active_set_pair.h"
+#include "puzzle/active_set/pair.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/mutable_solution.h"
 #include "puzzle/profiler.h"

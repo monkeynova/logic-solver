@@ -41,7 +41,7 @@ static void BM_PermuterActiveSet1InN(benchmark::State& state) {
   // Build ActiveSet.
   auto p = MakeClassPermuterPermuterType()(depth);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   for (auto it = p->begin(); it != p->end(); ++it) {
     builder.Add((*it)[crop_column] == crop_value);
   }
@@ -111,7 +111,7 @@ static void BM_PermuterActiveSetSelectivity(benchmark::State& state) {
   // Build ActiveSet.
   auto p = MakeClassPermuterPermuterType()(depth);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   int i = 0;
   for (auto it = p->begin(); it != p->end(); ++it) {
     builder.Add(i % every_n == 0);

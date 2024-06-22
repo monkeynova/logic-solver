@@ -1,4 +1,4 @@
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 
 #include <iostream>
 
@@ -7,9 +7,9 @@
 #include "absl/strings/str_join.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "puzzle/active_set_bit_vector.h"
-#include "puzzle/active_set_run_length.h"
-#include "puzzle/active_set_run_position.h"
+#include "puzzle/active_set/bit_vector.h"
+#include "puzzle/active_set/run_length.h"
+#include "puzzle/active_set/run_position.h"
 #include "vlog.h"
 
 using ::testing::AnyOf;

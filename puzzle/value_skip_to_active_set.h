@@ -2,7 +2,7 @@
 #define PUZZLE_VALUE_SKIP_TO_ACTIVE_SET_H
 
 #include "absl/container/flat_hash_map.h"
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 #include "puzzle/class_permuter.h"
 
 namespace puzzle {

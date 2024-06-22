@@ -1,4 +1,4 @@
-#include "puzzle/active_set_bit_vector.h"
+#include "puzzle/active_set/bit_vector.h"
 
 #include <algorithm>
 #include <iostream>

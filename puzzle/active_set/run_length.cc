@@ -1,4 +1,4 @@
-#include "puzzle/active_set_run_position.h"
+#include "puzzle/active_set/run_length.h"
 
 #include <algorithm>
 #include <iostream>
@@ -24,21 +24,21 @@ std::vector<int> SortFlatHashSet(const absl::flat_hash_set<int>& unsorted) {
 }  // namespace
 
 // static
-ActiveSetRunPosition ActiveSetRunPositionBuilder::FromPositions(
+ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(
     const absl::flat_hash_set<int>& positions, int max_position) {
   return FromPositions(SortFlatHashSet(positions), max_position);
 }
 
 // static
-ActiveSetRunPosition ActiveSetRunPositionBuilder::FromPositions(
+ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(
     const std::initializer_list<int>& positions, int max_position) {
   return FromPositions(absl::flat_hash_set<int>(positions), max_position);
 }
 
 // static
-ActiveSetRunPosition ActiveSetRunPositionBuilder::FromPositions(
+ActiveSetRunLength ActiveSetRunLengthBuilder::FromPositions(
     const std::vector<int>& positions, int max_position) {
-  ActiveSetRunPositionBuilder builder(max_position);
+  ActiveSetRunLengthBuilder builder(max_position);
   for (auto p : positions) {
     if (p < 0) continue;
     if (p >= max_position) break;
@@ -49,18 +49,18 @@ ActiveSetRunPosition ActiveSetRunPositionBuilder::FromPositions(
   return builder.DoneAdding();
 }
 
-ActiveSetRunPosition ActiveSetRunPosition::Intersection(
-    const ActiveSetRunPosition& other) const {
+ActiveSetRunLength ActiveSetRunLength::Intersection(
+    const ActiveSetRunLength& other) const {
   if (other.is_trivial()) return *this;
   if (is_trivial()) return other;
 
-  ActiveSetRunPositionIterator this_iterator = GetIterator();
-  ActiveSetRunPositionIterator other_iterator = other.GetIterator();
+  ActiveSetRunLengthIterator this_iterator = GetIterator();
+  ActiveSetRunLengthIterator other_iterator = other.GetIterator();
 
   VLOG(3) << "Intersect(" << DebugString() << ", " << other.DebugString()
           << ")";
 
-  ActiveSetRunPositionBuilder intersection(std::max(total(), other.total()));
+  ActiveSetRunLengthBuilder intersection(std::max(total(), other.total()));
   while (this_iterator.more() && other_iterator.more()) {
     VLOG(3) << "Intersect NextBlock="
             << (this_iterator.value() ? "true" : "false") << "/\\"
@@ -114,67 +114,100 @@ ActiveSetRunPosition ActiveSetRunPosition::Intersection(
   return intersection.DoneAdding();
 }
 
-std::string ActiveSetRunPosition::DebugString() const {
+std::string ActiveSetRunLength::DebugString() const {
   return absl::StrCat("{total:", total_, "; matches: {",
                       absl::StrJoin(matches_, ", "), "}}");
 }
 
-void ActiveSetRunPositionBuilder::Add(bool match) {
+void ActiveSetRunLengthBuilder::Add(bool match) {
+  ++offset_;
   if (match) {
     ++set_.matches_count_;
   }
 
-  if (match != current_value_) {
-    set_.matches_.push_back(offset_);
+  if (match == current_value_) {
+    ++run_size_;
+  } else {
+    set_.matches_.push_back(run_size_);
     current_value_ = match;
+    run_size_ = 1;
   }
-
-  ++offset_;
 }
 
-void ActiveSetRunPositionBuilder::AddBlock(bool match, int size) {
+void ActiveSetRunLengthBuilder::AddBlock(bool match, int size) {
   if (size <= 0) return;
 
+  offset_ += size;
   if (match) {
     set_.matches_count_ += size;
   }
 
-  if (match != current_value_) {
-    set_.matches_.push_back(offset_);
+  if (match == current_value_) {
+    run_size_ += size;
+  } else {
+    set_.matches_.push_back(run_size_);
     current_value_ = match;
+    run_size_ = size;
   }
-
-  offset_ += size;
 }
 
-ActiveSetRunPosition ActiveSetRunPositionBuilder::DoneAdding() {
+ActiveSetRunLength ActiveSetRunLengthBuilder::DoneAdding() {
   CHECK_EQ(offset_, set_.total_);
 
-  set_.matches_.push_back(offset_);
+  if (set_.matches_.empty()) {
+    CHECK(current_value_) << "skip_match shouldn't be false if skips is empty";
+    // As a special case, if all entries are "true", we don't make matches_ so
+    // the ActiveSetRunLength remains 'trivial'.
+    return std::move(set_);
+  }
+  set_.matches_.push_back(run_size_);
 
   return std::move(set_);
 }
 
-std::string ActiveSetRunPositionIterator::DebugString() const {
+std::string ActiveSetRunLengthIterator::DebugString() const {
   return absl::StrCat("offset: ", offset_, "; ", "total: ", total_, "; ",
-                      "match_position: ", match_position_, "; ", "matches: {",
+                      "value: ", value_, "; ",
+                      "match_position: ", match_position_, "; ",
+                      "run_position: ", run_position_, "; ", "matches: {",
                       absl::StrJoin(matches_, ","), "}");
 }
 
-void ActiveSetRunPositionIterator::Advance(int n) {
-  offset_ += n;
-  if (offset_ >= total_) {
-    match_position_ = matches_.size();
-    offset_ = total_;
-  } else {
-    while (matches_[match_position_] <= offset_) {
-      ++match_position_;
+void ActiveSetRunLengthIterator::Advance(int n) {
+  DCHECK(match_position_ >= matches_.size() ||
+         run_position_ != matches_[match_position_])
+      << DebugString();
+  if (match_position_ == matches_.size()) {
+    offset_ = std::min(total_, offset_ + n);
+    return;
+  }
+  while (n > 0) {
+    int delta = matches_[match_position_] - run_position_;
+    if (n >= delta) {
+      n -= delta;
+      offset_ += delta;
+      run_position_ = 0;
+      if (++match_position_ == matches_.size()) {
+        if (n > 0) {
+          offset_ = std::min(total_, offset_ + n);
+        }
+        value_ = true;
+        break;
+      }
+      value_ = !value_;
+    } else {
+      run_position_ += n;
+      offset_ += n;
+      n = 0;
     }
   }
+  DCHECK(match_position_ >= matches_.size() ||
+         run_position_ != matches_[match_position_])
+      << DebugString();
 }
 
-std::vector<int> ActiveSetRunPosition::EnabledValues() const {
-  ActiveSetRunPositionIterator it = GetIterator();
+std::vector<int> ActiveSetRunLength::EnabledValues() const {
+  ActiveSetRunLengthIterator it = GetIterator();
   std::vector<int> ret;
   while (it.more()) {
     int run_size = it.RunSize();
@@ -188,7 +221,7 @@ std::vector<int> ActiveSetRunPosition::EnabledValues() const {
   return ret;
 }
 
-std::string ActiveSetRunPosition::DebugValues() const {
+std::string ActiveSetRunLength::DebugValues() const {
   return absl::StrCat("{", absl::StrJoin(EnabledValues(), ", "), "}");
 }
 

@@ -1,7 +1,7 @@
 #ifndef PUZZLE_CLASS_PERMUTER_H
 #define PUZZLE_CLASS_PERMUTER_H
 
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 #include "puzzle/solution.h"
 
 namespace puzzle {
@@ -64,7 +64,7 @@ class ClassPermuter {
 
     // Representation of the subset of the permutations to return.
     const ActiveSet* active_set_;
-    ActiveSetIterator active_set_it_;
+    ActiveSet::Iterator active_set_it_;
 
    private:
     absl::Span<const int> current_;

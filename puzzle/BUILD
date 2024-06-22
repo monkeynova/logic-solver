@@ -34,90 +34,14 @@ cc_test(
     ],
 )
 
-cc_library(
-    name = "active_set",
-    hdrs = ["active_set.h"],
-    deps = [
-        ":active_set_bit_vector",
-        ":active_set_run_length",
-        ":active_set_run_position",
-    ],
-)
-
-cc_library(
-    name = "active_set_bit_vector",
-    srcs = ["active_set_bit_vector.cc"],
-    hdrs = ["active_set_bit_vector.h"],
-    deps = [
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/strings",
-        "@com_monkeynova_gunit_main//:vlog",
-    ],
-)
-
-cc_library(
-    name = "active_set_run_length",
-    srcs = ["active_set_run_length.cc"],
-    hdrs = ["active_set_run_length.h"],
-    deps = [
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/strings",
-        "@com_monkeynova_gunit_main//:vlog",
-    ],
-)
-
-cc_library(
-    name = "active_set_run_position",
-    srcs = ["active_set_run_position.cc"],
-    hdrs = ["active_set_run_position.h"],
-    deps = [
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/strings",
-        "@com_monkeynova_gunit_main//:vlog",
-    ],
-)
-
-cc_test(
-    name = "active_set_test",
-    srcs = ["active_set_test.cc"],
-    deps = [
-        ":active_set",
-        "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
-
-cc_library(
-    name = "active_set_pair",
-    srcs = ["active_set_pair.cc"],
-    hdrs = ["active_set_pair.h"],
-    deps = [
-        ":active_set",
-        "@com_google_absl//absl/container:flat_hash_map",
-    ],
-)
-
-cc_test(
-    name = "active_set_pair_test",
-    srcs = ["active_set_pair_test.cc"],
-    deps = [
-        ":active_set_pair",
-        "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
 
 cc_library(
     name = "filter_to_active_set",
     srcs = ["filter_to_active_set.cc"],
     hdrs = ["filter_to_active_set.h"],
     deps = [
-        ":active_set",
-        ":active_set_pair",
+        "//puzzle/active_set",
+        "//puzzle/active_set:pair",
         ":all_match",
         ":class_permuter",
         ":mutable_solution",
@@ -163,7 +87,7 @@ cc_library(
     srcs = ["value_skip_to_active_set.cc"],
     hdrs = ["value_skip_to_active_set.h"],
     deps = [
-        ":active_set",
+        "//puzzle/active_set",
         ":class_permuter",
     ],
 )
@@ -279,7 +203,7 @@ cc_library(
     srcs = ["class_permuter.cc"],
     hdrs = ["class_permuter.h"],
     deps = [
-        ":active_set",
+        "//puzzle/active_set",
         ":solution",
         "@com_google_absl//absl/container:inlined_vector",
     ],

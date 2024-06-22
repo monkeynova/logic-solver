@@ -4,7 +4,7 @@
 #include "absl/log/check.h"
 #include "absl/log/log.h"
 #include "absl/synchronization/notification.h"
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 #include "puzzle/all_match.h"
 #include "puzzle/class_permuter_factory.h"
 #include "puzzle/filter_to_active_set.h"

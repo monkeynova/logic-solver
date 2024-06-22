@@ -5,7 +5,7 @@
 #include "absl/strings/str_join.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 #include "puzzle/class_permuter_factorial_radix.h"
 #include "puzzle/class_permuter_factorial_radix_delete_tracking.h"
 #include "puzzle/class_permuter_steinhaus_johnson_trotter.h"
@@ -62,8 +62,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkips) {
   auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSetBuilder builder_first(6);
-  ActiveSetBuilder builder_last(6);
+  ActiveSet::Builder builder_first(6);
+  ActiveSet::Builder builder_last(6);
   for (int i = 0; i < 6; ++i) {
     builder_first.Add(i < 3);
     builder_last.Add(i >= 3);
@@ -102,8 +102,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShredded) {
   auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSetBuilder builder_odd(6);
-  ActiveSetBuilder builder_even(6);
+  ActiveSet::Builder builder_odd(6);
+  ActiveSet::Builder builder_even(6);
   for (int i = 0; i < 6; ++i) {
     builder_odd.Add(i & 1);
     builder_even.Add(!(i & 1));
@@ -140,8 +140,8 @@ TYPED_TEST(ClassPermuterTest, ThreeElementsWithSkipsShreddedByBeginArg) {
   auto p = TypeParam()(kPermuterSize);
   EXPECT_THAT(p->permutation_count(), 6);
 
-  ActiveSetBuilder builder_odd(6);
-  ActiveSetBuilder builder_even(6);
+  ActiveSet::Builder builder_odd(6);
+  ActiveSet::Builder builder_even(6);
   for (int i = 0; i < 6; ++i) {
     builder_odd.Add(i & 1);
     builder_even.Add(!(i & 1));
@@ -212,7 +212,7 @@ TYPED_TEST(ClassPermuterTest, ValueSkipWithActiveSet) {
   constexpr int kPermuterSize = 4;
   auto p = TypeParam()(kPermuterSize);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   for (absl::Span<const int> permutation : *p) {
     builder.Add(permutation[1] == 3);
   }
@@ -241,7 +241,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSet) {
   constexpr int kPermuterSize = 4;
   auto p = TypeParam()(kPermuterSize);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count());
   ActiveSet set = builder.DoneAdding();
 
@@ -256,7 +256,7 @@ TYPED_TEST(ClassPermuterTest, FullActiveSet) {
   constexpr int kPermuterSize = 4;
   auto p = TypeParam()(kPermuterSize);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   builder.AddBlock(true, p->permutation_count());
   ActiveSet set = builder.DoneAdding();
 
@@ -274,7 +274,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
   constexpr int kPermuterSize = 4;
   auto p = TypeParam()(kPermuterSize);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count());
   ActiveSet set = builder.DoneAdding();
 
@@ -295,7 +295,7 @@ TYPED_TEST(ClassPermuterTest, EmptyActiveSetMidIteration) {
 TYPED_TEST(ClassPermuterTest, ActiveSetMidIteration) {
   auto p = TypeParam()(4);
 
-  ActiveSetBuilder builder(p->permutation_count());
+  ActiveSet::Builder builder(p->permutation_count());
   builder.AddBlock(false, p->permutation_count() * 3 / 4);
   builder.AddBlock(true, p->permutation_count() / 4);
   ActiveSet set = builder.DoneAdding();

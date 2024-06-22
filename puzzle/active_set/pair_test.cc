@@ -1,4 +1,4 @@
-#include "puzzle/active_set_pair.h"
+#include "puzzle/active_set/pair.h"
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"

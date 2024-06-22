@@ -5,7 +5,7 @@
 #include "absl/strings/str_join.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 #include "puzzle/class_permuter.h"
 #include "puzzle/class_permuter_factory.h"
 #include "puzzle/mutable_solution.h"

@@ -1,3 +1,3 @@
-#include "puzzle/active_set_pair.h"
+#include "puzzle/active_set/pair.h"
 
 namespace puzzle {}  // namespace puzzle

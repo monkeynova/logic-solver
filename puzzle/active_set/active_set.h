@@ -1,9 +1,9 @@
 #ifndef PUZZLE_ACTIVE_SET_H
 #define PUZZLE_ACTIVE_SET_H
 
-#include "puzzle/active_set_bit_vector.h"
-#include "puzzle/active_set_run_length.h"
-#include "puzzle/active_set_run_position.h"
+#include "puzzle/active_set/bit_vector.h"
+#include "puzzle/active_set/run_length.h"
+#include "puzzle/active_set/run_position.h"
 
 namespace puzzle {
 
@@ -16,9 +16,6 @@ using ActiveSet = ActiveSetRunLength;
 using ActiveSet = ActiveSetRunPosition;
 #endif
 #endif
-
-using ActiveSetIterator = ActiveSet::Iterator;
-using ActiveSetBuilder = ActiveSet::Builder;
 
 }  // namespace puzzle
 

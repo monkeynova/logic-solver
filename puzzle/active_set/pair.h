@@ -2,7 +2,7 @@
 #define PUZZLE_ACTIVE_SET_PAIR_H
 
 #include "absl/container/flat_hash_map.h"
-#include "puzzle/active_set.h"
+#include "puzzle/active_set/active_set.h"
 
 namespace puzzle {
 
