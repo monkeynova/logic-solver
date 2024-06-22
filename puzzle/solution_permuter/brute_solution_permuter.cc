@@ -19,10 +19,10 @@ BruteSolutionPermuter::Advancer::Advancer(
   iterators_.resize(class_types_.size());
   for (auto class_int : class_types_) {
     iterators_[class_int] = permuter_->class_permuters_[class_int]->begin();
-    mutable_solution_.SetClass(iterators_[class_int]);
+    mutable_solution().SetClass(iterators_[class_int]);
   }
 
-  current_.set_position({
+  set_position({
       .position = 0,
       .count = permuter_->permutation_count(),
   });
@@ -41,7 +41,7 @@ void BruteSolutionPermuter::Advancer::Advance() {
       carry = true;
     }
 
-    mutable_solution_.SetClass(iterators_[class_int]);
+    mutable_solution().SetClass(iterators_[class_int]);
 
     if (!carry) {
       at_end = false;
@@ -50,15 +50,14 @@ void BruteSolutionPermuter::Advancer::Advance() {
   }
   if (at_end) {
     set_done();
-    current_ = Solution();
-    current_.set_position({
+    set_position({
         .position = permuter_->permutation_count(),
         .count = permuter_->permutation_count(),
     });
   } else {
-    current_.set_position({
-        .position = permuter_->permutation_count() + 1,
-        .count = current_.position().count,
+    set_position({
+        .position = current().position().position + 1,
+        .count = permuter_->permutation_count(),
     });
   }
 }

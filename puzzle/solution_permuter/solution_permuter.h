@@ -21,13 +21,20 @@ class SolutionPermuter {
     bool done() const { return done_; }
     void set_done() { done_ = true; }
 
-    virtual Solution::Position position() const = 0;
     virtual void Advance() = 0;
 
     const Solution& current() const { return current_; }
 
    protected:
-    // TODO(@monkeynova): -> private and interface.
+    MutableSolution& mutable_solution() {
+      return mutable_solution_;
+    }
+
+    void set_position(Solution::Position p) {
+      current_.set_position(p);
+    }
+
+   private:
     MutableSolution mutable_solution_;
     Solution current_;  // Bound to mutable_solution_.
     bool done_ = false;
@@ -62,8 +69,6 @@ class SolutionPermuter {
       return *this;
     }
 
-    Solution::Position position() const { return advancer_->position(); }
-
    private:
     std::unique_ptr<AdvancerBase> advancer_;
   };
@@ -72,9 +77,8 @@ class SolutionPermuter {
       : entry_descriptor_(entry_descriptor) {}
   virtual ~SolutionPermuter() = default;
 
-  virtual absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) {
-    return false;
-  }
+  virtual absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) = 0;
+
 
   absl::Status Prepare();
 

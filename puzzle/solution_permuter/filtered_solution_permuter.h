@@ -23,7 +23,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;
 
-    Solution::Position position() const override;
+    Solution::Position position() const;
 
    private:
     void Advance() override;

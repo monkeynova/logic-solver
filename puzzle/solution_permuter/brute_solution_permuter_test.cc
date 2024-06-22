@@ -26,7 +26,7 @@ TEST(BruteSolutionPermuterTest, Simple) {
   EXPECT_THAT(p.permutation_count(), 6 * 6);
   std::vector<Solution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
-    EXPECT_THAT(it.position().position, solutions.size());
+    EXPECT_THAT(it->position().position, solutions.size());
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
     solutions.emplace_back(it->Clone());
   }

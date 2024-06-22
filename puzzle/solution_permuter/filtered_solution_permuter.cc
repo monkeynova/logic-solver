@@ -59,11 +59,10 @@ FilteredSolutionPermuter::Advancer::Advancer(
   }
 
   if (FindNextValid(/*class_position=*/0)) {
-    current_.set_position(position());
+    set_position(position());
   } else {
     set_done();
-    current_ = Solution();
-    current_.set_position({
+    set_position({
         .position = permuter_->permutation_count(),
         .count = permuter_->permutation_count(),
     });
@@ -111,9 +110,9 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
   ValueSkip value_skip;
   for (; iterators_[class_int] != class_permuter->end();
        iterators_[class_int] += value_skip) {
-    mutable_solution_.SetClass(iterators_[class_int]);
+    mutable_solution().SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (AllMatch(solution_predicates, current_, class_int, &value_skip) &&
+    if (AllMatch(solution_predicates, current(), class_int, &value_skip) &&
         FindNextValid(class_position + 1)) {
       return true;
     }
@@ -175,7 +174,7 @@ void FilteredSolutionPermuter::Advancer::Advance() {
     } else {
       ++iterators_[class_int];
     }
-    mutable_solution_.SetClass(iterators_[class_int]);
+    mutable_solution().SetClass(iterators_[class_int]);
 
     if (iterators_[class_int] != class_permuter->end()) {
       found_value = true;
@@ -183,11 +182,10 @@ void FilteredSolutionPermuter::Advancer::Advance() {
     }
   }
   if (found_value && FindNextValid(0)) {
-    current_.set_position(position());
+    set_position(position());
   } else {
     set_done();
-    current_ = Solution();
-    current_.set_position({
+    set_position({
         .position = permuter_->permutation_count(),
         .count = permuter_->permutation_count(),
     });
