@@ -1,13 +1,13 @@
 cc_library(
     name = "active_set",
     hdrs = ["active_set.h"],
-    visibility = [
-        "//puzzle:__subpackages__",
-    ],
     deps = [
         ":bit_vector",
         ":run_length",
         ":run_position",
+    ],
+    visibility = [
+        "//puzzle:__subpackages__",
     ],
 )
 
@@ -63,12 +63,12 @@ cc_library(
     name = "pair",
     srcs = ["pair.cc"],
     hdrs = ["pair.h"],
-    visibility = [
-        "//puzzle:__subpackages__",
-    ],
     deps = [
         ":active_set",
         "@com_google_absl//absl/container:flat_hash_map",
+    ],
+    visibility = [
+        "//puzzle:__subpackages__",
     ],
 )
 

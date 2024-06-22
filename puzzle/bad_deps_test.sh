@@ -1,0 +1,1 @@
+cat /dev/null | diff - puzzle/bad_deps

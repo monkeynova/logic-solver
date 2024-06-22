@@ -61,3 +61,19 @@ cc_library(
     ],
     alwayslink = 1,
 )
+
+genquery(
+    name = "bad_deps",
+    scope = [":puzzle_main"],
+    # Some dependency path from //puzzle/base to elsewhere in //puzzle.
+    expression = 
+        'let all_targets = deps(//puzzle:puzzle_main) in ' +
+        'let base_targets = filter("//puzzle/base", $all_targets) in ' +
+        'somepath($base_targets, filter("//puzzle", $all_targets) - $base_targets)'
+)
+
+sh_test(
+    name = "bad_deps_test",
+    srcs = ["bad_deps_test.sh"],
+    data = [":bad_deps"],
+)
