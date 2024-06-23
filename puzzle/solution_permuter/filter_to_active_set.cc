@@ -344,8 +344,8 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kBackAndForth>(
             builder_outer.Add(true);
           } else {
             any_of_outer_false = true;
-            if (pair_prune_skip_outer && // outer_skip != nullptr &&
-                all_entry_skips && all_entry_skips != 0xffffffff) {
+            if (pair_prune_skip_outer && all_entry_skips &&
+                all_entry_skips != 0xffffffff) {
               all_entry_skips = 0xffffffff;
               SingleIterate(inner, [&](const ClassPermuter::iterator& it_inner,
                                        ValueSkip& inner_skip) {
