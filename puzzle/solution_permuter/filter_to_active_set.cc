@@ -75,7 +75,8 @@ FilterToActiveSet::FilterToActiveSet(const FilterToActiveSet& other)
     : active_sets_(other.active_sets_),
       active_set_pairs_(other.active_set_pairs_),
       mutable_solution_(other.solution_.descriptor()),
-      solution_(mutable_solution_.TestableSolution()) {}
+      solution_(mutable_solution_.TestableSolution()),
+      profiler_(other.profiler_) {}
 
 void FilterToActiveSet::SetupPermuter(const ClassPermuter* class_permuter) {
   if (!absl::GetFlag(FLAGS_puzzle_value_skip_to_active_set)) return;
