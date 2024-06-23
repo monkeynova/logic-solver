@@ -64,12 +64,12 @@ cc_library(
 
 genquery(
     name = "bad_deps",
-    scope = [":puzzle_main"],
     # Some dependency path from //puzzle/base to elsewhere in //puzzle.
-    expression = 
-        'let all_targets = deps(//puzzle:puzzle_main) in ' +
+    expression =
+        "let all_targets = deps(//puzzle:puzzle_main) in " +
         'let base_targets = filter("//puzzle/base", $all_targets) in ' +
-        'somepath($base_targets, filter("//puzzle", $all_targets) - $base_targets)'
+        'somepath($base_targets, filter("//puzzle", $all_targets) - $base_targets)',
+    scope = [":puzzle_main"],
 )
 
 sh_test(

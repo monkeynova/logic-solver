@@ -15,8 +15,8 @@ namespace puzzle {
 // `class_int` on the first predicate that evaluates to false.
 inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
                      const Solution& solution) {
-  return absl::c_all_of(
-      predicates, [&](const SolutionFilter& c) { return c(solution); });
+  return absl::c_all_of(predicates,
+                        [&](const SolutionFilter& c) { return c(solution); });
 }
 
 // Argument type for operator+= to advance until a sepecific position in the

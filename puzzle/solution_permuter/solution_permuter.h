@@ -26,13 +26,9 @@ class SolutionPermuter {
     const Solution& current() const { return current_; }
 
    protected:
-    MutableSolution& mutable_solution() {
-      return mutable_solution_;
-    }
+    MutableSolution& mutable_solution() { return mutable_solution_; }
 
-    void set_position(Solution::Position p) {
-      current_.set_position(p);
-    }
+    void set_position(Solution::Position p) { current_.set_position(p); }
 
    private:
     MutableSolution mutable_solution_;
@@ -78,7 +74,6 @@ class SolutionPermuter {
   virtual ~SolutionPermuter() = default;
 
   virtual absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) = 0;
-
 
   absl::Status Prepare();
 

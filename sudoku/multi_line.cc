@@ -61,7 +61,8 @@ int main(int argc, char** argv) {
       int solve_ms = (done - start) / absl::Milliseconds(1);
       time_stats.Add(solve_ms);
       if (done - last_flush > absl::Milliseconds(250)) {
-        std::cout << absl::StreamFormat("\033[1K\r%v", time_stats) << std::flush;
+        std::cout << absl::StreamFormat("\033[1K\r%v", time_stats)
+                  << std::flush;
         last_flush = done;
       }
 
