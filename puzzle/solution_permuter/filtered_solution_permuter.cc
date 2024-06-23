@@ -112,7 +112,7 @@ bool FilteredSolutionPermuter::Advancer::FindNextValid(int class_position) {
        iterators_[class_int] += value_skip) {
     mutable_solution().SetClass(iterators_[class_int]);
     if (NotePositionForProfiler(class_position)) return false;
-    if (AllMatch(solution_predicates, current(), class_int, &value_skip) &&
+    if (AllMatch(solution_predicates, current(), class_int, value_skip) &&
         FindNextValid(class_position + 1)) {
       return true;
     }

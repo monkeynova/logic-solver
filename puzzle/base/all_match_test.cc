@@ -41,7 +41,7 @@ TEST(AllMatchTest, ValueSkip) {
                              "", [](const Entry&) { return true; }, {}, 0),
                          SolutionFilter(
                              "", [](const Entry&) { return false; }, {}, 1)},
-                        has_entries, -1, &value_skip));
+                        has_entries, -1, value_skip));
   EXPECT_EQ(value_skip.value_index, 1);
 }
 

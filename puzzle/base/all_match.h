@@ -3,11 +3,21 @@
 
 #include <vector>
 
+#include "absl/algorithm/container.h"
 #include "absl/types/span.h"
 #include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
 
 namespace puzzle {
+
+// Returns true if all entries in `predicates` are true for `solution`.
+// If `value_skip` is non-nullptr, returns the entry_id for the corresponding
+// `class_int` on the first predicate that evaluates to false.
+inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
+                     const Solution& solution) {
+  return absl::c_all_of(
+      predicates, [&](const SolutionFilter& c) { return c(solution); });
+}
 
 // Argument type for operator+= to advance until a sepecific position in the
 // permutation changes values.
@@ -23,20 +33,15 @@ static_assert(sizeof(ValueSkip) < 16,
 // If `value_skip` is non-nullptr, returns the entry_id for the corresponding
 // `class_int` on the first predicate that evaluates to false.
 inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
-                     const Solution& solution, int class_int = -1,
-                     ValueSkip* value_skip = nullptr) {
-  if (value_skip == nullptr) {
-    return std::all_of(
-        predicates.begin(), predicates.end(),
-        [&solution](const SolutionFilter& c) { return c(solution); });
-  }
+                     const Solution& solution, int class_int,
+                     ValueSkip& value_skip) {
   for (const SolutionFilter& filter : predicates) {
     if (!filter(solution)) {
-      value_skip->value_index = filter.entry_id(class_int);
+      value_skip.value_index = filter.entry_id(class_int);
       return false;
     }
   }
-  value_skip->value_index = Entry::kBadId;
+  value_skip.value_index = Entry::kBadId;
   return true;
 }
 

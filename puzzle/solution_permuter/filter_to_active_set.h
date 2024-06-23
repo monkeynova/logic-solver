@@ -120,7 +120,7 @@ class FilterToActiveSet {
   inline void SingleIterate(
       const ClassPermuter* permuter,
       absl::FunctionRef<bool(const ClassPermuter::iterator& it,
-                             ValueSkip* value_skip)>
+                             ValueSkip& value_skip)>
           on_item);
 
   inline void DualIterate(
@@ -128,10 +128,10 @@ class FilterToActiveSet {
       absl::FunctionRef<void(void)> on_outer_before,
       absl::FunctionRef<bool(const ClassPermuter::iterator& it_outer,
                              const ClassPermuter::iterator& it_inner,
-                             ValueSkip* inner_skip)>
+                             ValueSkip& inner_skip)>
           on_inner,
       absl::FunctionRef<void(const ClassPermuter::iterator& it_outer,
-                             ValueSkip* outer_skip)>
+                             ValueSkip& outer_skip)>
           on_outer_after);
 
   // Maps class_int to it's built ActiveSet.

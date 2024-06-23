@@ -7,6 +7,7 @@ cc_library(
     deps = [
         "//puzzle/base:solution",
         "//puzzle/base:solution_filter",
+        "@com_google_absl//absl/algorithm:container",
     ],
 )
 
