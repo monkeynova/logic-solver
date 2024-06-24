@@ -4,7 +4,8 @@
 #include "puzzle/base/all_match.h"
 #include "puzzle/solution_permuter/solution_permuter_factory.h"
 
-ABSL_FLAG(bool, puzzle_solver_full_selectivity_check, true, "...");
+ABSL_FLAG(bool, puzzle_alternate_full_selectivity_check, true, "...");
+ABSL_FLAG(bool, puzzle_alternate_disable, false, "...");
 
 namespace puzzle {
 
@@ -38,42 +39,52 @@ absl::StatusOr<Solution> Solver::Solve() {
   return std::move(ret[0]);
 }
 
-absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
-  SolutionPermuter* solution_permuter;
-  absl::Span<const SolutionFilter> on_solution;
+absl::StatusOr<Solver::AlternateId> Solver::PrepareAndChooseAlternate() {
+  AlternateId ret;
+  if (absl::GetFlag(FLAGS_puzzle_alternate_disable)) {
+    ret.id_ = 0;
+    RETURN_IF_ERROR(alternates_[0]->PrepareCheap());
+    RETURN_IF_ERROR(alternates_[0]->PrepareFull());
+    return ret;
+  }
 
   double best_selectivity = 1.1;
   for (int i = 0; i < alternates_.size(); ++i) {
     RETURN_IF_ERROR(alternates_[i]->PrepareCheap());
-    if (absl::GetFlag(FLAGS_puzzle_solver_full_selectivity_check)) {
+    if (absl::GetFlag(FLAGS_puzzle_alternate_full_selectivity_check)) {
       RETURN_IF_ERROR(alternates_[i]->PrepareFull());
     }
     double alternate_selectivity = alternates_[i]->Selectivity();
     if (alternate_selectivity < best_selectivity) {
-      chosen_alternate_.id_ = i;
+      ret.id_ = i;
       best_selectivity = alternate_selectivity;
-      solution_permuter = alternates_[i].get();
-      on_solution = residual_[i];
     }
   }
 
-  if (!absl::GetFlag(FLAGS_puzzle_solver_full_selectivity_check)) {
-    RETURN_IF_ERROR(solution_permuter->PrepareFull());
+  if (!absl::GetFlag(FLAGS_puzzle_alternate_full_selectivity_check)) {
+    RETURN_IF_ERROR(alternates_[ret.id_]->PrepareFull());
   }
 
-  VLOG_IF(1, alternates_.size() > 1)
-      << "Chose alternate: " << chosen_alternate_.id_;
+  VLOG_IF(1, alternates_.size() > 1) << "Chose alternate: " << ret.id_;
+
+  return ret;
+}
+
+absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
+  ASSIGN_OR_RETURN(chosen_alternate_, PrepareAndChooseAlternate());
+
+  SolutionPermuter* solution_permuter = alternates_[chosen_alternate_.id_].get();
+  absl::Span<const SolutionFilter> on_solution = residual_[chosen_alternate_.id_];
 
   std::vector<Solution> ret;
-  for (auto it = solution_permuter->begin(); it != solution_permuter->end();
-       ++it) {
-    VLOG(1) << "Solution found @" << it->position();
+  for (auto& solution : *solution_permuter) {
+    VLOG(1) << "Solution found @" << solution.position();
     if (profiler_ != nullptr) {
-      profiler_->NotePermutation(it->position().position, it->position().count);
+      profiler_->NotePermutation(solution.position().position, solution.position().count);
     }
     ++test_calls_;
-    if (AllMatch(on_solution, *it)) {
-      puzzle::Solution copy = it->Clone();
+    if (AllMatch(on_solution, solution)) {
+      puzzle::Solution copy = solution.Clone();
       if (chosen_alternate_.id_ != 0) {
         ASSIGN_OR_RETURN(copy,
                          TransformAlternate(copy.Clone(), chosen_alternate_));

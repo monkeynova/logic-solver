@@ -123,6 +123,7 @@ class Solver {
 
  private:
   absl::Status AddFilter(SolutionFilter solution_filter);
+  absl::StatusOr<AlternateId> PrepareAndChooseAlternate();
 
   const EntryDescriptor entry_descriptor_;
 

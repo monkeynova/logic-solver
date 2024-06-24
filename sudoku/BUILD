@@ -304,7 +304,7 @@ cc_binary(
 
 cc_test(
     name = "conceptis_puzzles_test",
-    args = ["--puzzle_solver_full_selectivity_check=false"],
+    args = ["--puzzle_alternate_full_selectivity_check=false"],
     tags = ["benchmark"],
     deps = [
         ":conceptis_puzzles_lib",
