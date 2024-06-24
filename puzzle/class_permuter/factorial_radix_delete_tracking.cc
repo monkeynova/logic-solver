@@ -6,6 +6,34 @@ namespace puzzle {
 
 static constexpr int kMaxStorageSize = 20;
 
+namespace {
+
+// Contains a map from a radix index position and a bit vector marked with
+// previously selected values from index_ in a permutation to the index for
+// the correspondingly selected value in index_.
+// This is a lookup-table for the function RadixIndexToRawIndex::ComputeValue
+// which is needed in the innermost loop of permutation calculation.
+template <int kMaxPos>
+class RadixIndexToRawIndex {
+ public:
+  static int Get(int position, int bit_vector) {
+    static RadixIndexToRawIndex<kMaxPos> singleton;
+    return singleton.data_[bit_vector * kMaxPos + position];
+  }
+
+ private:
+  RadixIndexToRawIndex() { Initialize(); }
+
+  void Initialize();
+  static int ComputeValue(int position, int delete_bit_vector);
+
+  void Set(int position, int bit_vector, int value) {
+    data_[bit_vector * kMaxPos + position] = value;
+  }
+
+  int data_[kMaxPos << kMaxPos];
+};
+
 // static
 template <int kMaxPos>
 int RadixIndexToRawIndex<kMaxPos>::ComputeValue(int position,
@@ -27,20 +55,14 @@ void RadixIndexToRawIndex<kMaxPos>::Initialize() {
   }
 }
 
-// static
-template <int kMaxPos>
-RadixIndexToRawIndex<kMaxPos>* RadixIndexToRawIndex<kMaxPos>::Singleton() {
-  static RadixIndexToRawIndex<kMaxPos> ret;
-  return &ret;
-}
+}  // namespace
 
 template <int kStorageSize>
 ClassPermuterFactorialRadixDeleteTracking<kStorageSize>::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter)
     : Base(permuter) {
-  DCHECK_LT(kStorageSize, kMaxStorageSize)
-      << "Permutation indexes use a memory buffer of size N * 2^N";
-  radix_index_to_raw_index_ = RadixIndexToRawIndex<kStorageSize>::Singleton();
+  static_assert(kStorageSize <=  kMaxStorageSize,
+                "Permutation indexes use a memory buffer of size N * 2^N");
 }
 
 template <int kStorageSize>
@@ -54,10 +76,10 @@ void ClassPermuterFactorialRadixDeleteTracking<
     int mod = kStorageSize;
     int div = Base::permutation_count() / mod;
     int deleted = 0;
-    DCHECK_LT(kStorageSize, kMaxStorageSize)
-        << "Permutation indexes must be useable as a bit vector";
+    static_assert(kStorageSize <=  kMaxStorageSize,
+                  "Permutation indexes must be useable as a bit vector");
     for (size_t i = 0; i < kStorageSize - 1; ++i) {
-      const int next = radix_index_to_raw_index_->Get(
+      const int next = RadixIndexToRawIndex<kStorageSize>::Get(
           (Base::position_ / div) % mod, deleted);
       DCHECK_LT(next, kStorageSize);
       Base::current_[i] = next;
@@ -65,7 +87,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
       --mod;
       div /= mod;
     }
-    const int next = radix_index_to_raw_index_->Get(0, deleted);
+    const int next = RadixIndexToRawIndex<kStorageSize>::Get(0, deleted);
     DCHECK_GE(next, 0);
     Base::current_[kStorageSize - 1] = next;
   }
