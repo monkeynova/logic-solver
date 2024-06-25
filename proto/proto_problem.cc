@@ -102,7 +102,7 @@ absl::StatusOr<Solution> ProtoProblemBase::GetSolution() const {
       class_values[i] =
           entry.GetReflection()->GetEnumValue(entry, class_fields_[i]);
     }
-    entries.emplace_back(id, std::move(class_values), entry_descriptor());
+    entries.emplace_back(id, std::move(class_values));
   }
 
   return Solution(entry_descriptor(), &entries).Clone();

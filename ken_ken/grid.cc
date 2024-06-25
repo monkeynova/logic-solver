@@ -157,7 +157,7 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::GetSolution() const {
       // Translate to 0-indexed solution space.
       entry_vals[col] = board[row][col] - 1;
     }
-    entries.emplace_back(row, entry_vals, entry_descriptor());
+    entries.emplace_back(row, entry_vals);
   }
   return puzzle::Solution(entry_descriptor(), &entries).Clone();
 }

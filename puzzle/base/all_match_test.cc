@@ -34,8 +34,8 @@ TEST(AllMatchTest, PairFalse) {
 TEST(AllMatchTest, ValueSkip) {
   ValueSkip value_skip;
   std::vector<Entry> entries;
-  entries.emplace_back(0, std::vector<int>{}, nullptr);
-  entries.emplace_back(1, std::vector<int>{}, nullptr);
+  entries.emplace_back(0, std::vector<int>{});
+  entries.emplace_back(1, std::vector<int>{});
   Solution has_entries(nullptr, &entries);
   ASSERT_FALSE(AllMatch({SolutionFilter(
                              "", [](const Entry&) { return true; }, {}, 0),
@@ -55,8 +55,8 @@ TEST(UnmatchedEntrySkipsTest, AllTrue) {
 
 TEST(UnmatchedEntrySkipsTest, AllFalse) {
   std::vector<Entry> entries;
-  entries.emplace_back(0, std::vector<int>{}, nullptr);
-  entries.emplace_back(1, std::vector<int>{}, nullptr);
+  entries.emplace_back(0, std::vector<int>{});
+  entries.emplace_back(1, std::vector<int>{});
   Solution has_entries(nullptr, &entries);
   EXPECT_EQ(
       UnmatchedEntrySkips({SolutionFilter(
@@ -69,8 +69,8 @@ TEST(UnmatchedEntrySkipsTest, AllFalse) {
 
 TEST(UnmatchedEntrySkipsTest, PartialFirstFalse) {
   std::vector<Entry> entries;
-  entries.emplace_back(0, std::vector<int>{}, nullptr);
-  entries.emplace_back(1, std::vector<int>{}, nullptr);
+  entries.emplace_back(0, std::vector<int>{});
+  entries.emplace_back(1, std::vector<int>{});
   Solution has_entries(nullptr, &entries);
   EXPECT_EQ(
       UnmatchedEntrySkips({SolutionFilter(
@@ -83,8 +83,8 @@ TEST(UnmatchedEntrySkipsTest, PartialFirstFalse) {
 
 TEST(UnmatchedEntrySkipsTest, PartialSecondFalse) {
   std::vector<Entry> entries;
-  entries.emplace_back(0, std::vector<int>{}, nullptr);
-  entries.emplace_back(1, std::vector<int>{}, nullptr);
+  entries.emplace_back(0, std::vector<int>{});
+  entries.emplace_back(1, std::vector<int>{});
   Solution has_entries(nullptr, &entries);
   EXPECT_EQ(
       UnmatchedEntrySkips({SolutionFilter(

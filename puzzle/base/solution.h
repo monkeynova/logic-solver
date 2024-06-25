@@ -19,52 +19,52 @@ class Entry {
 
   static constexpr int kBadId = std::numeric_limits<int>::max();
 
-  Entry(int id, const std::vector<int>& classes,
-        const EntryDescriptor* entry_descriptor)
-      : id_(id), classes_(classes), entry_descriptor_(entry_descriptor) {}
+  Entry(int id, const std::vector<int>& classes)
+      : id_(id), classes_(classes) {}
   ~Entry() {}
 
-  bool operator==(const Entry& other) const {
-    if (this == &other) {
-      return true;
-    } else if (id_ != other.id_) {
-      return false;
-    } else {
-      return classes_ == other.classes_;
-    }
-  }
+  bool operator==(const Entry& other) const = default;
 
   int id() const { return id_; }
   int Class(int classname) const { return classes_[classname]; }
   void SetClass(int classname, int value) { classes_[classname] = value; }
 
   static const Entry& Invalid() { return invalid_; }
-  const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
   template <typename Sink>
   friend void AbslStringify(Sink& sink, const Entry& e) {
-    if (e.entry_descriptor_ != nullptr) {
-      absl::Format(&sink, "%v", e.entry_descriptor_->Id(e.id_));
-    } else {
-      absl::Format(&sink, "%v", e.id_);
-    }
+    absl::Format(&sink, "%v", e.id_);
     absl::Format(&sink, ":");
     for (unsigned int i = 0; i < e.classes_.size(); ++i) {
-      if (e.entry_descriptor_) {
-        absl::Format(&sink, " %v=%v", e.entry_descriptor_->Class(i),
-                     e.entry_descriptor_->Name(i, e.classes_[i]));
-      } else {
-        absl::Format(&sink, " %v", e.classes_[i]);
-      }
+      absl::Format(&sink, " %v", e.classes_[i]);
     }
   }
 
+  friend struct WithDescriptor;
+  struct WithDescriptor {
+    const Entry& entry;
+    const EntryDescriptor* descriptor;
+
+    template <typename Sink>
+    friend void AbslStringify(Sink& sink, const WithDescriptor& ed) {
+      if (ed.descriptor == nullptr) {
+        absl::Format(&sink, "%v", ed.entry);
+        return;
+      }
+      absl::Format(&sink, "%v", ed.descriptor->Id(ed.entry.id()));
+      absl::Format(&sink, ":");
+      for (unsigned int i = 0; i < ed.entry.classes_.size(); ++i) {
+        absl::Format(&sink, " %v=%v", ed.descriptor->Class(i),
+                     ed.descriptor->Name(i, ed.entry.classes_[i]));
+      }
+    }
+  };
+
  private:
-  Entry(int id) : id_(id), entry_descriptor_(nullptr) {}
+  Entry(int id) : id_(id) {}
 
   int id_;
   std::vector<int> classes_;
-  const EntryDescriptor* entry_descriptor_;
   static Entry invalid_;
 };
 
@@ -119,11 +119,13 @@ class Solution {
     else {
       bool first = true;
       for (const Entry& e : *s.entries_) {
-        if (first)
+        if (first) {
           first = false;
-        else
+        } else {
           absl::Format(&sink, "\n");
-        absl::Format(&sink, "%v", e);
+        }
+        absl::Format(&sink, "%v",
+                     Entry::WithDescriptor{e, s.entry_descriptor_});
       }
     }
   }

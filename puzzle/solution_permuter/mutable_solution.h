@@ -19,7 +19,7 @@ class MutableSolution {
 
       entries_.reserve(num_classes);
       for (int id = 0; id < descriptor_->AllIds()->size(); ++id) {
-        entries_.push_back(Entry(id, invalid_classes, descriptor_));
+        entries_.push_back(Entry(id, invalid_classes));
       }
     }
   }
