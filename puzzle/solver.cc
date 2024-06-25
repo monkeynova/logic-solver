@@ -80,7 +80,7 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
   for (auto& solution : *solution_permuter) {
     VLOG(1) << "Solution found @" << solution.position();
     if (profiler_ != nullptr) {
-      profiler_->NotePermutation(solution.position().position, solution.position().count);
+      profiler_->NotePermutation(solution.position());
     }
     ++test_calls_;
     if (AllMatch(on_solution, solution)) {

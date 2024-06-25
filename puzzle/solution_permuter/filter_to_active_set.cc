@@ -240,6 +240,10 @@ void FilterToActiveSet::DualIterate(
   ValueSkipToActiveSet* vs2as_inner =
       value_skip_to_active_set_[inner->descriptor()].get();
 
+  Position pos;
+  pos.position = 0;
+  pos.count = inner->permutation_count() * outer->permutation_count();
+
   SingleIterate(outer, [&](const ClassPermuter::iterator& it_outer,
                            ValueSkip& outer_skip) {
     on_outer_before();
@@ -251,10 +255,9 @@ void FilterToActiveSet::DualIterate(
          it_inner != inner->end();
          Advance(vs2as_inner, value_skip_inner, &it_inner)) {
       if (profiler_ != nullptr) {
-        profiler_->NotePrepare(
-            inner->permutation_count() * it_outer.position() +
-                it_inner.position(),
-            inner->permutation_count() * outer->permutation_count());
+        pos.position = inner->permutation_count() * it_outer.position() +
+                       it_inner.position();
+        profiler_->NotePrepare(pos);
       }
       mutable_solution_.SetClass(it_inner);
       if (on_inner(it_outer, it_inner, value_skip_inner)) break;

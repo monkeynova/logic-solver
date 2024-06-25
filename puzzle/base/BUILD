@@ -36,10 +36,19 @@ cc_library(
 )
 
 cc_library(
+    name = "position",
+    hdrs = ["position.h"],
+    deps = [
+        "@com_google_absl//absl/strings",
+    ],
+)
+
+cc_library(
     name = "profiler",
     srcs = ["profiler.cc"],
     hdrs = ["profiler.h"],
     deps = [
+        ":position",
         "@com_google_absl//absl/flags:flag",
         "@com_google_absl//absl/log",
         "@com_google_absl//absl/log:check",
@@ -54,6 +63,7 @@ cc_library(
     hdrs = ["solution.h"],
     deps = [
         ":descriptors",
+        ":position",
     ],
 )
 

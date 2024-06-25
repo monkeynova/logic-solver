@@ -62,7 +62,7 @@ void BruteSolutionPermuter::Advancer::Advance() {
   }
 }
 
-Solution::Position BruteSolutionPermuter::Advancer::position() const {
+Position BruteSolutionPermuter::Advancer::position() const {
   if (permuter_ == nullptr) {
     return {.position = 0, .count = 0};
   }

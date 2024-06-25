@@ -150,10 +150,7 @@ bool FilteredSolutionPermuter::Advancer::NotePositionForProfiler(
 
   if (permuter_->profiler_ == nullptr) return false;
 
-  Solution::Position position = this->position();
-
-  if (permuter_->profiler_->NotePermutation(position.position,
-                                            position.count)) {
+  if (permuter_->profiler_->NotePermutation(this->position())) {
     std::cout << "; FindNextValid(" << class_position << ") ("
               << IterationDebugString() << ")" << std::flush;
   }
@@ -192,7 +189,7 @@ void FilteredSolutionPermuter::Advancer::Advance() {
   }
 }
 
-Solution::Position FilteredSolutionPermuter::Advancer::position() const {
+Position FilteredSolutionPermuter::Advancer::position() const {
   if (permuter_ == nullptr) return {.position = 0, .count = 0};
 
   double position = 0;

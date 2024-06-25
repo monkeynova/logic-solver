@@ -36,34 +36,33 @@ class AbslTimeProfiler : public Profiler {
     return permutations() > absl::GetFlag(FLAGS_puzzle_max_profile_calls);
   }
 
-  bool NotePermutationImpl(int64_t position, int64_t count) override {
+  bool NotePermutationImpl(Position position) override {
     absl::Time now = absl::Now();
     int delta = (now - last_permutation_) / absl::Microseconds(1);
     if (delta < 200) return false;
 
     int full_delta = (now - start_) / absl::Microseconds(1);
 
-    double permutations_per_milli = (position - last_position_) / delta;
+    double permutations_per_milli = (position.position - last_position_) / delta;
     std::cout << std::setprecision(3) << "\033[1K\rTrying "
-              << (100 * position / count)
+              << (100 * position.Completion())
               << "%, effective=" << permutations_per_milli
               << "Kp/ms true=" << (permutations() / full_delta) << "Kp/ms"
               << std::flush;
 
     last_permutation_ = now;
-    last_position_ = position;
+    last_position_ = position.position;
     return true;
   }
 
-  void NotePrepareImpl(int64_t position, int64_t count) override {
+  void NotePrepareImpl(Position position) override {
     absl::Time now = absl::Now();
     int delta = (now - last_prepare_) / absl::Milliseconds(1);
     if (delta < 1000) return;
 
     int full_delta = (now - start_) / absl::Milliseconds(1);
-    LOG(INFO) << "Prepare: " << position << "/" << count << " ("
-              << 100 * position / count
-              << "%); Rate=" << prepare_steps() / full_delta << "Kqps";
+    LOG(INFO) << "Prepare: " << position << "; Rate="
+              << prepare_steps() / full_delta << "Kqps";
     last_prepare_ = now;
   }
 

@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "puzzle/base/descriptors.h"
+#include "puzzle/base/position.h"
 
 namespace puzzle {
 
@@ -69,19 +70,6 @@ class Entry {
 
 class Solution {
  public:
-  struct Position {
-    double position;
-    double count;
-    double Completion() const {
-      if (count == 0) return 0;
-      return position / count;
-    }
-    template <typename Sink>
-    friend void AbslStringify(Sink& sink, const Position& p) {
-      absl::Format(&sink, "%e/%e (%f)", p.position, p.count, p.Completion());
-    }
-  };
-
   using Predicate = std::function<bool(const Solution&)>;
 
   Solution() {}

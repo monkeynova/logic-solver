@@ -2,6 +2,7 @@
 #define PUZZLE_BASE_PROFILER_H
 
 #include <memory>
+#include "puzzle/base/position.h"
 
 namespace puzzle {
 
@@ -14,21 +15,21 @@ class Profiler {
   virtual bool Done() { return false; }
   virtual double Seconds() { return 0; }
 
-  bool NotePermutation(int64_t position, int64_t count) {
+  bool NotePermutation(Position position) {
     if (++permutations_ % 777 != 1) return false;
-    return NotePermutationImpl(position, count);
+    return NotePermutationImpl(position);
   }
 
-  void NotePrepare(int64_t position, int64_t count) {
+  void NotePrepare(Position position) {
     if (++prepare_steps_ % 777 != 1) return;
-    NotePrepareImpl(position, count);
+    NotePrepareImpl(position);
   }
 
  protected:
   Profiler() {}
 
-  virtual bool NotePermutationImpl(int64_t position, int64_t count) = 0;
-  virtual void NotePrepareImpl(int64_t position, int64_t count) = 0;
+  virtual bool NotePermutationImpl(Position position) = 0;
+  virtual void NotePrepareImpl(Position position) = 0;
 
   int permutations() const { return permutations_; }
   int prepare_steps() const { return prepare_steps_; }

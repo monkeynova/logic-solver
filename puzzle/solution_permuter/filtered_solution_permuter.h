@@ -23,7 +23,7 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
     Advancer(const Advancer&) = delete;
     Advancer& operator=(const Advancer&) = delete;
 
-    Solution::Position position() const;
+    Position position() const;
 
    private:
     void Advance() override;
@@ -71,9 +71,6 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
 
   double Selectivity() const override;
   double permutation_count() const;
-  const ClassPermuter* class_permuter(int class_int) const {
-    return class_permuters_[class_int].get();
-  }
 
   absl::StatusOr<bool> AddFilter(SolutionFilter solution_filter) override;
 

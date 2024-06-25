@@ -28,7 +28,7 @@ class SolutionPermuter {
    protected:
     MutableSolution& mutable_solution() { return mutable_solution_; }
 
-    void set_position(Solution::Position p) { current_.set_position(p); }
+    void set_position(Position p) { current_.set_position(p); }
 
    private:
     MutableSolution mutable_solution_;
