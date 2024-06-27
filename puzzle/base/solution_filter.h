@@ -62,11 +62,6 @@ class SolutionFilter {
 
   bool operator()(const Solution& s) const { return solution_p_(s); }
 
-  bool operator()(const Entry& e) const {
-    DCHECK_NE(entry_id_, Entry::kBadId) << name_;
-    return entry_p_(e);
-  }
-
   absl::string_view name() const { return name_; }
   const std::vector<int>& classes() const { return classes_; }
 
@@ -85,7 +80,6 @@ class SolutionFilter {
   std::vector<int> classes_;
   int entry_id_ = Entry::kBadId;
   absl::flat_hash_map<int, int> class_to_entry_;
-  Entry::Predicate entry_p_;
 };
 
 }  // namespace puzzle
