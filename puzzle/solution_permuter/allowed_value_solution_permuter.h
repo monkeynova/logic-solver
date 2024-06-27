@@ -8,22 +8,6 @@ namespace puzzle {
 
 class AllowedValueSolutionPermuter final : public SolutionPermuter {
  public:
-  class Advancer final : public SolutionPermuter::AdvancerBase {
-   public:
-    explicit Advancer(const AllowedValueSolutionPermuter* permuter,
-                      const EntryDescriptor* entry_descriptor);
-
-    Advancer(const Advancer&) = delete;
-    Advancer& operator=(const Advancer&) = delete;
-
-    Position position() const;
-
-   private:
-    void Advance() override;
-
-    const AllowedValueSolutionPermuter* permuter_;
-  };
-
   explicit AllowedValueSolutionPermuter(const EntryDescriptor* e);
   ~AllowedValueSolutionPermuter() = default;
 
@@ -40,17 +24,12 @@ class AllowedValueSolutionPermuter final : public SolutionPermuter {
 
   double Selectivity() const override { return 1.0; }
 
-  iterator begin() const override {
-    return iterator(absl::make_unique<Advancer>(this, entry_descriptor()));
-  }
-  iterator end() const override {
-    return iterator(absl::make_unique<Advancer>(this, nullptr));
-  }
+  iterator begin() const override;
 
   double permutation_count() const;
 
  private:
-  friend Advancer;
+  friend class AllowedValueAdvancer;
   // {id: {class: allowed_value_bv}}
   std::vector<std::vector<int>> allowed_bv_;
 };

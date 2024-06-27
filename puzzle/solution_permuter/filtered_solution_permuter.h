@@ -65,9 +65,6 @@ class FilteredSolutionPermuter final : public SolutionPermuter {
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this));
   }
-  iterator end() const override {
-    return iterator(absl::make_unique<Advancer>(nullptr));
-  }
 
   double Selectivity() const override;
   double permutation_count() const;

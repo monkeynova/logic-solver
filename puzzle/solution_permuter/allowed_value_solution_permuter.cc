@@ -2,20 +2,40 @@
 
 namespace puzzle {
 
-AllowedValueSolutionPermuter::Advancer::Advancer(
+namespace {
+
+class AllowedValueAdvancer final : public SolutionPermuter::AdvancerBase {
+ public:
+  explicit AllowedValueAdvancer(const AllowedValueSolutionPermuter* permuter,
+                                const EntryDescriptor* entry_descriptor);
+  AllowedValueAdvancer(const AllowedValueAdvancer&) = delete;
+
+  AllowedValueAdvancer& operator=(const AllowedValueAdvancer&) = delete;
+  Position position() const;
+
+ private:
+  void Advance() override;
+  const AllowedValueSolutionPermuter* permuter_;
+};
+
+AllowedValueAdvancer::AllowedValueAdvancer(
     const AllowedValueSolutionPermuter* permuter,
     const EntryDescriptor* entry_descriptor)
     : AdvancerBase(entry_descriptor), permuter_(permuter) {
   Advance();
 }
 
-void AllowedValueSolutionPermuter::Advancer::Advance() {
+void AllowedValueAdvancer::Advance() {
   set_position(position());
+  set_done();
 }
 
-Position AllowedValueSolutionPermuter::Advancer::position() const {
+Position AllowedValueAdvancer::position() const {
   return {.position = 0, .count = 0};
 }
+
+}  // namespace
+
 
 AllowedValueSolutionPermuter::AllowedValueSolutionPermuter(
     const EntryDescriptor* e)
@@ -39,6 +59,7 @@ absl::Status AllowedValueSolutionPermuter::PrepareCheap() {
 }
 
 absl::Status AllowedValueSolutionPermuter::PrepareFull() {
+  return absl::OkStatus();
   return absl::UnimplementedError(
       "AllowedValueSolutionPermuter not implemented");
 }
@@ -50,6 +71,10 @@ double AllowedValueSolutionPermuter::permutation_count() const {
     permutations_count *= e->Class(i).size();
   }
   return permutations_count;
+}
+
+AllowedValueSolutionPermuter::iterator AllowedValueSolutionPermuter::begin() const {
+  return iterator(absl::make_unique<AllowedValueAdvancer>(this, entry_descriptor()));
 }
 
 }  // namespace puzzle

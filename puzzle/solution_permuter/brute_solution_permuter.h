@@ -48,9 +48,6 @@ class BruteSolutionPermuter final : public SolutionPermuter {
   iterator begin() const override {
     return iterator(absl::make_unique<Advancer>(this, entry_descriptor()));
   }
-  iterator end() const override {
-    return iterator(absl::make_unique<Advancer>(this, nullptr));
-  }
 
   double permutation_count() const;
   const ClassPermuter* class_permuter(int class_int) const {

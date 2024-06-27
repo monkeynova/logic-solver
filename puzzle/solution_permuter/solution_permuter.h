@@ -36,6 +36,12 @@ class SolutionPermuter {
     bool done_ = false;
   };
 
+  class NullAdvancer : public AdvancerBase {
+   public:
+    NullAdvancer() : AdvancerBase(nullptr) { set_done(); }
+    void Advance() override {}
+  };
+
   class iterator {
    public:
     typedef std::forward_iterator_tag iterator_category;
@@ -82,7 +88,9 @@ class SolutionPermuter {
   virtual absl::Status PrepareFull() = 0;
 
   virtual iterator begin() const = 0;
-  virtual iterator end() const = 0;
+  iterator end() const {
+    return iterator(absl::make_unique<NullAdvancer>());
+  }
 
  protected:
   const EntryDescriptor* entry_descriptor() const { return entry_descriptor_; }
