@@ -39,7 +39,17 @@ absl::Status AllowedValueSolutionPermuter::PrepareCheap() {
 }
 
 absl::Status AllowedValueSolutionPermuter::PrepareFull() {
-  return absl::OkStatus();
+  return absl::UnimplementedError(
+      "AllowedValueSolutionPermuter not implemented");
+}
+
+double AllowedValueSolutionPermuter::permutation_count() const {
+  double permutations_count = 1;
+  const EntryDescriptor* e = entry_descriptor();
+  for (int i = 0; i < e->num_classes(); ++i) {
+    permutations_count *= e->Class(i).size();
+  }
+  return permutations_count;
 }
 
 }  // namespace puzzle
