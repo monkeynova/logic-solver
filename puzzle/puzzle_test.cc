@@ -14,7 +14,7 @@ ABSL_FLAG(bool, puzzle_test_unique, true,
           "If true (default), tests validate that the solution found is "
           "unique.");
 
-ABSL_DECLARE_FLAG(bool, puzzle_brute_force);
+ABSL_DECLARE_FLAG(std::string, puzzle_solution_permuter);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_class_iterator);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_reorder_classes);
 
@@ -55,10 +55,17 @@ static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
   labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
 }
 
+static void SetFlag(bool val, absl::string_view label, absl::Flag<std::string>* flag,
+                    std::vector<std::string>* labels) {
+  if (val) absl::SetFlag(flag, label);
+  labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
+}
+
+
 template <bool brute, bool prune, bool reorder>
 static void BM_Solver(benchmark::State& state) {
   std::vector<std::string> labels;
-  SetFlag(brute, "brute", &FLAGS_puzzle_brute_force, &labels);
+  SetFlag(brute, "brute", &FLAGS_puzzle_solution_permuter, &labels);
   SetFlag(prune, "prune", &FLAGS_puzzle_prune_class_iterator, &labels);
   SetFlag(reorder, "reorder", &FLAGS_puzzle_prune_reorder_classes, &labels);
   state.SetLabel(absl::StrJoin(labels, " "));

@@ -48,12 +48,12 @@ class SolutionPermuter {
         : advancer_(std::move(advancer)) {}
 
     iterator(const iterator&) = delete;
-    iterator(iterator&&) = default;
     iterator& operator=(const iterator&) = delete;
+    iterator(iterator&&) = default;
     iterator& operator=(iterator&&) = default;
 
-    bool operator!=(const iterator& other) { return !(*this == other); }
-    bool operator==(const iterator& other) {
+    bool operator!=(const iterator& other) const = default;
+    bool operator==(const iterator& other) const {
       if (advancer_ == nullptr) return other.advancer_ == nullptr;
       if (other.advancer_ == nullptr) return false;
       return advancer_->done() == other.advancer_->done();

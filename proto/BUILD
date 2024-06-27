@@ -112,7 +112,7 @@ cc_test(
 
 cc_test(
     name = "swimming_pool_brute_test",
-    args = ["--puzzle_brute_force=true"],
+    args = ["--puzzle_solution_permuter=brute"],
     tags = ["benchmark"],
     deps = [
         ":swimming_pool_lib",

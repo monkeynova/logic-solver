@@ -1,4 +1,49 @@
 cc_library(
+    name = "allowed_value_solution_permuter",
+    srcs = ["allowed_value_solution_permuter.cc"],
+    hdrs = ["allowed_value_solution_permuter.h"],
+    deps = [
+        ":mutable_solution",
+        ":solution_permuter",
+        "//puzzle/base:solution_filter",
+    ],
+)
+
+cc_library(
+    name = "brute_solution_permuter",
+    srcs = ["brute_solution_permuter.cc"],
+    hdrs = ["brute_solution_permuter.h"],
+    deps = [
+        ":mutable_solution",
+        ":solution_permuter",
+        "//puzzle/base:solution_filter",
+        "//puzzle/class_permuter",
+        "//puzzle/class_permuter:factory",
+    ],
+)
+
+cc_test(
+    name = "brute_solution_permuter_test",
+    srcs = ["brute_solution_permuter_test.cc"],
+    deps = [
+        ":brute_solution_permuter",
+        "@com_google_googletest//:gtest",
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
+
+
+cc_library(
+    name = "class_pair_selectivity",
+    hdrs = ["class_pair_selectivity.h"],
+    deps = [
+        ":filter_to_active_set",
+        "//puzzle/base:solution_filter",
+        "//puzzle/class_permuter",
+    ],
+)
+
+cc_library(
     name = "filter_to_active_set",
     srcs = ["filter_to_active_set.cc"],
     hdrs = ["filter_to_active_set.h"],
@@ -42,29 +87,6 @@ cc_test(
         "//puzzle/base:solution_filter",
         "//puzzle/class_permuter:factory",
         "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
-
-cc_library(
-    name = "brute_solution_permuter",
-    srcs = ["brute_solution_permuter.cc"],
-    hdrs = ["brute_solution_permuter.h"],
-    deps = [
-        ":mutable_solution",
-        ":solution_permuter",
-        "//puzzle/base:solution_filter",
-        "//puzzle/class_permuter",
-        "//puzzle/class_permuter:factory",
-    ],
-)
-
-cc_library(
-    name = "class_pair_selectivity",
-    hdrs = ["class_pair_selectivity.h"],
-    deps = [
-        ":filter_to_active_set",
-        "//puzzle/base:solution_filter",
-        "//puzzle/class_permuter",
     ],
 )
 
@@ -115,6 +137,17 @@ cc_library(
     ],
 )
 
+cc_test(
+    name = "filtered_solution_permuter_test",
+    srcs = ["filtered_solution_permuter_test.cc"],
+    deps = [
+        ":filtered_solution_permuter",
+        "//puzzle/base:solution_filter",
+        "@com_google_googletest//:gtest",
+        "@com_monkeynova_gunit_main//:test_main",
+    ],
+)
+
 cc_library(
     name = "solution_permuter",
     srcs = ["solution_permuter.cc"],
@@ -134,6 +167,7 @@ cc_library(
     hdrs = ["solution_permuter_factory.h"],
     visibility = ["//puzzle:__subpackages__"],
     deps = [
+        ":allowed_value_solution_permuter",
         ":brute_solution_permuter",
         ":filtered_solution_permuter",
         ":solution_permuter",
@@ -149,26 +183,5 @@ cc_library(
     deps = [
         "//puzzle/base:solution",
         "//puzzle/class_permuter",
-    ],
-)
-
-cc_test(
-    name = "brute_solution_permuter_test",
-    srcs = ["brute_solution_permuter_test.cc"],
-    deps = [
-        ":brute_solution_permuter",
-        "@com_google_googletest//:gtest",
-        "@com_monkeynova_gunit_main//:test_main",
-    ],
-)
-
-cc_test(
-    name = "filtered_solution_permuter_test",
-    srcs = ["filtered_solution_permuter_test.cc"],
-    deps = [
-        ":filtered_solution_permuter",
-        "//puzzle/base:solution_filter",
-        "@com_google_googletest//:gtest",
-        "@com_monkeynova_gunit_main//:test_main",
     ],
 )
