@@ -36,6 +36,10 @@ class MutableSolution {
     }
   }
 
+  void SetClass(int entry_id, int class_id, int value) {
+    entries_[entry_id].SetClass(class_id, value);
+  }
+
  private:
   const EntryDescriptor* descriptor_;
   std::vector<Entry> entries_;
