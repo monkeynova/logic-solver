@@ -71,6 +71,7 @@ absl::StatusOr<Solver::AlternateId> Solver::PrepareAndChooseAlternate() {
 }
 
 absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
+  absl::Time start = absl::Now();
   ASSIGN_OR_RETURN(chosen_alternate_, PrepareAndChooseAlternate());
 
   SolutionPermuter* solution_permuter =
@@ -99,15 +100,14 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
     }
   }
 
+  absl::Time end = absl::Now();
   if (profiler_) {
     profiler_->NoteFinish();
   }
 
-  last_debug_statistics_ =
-      absl::StrCat("[", test_calls_, " solutions tested in ",
-                   (profiler_ ? profiler_->Seconds()
-                              : std::numeric_limits<double>::quiet_NaN()),
-                   "s]");
+  last_debug_statistics_ = absl::StrFormat(
+    "[%d solutions tested in %dms]", test_calls_,
+    (end - start) / absl::Milliseconds(1));
 
   VLOG(1) << last_debug_statistics_;
 
