@@ -30,7 +30,7 @@ AllowedValueGrid::AllowedValueGrid(const EntryDescriptor* e) {
 }
 
 void AllowedValueGrid::SetMutableSolution(MutableSolution* mutable_solution) {
-  mutable_solution_ = mutable_solution; 
+  mutable_solution_ = mutable_solution;
 }
 
 int AllowedValueGrid::FirstVal(Box box) {
@@ -42,7 +42,7 @@ int AllowedValueGrid::FirstVal(Box box) {
     if (bit & bv) return test;
     bit <<= 1;
     ++test;
-  }  
+  }
 }
 
 AllowedValueGrid::Undo AllowedValueGrid::Empty(Box box) {
@@ -53,7 +53,8 @@ AllowedValueGrid::Undo AllowedValueGrid::Empty(Box box) {
   return ret;
 }
 
-std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box, int value) {
+std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box,
+                                                                 int value) {
   Undo ret;
   ret.box_ = box;
   ret.val_ = value;
@@ -64,9 +65,10 @@ std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box, int va
 
   mutable_solution_->SetClass(box.entry_id, box.class_id, value);
   Solution testable = mutable_solution_->TestableSolution();
-  for (const auto& [filter, boxes] : solution_filters_[box.entry_id][box.class_id]) {
+  for (const auto& [filter, boxes] :
+       solution_filters_[box.entry_id][box.class_id]) {
     bool all_assigned = absl::c_all_of(
-      boxes, [&](const Box& b) { return assigned_[b.entry_id][b.class_id]; });
+        boxes, [&](const Box& b) { return assigned_[b.entry_id][b.class_id]; });
     if (all_assigned) {
       if (!filter(testable)) {
         assigned_[box.entry_id][box.class_id] = false;
@@ -87,9 +89,11 @@ void AllowedValueGrid::UnAssign(Undo undo) {
   bv_[undo.entry_id()][undo.class_id()] = undo.bv_;
 }
 
-void AllowedValueGrid::AddFilter(SolutionFilter solution_filter, std::vector<Box> boxes) {
+void AllowedValueGrid::AddFilter(SolutionFilter solution_filter,
+                                 std::vector<Box> boxes) {
   for (Box b : boxes) {
-    solution_filters_[b.entry_id][b.class_id].push_back({solution_filter, boxes});
+    solution_filters_[b.entry_id][b.class_id].push_back(
+        {solution_filter, boxes});
   }
 }
 
@@ -190,7 +194,7 @@ Position AllowedValueAdvancer::position() const {
 
 AllowedValueSolutionPermuter::AllowedValueSolutionPermuter(
     const EntryDescriptor* e)
-  : SolutionPermuter(e) {
+    : SolutionPermuter(e) {
   allowed_grid_ = AllowedValueGrid(entry_descriptor());
   int entry_size = e->AllIds()->size();
   int class_size = e->num_classes();
@@ -198,15 +202,17 @@ AllowedValueSolutionPermuter::AllowedValueSolutionPermuter(
     for (int entry_id1 = 0; entry_id1 < entry_size; ++entry_id1) {
       for (int entry_id2 = entry_id1 + 1; entry_id2 < entry_size; ++entry_id2) {
         allowed_grid_.AddFilter(
-            SolutionFilter(
-                absl::StrFormat("ClassPermutation %d/{%d,%d}", class_id, entry_id1, entry_id2),
-                // Capture by value.
-                [entry_id1, entry_id2, class_id](const Solution& s) {
-                  return s.Id(entry_id1).Class(class_id) != s.Id(entry_id2).Class(class_id);
-                },
-                {class_id}),
+            SolutionFilter(absl::StrFormat("ClassPermutation %d/{%d,%d}",
+                                           class_id, entry_id1, entry_id2),
+                           // Capture by value.
+                           [entry_id1, entry_id2, class_id](const Solution& s) {
+                             return s.Id(entry_id1).Class(class_id) !=
+                                    s.Id(entry_id2).Class(class_id);
+                           },
+                           {class_id}),
             {AllowedValueGrid::Box{.entry_id = entry_id1, .class_id = class_id},
-             AllowedValueGrid::Box{.entry_id = entry_id2, .class_id = class_id}});
+             AllowedValueGrid::Box{.entry_id = entry_id2,
+                                   .class_id = class_id}});
       }
     }
   }
@@ -246,8 +252,10 @@ double AllowedValueSolutionPermuter::permutation_count() const {
   return permutations_count;
 }
 
-AllowedValueSolutionPermuter::iterator AllowedValueSolutionPermuter::begin() const {
-  return iterator(absl::make_unique<AllowedValueAdvancer>(this, entry_descriptor()));
+AllowedValueSolutionPermuter::iterator AllowedValueSolutionPermuter::begin()
+    const {
+  return iterator(
+      absl::make_unique<AllowedValueAdvancer>(this, entry_descriptor()));
 }
 
 }  // namespace puzzle

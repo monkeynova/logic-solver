@@ -88,9 +88,7 @@ class SolutionPermuter {
   virtual absl::Status PrepareFull() = 0;
 
   virtual iterator begin() const = 0;
-  iterator end() const {
-    return iterator(absl::make_unique<NullAdvancer>());
-  }
+  iterator end() const { return iterator(absl::make_unique<NullAdvancer>()); }
 
  protected:
   const EntryDescriptor* entry_descriptor() const { return entry_descriptor_; }

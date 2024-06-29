@@ -19,8 +19,7 @@ class Entry {
 
   static constexpr int kBadId = std::numeric_limits<int>::max();
 
-  Entry(int id, const std::vector<int>& classes)
-      : id_(id), classes_(classes) {}
+  Entry(int id, const std::vector<int>& classes) : id_(id), classes_(classes) {}
   ~Entry() {}
 
   bool operator==(const Entry& other) const = default;

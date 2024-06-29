@@ -61,7 +61,7 @@ template <int kStorageSize>
 ClassPermuterFactorialRadixDeleteTracking<kStorageSize>::Advancer::Advancer(
     const ClassPermuterFactorialRadixDeleteTracking* permuter)
     : Base(permuter) {
-  static_assert(kStorageSize <=  kMaxStorageSize,
+  static_assert(kStorageSize <= kMaxStorageSize,
                 "Permutation indexes use a memory buffer of size N * 2^N");
 }
 
@@ -76,7 +76,7 @@ void ClassPermuterFactorialRadixDeleteTracking<
     int mod = kStorageSize;
     int div = Base::permutation_count() / mod;
     int deleted = 0;
-    static_assert(kStorageSize <=  kMaxStorageSize,
+    static_assert(kStorageSize <= kMaxStorageSize,
                   "Permutation indexes must be useable as a bit vector");
     for (size_t i = 0; i < kStorageSize - 1; ++i) {
       const int next = RadixIndexToRawIndex<kStorageSize>::Get(

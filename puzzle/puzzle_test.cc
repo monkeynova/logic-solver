@@ -57,11 +57,26 @@ static void BM_Solver(benchmark::State& state) {
     std::string label;
   };
   static const std::array<Args, 5> all_args = {
-    Args{.permuter = "brute", .prune = false, .reorder = false, .label = "brute"},
-    Args{.permuter = "allowonly", .prune = false, .reorder = false, .label = "allowonly"},
-    Args{.permuter = "filtered", .prune = false, .reorder = false, .label = "filters"},
-    Args{.permuter = "filtered", .prune = true, .reorder = false, .label = "filters+prune"},
-    Args{.permuter = "filtered", .prune = true, .reorder = true, .label = "filters+prune+reorder"},
+      Args{.permuter = "brute",
+           .prune = false,
+           .reorder = false,
+           .label = "brute"},
+      Args{.permuter = "allowonly",
+           .prune = false,
+           .reorder = false,
+           .label = "allowonly"},
+      Args{.permuter = "filtered",
+           .prune = false,
+           .reorder = false,
+           .label = "filters"},
+      Args{.permuter = "filtered",
+           .prune = true,
+           .reorder = false,
+           .label = "filters+prune"},
+      Args{.permuter = "filtered",
+           .prune = true,
+           .reorder = true,
+           .label = "filters+prune+reorder"},
   };
   const Args& args = all_args[state.range(0)];
   absl::SetFlag(&FLAGS_puzzle_solution_permuter, args.permuter);

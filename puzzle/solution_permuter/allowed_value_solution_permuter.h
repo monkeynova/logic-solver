@@ -44,7 +44,9 @@ class AllowedValueGrid {
   std::vector<std::vector<int>> bv_;
   std::vector<std::vector<bool>> assigned_;
   std::vector<std::vector<int>> vals_;
-  std::vector<std::vector<std::vector<std::pair<SolutionFilter, std::vector<Box>>>>> solution_filters_;
+  std::vector<
+      std::vector<std::vector<std::pair<SolutionFilter, std::vector<Box>>>>>
+      solution_filters_;
   MutableSolution* mutable_solution_ = nullptr;
 };
 
@@ -55,9 +57,11 @@ class AllowedValueSolutionPermuter final : public SolutionPermuter {
 
   // Movable, but not copyable.
   AllowedValueSolutionPermuter(const AllowedValueSolutionPermuter&) = delete;
-  AllowedValueSolutionPermuter& operator=(const AllowedValueSolutionPermuter&) = delete;
+  AllowedValueSolutionPermuter& operator=(const AllowedValueSolutionPermuter&) =
+      delete;
   AllowedValueSolutionPermuter(AllowedValueSolutionPermuter&&) = default;
-  AllowedValueSolutionPermuter& operator=(AllowedValueSolutionPermuter&&) = default;
+  AllowedValueSolutionPermuter& operator=(AllowedValueSolutionPermuter&&) =
+      default;
 
   absl::Status PrepareCheap() override;
   absl::Status PrepareFull() override;
@@ -96,4 +100,4 @@ class AllowedValueAdvancer final : public SolutionPermuter::AdvancerBase {
 
 }  // namespace puzzle
 
-#endif   // PUZZLE_SOLUTION_PERMUTER_ALLOWED_VALUE_SOLUTION_PERMUTER_H
+#endif  // PUZZLE_SOLUTION_PERMUTER_ALLOWED_VALUE_SOLUTION_PERMUTER_H

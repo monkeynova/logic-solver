@@ -43,7 +43,8 @@ class AbslTimeProfiler : public Profiler {
 
     int full_delta = (now - start_) / absl::Microseconds(1);
 
-    double permutations_per_milli = (position.position - last_position_) / delta;
+    double permutations_per_milli =
+        (position.position - last_position_) / delta;
     std::cout << std::setprecision(3) << "\033[1K\rTrying "
               << (100 * position.Completion())
               << "%, effective=" << permutations_per_milli
@@ -61,8 +62,8 @@ class AbslTimeProfiler : public Profiler {
     if (delta < 1000) return;
 
     int full_delta = (now - start_) / absl::Milliseconds(1);
-    LOG(INFO) << "Prepare: " << position << "; Rate="
-              << prepare_steps() / full_delta << "Kqps";
+    LOG(INFO) << "Prepare: " << position
+              << "; Rate=" << prepare_steps() / full_delta << "Kqps";
     last_prepare_ = now;
   }
 

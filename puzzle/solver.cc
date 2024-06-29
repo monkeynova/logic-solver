@@ -73,8 +73,10 @@ absl::StatusOr<Solver::AlternateId> Solver::PrepareAndChooseAlternate() {
 absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
   ASSIGN_OR_RETURN(chosen_alternate_, PrepareAndChooseAlternate());
 
-  SolutionPermuter* solution_permuter = alternates_[chosen_alternate_.id_].get();
-  absl::Span<const SolutionFilter> on_solution = residual_[chosen_alternate_.id_];
+  SolutionPermuter* solution_permuter =
+      alternates_[chosen_alternate_.id_].get();
+  absl::Span<const SolutionFilter> on_solution =
+      residual_[chosen_alternate_.id_];
 
   std::vector<Solution> ret;
   for (auto& solution : *solution_permuter) {

@@ -2,6 +2,7 @@
 #define PUZZLE_BASE_PROFILER_H
 
 #include <memory>
+
 #include "puzzle/base/position.h"
 
 namespace puzzle {

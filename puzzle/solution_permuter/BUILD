@@ -32,7 +32,6 @@ cc_test(
     ],
 )
 
-
 cc_library(
     name = "class_pair_selectivity",
     hdrs = ["class_pair_selectivity.h"],
