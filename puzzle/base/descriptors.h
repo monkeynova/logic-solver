@@ -40,7 +40,7 @@ class StringDescriptor : public Descriptor {
   ~StringDescriptor() override {}
 
   std::string DebugString(int i) const override {
-    if (i >= names_.size() || i < 0) return "";
+    if (i >= names_.size() || i < 0) return absl::StrFormat("!%d!", i);
     return names_[i];
   }
 
