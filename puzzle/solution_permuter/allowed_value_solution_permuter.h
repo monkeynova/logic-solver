@@ -11,20 +11,38 @@ class AllowedValueGrid {
   struct Box {
     int entry_id;
     int class_id;
+
+    template <typename Sink>
+    friend void AbslStringify(Sink& sink, const Box& b) {
+      absl::Format(&sink, "{%v,%v}", b.entry_id, b.class_id);
+    }
   };
 
   class Undo {
    public:
+    Undo() = default;
+  
+    Undo(Undo&) = delete;
+    Undo& operator=(Undo&) = delete;
+    Undo(Undo&&) = default;
+    Undo& operator=(Undo&&) = default;
+
     int NextVal() const;
     Box box() const { return box_; }
     int entry_id() const { return box_.entry_id; }
     int class_id() const { return box_.class_id; }
+
+    template <typename Sink>
+    friend void AbslStringify(Sink& sink, const Undo& u) {
+      absl::Format(&sink, "{%v,%d/0x%x}", u.box_, u.val_, u.bv_);
+    }
 
    private:
     friend AllowedValueGrid;
     Box box_;
     int bv_;
     int val_;
+    std::vector<std::pair<Box, int>> restore;
   };
 
   explicit AllowedValueGrid(MutableSolution* mutable_solution);
@@ -35,11 +53,12 @@ class AllowedValueGrid {
   int FirstVal(Box box) const;
 
   std::pair<Undo, bool> Assign(Box box, int value);
-  void UnAssign(Undo undo);
+  void UnAssign(const Undo& undo);
 
   void AddFilter(SolutionFilter solution_filter, std::vector<Box> input);
 
  private:
+  friend class AllowedValueAdvancer;
   int CheckAllowed(SolutionFilter filter, Box box) const;
 
   // {id: {class: allowed_value_bv}}

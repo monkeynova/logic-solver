@@ -22,8 +22,8 @@ AllowedValueGrid::AllowedValueGrid(MutableSolution* mutable_solution)
   assigned_.resize(entry_size);
   solution_filters_.resize(entry_size);
   int class_size = mutable_solution_->descriptor()->num_classes();
+  int all_bv = (1 << entry_size) - 1;
   for (int i = 0; i < entry_size; ++i) {
-    int all_bv = (1 << (class_size + 1)) - 1;
     bv_[i].resize(class_size, all_bv);
     vals_[i].resize(class_size, -1);
     assigned_[i].resize(class_size, false);
@@ -45,15 +45,11 @@ Position AllowedValueGrid::position() const {
 }
 
 int AllowedValueGrid::FirstVal(Box box) const {
-  int test = 0;
-  int bit = 1 << test;
   int bv = bv_[box.entry_id][box.class_id];
-  while (true) {
-    if (bit > bv) return -1;
-    if (bit & bv) return test;
-    bit <<= 1;
-    ++test;
+  for (int bit = 1, value = 0; bit <= bv; ++value, bit <<= 1) {
+    if (bit & bv) return value;
   }
+  return -1;
 }
 
 AllowedValueGrid::Undo AllowedValueGrid::Empty(Box box) const {
@@ -77,12 +73,22 @@ std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box,
   mutable_solution_->SetClass(box.entry_id, box.class_id, value);
   for (const auto& [filter, boxes] :
        solution_filters_[box.entry_id][box.class_id]) {
-    bool all_assigned = absl::c_all_of(
-        boxes, [&](const Box& b) { return assigned_[b.entry_id][b.class_id]; });
-    if (all_assigned) {
-      if (!filter(testable_solution_)) {
-        assigned_[box.entry_id][box.class_id] = false;
-        return {ret, false};
+    std::optional<Box> missing;
+    for (const Box& b : boxes) {
+      if (!assigned_[b.entry_id][b.class_id]) {
+        if (missing) {
+          missing = std::nullopt;
+          break;
+        }
+        missing = b;
+      }
+    }
+    if (missing) {
+      int bv = CheckAllowed(filter, *missing);
+      if (bv == 0) return {std::move(ret), false};
+      if (bv != bv_[missing->entry_id][missing->class_id]) {
+        ret.restore.push_back({*missing, bv_[missing->entry_id][missing->class_id]});
+        bv_[missing->entry_id][missing->class_id] = bv;
       }
     }
   }
@@ -90,21 +96,23 @@ std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box,
   bv_[box.entry_id][box.class_id] = 1 << value;
   CHECK_EQ(vals_[box.entry_id][box.class_id], -1);
   vals_[box.entry_id][box.class_id] = value;
-  return {ret, true};
+  return {std::move(ret), true};
 }
 
-void AllowedValueGrid::UnAssign(Undo undo) {
+void AllowedValueGrid::UnAssign(const Undo& undo) {
   assigned_[undo.entry_id()][undo.class_id()] = false;
   vals_[undo.entry_id()][undo.class_id()] = -1;
   bv_[undo.entry_id()][undo.class_id()] = undo.bv_;
+  for (const auto& [box, bv] : undo.restore) {
+    bv_[box.entry_id][box.class_id] = bv;
+  }
 }
 
 int AllowedValueGrid::CheckAllowed(SolutionFilter filter, Box box) const {
   int bv = bv_[box.entry_id][box.class_id];
-  int bit = 1;
-  int value = 0;
   int ret = 0;
-  for (; bit <= bv; ++value, bit <<= 1) {
+  CHECK(!assigned_[box.entry_id][box.class_id]);
+  for (int bit = 1, value = 0; bit <= bv; ++value, bit <<= 1) {
     if (!(bit & bv)) continue;
     mutable_solution_->SetClass(box.entry_id, box.class_id, value);
     if (filter(testable_solution_)) {
@@ -177,7 +185,7 @@ AllowedValueAdvancer::AllowedValueAdvancer(
 bool AllowedValueAdvancer::Undo2Reassign() {
   while (!undos_.empty()) {
     allowed_grid_.UnAssign(undos_.back());
-    reassign_.push_back(undos_.back());
+    reassign_.push_back(std::move(undos_.back()));
     undos_.pop_back();
     if (reassign_.back().NextVal() != -1) break;
   }
@@ -192,10 +200,11 @@ bool AllowedValueAdvancer::Reassign2Undo() {
     auto undo_and_assigned = allowed_grid_.Assign(box, next_val);
     while (!undo_and_assigned.second) {
       next_val = undo_and_assigned.first.NextVal();
+      allowed_grid_.UnAssign(undo_and_assigned.first);
       if (next_val == -1) return false;
       undo_and_assigned = allowed_grid_.Assign(box, next_val);
     }
-    undos_.push_back(undo_and_assigned.first);
+    undos_.push_back(std::move(undo_and_assigned.first));
     reassign_.pop_back();
     if (reassign_.empty()) return true;
     box = reassign_.back().box();
