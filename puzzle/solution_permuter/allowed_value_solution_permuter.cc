@@ -99,11 +99,30 @@ void AllowedValueGrid::UnAssign(Undo undo) {
   bv_[undo.entry_id()][undo.class_id()] = undo.bv_;
 }
 
+int AllowedValueGrid::CheckAllowed(SolutionFilter filter, Box box) const {
+  int bv = bv_[box.entry_id][box.class_id];
+  int bit = 1;
+  int value = 0;
+  int ret = 0;
+  for (; bit <= bv; ++value, bit <<= 1) {
+    if (!(bit & bv)) continue;
+    mutable_solution_->SetClass(box.entry_id, box.class_id, value);
+    if (filter(testable_solution_)) {
+      ret |= bit;
+    }
+  }
+  return ret;
+}
+
 void AllowedValueGrid::AddFilter(SolutionFilter solution_filter,
                                  std::vector<Box> boxes) {
-  for (Box b : boxes) {
-    solution_filters_[b.entry_id][b.class_id].push_back(
-        {solution_filter, boxes});
+  if (boxes.size() == 1) {
+    bv_[boxes[0].entry_id][boxes[0].class_id] = CheckAllowed(solution_filter, boxes[0]);
+  } else {
+    for (Box b : boxes) {
+      solution_filters_[b.entry_id][b.class_id].push_back(
+          {solution_filter, boxes});
+    }
   }
 }
 
@@ -147,7 +166,7 @@ AllowedValueAdvancer::AllowedValueAdvancer(
   }
   absl::c_reverse(reassign_);
   while (!Reassign2Undo()) {
-    Undo2Reassign();
+    if (!Undo2Reassign()) break;
   }
   if (undos_.empty()) {
     set_done();

@@ -40,6 +40,8 @@ class AllowedValueGrid {
   void AddFilter(SolutionFilter solution_filter, std::vector<Box> input);
 
  private:
+  int CheckAllowed(SolutionFilter filter, Box box) const;
+
   // {id: {class: allowed_value_bv}}
   std::vector<std::vector<int>> bv_;
   std::vector<std::vector<bool>> assigned_;
