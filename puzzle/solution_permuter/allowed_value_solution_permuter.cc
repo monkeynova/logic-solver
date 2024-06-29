@@ -18,19 +18,25 @@ AllowedValueGrid::AllowedValueGrid(const EntryDescriptor* e) {
   bv_.resize(entry_size);
   vals_.resize(entry_size);
   assigned_.resize(entry_size);
+  solution_filters_.resize(entry_size);
   int class_size = e->num_classes();
   for (int i = 0; i < entry_size; ++i) {
     int all_bv = (1 << (class_size + 1)) - 1;
     bv_[i].resize(class_size, all_bv);
     vals_[i].resize(class_size, -1);
     assigned_[i].resize(class_size, false);
+    solution_filters_[i].resize(class_size);
   }
 }
 
-int AllowedValueGrid::FirstVal(int entry_id, int class_id) {
+void AllowedValueGrid::SetMutableSolution(MutableSolution* mutable_solution) {
+  mutable_solution_ = mutable_solution; 
+}
+
+int AllowedValueGrid::FirstVal(Box box) {
   int test = 0;
   int bit = 1 << test;
-  int bv = bv_[entry_id][class_id];
+  int bv = bv_[box.entry_id][box.class_id];
   while (true) {
     if (bit > bv) return -1;
     if (bit & bv) return test;
@@ -39,19 +45,40 @@ int AllowedValueGrid::FirstVal(int entry_id, int class_id) {
   }  
 }
 
-AllowedValueGrid::Undo AllowedValueGrid::Assign(int entry_id, int class_id, int value) {
+AllowedValueGrid::Undo AllowedValueGrid::Empty(Box box) {
   Undo ret;
-  ret.entry_id_ = entry_id;
-  ret.class_id_ = class_id;
-  ret.val_ = value;
-  ret.bv_ = bv_[entry_id][class_id];
-
-  bv_[entry_id][class_id] = 1 << value;
-  CHECK(!assigned_[entry_id][class_id]);
-  assigned_[entry_id][class_id] = true;
-  CHECK_EQ(vals_[entry_id][class_id], -1);
-  vals_[entry_id][class_id] = value;
+  ret.box_ = box;
+  ret.val_ = -1;
+  ret.bv_ = bv_[box.entry_id][box.class_id];
   return ret;
+}
+
+std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box, int value) {
+  Undo ret;
+  ret.box_ = box;
+  ret.val_ = value;
+  ret.bv_ = bv_[box.entry_id][box.class_id];
+
+  CHECK(!assigned_[box.entry_id][box.class_id]);
+  assigned_[box.entry_id][box.class_id] = true;
+
+  mutable_solution_->SetClass(box.entry_id, box.class_id, value);
+  Solution testable = mutable_solution_->TestableSolution();
+  for (const auto& [filter, boxes] : solution_filters_[box.entry_id][box.class_id]) {
+    bool all_assigned = absl::c_all_of(
+      boxes, [&](const Box& b) { return assigned_[b.entry_id][b.class_id]; });
+    if (all_assigned) {
+      if (!filter(testable)) {
+        assigned_[box.entry_id][box.class_id] = false;
+        return {ret, false};
+      }
+    }
+  }
+
+  bv_[box.entry_id][box.class_id] = 1 << value;
+  CHECK_EQ(vals_[box.entry_id][box.class_id], -1);
+  vals_[box.entry_id][box.class_id] = value;
+  return {ret, true};
 }
 
 void AllowedValueGrid::UnAssign(Undo undo) {
@@ -60,12 +87,10 @@ void AllowedValueGrid::UnAssign(Undo undo) {
   bv_[undo.entry_id()][undo.class_id()] = undo.bv_;
 }
 
-void AllowedValueGrid::AddFilter(SolutionFilter solution_filter) {
-  solution_filters_.push_back(solution_filter);
-}
-
-bool AllowedValueGrid::CheckFilters(const Solution& solution) const {
-  return AllMatch(solution_filters_, solution);
+void AllowedValueGrid::AddFilter(SolutionFilter solution_filter, std::vector<Box> boxes) {
+  for (Box b : boxes) {
+    solution_filters_[b.entry_id][b.class_id].push_back({solution_filter, boxes});
+  }
 }
 
 AllowedValueAdvancer::AllowedValueAdvancer(
@@ -73,21 +98,48 @@ AllowedValueAdvancer::AllowedValueAdvancer(
     const EntryDescriptor* entry_descriptor)
     : AdvancerBase(entry_descriptor) {
   allowed_grid_ = permuter->allowed_grid_;
+  allowed_grid_.SetMutableSolution(&mutable_solution());
   int entry_size = entry_descriptor->AllIds()->size();
   int class_size = entry_descriptor->num_classes();
   undos_.reserve(entry_size * class_size);
   reassign_.reserve(entry_size * class_size);
-   for (int entry_id = 0; entry_id < entry_size; ++entry_id) {
+  bool need_reassign = false;
+  for (int entry_id = 0; entry_id < entry_size; ++entry_id) {
     for (int class_id = 0; class_id < class_size; ++class_id) {
-      int first_val = allowed_grid_.FirstVal(entry_id, class_id);
-      CHECK_NE(first_val, -1);
-      undos_.push_back(allowed_grid_.Assign(entry_id, class_id, first_val));
-      mutable_solution().SetClass(entry_id, class_id, first_val);
+      AllowedValueGrid::Box box{.entry_id = entry_id, .class_id = class_id};
+      if (need_reassign) {
+        reassign_.push_back(allowed_grid_.Empty(box));
+        continue;
+      }
+      int val = allowed_grid_.FirstVal(box);
+      CHECK_NE(val, -1);
+      auto undo_and_assigned = allowed_grid_.Assign(box, val);
+      while (!undo_and_assigned.second) {
+        val = undo_and_assigned.first.NextVal();
+        if (val == -1) {
+          need_reassign = true;
+          reassign_.push_back(undo_and_assigned.first);
+          break;
+        }
+        undo_and_assigned = allowed_grid_.Assign(box, val);
+      }
+      if (val != -1) {
+        undos_.push_back(undo_and_assigned.first);
+      }
     }
   }
-  if (!allowed_grid_.CheckFilters(current())) {
-    Advance();
+  if (!reassign_.empty()) {
+    absl::c_reverse(reassign_);
+    int test = 0;
+    while (!Reassign2Undo()) {
+      Undo2Reassign();
+      ++test;
+    }
   }
+  if (undos_.empty()) {
+    set_done();
+  }
+  set_position(position());
 }
 
 bool AllowedValueAdvancer::Undo2Reassign() {
@@ -102,17 +154,20 @@ bool AllowedValueAdvancer::Undo2Reassign() {
 
 bool AllowedValueAdvancer::Reassign2Undo() {
   CHECK(!reassign_.empty());
-  int entry_id = reassign_.back().entry_id();
-  int class_id = reassign_.back().class_id();
+  AllowedValueGrid::Box box = reassign_.back().box();
   int next_val = reassign_.back().NextVal();
   while (true) {
-    mutable_solution().SetClass(entry_id, class_id, next_val);
-    undos_.push_back(allowed_grid_.Assign(entry_id, class_id, next_val));
+    auto undo_and_assigned = allowed_grid_.Assign(box, next_val);
+    while (!undo_and_assigned.second) {
+      next_val = undo_and_assigned.first.NextVal();
+      if (next_val == -1) return false;
+      undo_and_assigned = allowed_grid_.Assign(box, next_val);
+    }
+    undos_.push_back(undo_and_assigned.first);
     reassign_.pop_back();
     if (reassign_.empty()) return true;
-    entry_id = reassign_.back().entry_id();
-    class_id = reassign_.back().class_id();
-    next_val = allowed_grid_.FirstVal(entry_id, class_id);
+    box = reassign_.back().box();
+    next_val = allowed_grid_.FirstVal(box);
     if (next_val == -1) return false;
   }
   LOG(FATAL) << "Left infinite loop";
@@ -124,15 +179,9 @@ void AllowedValueAdvancer::Advance() {
   while (Undo2Reassign()) {
     if (Reassign2Undo()) {
       ++test;
-      if (allowed_grid_.CheckFilters(current())) {
-        VLOG(1) << current();
-        break;
-      }
-    } else {
-      LOG(FATAL) << "Should not happen without value pruning";
+      break;
     }
   }
-  VLOG(1) << test << " tests";
   if (undos_.empty()) {
     set_done();
   }
@@ -152,13 +201,16 @@ AllowedValueSolutionPermuter::AllowedValueSolutionPermuter(
   for (int class_id = 0; class_id < class_size; ++class_id) {
     for (int entry_id1 = 0; entry_id1 < entry_size; ++entry_id1) {
       for (int entry_id2 = entry_id1 + 1; entry_id2 < entry_size; ++entry_id2) {
-        CHECK(AddFilter(SolutionFilter(
-            absl::StrFormat("ClassPermutation %d/{%d,%d}", class_id, entry_id1, entry_id2),
-            // Capture by value.
-            [entry_id1, entry_id2, class_id](const Solution& s) {
-              return s.Id(entry_id1).Class(class_id) != s.Id(entry_id2).Class(class_id);
-            },
-            {class_id})).ok());
+        allowed_grid_.AddFilter(
+            SolutionFilter(
+                absl::StrFormat("ClassPermutation %d/{%d,%d}", class_id, entry_id1, entry_id2),
+                // Capture by value.
+                [entry_id1, entry_id2, class_id](const Solution& s) {
+                  return s.Id(entry_id1).Class(class_id) != s.Id(entry_id2).Class(class_id);
+                },
+                {class_id}),
+            {AllowedValueGrid::Box{.entry_id = entry_id1, .class_id = class_id},
+             AllowedValueGrid::Box{.entry_id = entry_id2, .class_id = class_id}});
       }
     }
   }
@@ -166,8 +218,17 @@ AllowedValueSolutionPermuter::AllowedValueSolutionPermuter(
 
 absl::StatusOr<bool> AllowedValueSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {
-  allowed_grid_.AddFilter(solution_filter);
-  return false;
+  std::vector<AllowedValueGrid::Box> boxes;
+  for (int class_id : solution_filter.classes()) {
+    int entry_id = solution_filter.entry_id(class_id);
+    if (entry_id == Entry::kBadId) {
+      VLOG(1) << "Left " << solution_filter.name() << "  as residual";
+      return false;
+    }
+    boxes.push_back({.entry_id = entry_id, .class_id = class_id});
+  }
+  allowed_grid_.AddFilter(solution_filter, boxes);
+  return true;
 }
 
 absl::Status AllowedValueSolutionPermuter::PrepareCheap() {

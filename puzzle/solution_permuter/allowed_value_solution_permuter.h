@@ -8,16 +8,21 @@ namespace puzzle {
 
 class AllowedValueGrid {
  public:
+  struct Box {
+    int entry_id;
+    int class_id;
+  };
+
   class Undo {
    public:
     int NextVal() const;
-    int entry_id() const { return entry_id_; }
-    int class_id() const { return class_id_; }
+    Box box() const { return box_; }
+    int entry_id() const { return box_.entry_id; }
+    int class_id() const { return box_.class_id; }
 
    private:
     friend AllowedValueGrid;
-    int entry_id_;
-    int class_id_;
+    Box box_;
     int bv_;
     int val_;
   };
@@ -25,19 +30,22 @@ class AllowedValueGrid {
   AllowedValueGrid() = default;
   AllowedValueGrid(const EntryDescriptor* descriptor);
 
-  int FirstVal(int entry_id, int class_id);
-  Undo Assign(int entry_id, int class_id, int value);
+  void SetMutableSolution(MutableSolution* mutable_solution);
+
+  Undo Empty(Box box);
+  int FirstVal(Box box);
+  std::pair<Undo, bool> Assign(Box box, int value);
   void UnAssign(Undo undo);
 
-  void AddFilter(SolutionFilter solution_filter);
-  bool CheckFilters(const Solution& s) const;
+  void AddFilter(SolutionFilter solution_filter, std::vector<Box> input);
 
  private:
   // {id: {class: allowed_value_bv}}
   std::vector<std::vector<int>> bv_;
   std::vector<std::vector<bool>> assigned_;
   std::vector<std::vector<int>> vals_;
-  std::vector<SolutionFilter> solution_filters_;
+  std::vector<std::vector<std::vector<std::pair<SolutionFilter, std::vector<Box>>>>> solution_filters_;
+  MutableSolution* mutable_solution_ = nullptr;
 };
 
 class AllowedValueSolutionPermuter final : public SolutionPermuter {

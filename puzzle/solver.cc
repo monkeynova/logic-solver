@@ -78,12 +78,13 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
 
   std::vector<Solution> ret;
   for (auto& solution : *solution_permuter) {
-    VLOG(1) << "Solution found @" << solution.position();
+    VLOG(2) << "Solution to test @" << solution.position();
     if (profiler_ != nullptr) {
       profiler_->NotePermutation(solution.position());
     }
     ++test_calls_;
     if (AllMatch(on_solution, solution)) {
+      VLOG(1) << "Solution found @" << solution.position();
       puzzle::Solution copy = solution.Clone();
       if (chosen_alternate_.id_ != 0) {
         ASSIGN_OR_RETURN(copy,
