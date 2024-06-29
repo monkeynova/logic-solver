@@ -130,10 +130,8 @@ AllowedValueAdvancer::AllowedValueAdvancer(
   }
   if (!reassign_.empty()) {
     absl::c_reverse(reassign_);
-    int test = 0;
     while (!Reassign2Undo()) {
       Undo2Reassign();
-      ++test;
     }
   }
   if (undos_.empty()) {
@@ -175,10 +173,8 @@ bool AllowedValueAdvancer::Reassign2Undo() {
 
 void AllowedValueAdvancer::Advance() {
   CHECK(reassign_.empty());
-  int test = 0;
   while (Undo2Reassign()) {
     if (Reassign2Undo()) {
-      ++test;
       break;
     }
   }

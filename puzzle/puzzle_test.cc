@@ -49,26 +49,25 @@ TEST(Puzzle, UniqueAnswer) {
       << "\n0: " << solutions->at(0) << "\n1: " << solutions->at(1);
 }
 
-static void SetFlag(bool val, absl::string_view label, absl::Flag<bool>* flag,
-                    std::vector<std::string>* labels) {
-  absl::SetFlag(flag, val);
-  labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
-}
-
-static void SetFlag(bool val, absl::string_view label, absl::Flag<std::string>* flag,
-                    std::vector<std::string>* labels) {
-  if (val) absl::SetFlag(flag, label);
-  labels->push_back(val ? std::string(label) : absl::StrCat("no", label));
-}
-
-
-template <bool brute, bool prune, bool reorder>
 static void BM_Solver(benchmark::State& state) {
-  std::vector<std::string> labels;
-  SetFlag(brute, "brute", &FLAGS_puzzle_solution_permuter, &labels);
-  SetFlag(prune, "prune", &FLAGS_puzzle_prune_class_iterator, &labels);
-  SetFlag(reorder, "reorder", &FLAGS_puzzle_prune_reorder_classes, &labels);
-  state.SetLabel(absl::StrJoin(labels, " "));
+  struct Args {
+    std::string permuter;
+    bool prune;
+    bool reorder;
+    std::string label;
+  };
+  static const std::array<Args, 5> all_args = {
+    Args{.permuter = "brute", .prune = false, .reorder = false, .label = "brute"},
+    Args{.permuter = "allowonly", .prune = false, .reorder = false, .label = "allowonly"},
+    Args{.permuter = "filtered", .prune = false, .reorder = false, .label = "filters"},
+    Args{.permuter = "filtered", .prune = true, .reorder = false, .label = "filters+prune"},
+    Args{.permuter = "filtered", .prune = true, .reorder = true, .label = "filters+prune+reorder"},
+  };
+  const Args& args = all_args[state.range(0)];
+  absl::SetFlag(&FLAGS_puzzle_solution_permuter, args.permuter);
+  absl::SetFlag(&FLAGS_puzzle_prune_class_iterator, args.prune);
+  absl::SetFlag(&FLAGS_puzzle_prune_reorder_classes, args.reorder);
+  state.SetLabel(args.label);
 
   for (auto _ : state) {
     std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
@@ -77,22 +76,4 @@ static void BM_Solver(benchmark::State& state) {
   }
 }
 
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/false,
-                   /*reorder=*/false)
-    ->MeasureProcessCPUTime()
-    ->UseRealTime();
-
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/true, /*prune=*/false,
-                   /*reorder=*/false)
-    ->MeasureProcessCPUTime()
-    ->UseRealTime();
-
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-                   /*reorder=*/false)
-    ->MeasureProcessCPUTime()
-    ->UseRealTime();
-
-BENCHMARK_TEMPLATE(BM_Solver, /*brute=*/false, /*prune=*/true,
-                   /*reorder=*/true)
-    ->MeasureProcessCPUTime()
-    ->UseRealTime();
+BENCHMARK(BM_Solver)->DenseRange(0, 4)->MeasureProcessCPUTime()->UseRealTime();

@@ -121,6 +121,16 @@ cc_test(
 )
 
 cc_test(
+    name = "swimming_pool_allowonly_test",
+    args = ["--puzzle_solution_permuter=allowonly"],
+    tags = ["benchmark"],
+    deps = [
+        ":swimming_pool_lib",
+        "//puzzle:puzzle_test",
+    ],
+)
+
+cc_test(
     name = "swimming_pool_noprune_test",
     args = ["--puzzle_prune_class_iterator=false"],
     tags = ["benchmark"],
