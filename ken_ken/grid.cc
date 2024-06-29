@@ -86,7 +86,7 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(
         copy[j].SetClass(i, in.Id(i).Class(j));
       }
     }
-    return puzzle::Solution(in.descriptor(), &copy).Clone();
+    return puzzle::Solution(entry_descriptor(), &copy).Clone();
   }
   if (alternate != default_id_) {
     return absl::InternalError("Bad alternate");

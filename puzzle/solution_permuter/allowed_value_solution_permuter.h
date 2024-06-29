@@ -27,13 +27,13 @@ class AllowedValueGrid {
     int val_;
   };
 
-  AllowedValueGrid() = default;
-  AllowedValueGrid(const EntryDescriptor* descriptor);
+  explicit AllowedValueGrid(MutableSolution* mutable_solution);
 
-  void SetMutableSolution(MutableSolution* mutable_solution);
+  Position position() const;
 
-  Undo Empty(Box box);
-  int FirstVal(Box box);
+  Undo Empty(Box box) const;
+  int FirstVal(Box box) const;
+
   std::pair<Undo, bool> Assign(Box box, int value);
   void UnAssign(Undo undo);
 
@@ -47,7 +47,8 @@ class AllowedValueGrid {
   std::vector<
       std::vector<std::vector<std::pair<SolutionFilter, std::vector<Box>>>>>
       solution_filters_;
-  MutableSolution* mutable_solution_ = nullptr;
+  MutableSolution* mutable_solution_;
+  Solution testable_solution_;
 };
 
 class AllowedValueSolutionPermuter final : public SolutionPermuter {
@@ -74,9 +75,12 @@ class AllowedValueSolutionPermuter final : public SolutionPermuter {
 
   double permutation_count() const;
 
+  const std::vector<std::pair<SolutionFilter, std::vector<AllowedValueGrid::Box>>>& solution_filters() const {
+    return solution_filters_;
+  }
+
  private:
-  friend class AllowedValueAdvancer;
-  AllowedValueGrid allowed_grid_;
+  std::vector<std::pair<SolutionFilter, std::vector<AllowedValueGrid::Box>>> solution_filters_;
 };
 
 class AllowedValueAdvancer final : public SolutionPermuter::AdvancerBase {

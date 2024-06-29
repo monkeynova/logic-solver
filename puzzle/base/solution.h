@@ -91,8 +91,6 @@ class Solution {
   Solution Clone() const;
   bool operator==(const Solution& other) const;
 
-  const EntryDescriptor* descriptor() const { return entry_descriptor_; }
-
   Position position() const { return permutation_position_; }
   void set_position(Position position) { permutation_position_ = position; }
 
@@ -143,10 +141,6 @@ class Solution {
   // The position of in iterating through all permutations of solutions which
   // this represents.
   Position permutation_position_ = {.position = 0, .count = 0};
-
-  // The total number of all permutations that can be generated from
-  // 'entry_descriptor_'.
-  double permutation_count_ = 0;
 };
 
 }  // namespace puzzle

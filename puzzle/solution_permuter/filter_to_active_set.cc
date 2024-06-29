@@ -74,7 +74,7 @@ FilterToActiveSet::FilterToActiveSet(const EntryDescriptor* entry_descriptor,
 FilterToActiveSet::FilterToActiveSet(const FilterToActiveSet& other)
     : active_sets_(other.active_sets_),
       active_set_pairs_(other.active_set_pairs_),
-      mutable_solution_(other.solution_.descriptor()),
+      mutable_solution_(other.mutable_solution_.descriptor()),
       solution_(mutable_solution_.TestableSolution()),
       profiler_(other.profiler_) {}
 

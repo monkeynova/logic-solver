@@ -24,6 +24,9 @@ class MutableSolution {
     }
   }
 
+  const EntryDescriptor* descriptor() const {
+    return descriptor_;
+  }
   Solution TestableSolution() { return Solution(descriptor_, &entries_); }
 
   // We push values from thee iteration to all values in the set. One could
