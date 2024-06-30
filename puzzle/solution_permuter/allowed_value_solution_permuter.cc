@@ -1,9 +1,6 @@
 #include "puzzle/solution_permuter/allowed_value_solution_permuter.h"
 
 #include <bit>
-#include "absl/flags/flag.h"
-
-ABSL_FLAG(bool, puzzle_allow_only_propagate, false, "...");
 
 namespace puzzle {
 
@@ -91,7 +88,8 @@ void AllowedValueGrid::UnAssign(const Undo& undo) {
   assigned_[undo.entry_id()][undo.class_id()] = false;
   vals_[undo.entry_id()][undo.class_id()] = -1;
   bv_[undo.entry_id()][undo.class_id()] = undo.bv_;
-  for (const auto& [box, bv] : undo.restore) {
+  for (int i = undo.restore.size() - 1; i >= 0; --i) {
+    const auto& [box, bv] = undo.restore[i];
     if ((bv & (bv - 1)) == 0) {
       CHECK_EQ(1 << testable_solution_.Id(undo.entry_id()).Class(undo.class_id()), bv);
     }
@@ -176,20 +174,18 @@ bool AllowedValueGrid::OnSingleAllowed(Undo& undo) {
       uint16_t bv = CheckAllowed(filter, *missing);
       if (bv == 0) return false;
       if (bv != bv_[missing->entry_id][missing->class_id]) {
-        CHECK((bv & bv_[missing->entry_id][missing->class_id]) == bv);
+        CHECK(((bv & bv_[missing->entry_id][missing->class_id])) == bv);
         undo.restore.push_back({*missing, bv_[missing->entry_id][missing->class_id]});
         bv_[missing->entry_id][missing->class_id] = bv;
         if ((bv & (bv - 1)) == 0) {
           int value = std::countr_zero(bv);
           CHECK(!assigned_[missing->entry_id][missing->class_id]);
           mutable_solution_->SetClass(missing->entry_id, missing->class_id, value);
-          if (absl::GetFlag(FLAGS_puzzle_allow_only_propagate)) {
-            Box save = undo.box_;
-            undo.box_ = *missing;
-            bool possible = OnSingleAllowed(undo);
-            undo.box_ = save;
-            if (!possible) return false;
-          }
+          Box save = undo.box_;
+          undo.box_ = *missing;
+          bool possible = OnSingleAllowed(undo);
+          undo.box_ = save;
+          if (!possible) return false;
         }
       }
     }
