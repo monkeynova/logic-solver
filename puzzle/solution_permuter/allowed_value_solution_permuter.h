@@ -61,8 +61,13 @@ class AllowedValueGrid {
   friend class AllowedValueAdvancer;
   int CheckAllowed(SolutionFilter filter, Box box) const;
 
+  // Returns true if there are still potential solutions.
+  bool Prepare();
+  // Returns true if there are still potential solutions.
+  bool OnSingleAllowed(Undo& undo);
+
   // {id: {class: allowed_value_bv}}
-  std::vector<std::vector<int>> bv_;
+  std::vector<std::vector<uint16_t>> bv_;
   std::vector<std::vector<bool>> assigned_;
   std::vector<std::vector<int>> vals_;
   std::vector<

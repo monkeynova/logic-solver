@@ -1,5 +1,9 @@
 #include "puzzle/solution_permuter/allowed_value_solution_permuter.h"
 
+#include "absl/flags/flag.h"
+
+ABSL_FLAG(bool, puzzle_allow_only_propagate, false, "...");
+
 namespace puzzle {
 
 int AllowedValueGrid::Undo::NextVal() const {
@@ -70,30 +74,10 @@ std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box,
   CHECK(!assigned_[box.entry_id][box.class_id]);
   assigned_[box.entry_id][box.class_id] = true;
 
-  mutable_solution_->SetClass(box.entry_id, box.class_id, value);
-  for (const auto& [filter, boxes] :
-       solution_filters_[box.entry_id][box.class_id]) {
-    std::optional<Box> missing;
-    for (const Box& b : boxes) {
-      if (!assigned_[b.entry_id][b.class_id]) {
-        if (missing) {
-          missing = std::nullopt;
-          break;
-        }
-        missing = b;
-      }
-    }
-    if (missing) {
-      int bv = CheckAllowed(filter, *missing);
-      if (bv == 0) return {std::move(ret), false};
-      if (bv != bv_[missing->entry_id][missing->class_id]) {
-        ret.restore.push_back({*missing, bv_[missing->entry_id][missing->class_id]});
-        bv_[missing->entry_id][missing->class_id] = bv;
-      }
-    }
-  }
-
   bv_[box.entry_id][box.class_id] = 1 << value;
+  bool allowed = OnSingleAllowed(ret);
+  if (!allowed) return {std::move(ret), false};
+
   CHECK_EQ(vals_[box.entry_id][box.class_id], -1);
   vals_[box.entry_id][box.class_id] = value;
   return {std::move(ret), true};
@@ -125,13 +109,66 @@ int AllowedValueGrid::CheckAllowed(SolutionFilter filter, Box box) const {
 void AllowedValueGrid::AddFilter(SolutionFilter solution_filter,
                                  std::vector<Box> boxes) {
   if (boxes.size() == 1) {
-    bv_[boxes[0].entry_id][boxes[0].class_id] = CheckAllowed(solution_filter, boxes[0]);
+    int bv = CheckAllowed(solution_filter, boxes[0]);
+    bv_[boxes[0].entry_id][boxes[0].class_id] = bv;
   } else {
     for (Box b : boxes) {
       solution_filters_[b.entry_id][b.class_id].push_back(
           {solution_filter, boxes});
     }
   }
+}
+
+bool AllowedValueGrid::Prepare() {
+  for (int entry_id = 0; entry_id < bv_.size(); ++entry_id) {
+    for (int class_id = 0; class_id < bv_[entry_id].size(); ++class_id) {
+      int bv = bv_[entry_id][class_id];
+      if (bv & (bv - 1)) continue;
+      Undo undo;
+      undo.box_ = {.entry_id = entry_id, .class_id = class_id};
+      if (!OnSingleAllowed(undo)) return false;
+    }
+  }
+  return true;
+}
+
+bool AllowedValueGrid::OnSingleAllowed(Undo& undo) {
+  int value = 0;
+  for (; (1 << value) < bv_[undo.entry_id()][undo.class_id()]; ++value) {
+    // nop.
+  }
+  CHECK_EQ(1 << value, bv_[undo.entry_id()][undo.class_id()]);
+  mutable_solution_->SetClass(undo.entry_id(), undo.class_id(), value);
+  for (const auto& [filter, boxes] :
+       solution_filters_[undo.entry_id()][undo.class_id()]) {
+    std::optional<Box> missing;
+    for (const Box& b : boxes) {
+      if (!assigned_[b.entry_id][b.class_id]) {
+        if (missing) {
+          missing = std::nullopt;
+          break;
+        }
+        missing = b;
+      }
+    }
+    if (missing) {
+      int bv = CheckAllowed(filter, *missing);
+      if (bv == 0) return false;
+      if (bv != bv_[missing->entry_id][missing->class_id]) {
+        undo.restore.push_back({*missing, bv_[missing->entry_id][missing->class_id]});
+        bv_[missing->entry_id][missing->class_id] = bv;
+        if ((bv & (bv - 1)) == 0) {
+          if (absl::GetFlag(FLAGS_puzzle_allow_only_propagate)) {
+            Box tmp = undo.box_;
+            undo.box_ = *missing;
+            OnSingleAllowed(undo);
+            undo.box_ = tmp;
+          }
+        }
+      }
+    }
+  }
+  return true;
 }
 
 AllowedValueAdvancer::AllowedValueAdvancer(
@@ -165,16 +202,18 @@ AllowedValueAdvancer::AllowedValueAdvancer(
     allowed_grid_.AddFilter(solution_filter, boxes);
   }
 
-  undos_.reserve(entry_size * class_size);
-  reassign_.reserve(entry_size * class_size);
-  for (int entry_id = 0; entry_id < entry_size; ++entry_id) {
-    for (int class_id = 0; class_id < class_size; ++class_id) {
-      reassign_.push_back(allowed_grid_.Empty({.entry_id = entry_id, .class_id = class_id}));
+  if (allowed_grid_.Prepare()) {
+    undos_.reserve(entry_size * class_size);
+    reassign_.reserve(entry_size * class_size);
+    for (int entry_id = 0; entry_id < entry_size; ++entry_id) {
+      for (int class_id = 0; class_id < class_size; ++class_id) {
+        reassign_.push_back(allowed_grid_.Empty({.entry_id = entry_id, .class_id = class_id}));
+      }
     }
-  }
-  absl::c_reverse(reassign_);
-  while (!Reassign2Undo()) {
-    if (!Undo2Reassign()) break;
+    absl::c_reverse(reassign_);
+    while (!Reassign2Undo()) {
+      if (!Undo2Reassign()) break;
+    }
   }
   if (undos_.empty()) {
     set_done();
