@@ -59,7 +59,7 @@ class AllowedValueGrid {
 
  private:
   friend class AllowedValueAdvancer;
-  int CheckAllowed(SolutionFilter filter, Box box) const;
+  uint16_t CheckAllowed(SolutionFilter filter, Box box) const;
 
   // Returns true if there are still potential solutions.
   bool Prepare();

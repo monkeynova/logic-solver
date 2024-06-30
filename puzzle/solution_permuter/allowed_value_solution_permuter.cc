@@ -1,5 +1,6 @@
 #include "puzzle/solution_permuter/allowed_value_solution_permuter.h"
 
+#include <bit>
 #include "absl/flags/flag.h"
 
 ABSL_FLAG(bool, puzzle_allow_only_propagate, false, "...");
@@ -74,7 +75,10 @@ std::pair<AllowedValueGrid::Undo, bool> AllowedValueGrid::Assign(Box box,
   CHECK(!assigned_[box.entry_id][box.class_id]);
   assigned_[box.entry_id][box.class_id] = true;
 
+  CHECK(bv_[box.entry_id][box.class_id] & (1 << value));
+
   bv_[box.entry_id][box.class_id] = 1 << value;
+  mutable_solution_->SetClass(box.entry_id, box.class_id, value);
   bool allowed = OnSingleAllowed(ret);
   if (!allowed) return {std::move(ret), false};
 
@@ -88,13 +92,16 @@ void AllowedValueGrid::UnAssign(const Undo& undo) {
   vals_[undo.entry_id()][undo.class_id()] = -1;
   bv_[undo.entry_id()][undo.class_id()] = undo.bv_;
   for (const auto& [box, bv] : undo.restore) {
+    if ((bv & (bv - 1)) == 0) {
+      CHECK_EQ(1 << testable_solution_.Id(undo.entry_id()).Class(undo.class_id()), bv);
+    }
     bv_[box.entry_id][box.class_id] = bv;
   }
 }
 
-int AllowedValueGrid::CheckAllowed(SolutionFilter filter, Box box) const {
-  int bv = bv_[box.entry_id][box.class_id];
-  int ret = 0;
+uint16_t AllowedValueGrid::CheckAllowed(SolutionFilter filter, Box box) const {
+  uint16_t bv = bv_[box.entry_id][box.class_id];
+  uint16_t ret = 0;
   CHECK(!assigned_[box.entry_id][box.class_id]);
   for (int bit = 1, value = 0; bit <= bv; ++value, bit <<= 1) {
     if (!(bit & bv)) continue;
@@ -109,7 +116,7 @@ int AllowedValueGrid::CheckAllowed(SolutionFilter filter, Box box) const {
 void AllowedValueGrid::AddFilter(SolutionFilter solution_filter,
                                  std::vector<Box> boxes) {
   if (boxes.size() == 1) {
-    int bv = CheckAllowed(solution_filter, boxes[0]);
+    uint16_t bv = CheckAllowed(solution_filter, boxes[0]);
     bv_[boxes[0].entry_id][boxes[0].class_id] = bv;
   } else {
     for (Box b : boxes) {
@@ -120,49 +127,68 @@ void AllowedValueGrid::AddFilter(SolutionFilter solution_filter,
 }
 
 bool AllowedValueGrid::Prepare() {
+  std::vector<Undo> queue;
   for (int entry_id = 0; entry_id < bv_.size(); ++entry_id) {
     for (int class_id = 0; class_id < bv_[entry_id].size(); ++class_id) {
       int bv = bv_[entry_id][class_id];
       if (bv & (bv - 1)) continue;
       Undo undo;
       undo.box_ = {.entry_id = entry_id, .class_id = class_id};
-      if (!OnSingleAllowed(undo)) return false;
+      int value = std::countr_zero(bv_[undo.entry_id()][undo.class_id()]);
+      CHECK_EQ(1 << value, bv);
+      CHECK(!assigned_[entry_id][class_id]);
+      mutable_solution_->SetClass(entry_id, class_id, value);
+      queue.push_back(std::move(undo));
     }
+  }
+  for (Undo& undo : queue) {
+    if (!OnSingleAllowed(undo)) return false;
   }
   return true;
 }
 
 bool AllowedValueGrid::OnSingleAllowed(Undo& undo) {
-  int value = 0;
-  for (; (1 << value) < bv_[undo.entry_id()][undo.class_id()]; ++value) {
-    // nop.
-  }
-  CHECK_EQ(1 << value, bv_[undo.entry_id()][undo.class_id()]);
-  mutable_solution_->SetClass(undo.entry_id(), undo.class_id(), value);
+  CHECK_EQ(1 << testable_solution_.Id(undo.entry_id()).Class(undo.class_id()),
+           bv_[undo.entry_id()][undo.class_id()]);
   for (const auto& [filter, boxes] :
        solution_filters_[undo.entry_id()][undo.class_id()]) {
     std::optional<Box> missing;
+    bool run_check = true;
     for (const Box& b : boxes) {
-      if (!assigned_[b.entry_id][b.class_id]) {
+      int test_bv = bv_[b.entry_id][b.class_id];
+      CHECK_NE(test_bv, 0);
+      if (test_bv & (test_bv - 1)) {
+        CHECK(!assigned_[b.entry_id][b.class_id]);
         if (missing) {
           missing = std::nullopt;
           break;
         }
         missing = b;
+        run_check = false;
+      } else {
+        CHECK_EQ(1 << testable_solution_.Id(b.entry_id).Class(b.class_id), test_bv)
+           << b.entry_id << "," << b.class_id;
       }
     }
-    if (missing) {
-      int bv = CheckAllowed(filter, *missing);
+    if (run_check) {
+      if (!filter(testable_solution_)) return false;
+    } else if (missing) {
+      uint16_t bv = CheckAllowed(filter, *missing);
       if (bv == 0) return false;
       if (bv != bv_[missing->entry_id][missing->class_id]) {
+        CHECK((bv & bv_[missing->entry_id][missing->class_id]) == bv);
         undo.restore.push_back({*missing, bv_[missing->entry_id][missing->class_id]});
         bv_[missing->entry_id][missing->class_id] = bv;
         if ((bv & (bv - 1)) == 0) {
+          int value = std::countr_zero(bv);
+          CHECK(!assigned_[missing->entry_id][missing->class_id]);
+          mutable_solution_->SetClass(missing->entry_id, missing->class_id, value);
           if (absl::GetFlag(FLAGS_puzzle_allow_only_propagate)) {
-            Box tmp = undo.box_;
+            Box save = undo.box_;
             undo.box_ = *missing;
-            OnSingleAllowed(undo);
-            undo.box_ = tmp;
+            bool possible = OnSingleAllowed(undo);
+            undo.box_ = save;
+            if (!possible) return false;
           }
         }
       }
@@ -214,6 +240,8 @@ AllowedValueAdvancer::AllowedValueAdvancer(
     while (!Reassign2Undo()) {
       if (!Undo2Reassign()) break;
     }
+  } else {
+    CHECK(undos_.empty()) << "Impossible possible not marking done?";
   }
   if (undos_.empty()) {
     set_done();
