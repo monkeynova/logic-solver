@@ -105,9 +105,9 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
     profiler_->NoteFinish();
   }
 
-  last_debug_statistics_ = absl::StrFormat(
-    "[%d solutions tested in %dms]", test_calls_,
-    (end - start) / absl::Milliseconds(1));
+  last_debug_statistics_ =
+      absl::StrFormat("[%d solutions tested in %dms]", test_calls_,
+                      (end - start) / absl::Milliseconds(1));
 
   VLOG(1) << last_debug_statistics_;
 

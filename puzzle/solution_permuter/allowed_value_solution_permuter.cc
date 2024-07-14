@@ -16,8 +16,8 @@ int AllowedValueGrid::Undo::NextVal() const {
 }
 
 AllowedValueGrid::AllowedValueGrid(MutableSolution* mutable_solution)
- : mutable_solution_(mutable_solution),
-   testable_solution_(mutable_solution_->TestableSolution()) {
+    : mutable_solution_(mutable_solution),
+      testable_solution_(mutable_solution_->TestableSolution()) {
   int entry_size = mutable_solution_->descriptor()->AllIds()->size();
   bv_.resize(entry_size);
   vals_.resize(entry_size);
@@ -91,7 +91,9 @@ void AllowedValueGrid::UnAssign(const Undo& undo) {
   for (int i = undo.restore.size() - 1; i >= 0; --i) {
     const auto& [box, bv] = undo.restore[i];
     if ((bv & (bv - 1)) == 0) {
-      CHECK_EQ(1 << testable_solution_.Id(undo.entry_id()).Class(undo.class_id()), bv);
+      CHECK_EQ(
+          1 << testable_solution_.Id(undo.entry_id()).Class(undo.class_id()),
+          bv);
     }
     bv_[box.entry_id][box.class_id] = bv;
   }
@@ -164,8 +166,9 @@ bool AllowedValueGrid::OnSingleAllowed(Undo& undo) {
         missing = b;
         run_check = false;
       } else {
-        CHECK_EQ(1 << testable_solution_.Id(b.entry_id).Class(b.class_id), test_bv)
-           << b.entry_id << "," << b.class_id;
+        CHECK_EQ(1 << testable_solution_.Id(b.entry_id).Class(b.class_id),
+                 test_bv)
+            << b.entry_id << "," << b.class_id;
       }
     }
     if (run_check) {
@@ -175,12 +178,14 @@ bool AllowedValueGrid::OnSingleAllowed(Undo& undo) {
       if (bv == 0) return false;
       if (bv != bv_[missing->entry_id][missing->class_id]) {
         CHECK(((bv & bv_[missing->entry_id][missing->class_id])) == bv);
-        undo.restore.push_back({*missing, bv_[missing->entry_id][missing->class_id]});
+        undo.restore.push_back(
+            {*missing, bv_[missing->entry_id][missing->class_id]});
         bv_[missing->entry_id][missing->class_id] = bv;
         if ((bv & (bv - 1)) == 0) {
           int value = std::countr_zero(bv);
           CHECK(!assigned_[missing->entry_id][missing->class_id]);
-          mutable_solution_->SetClass(missing->entry_id, missing->class_id, value);
+          mutable_solution_->SetClass(missing->entry_id, missing->class_id,
+                                      value);
           Box save = undo.box_;
           undo.box_ = *missing;
           bool possible = OnSingleAllowed(undo);
@@ -196,8 +201,7 @@ bool AllowedValueGrid::OnSingleAllowed(Undo& undo) {
 AllowedValueAdvancer::AllowedValueAdvancer(
     const AllowedValueSolutionPermuter* permuter,
     const EntryDescriptor* entry_descriptor)
-    : AdvancerBase(entry_descriptor),
-      allowed_grid_(&mutable_solution()) {
+    : AdvancerBase(entry_descriptor), allowed_grid_(&mutable_solution()) {
   int entry_size = entry_descriptor->AllIds()->size();
   int class_size = entry_descriptor->num_classes();
 
@@ -229,7 +233,8 @@ AllowedValueAdvancer::AllowedValueAdvancer(
     reassign_.reserve(entry_size * class_size);
     for (int entry_id = 0; entry_id < entry_size; ++entry_id) {
       for (int class_id = 0; class_id < class_size; ++class_id) {
-        reassign_.push_back(allowed_grid_.Empty({.entry_id = entry_id, .class_id = class_id}));
+        reassign_.push_back(
+            allowed_grid_.Empty({.entry_id = entry_id, .class_id = class_id}));
       }
     }
     absl::c_reverse(reassign_);
@@ -296,8 +301,7 @@ Position AllowedValueAdvancer::position() const {
 
 AllowedValueSolutionPermuter::AllowedValueSolutionPermuter(
     const EntryDescriptor* e)
-    : SolutionPermuter(e) {
-}
+    : SolutionPermuter(e) {}
 
 absl::StatusOr<bool> AllowedValueSolutionPermuter::AddFilter(
     SolutionFilter solution_filter) {

@@ -21,7 +21,7 @@ class AllowedValueGrid {
   class Undo {
    public:
     Undo() = default;
-  
+
     Undo(Undo&) = delete;
     Undo& operator=(Undo&) = delete;
     Undo(Undo&&) = default;
@@ -101,12 +101,15 @@ class AllowedValueSolutionPermuter final : public SolutionPermuter {
 
   double permutation_count() const;
 
-  const std::vector<std::pair<SolutionFilter, std::vector<AllowedValueGrid::Box>>>& solution_filters() const {
+  const std::vector<
+      std::pair<SolutionFilter, std::vector<AllowedValueGrid::Box>>>&
+  solution_filters() const {
     return solution_filters_;
   }
 
  private:
-  std::vector<std::pair<SolutionFilter, std::vector<AllowedValueGrid::Box>>> solution_filters_;
+  std::vector<std::pair<SolutionFilter, std::vector<AllowedValueGrid::Box>>>
+      solution_filters_;
 };
 
 class AllowedValueAdvancer final : public SolutionPermuter::AdvancerBase {
