@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_view.h"
 
 namespace puzzle {
 
@@ -27,11 +27,11 @@ class EntryFilter {
 class SolutionFilter {
  public:
   SolutionFilter() = default;
-  SolutionFilter(std::string name, Solution::Predicate p,
+  SolutionFilter(std::string name, SolutionView::Predicate p,
                  std::vector<int> classes)
       : name_(std::move(name)), solution_p_(p), classes_(std::move(classes)) {}
 
-  SolutionFilter(std::string name, Solution::Predicate p,
+  SolutionFilter(std::string name, SolutionView::Predicate p,
                  std::initializer_list<int> classes)
       : SolutionFilter(std::move(name), p, std::vector<int>(classes)) {}
 
@@ -39,11 +39,11 @@ class SolutionFilter {
                  int entry_id)
       : name_(std::move(name)),
         solution_p_(
-            [entry_id, p](const Solution& s) { return p(s.Id(entry_id)); }),
+            [entry_id, p](const SolutionView& s) { return p(s.Id(entry_id)); }),
         classes_(std::move(classes)),
         entry_id_(entry_id) {}
 
-  SolutionFilter(std::string name, Solution::Predicate p,
+  SolutionFilter(std::string name, SolutionView::Predicate p,
                  absl::flat_hash_map<int, int> class_to_entry)
       : name_(std::move(name)),
         solution_p_(p),
@@ -60,7 +60,7 @@ class SolutionFilter {
     };
   }
 
-  bool operator()(const Solution& s) const { return solution_p_(s); }
+  bool operator()(const SolutionView& s) const { return solution_p_(s); }
 
   absl::string_view name() const { return name_; }
   const std::vector<int>& classes() const { return classes_; }
@@ -76,7 +76,7 @@ class SolutionFilter {
 
  private:
   std::string name_;
-  Solution::Predicate solution_p_;
+  SolutionView::Predicate solution_p_;
   std::vector<int> classes_;
   int entry_id_ = Entry::kBadId;
   absl::flat_hash_map<int, int> class_to_entry_;

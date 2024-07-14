@@ -4,7 +4,6 @@
 #include "absl/memory/memory.h"
 #include "absl/status/statusor.h"
 #include "puzzle/base/profiler.h"
-#include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
 #include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/solution_permuter/filter_to_active_set.h"

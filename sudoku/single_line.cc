@@ -24,21 +24,12 @@ int main(int argc, char** argv) {
   absl::Status setup_status = line_board.Setup();
   QCHECK(setup_status.ok()) << setup_status;
 
-  absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
+  absl::StatusOr<::puzzle::OwnedSolution> answer = line_board.Solve();
   QCHECK(answer.ok()) << answer.status();
   QCHECK(answer->IsValid());
 
-  char answer_buf[82];
-  char* out = answer_buf;
-  for (int row = 0; row < 9; ++row) {
-    for (int col = 0; col < 9; ++col) {
-      *out = answer->Id(row).Class(col) + '0';
-      ++out;
-    }
-  }
-  answer_buf[81] = '\0';
-
-  std::cout << "Out: " << answer_buf << std::endl;
+  std::cout << "Out: " << sudoku::LineBoard::ToString(answer->view())
+            << std::endl;
 
   return 0;
 }

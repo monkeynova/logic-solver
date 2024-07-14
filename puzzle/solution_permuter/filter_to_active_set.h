@@ -7,8 +7,8 @@
 #include "absl/synchronization/mutex.h"
 #include "puzzle/active_set/pair.h"
 #include "puzzle/base/profiler.h"
-#include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
+#include "puzzle/base/solution_view.h"
 #include "puzzle/class_permuter/class_permuter.h"
 #include "puzzle/class_permuter/value_skip_to_active_set.h"
 #include "puzzle/solution_permuter/mutable_solution.h"
@@ -145,7 +145,7 @@ class FilterToActiveSet {
       value_skip_to_active_set_;
 
   MutableSolution mutable_solution_;
-  Solution solution_;  // Bound to mutable_solution_;
+  SolutionView solution_;
   Profiler* profiler_;
 };
 

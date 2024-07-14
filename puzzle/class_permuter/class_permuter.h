@@ -3,7 +3,6 @@
 
 #include "puzzle/active_set/active_set.h"
 #include "puzzle/base/all_match.h"
-#include "puzzle/base/solution.h"
 
 namespace puzzle {
 

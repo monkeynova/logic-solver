@@ -5,8 +5,9 @@
 #include <vector>
 
 #include "absl/status/status.h"
+#include "puzzle/base/owned_solution.h"
 #include "puzzle/base/profiler.h"
-#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_view.h"
 #include "puzzle/solution_permuter/solution_permuter.h"
 
 namespace puzzle {
@@ -16,8 +17,8 @@ class Solver {
   explicit Solver(EntryDescriptor entry_descriptor);
   ~Solver() = default;
 
-  absl::StatusOr<Solution> Solve();
-  absl::StatusOr<std::vector<Solution>> AllSolutions(int limit = -1);
+  absl::StatusOr<OwnedSolution> Solve();
+  absl::StatusOr<std::vector<OwnedSolution>> AllSolutions(int limit = -1);
 
   // TODO(@monkeynova): Check class_int_restrict_list with a dummy
   // Solution that looks for class requests on other values.
@@ -46,13 +47,13 @@ class Solver {
 
   // Add predicate with the constraint that only class values found in
   // `class_int_restrict_list` are used by this filter.
-  absl::Status AddPredicate(std::string name, Solution::Predicate predicate,
+  absl::Status AddPredicate(std::string name, SolutionView::Predicate predicate,
                             std::vector<int> class_int_restrict_list = {}) {
     return AddFilter(SolutionFilter(std::move(name), predicate,
                                     std::move(class_int_restrict_list)));
   }
   absl::Status AddPredicate(
-      std::string name, Solution::Predicate predicate,
+      std::string name, SolutionView::Predicate predicate,
       std::initializer_list<int> class_int_restrict_list) {
     return AddPredicate(std::move(name), predicate,
                         std::vector<int>(class_int_restrict_list));
@@ -62,7 +63,7 @@ class Solver {
   // keys of `class_to_entry` are used by this filter and that if a false
   // value is found the correponding value represents and entry which may
   // be skipped.
-  absl::Status AddPredicate(std::string name, Solution::Predicate predicate,
+  absl::Status AddPredicate(std::string name, SolutionView::Predicate predicate,
                             absl::flat_hash_map<int, int> class_to_entry) {
     return AddFilter(
         SolutionFilter(std::move(name), predicate, std::move(class_to_entry)));
@@ -118,8 +119,8 @@ class Solver {
   // `alternate` represents which choice was used to create `in`.
   // This call must return the solution as it should be returned from `Solve`.
   // As an example, for Grid transposition, this un-transposes the result.
-  virtual absl::StatusOr<Solution> TransformAlternate(
-      Solution in, AlternateId alternate) const;
+  virtual absl::StatusOr<OwnedSolution> TransformAlternate(
+      SolutionView in, AlternateId alternate) const;
 
  private:
   absl::Status AddFilter(SolutionFilter solution_filter);

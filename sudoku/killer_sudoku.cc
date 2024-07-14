@@ -83,7 +83,7 @@ absl::Status KillerSudoku::AddCage(const Cage& cage) {
 
   return AddPredicate(
       absl::StrCat("Sum around ", cage.boxes[0], " = ", cage.expected_sum),
-      [cage](const puzzle::Solution& s) {
+      [cage](const puzzle::SolutionView& s) {
         // Solution values are 0-indexed, rather than 1-indexed like the sum.
         int sum = cage.boxes.size();
         for (const Box& box : cage.boxes) {

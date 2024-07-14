@@ -52,7 +52,7 @@ TEST_P(SinglePermuterTest, Simple) {
   ASSERT_TRUE(first_is_0_builder
                   .Build(single_class_build(), p.get(),
                          {SolutionFilter("First entry is class 0",
-                                         [](const Solution& s) {
+                                         [](const SolutionView& s) {
                                            return s.Id(0).Class(kClassInt) == 0;
                                          },
                                          {kClassInt})})
@@ -63,7 +63,7 @@ TEST_P(SinglePermuterTest, Simple) {
   ASSERT_TRUE(first_is_1_builder
                   .Build(single_class_build(), p.get(),
                          {SolutionFilter("First entry is class 1",
-                                         [](const Solution& s) {
+                                         [](const SolutionView& s) {
                                            return s.Id(0).Class(kClassInt) == 1;
                                          },
                                          {kClassInt})})
@@ -74,7 +74,7 @@ TEST_P(SinglePermuterTest, Simple) {
   ASSERT_TRUE(first_is_2_builder
                   .Build(single_class_build(), p.get(),
                          {SolutionFilter("First entry is class 2",
-                                         [](const Solution& s) {
+                                         [](const SolutionView& s) {
                                            return s.Id(0).Class(kClassInt) == 2;
                                          },
                                          {kClassInt})})
@@ -133,12 +133,12 @@ TEST_P(SinglePermuterTest, ExistingSet) {
 
   SolutionFilter first_is_0(
       "First entry is class 0",
-      [](const Solution& s) { return s.Id(0).Class(kClassInt) == 0; },
+      [](const SolutionView& s) { return s.Id(0).Class(kClassInt) == 0; },
       {kClassInt});
 
   SolutionFilter second_is_1(
       "Second entry is class 1",
-      [](const Solution& s) { return s.Id(1).Class(kClassInt) == 1; },
+      [](const SolutionView& s) { return s.Id(1).Class(kClassInt) == 1; },
       {kClassInt});
 
   LOG(INFO) << "Start: " << builder.active_set(kClassInt).DebugString();
@@ -194,7 +194,7 @@ TEST_P(PairPermuterTest, Simple) {
   ASSERT_THAT(permuter_b->permutation_count(), 6);
 
   SolutionFilter c("a is 0 and b is 1 for id 0",
-                   [](const Solution& s) {
+                   [](const SolutionView& s) {
                      return s.Id(0).Class(kClassIntA) == 0 &&
                             s.Id(0).Class(kClassIntB) == 1;
                    },
@@ -208,7 +208,7 @@ TEST_P(PairPermuterTest, Simple) {
   ActiveSet active_set_b = builder.active_set(kClassIntB);
 
   MutableSolution mutable_solution(&entry_descriptor);
-  Solution test_solution = mutable_solution.TestableSolution();
+  SolutionView test_solution = mutable_solution.TestableSolution();
 
   int expect_found_count = 0;
   int full_iteration_count = 0;
@@ -270,14 +270,14 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
 
   SolutionFilter a_filter(
       "a is 1 for id 1",
-      [](const Solution& s) { return s.Id(1).Class(kClassIntA) == 1; },
+      [](const SolutionView& s) { return s.Id(1).Class(kClassIntA) == 1; },
       {kClassIntA});
 
   ASSERT_TRUE(builder.Build(permuter_a.get(), {a_filter}).ok());
   ActiveSet active_set_a_pre = builder.active_set(kClassIntA);
 
   SolutionFilter pair_filter("a is 0 and b is 1 for id 0",
-                             [](const Solution& s) {
+                             [](const SolutionView& s) {
                                return s.Id(0).Class(kClassIntA) == 0 &&
                                       s.Id(0).Class(kClassIntB) == 1;
                              },
@@ -292,7 +292,7 @@ TEST_P(PairPermuterTest, ExistingActiveSet) {
   ActiveSet active_set_b = builder.active_set(kClassIntB);
 
   MutableSolution mutable_solution(&entry_descriptor);
-  Solution test_solution = mutable_solution.TestableSolution();
+  SolutionView test_solution = mutable_solution.TestableSolution();
 
   int expect_found_count = 0;
   int full_iteration_count = 0;
@@ -357,14 +357,14 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
 
   SolutionFilter b_filter(
       "b is 2 for id 1",
-      [](const Solution& s) { return s.Id(1).Class(kClassIntB) == 2; },
+      [](const SolutionView& s) { return s.Id(1).Class(kClassIntB) == 2; },
       {kClassIntB});
 
   ASSERT_TRUE(builder.Build(permuter_b.get(), {b_filter}).ok());
   ActiveSet active_set_b_pre = builder.active_set(kClassIntB);
 
   SolutionFilter pair_filter("a is 0 and b is 1 for id 0",
-                             [](const Solution& s) {
+                             [](const SolutionView& s) {
                                return s.Id(0).Class(kClassIntA) == 0 &&
                                       s.Id(0).Class(kClassIntB) == 1;
                              },
@@ -379,7 +379,7 @@ TEST_P(PairPermuterTest, ExistingActiveSetForB) {
   ActiveSet active_set_b_post = builder.active_set(kClassIntB);
 
   MutableSolution mutable_solution(&entry_descriptor);
-  Solution test_solution = mutable_solution.TestableSolution();
+  SolutionView test_solution = mutable_solution.TestableSolution();
 
   int expect_found_count = 0;
   int full_iteration_count = 0;
@@ -468,7 +468,7 @@ TEST_P(PairPermuterTest, MakePairs) {
   ASSERT_EQ(b0_is_1.size(), 2);
 
   SolutionFilter c("a is 0 and b is 1 for id 0",
-                   [](const Solution& s) {
+                   [](const SolutionView& s) {
                      return s.Id(0).Class(kClassIntA) == 0 &&
                             s.Id(0).Class(kClassIntB) == 1;
                    },
@@ -632,7 +632,7 @@ TEST_P(PairPermuterTest, MakePairsOrFilter) {
   }
 
   SolutionFilter c("vals[0].{a,b} IN ((3,4), (4, 3))",
-                   [val_0_predicate](const Solution& s) {
+                   [val_0_predicate](const SolutionView& s) {
                      return val_0_predicate(s.Id(0).Class(kClassIntA),
                                             s.Id(0).Class(kClassIntB));
                    },
@@ -697,21 +697,21 @@ TEST_P(PairPermuterTest, MakePairsCycle) {
   ASSERT_THAT(permuter_c->permutation_count(), 6);
 
   SolutionFilter a_b("a is 0 and b is 1 for id 0",
-                     [](const Solution& s) {
+                     [](const SolutionView& s) {
                        return s.Id(0).Class(kClassIntA) == 0 &&
                               s.Id(0).Class(kClassIntB) == 1;
                      },
                      {kClassIntA, kClassIntB});
 
   SolutionFilter b_c("b is 2 and c is 0 for id 1",
-                     [](const Solution& s) {
+                     [](const SolutionView& s) {
                        return s.Id(1).Class(kClassIntB) == 2 &&
                               s.Id(1).Class(kClassIntC) == 0;
                      },
                      {kClassIntB, kClassIntC});
 
   SolutionFilter c_a("c is 1 and a is 2 for id 2",
-                     [](const Solution& s) {
+                     [](const SolutionView& s) {
                        return s.Id(2).Class(kClassIntC) == 1 &&
                               s.Id(2).Class(kClassIntA) == 2;
                      },

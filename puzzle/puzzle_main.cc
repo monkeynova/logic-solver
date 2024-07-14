@@ -10,10 +10,6 @@
 
 ABSL_FLAG(bool, all, false, "Show all solutions");
 
-std::string PositionHeader(const puzzle::Solution& s) {
-  return absl::StrCat("[position=", s.position(), "]");
-}
-
 int main(int argc, char** argv) {
   std::vector<char*> args = InitMain(
       argc, argv,
@@ -32,20 +28,21 @@ int main(int argc, char** argv) {
 
   if (absl::GetFlag(FLAGS_all)) {
     LOG(INFO) << "[AllSolutions]";
-    absl::StatusOr<std::vector<puzzle::Solution>> all_solutions =
+    absl::StatusOr<std::vector<puzzle::OwnedSolution>> all_solutions =
         problem->AllSolutions();
     QCHECK(all_solutions.ok()) << all_solutions.status();
     exit_code = all_solutions->size() > 0 ? 0 : 1;
     LOG(INFO) << "[" << all_solutions->size() << " solutions]";
     LOG(INFO) << absl::StrJoin(
-        *all_solutions, "\n", [](std::string* out, const puzzle::Solution& s) {
-          absl::StrAppend(out, PositionHeader(s), "\n", s);
+        *all_solutions, "\n",
+        [](std::string* out, const puzzle::OwnedSolution& s) {
+          absl::StrAppend(out, "[position=%v]\n%v", s.position(), s);
         });
   } else {
-    absl::StatusOr<puzzle::Solution> answer = problem->Solve();
+    absl::StatusOr<puzzle::OwnedSolution> answer = problem->Solve();
     QCHECK(answer.ok()) << answer.status();
     if (answer->IsValid()) {
-      LOG(INFO) << PositionHeader(*answer);
+      LOG(INFO) << "[position=" << answer->position() << "]";
     }
     std::cout << answer << std::endl;
     exit_code = answer->IsValid() ? 0 : 1;

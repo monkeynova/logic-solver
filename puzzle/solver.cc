@@ -33,8 +33,8 @@ absl::Status Solver::AddFilter(SolutionFilter solution_filter) {
   return absl::OkStatus();
 }
 
-absl::StatusOr<Solution> Solver::Solve() {
-  ASSIGN_OR_RETURN(std::vector<Solution> ret, AllSolutions(1));
+absl::StatusOr<OwnedSolution> Solver::Solve() {
+  ASSIGN_OR_RETURN(std::vector<OwnedSolution> ret, AllSolutions(1));
   if (ret.empty()) return absl::NotFoundError("No solution found");
   return std::move(ret[0]);
 }
@@ -70,7 +70,7 @@ absl::StatusOr<Solver::AlternateId> Solver::PrepareAndChooseAlternate() {
   return ret;
 }
 
-absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
+absl::StatusOr<std::vector<OwnedSolution>> Solver::AllSolutions(int limit) {
   absl::Time start = absl::Now();
   ASSIGN_OR_RETURN(chosen_alternate_, PrepareAndChooseAlternate());
 
@@ -79,7 +79,7 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
   absl::Span<const SolutionFilter> on_solution =
       residual_[chosen_alternate_.id_];
 
-  std::vector<Solution> ret;
+  std::vector<OwnedSolution> ret;
   for (auto& solution : *solution_permuter) {
     VLOG(2) << "Solution to test @" << solution.position();
     if (profiler_ != nullptr) {
@@ -88,12 +88,13 @@ absl::StatusOr<std::vector<Solution>> Solver::AllSolutions(int limit) {
     ++test_calls_;
     if (AllMatch(on_solution, solution)) {
       VLOG(1) << "Solution found @" << solution.position();
-      puzzle::Solution copy = solution.Clone();
-      if (chosen_alternate_.id_ != 0) {
-        ASSIGN_OR_RETURN(copy,
-                         TransformAlternate(copy.Clone(), chosen_alternate_));
+      if (chosen_alternate_.id_ == 0) {
+        ret.push_back(puzzle::OwnedSolution(solution));
+      } else {
+        ASSIGN_OR_RETURN(puzzle::OwnedSolution transformed,
+                         TransformAlternate(solution, chosen_alternate_));
+        ret.push_back(std::move(transformed));
       }
-      ret.push_back(std::move(copy));
       if (limit >= 0 && ret.size() >= static_cast<size_t>(limit)) {
         break;
       }
@@ -135,8 +136,8 @@ absl::StatusOr<Solver::AlternateId> Solver::CreateAlternate() {
   return ret;
 }
 
-absl::StatusOr<Solution> Solver::TransformAlternate(
-    Solution in, AlternateId alternate) const {
+absl::StatusOr<OwnedSolution> Solver::TransformAlternate(
+    SolutionView in, AlternateId alternate) const {
   return absl::UnimplementedError("TransformAlternate not implemented");
 }
 

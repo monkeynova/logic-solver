@@ -1,7 +1,7 @@
 #ifndef PUZZLE_SOLUTION_PERMUTER_ALLOWED_VALUE_SOLUTION_PERMUTER_H
 #define PUZZLE_SOLUTION_PERMUTER_ALLOWED_VALUE_SOLUTION_PERMUTER_H
 
-#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_view.h"
 #include "puzzle/solution_permuter/solution_permuter.h"
 
 namespace puzzle {
@@ -74,7 +74,7 @@ class AllowedValueGrid {
       std::vector<std::vector<std::pair<SolutionFilter, std::vector<Box>>>>>
       solution_filters_;
   MutableSolution* mutable_solution_;
-  Solution testable_solution_;
+  SolutionView testable_solution_;
 };
 
 class AllowedValueSolutionPermuter final : public SolutionPermuter {

@@ -45,7 +45,7 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
   RETURN_IF_ERROR(AddPredicate(
       "1. One, and only one, of the vampires had the same initials "
       "of his name and of his birthplace.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return 1 == ((s.Id(P::BOGDAN).Class(REGION) == P::BUCOVINA ? 1 : 0) +
                      (s.Id(P::DORIAN).Class(REGION) == P::DEBROGEA ? 1 : 0) +
                      (s.Id(P::MATEI).Class(REGION) == P::MUNTENIA ? 1 : 0) +
@@ -64,7 +64,7 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
   RETURN_IF_ERROR(AddPredicate(
       "3. The vampire from Mutenia lived 100 years after the "
       "vampire who hated thornbrush.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         int from_mutenia_century = s.Find([](const puzzle::Entry& e) {
                                       return e.Class(REGION) == P::MUNTENIA;
                                     }).Class(CENTURY);
@@ -78,7 +78,7 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
   RETURN_IF_ERROR(AddPredicate(
       "4. 100 years after Dorian's death, another vamipre rised "
       "in Bucovina, but this wasn't Bogdan.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         const puzzle::Entry& from_bucovina = s.Find([](const puzzle::Entry& e) {
           return e.Class(REGION) == P::BUCOVINA;
         });
@@ -98,7 +98,7 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
       {PLANT, CENTURY}, P::OCTAVIAN));
   RETURN_IF_ERROR(AddPredicate(
       "6. If Bogdan hated wolfsbane, then Matei lived in Buchovia.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         if (s.Id(P::BOGDAN).Class(PLANT) == P::WOLFSBANE) {
           return s.Id(P::MATEI).Class(REGION) == P::BUCOVINA;
         }
@@ -120,7 +120,7 @@ absl::Status DraculaAndFriendsProblem::AddPredicates() {
   RETURN_IF_ERROR(AddPredicate(
       "9. Chronicles of XVII century claimed that ivy was "
       "ineffective and that Debrogea was free from vamipres.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         const puzzle::Entry& e = s.Find(
             [](const puzzle::Entry& e) { return e.Class(CENTURY) == P::XVII; });
         return e.Class(PLANT) != P::IVY && e.Class(REGION) != P::DEBROGEA;

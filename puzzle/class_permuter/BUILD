@@ -8,7 +8,6 @@ cc_library(
     deps = [
         "//puzzle/active_set",
         "//puzzle/base:all_match",
-        "//puzzle/base:solution",
         "@com_google_absl//absl/container:inlined_vector",
     ],
 )

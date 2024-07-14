@@ -78,7 +78,7 @@ ProtoProblemBase::ProtoProblemBase(absl::StatusOr<ProtoProblemBase::Init> init)
       id_field_(init->id_field),
       class_fields_(std::move(init->class_fields)) {}
 
-absl::StatusOr<Solution> ProtoProblemBase::GetSolution() const {
+absl::StatusOr<OwnedSolution> ProtoProblemBase::GetSolution() const {
   google::protobuf::DynamicMessageFactory factory;
   const google::protobuf::Descriptor* proto_descriptor = problem_descriptor();
 
@@ -105,7 +105,7 @@ absl::StatusOr<Solution> ProtoProblemBase::GetSolution() const {
     entries.emplace_back(id, std::move(class_values));
   }
 
-  return Solution(entry_descriptor(), &entries).Clone();
+  return OwnedSolution(entry_descriptor(), std::move(entries));
 }
 
 absl::Status ProtoProblemBase::Setup() { return AddPredicates(); }

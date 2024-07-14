@@ -119,7 +119,7 @@ absl::Status KenKen<kWidth>::AddSumPredicate(int val,
 
   return AddPredicate(
       absl::StrCat("Box #", box_id),
-      [val, boxes](const puzzle::Solution& s) {
+      [val, boxes](const puzzle::SolutionView& s) {
         int sum = 0;
         for (const Box& b : boxes) {
           sum += s.Id(b.entry_id).Class(b.class_id);
@@ -164,7 +164,7 @@ absl::Status KenKen<kWidth>::AddMulPredicate(int val,
         if (box2.class_id != box.class_id) cols.push_back(box2.class_id);
         RETURN_IF_ERROR(AddPredicate(
             absl::StrCat("Cage factors for ", box, " * ", box2, " = ", val),
-            [box, box2, val](const puzzle::Solution& s) {
+            [box, box2, val](const puzzle::SolutionView& s) {
               // Value is 0 indexed.
               int factor = s.Id(box.entry_id).Class(box.class_id) + 1;
               factor *= s.Id(box2.entry_id).Class(box2.class_id) + 1;
@@ -190,7 +190,7 @@ absl::Status KenKen<kWidth>::AddMulPredicate(int val,
 
   return AddPredicate(
       absl::StrCat("Box #", box_id),
-      [val, boxes](const puzzle::Solution& s) {
+      [val, boxes](const puzzle::SolutionView& s) {
         int product = 1;
         for (const Box& b : boxes) {
           product *= s.Id(b.entry_id).Class(b.class_id) + 1;
@@ -223,7 +223,7 @@ absl::Status KenKen<kWidth>::AddSubPredicate(int val,
 
   return AddPredicate(
       absl::StrCat("Box #", box_id),
-      [val, boxes](const puzzle::Solution& s) {
+      [val, boxes](const puzzle::SolutionView& s) {
         int b1 = s.Id(boxes[0].entry_id).Class(boxes[0].class_id);
         int b2 = s.Id(boxes[1].entry_id).Class(boxes[1].class_id);
         return b2 - b1 == val || b1 - b2 == val;
@@ -273,7 +273,7 @@ absl::Status KenKen<kWidth>::AddDivPredicate(int val,
   }
   return AddPredicate(
       absl::StrCat("Box #", box_id),
-      [val, boxes](const puzzle::Solution& s) {
+      [val, boxes](const puzzle::SolutionView& s) {
         int b1 = s.Id(boxes[0].entry_id).Class(boxes[0].class_id) + 1;
         int b2 = s.Id(boxes[1].entry_id).Class(boxes[1].class_id) + 1;
         return b1 == val * b2 || b2 == val * b1;

@@ -82,7 +82,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
 
   RETURN_IF_ERROR(
       AddPredicate("2. Picard ranks two positions behind Troi at Fizzbin.",
-                   [](const puzzle::Solution& s) {
+                   [](const puzzle::SolutionView& s) {
                      return s.Id(P::PICARD).Class(FIZZBIN) ==
                             s.Id(P::TROI).Class(FIZZBIN) - 2;
                    },
@@ -90,7 +90,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
 
   RETURN_IF_ERROR(AddPredicate(
       "3. Troi is feared by the person Geordi fears.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return s.Id(s.Id(P::GEORDI).Class(FEAR)).Class(FEAR) == P::TROI;
       },
       {FEAR}));
@@ -98,7 +98,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
   RETURN_IF_ERROR(AddPredicate(
       "4. Worf's hero ranks 3 times lower at Tri-D Chess than "
       "the crew member who is best at Fizzbin.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return (s.Id(s.Id(P::WORF).Class(HERO)).Class(TRID) + 1) * 3 ==
                s.Find([](const puzzle::Entry& e) {
                   return e.Class(FIZZBIN) == P::RANK_6;
@@ -109,7 +109,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
 
   RETURN_IF_ERROR(AddPredicate(
       "5. Picard's hero fears Geordi.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return s.Id(s.Id(P::PICARD).Class(HERO)).Class(FEAR) == P::GEORDI;
       },
       {HERO, FEAR}));
@@ -121,7 +121,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
 
   RETURN_IF_ERROR(AddPredicate(
       "7. Data is the hero of Riker's hero.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return s.Id(s.Id(P::RIKER).Class(HERO)).Class(HERO) == P::DATA;
       },
       {HERO}));
@@ -129,7 +129,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
   RETURN_IF_ERROR(
       AddPredicate("8. The person who is worst at Fizzbin is better than Troi "
                    "at Tri-D Chess.",
-                   [](const puzzle::Solution& s) {
+                   [](const puzzle::SolutionView& s) {
                      return s.Id(P::TROI).Class(TRID) <
                             s.Find([](const puzzle::Entry& e) {
                                return e.Class(FIZZBIN) == P::RANK_1;
@@ -140,7 +140,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
   RETURN_IF_ERROR(AddPredicate(
       "9. The person ranked number 3 at Tri-D Chess is ranked 4 "
       "positions higher than Data at Fizzbin.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return s.Find([](const puzzle::Entry& e) {
                   return e.Class(TRID) == P::RANK_3;
                 }).Class(FIZZBIN) == 4 + s.Id(P::DATA).Class(FIZZBIN);
@@ -149,14 +149,14 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
 
   RETURN_IF_ERROR(AddPredicate(
       "10. Riker is feared by the person Picard fears...",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return s.Id(s.Id(P::PICARD).Class(FEAR)).Class(FEAR) == P::RIKER;
       },
       {FEAR}));
 
   RETURN_IF_ERROR(AddPredicate(
       "10(cont). ... and is the hero of Worf's hero.",
-      [](const puzzle::Solution& s) {
+      [](const puzzle::SolutionView& s) {
         return s.Id(s.Id(P::WORF).Class(HERO)).Class(HERO) == P::RIKER;
       },
       {HERO}));
@@ -164,7 +164,7 @@ absl::Status SixFearsomeHeroes::AddStatementPredicates() {
   RETURN_IF_ERROR(
       AddPredicate("11. Riker is ranked 2 lower at Tri-D Chess than the crew "
                    "member ranked 2 at Fizzbin.",
-                   [](const puzzle::Solution& s) {
+                   [](const puzzle::SolutionView& s) {
                      return s.Id(P::RIKER).Class(TRID) + 2 ==
                             s.Find([](const puzzle::Entry& e) {
                                return e.Class(FIZZBIN) == P::RANK_2;

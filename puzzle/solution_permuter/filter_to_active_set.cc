@@ -474,7 +474,6 @@ FilterToActiveSet::Build<FilterToActiveSet::PairClassImpl::kPairSet>(
   int class_b = permuter_b->class_int();
   ActiveSetPair& a_b_pair = active_set_pairs_[class_a][class_b];
   ActiveSetPair& b_a_pair = active_set_pairs_[class_b][class_a];
-  Solution solution = mutable_solution_.TestableSolution();
   absl::flat_hash_set<int> a_match_positions;
   absl::flat_hash_set<int> b_match_positions;
   absl::flat_hash_map<int, absl::flat_hash_set<int>> a_b_match_positions;

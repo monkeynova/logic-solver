@@ -87,7 +87,7 @@ void TestLineBoard(absl::string_view test_case,
         absl::StrCat("ERROR: Could not setup puzzle: ", st.message()));
     return;
   }
-  absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
+  absl::StatusOr<::puzzle::OwnedSolution> answer = line_board.Solve();
   if (!answer.ok()) {
     test_result->AddTestOutput(absl::StrCat("ERROR: Could not solve puzzle: ",
                                             answer.status().message()));
@@ -106,7 +106,7 @@ void TestLineBoard(absl::string_view test_case,
       return;
     }
 
-    absl::StatusOr<std::vector<puzzle::Solution>> solutions =
+    absl::StatusOr<std::vector<puzzle::OwnedSolution>> solutions =
         line_board.AllSolutions(/*limit=*/2);
     if (!solutions.ok()) {
       test_result->AddTestOutput(absl::StrCat("ERROR: Could not solve puzzle: ",
@@ -117,7 +117,7 @@ void TestLineBoard(absl::string_view test_case,
           absl::StrCat("ERROR: Puzzle solution not unique"));
     }
   }
-  test_result->AddTestOutput(::sudoku::LineBoard::ToString(*answer));
+  test_result->AddTestOutput(::sudoku::LineBoard::ToString(answer->view()));
 }
 
 TEST(MultiLineTest, FileSudokudTest) {

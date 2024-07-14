@@ -7,8 +7,9 @@ cc_library(
     ],
     deps = [
         "//puzzle/base:all_match",
+        "//puzzle/base:owned_solution",
         "//puzzle/base:profiler",
-        "//puzzle/base:solution",
+        "//puzzle/base:solution_view",
         "//puzzle/solution_permuter",
         "//puzzle/solution_permuter:solution_permuter_factory",
         "@com_google_absl//absl/status",

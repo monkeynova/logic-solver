@@ -1,5 +1,5 @@
-#ifndef PUZZLE_BASE_SOLUTION_H
-#define PUZZLE_BASE_SOLUTION_H
+#ifndef PUZZLE_BASE_SOLUTION_VIEW_H
+#define PUZZLE_BASE_SOLUTION_VIEW_H
 
 #include <algorithm>
 #include <functional>
@@ -67,32 +67,24 @@ class Entry {
   static Entry invalid_;
 };
 
-class Solution {
+class SolutionView {
  public:
-  using Predicate = std::function<bool(const Solution&)>;
+  using Predicate = std::function<bool(const SolutionView&)>;
 
-  Solution() {}
-  Solution(const EntryDescriptor* entry_descriptor,
-           const std::vector<Entry>* entries)
+  SolutionView() {}
+  SolutionView(const EntryDescriptor* entry_descriptor,
+               const std::vector<Entry>* entries)
       : entry_descriptor_(entry_descriptor), entries_(entries) {}
 
-  ~Solution() {
-    if (own_entries_ && entries_ != nullptr) {
-      delete entries_;
-    }
-  }
+  SolutionView(const SolutionView& other) = default;
+  SolutionView& operator=(const SolutionView& other) = default;
 
-  Solution(const Solution& other) = delete;
-  Solution& operator=(const Solution& other) = delete;
-
-  Solution(Solution&& other) { *this = std::move(other); }
-  Solution& operator=(Solution&& other);
-
-  Solution Clone() const;
-  bool operator==(const Solution& other) const;
+  bool operator==(const SolutionView& other) const;
 
   Position position() const { return permutation_position_; }
   void set_position(Position position) { permutation_position_ = position; }
+
+  const EntryDescriptor* descriptor() const { return entry_descriptor_; }
 
   bool IsValid() const { return entries_ != nullptr; }
   const std::vector<Entry>& entries() const { return *entries_; }
@@ -108,7 +100,7 @@ class Solution {
   }
 
   template <typename Sink>
-  friend void AbslStringify(Sink& sink, const Solution& s) {
+  friend void AbslStringify(Sink& sink, const SolutionView& s) {
     if (s.entries_ == nullptr)
       absl::Format(&sink, "<invalid>");
     else if (s.entries_->size() == 0)
@@ -126,7 +118,8 @@ class Solution {
       }
     }
   }
-  friend std::ostream& operator<<(std::ostream& o, const Solution& solution) {
+  friend std::ostream& operator<<(std::ostream& o,
+                                  const SolutionView& solution) {
     return o << absl::StreamFormat("%v", solution);
   }
 
@@ -135,9 +128,6 @@ class Solution {
 
   const std::vector<Entry>* entries_ = nullptr;
 
-  // If true, 'this' owns 'entries_'.
-  bool own_entries_ = false;
-
   // The position of in iterating through all permutations of solutions which
   // this represents.
   Position permutation_position_ = {.position = 0, .count = 0};
@@ -145,4 +135,4 @@ class Solution {
 
 }  // namespace puzzle
 
-#endif  // PUZZLE_BASE_SOLUTION_H
+#endif  // PUZZLE_BASE_SOLUTION_VIEW_H

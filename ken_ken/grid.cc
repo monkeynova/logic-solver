@@ -77,8 +77,8 @@ absl::Status Grid<kWidth>::Setup() {
 }
 
 template <int64_t kWidth>
-absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(
-    puzzle::Solution in, AlternateId alternate) const {
+absl::StatusOr<puzzle::OwnedSolution> Grid<kWidth>::TransformAlternate(
+    puzzle::SolutionView in, AlternateId alternate) const {
   if (alternate == transpose_id_) {
     std::vector<puzzle::Entry> copy = in.entries();
     for (int i = 0; i < kWidth; ++i) {
@@ -86,12 +86,12 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::TransformAlternate(
         copy[j].SetClass(i, in.Id(i).Class(j));
       }
     }
-    return puzzle::Solution(entry_descriptor(), &copy).Clone();
+    return puzzle::OwnedSolution(entry_descriptor(), std::move(copy));
   }
   if (alternate != default_id_) {
     return absl::InternalError("Bad alternate");
   }
-  return in;
+  return puzzle::OwnedSolution(in);
 }
 
 // static
@@ -125,7 +125,7 @@ absl::StatusOr<typename Grid<kWidth>::Board> Grid<kWidth>::ToBoard(
 
 // static
 template <int64_t kWidth>
-std::string Grid<kWidth>::ToString(const ::puzzle::Solution& solution) {
+std::string Grid<kWidth>::ToString(const ::puzzle::SolutionView& solution) {
   DCHECK(solution.IsValid());
   std::string ret;
   ret.resize(kWidth * kWidth);
@@ -141,7 +141,7 @@ std::string Grid<kWidth>::ToString(const ::puzzle::Solution& solution) {
 }
 
 template <int64_t kWidth>
-absl::StatusOr<puzzle::Solution> Grid<kWidth>::GetSolution() const {
+absl::StatusOr<puzzle::OwnedSolution> Grid<kWidth>::GetSolution() const {
   ASSIGN_OR_RETURN(Board board, GetSolutionBoard());
   if (board.size() != kWidth) {
     return absl::FailedPreconditionError("Bad height");
@@ -159,7 +159,7 @@ absl::StatusOr<puzzle::Solution> Grid<kWidth>::GetSolution() const {
     }
     entries.emplace_back(row, entry_vals);
   }
-  return puzzle::Solution(entry_descriptor(), &entries).Clone();
+  return puzzle::OwnedSolution(entry_descriptor(), std::move(entries));
 }
 
 template class Grid<4>;

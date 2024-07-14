@@ -4,8 +4,8 @@
 #include <memory>
 
 #include "absl/status/statusor.h"
-#include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
+#include "puzzle/base/solution_view.h"
 #include "puzzle/solution_permuter/mutable_solution.h"
 
 namespace puzzle {
@@ -23,7 +23,7 @@ class SolutionPermuter {
 
     virtual void Advance() = 0;
 
-    const Solution& current() const { return current_; }
+    const SolutionView& current() const { return current_; }
 
    protected:
     MutableSolution& mutable_solution() { return mutable_solution_; }
@@ -32,7 +32,7 @@ class SolutionPermuter {
 
    private:
     MutableSolution mutable_solution_;
-    Solution current_;  // Bound to mutable_solution_.
+    SolutionView current_;
     bool done_ = false;
   };
 
@@ -46,9 +46,9 @@ class SolutionPermuter {
    public:
     typedef std::forward_iterator_tag iterator_category;
     typedef double difference_type;
-    typedef Solution value_type;
-    typedef Solution& reference;
-    typedef Solution* pointer;
+    typedef SolutionView value_type;
+    typedef SolutionView& reference;
+    typedef SolutionView* pointer;
 
     explicit iterator(std::unique_ptr<AdvancerBase> advancer)
         : advancer_(std::move(advancer)) {}
@@ -64,8 +64,8 @@ class SolutionPermuter {
       if (other.advancer_ == nullptr) return false;
       return advancer_->done() == other.advancer_->done();
     }
-    const Solution& operator*() { return advancer_->current(); }
-    const Solution* operator->() { return &advancer_->current(); }
+    const SolutionView& operator*() { return advancer_->current(); }
+    const SolutionView* operator->() { return &advancer_->current(); }
     iterator& operator++() {
       advancer_->Advance();
       return *this;

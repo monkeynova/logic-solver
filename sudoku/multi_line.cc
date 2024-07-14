@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
     absl::Status setup_status = line_board.Setup();
     QCHECK(setup_status.ok()) << setup_status;
 
-    absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
+    absl::StatusOr<::puzzle::OwnedSolution> answer = line_board.Solve();
     QCHECK(answer.ok()) << answer.status();
     if (answer->IsValid()) {
       absl::Time done = absl::Now();
@@ -66,8 +66,8 @@ int main(int argc, char** argv) {
         last_flush = done;
       }
 
-      LOG(INFO) << "Out: " << ::sudoku::LineBoard::ToString(*answer) << " ("
-                << solve_ms << "ms)";
+      LOG(INFO) << "Out: " << ::sudoku::LineBoard::ToString(answer->view())
+                << " (" << solve_ms << "ms)";
     } else {
       LOG(ERROR) << "No answer found";
       exit_code = 1;

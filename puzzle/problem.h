@@ -18,7 +18,7 @@ class Problem : public Solver {
 
   virtual absl::Status Setup() = 0;
 
-  virtual absl::StatusOr<puzzle::Solution> GetSolution() const = 0;
+  virtual absl::StatusOr<puzzle::OwnedSolution> GetSolution() const = 0;
 
   static std::unique_ptr<Problem> GetInstance();
   static Generator SetGenerator(Generator generator);

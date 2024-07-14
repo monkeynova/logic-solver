@@ -36,7 +36,7 @@ struct SetupState {
 
   static SolutionFilter MakePairFilter() {
     SolutionFilter ret("no entry the same",
-                       [](const Solution& s) {
+                       [](const SolutionView& s) {
                          return all_of(s.entries().begin(), s.entries().end(),
                                        [](const Entry& e) {
                                          return e.Class(kClassIntA) !=
@@ -49,7 +49,7 @@ struct SetupState {
 
   static SolutionFilter MakeFilterA() {
     SolutionFilter ret("no entry the same",
-                       [](const Solution& s) {
+                       [](const SolutionView& s) {
                          return s.Id(0).Class(kClassIntA) == 0 &&
                                 s.Id(1).Class(kClassIntA) == 1;
                        },
@@ -59,7 +59,7 @@ struct SetupState {
 
   static SolutionFilter MakeFilterB() {
     SolutionFilter ret("no entry the same",
-                       [](const Solution& s) {
+                       [](const SolutionView& s) {
                          return s.Id(0).Class(kClassIntB) == 1 &&
                                 s.Id(1).Class(kClassIntB) == 0;
                        },

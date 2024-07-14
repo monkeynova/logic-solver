@@ -22,11 +22,11 @@ TEST(Puzzle, RightAnswer) {
   ::sudoku::LineBoard line_board(absl::GetFlag(FLAGS_sudoku_line_board));
   absl::Status st = line_board.Setup();
   ASSERT_TRUE(st.ok()) << st;
-  absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
+  absl::StatusOr<::puzzle::OwnedSolution> answer = line_board.Solve();
   ASSERT_TRUE(answer.ok()) << answer.status();
   ASSERT_TRUE(answer->IsValid());
 
-  EXPECT_EQ(::sudoku::LineBoard::ToString(*answer),
+  EXPECT_EQ(::sudoku::LineBoard::ToString(answer->view()),
             absl::GetFlag(FLAGS_sudoku_line_answer));
 }
 
@@ -37,7 +37,7 @@ TEST(Puzzle, UniqueAnswer) {
   absl::Status st = line_board.Setup();
   ASSERT_TRUE(st.ok()) << st;
 
-  absl::StatusOr<std::vector<puzzle::Solution>> solutions =
+  absl::StatusOr<std::vector<puzzle::OwnedSolution>> solutions =
       line_board.AllSolutions(/*limit=*/2);
   ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());
@@ -52,11 +52,11 @@ static void BM_Solver(benchmark::State& state) {
     absl::Status st = line_board.Setup();
     CHECK(st.ok()) << st;
 
-    absl::StatusOr<::puzzle::Solution> answer = line_board.Solve();
+    absl::StatusOr<::puzzle::OwnedSolution> answer = line_board.Solve();
     CHECK(answer.ok()) << answer.status();
     CHECK(answer->IsValid());
     if (!absl::GetFlag(FLAGS_sudoku_line_answer).empty()) {
-      CHECK_EQ(::sudoku::LineBoard::ToString(*answer),
+      CHECK_EQ(::sudoku::LineBoard::ToString(answer->view()),
                absl::GetFlag(FLAGS_sudoku_line_answer));
     }
   }

@@ -75,7 +75,7 @@ absl::Status Sudoku::AddPredicatesCumulative() {
     cols.push_back(i);
     RETURN_IF_ERROR(AddPredicate(
         absl::StrCat("No box dupes ", i + 1),
-        [i](const puzzle::Solution& s) {
+        [i](const puzzle::SolutionView& s) {
           for (int row = 0; row < kWidth; ++row) {
             int to_match = s.Id(row).Class(i);
 
@@ -123,7 +123,8 @@ absl::Status Sudoku::AddPredicatesPairwise() {
         RETURN_IF_ERROR(AddPredicate(
             absl::StrCat("No box dupes (", box_i_x + 1, ",", box_i_y + 1,
                          ") vs (", box_j_x + 1, ",", box_j_y + 1, ")"),
-            [box_i_x, box_i_y, box_j_x, box_j_y](const puzzle::Solution& s) {
+            [box_i_x, box_i_y, box_j_x,
+             box_j_y](const puzzle::SolutionView& s) {
               return s.Id(box_i_x).Class(box_i_y) !=
                      s.Id(box_j_x).Class(box_j_y);
             },
@@ -159,7 +160,7 @@ absl::Status Sudoku::AddComposedValuePredicates(int row, int col, int value) {
                      "No box dupes "
                      "(",
                      test_box_x + 1, ",", test_box_y + 1, ")"),
-        [test_box_x, test_box_y, value](const puzzle::Solution& s) {
+        [test_box_x, test_box_y, value](const puzzle::SolutionView& s) {
           return s.Id(test_box_x).Class(test_box_y) != value;
         },
         absl::flat_hash_map<int, int>{{test_box_y, test_box_x}}));

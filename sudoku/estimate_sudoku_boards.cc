@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
   QCHECK(setup_status.ok()) << setup_status;
 
   const int num_solutions = absl::GetFlag(FLAGS_solutions);
-  absl::StatusOr<std::vector<puzzle::Solution>> solutions =
+  absl::StatusOr<std::vector<puzzle::OwnedSolution>> solutions =
       empty_sudoku->AllSolutions(num_solutions);
   QCHECK(solutions.ok()) << solutions.status();
   QCHECK_EQ(solutions->size(), num_solutions);

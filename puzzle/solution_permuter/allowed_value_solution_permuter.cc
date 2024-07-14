@@ -209,14 +209,15 @@ AllowedValueAdvancer::AllowedValueAdvancer(
     for (int entry_id1 = 0; entry_id1 < entry_size; ++entry_id1) {
       for (int entry_id2 = entry_id1 + 1; entry_id2 < entry_size; ++entry_id2) {
         allowed_grid_.AddFilter(
-            SolutionFilter(absl::StrFormat("ClassPermutation %d/{%d,%d}",
-                                           class_id, entry_id1, entry_id2),
-                           // Capture by value.
-                           [entry_id1, entry_id2, class_id](const Solution& s) {
-                             return s.Id(entry_id1).Class(class_id) !=
-                                    s.Id(entry_id2).Class(class_id);
-                           },
-                           {class_id}),
+            SolutionFilter(
+                absl::StrFormat("ClassPermutation %d/{%d,%d}", class_id,
+                                entry_id1, entry_id2),
+                // Capture by value.
+                [entry_id1, entry_id2, class_id](const SolutionView& s) {
+                  return s.Id(entry_id1).Class(class_id) !=
+                         s.Id(entry_id2).Class(class_id);
+                },
+                {class_id}),
             {AllowedValueGrid::Box{.entry_id = entry_id1, .class_id = class_id},
              AllowedValueGrid::Box{.entry_id = entry_id2,
                                    .class_id = class_id}});

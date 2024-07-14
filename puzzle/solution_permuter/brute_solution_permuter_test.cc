@@ -7,6 +7,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "puzzle/base/owned_solution.h"
 
 namespace puzzle {
 
@@ -24,11 +25,11 @@ TEST(BruteSolutionPermuterTest, Simple) {
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
-  std::vector<Solution> solutions;
+  std::vector<OwnedSolution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it->position().position, solutions.size());
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
-    solutions.emplace_back(it->Clone());
+    solutions.push_back(OwnedSolution(*it));
   }
   EXPECT_THAT(solutions.size(), 6 * 6);
   for (const auto& solution : solutions) {

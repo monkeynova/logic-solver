@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "puzzle/base/solution.h"
+#include "puzzle/base/solution_view.h"
 #include "puzzle/class_permuter/class_permuter.h"
 
 namespace puzzle {
@@ -25,7 +25,9 @@ class MutableSolution {
   }
 
   const EntryDescriptor* descriptor() const { return descriptor_; }
-  Solution TestableSolution() { return Solution(descriptor_, &entries_); }
+  SolutionView TestableSolution() {
+    return SolutionView(descriptor_, &entries_);
+  }
 
   // We push values from thee iteration to all values in the set. One could
   // imagine a mode where we directly bind the values from the class iterator

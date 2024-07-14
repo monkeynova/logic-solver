@@ -13,7 +13,7 @@ class ProtoProblemBase : public Problem {
       : ProtoProblemBase(MakeInit(problem_descriptor)) {}
 
   absl::Status Setup() override;
-  absl::StatusOr<puzzle::Solution> GetSolution() const override;
+  absl::StatusOr<puzzle::OwnedSolution> GetSolution() const override;
 
   virtual absl::Status AddPredicates() = 0;
   const google::protobuf::Descriptor* problem_descriptor() const {

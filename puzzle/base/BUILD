@@ -5,8 +5,8 @@ cc_library(
     hdrs = ["all_match.h"],
     visibility = ["//puzzle:__subpackages__"],
     deps = [
-        "//puzzle/base:solution",
         "//puzzle/base:solution_filter",
+        "//puzzle/base:solution_view",
         "@com_google_absl//absl/algorithm:container",
     ],
 )
@@ -58,9 +58,18 @@ cc_library(
 )
 
 cc_library(
-    name = "solution",
-    srcs = ["solution.cc"],
-    hdrs = ["solution.h"],
+    name = "solution_view",
+    srcs = ["solution_view.cc"],
+    hdrs = ["solution_view.h"],
+    deps = [
+        ":descriptors",
+        ":position",
+    ],
+)
+
+cc_library(
+    name = "owned_solution",
+    hdrs = ["owned_solution.h"],
     deps = [
         ":descriptors",
         ":position",
@@ -71,6 +80,6 @@ cc_library(
     name = "solution_filter",
     hdrs = ["solution_filter.h"],
     deps = [
-        ":solution",
+        ":solution_view",
     ],
 )

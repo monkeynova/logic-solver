@@ -38,7 +38,7 @@ absl::Status GreaterThanSudoku::AddComparison(const std::pair<Box, Box>& cmp) {
   }
   return AddPredicate(
       absl::StrCat(cmp.first, " > ", cmp.second),
-      [cmp](const puzzle::Solution& s) {
+      [cmp](const puzzle::SolutionView& s) {
         return s.Id(cmp.first.entry_id).Class(cmp.first.class_id) >
                s.Id(cmp.second.entry_id).Class(cmp.second.class_id);
       },

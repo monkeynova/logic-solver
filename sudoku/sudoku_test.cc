@@ -18,18 +18,15 @@ ABSL_DECLARE_FLAG(std::string, sudoku_problem_setup);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_pair_class_iterators_mode_pair);
 
-extern void SetupProblem(puzzle::Solver* s);
-extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
-
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   absl::Status setup_status = problem->Setup();
   ASSERT_TRUE(setup_status.ok()) << setup_status;
 
-  absl::StatusOr<puzzle::Solution> got = problem->Solve();
+  absl::StatusOr<puzzle::OwnedSolution> got = problem->Solve();
   ASSERT_TRUE(got.ok()) << got.status();
   ASSERT_TRUE(got->IsValid());
-  absl::StatusOr<puzzle::Solution> expected = problem->GetSolution();
+  absl::StatusOr<puzzle::OwnedSolution> expected = problem->GetSolution();
   ASSERT_TRUE(expected.ok()) << expected.status();
 
   EXPECT_EQ(*got, *expected);
@@ -42,7 +39,7 @@ TEST(Puzzle, UniqueAnswer) {
   absl::Status setup_status = problem->Setup();
   ASSERT_TRUE(setup_status.ok()) << setup_status;
 
-  absl::StatusOr<std::vector<puzzle::Solution>> solutions =
+  absl::StatusOr<std::vector<puzzle::OwnedSolution>> solutions =
       problem->AllSolutions(/*limit=*/2);
   ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());
@@ -64,7 +61,7 @@ static void BM_Solver(benchmark::State& state) {
     absl::Status st = problem->Setup();
     CHECK(st.ok()) << st;
 
-    absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
+    absl::StatusOr<puzzle::OwnedSolution> expect = problem->GetSolution();
     CHECK(expect.ok()) << expect.status();
 
     std::vector<std::string> labels;
@@ -74,7 +71,7 @@ static void BM_Solver(benchmark::State& state) {
             &FLAGS_puzzle_prune_pair_class_iterators_mode_pair, &labels);
     state.SetLabel(absl::StrJoin(labels, " "));
 
-    absl::StatusOr<puzzle::Solution> got = problem->Solve();
+    absl::StatusOr<puzzle::OwnedSolution> got = problem->Solve();
     CHECK(got.ok()) << got.status();
     CHECK(*got == *expect);
   }

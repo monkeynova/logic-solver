@@ -18,17 +18,14 @@ ABSL_DECLARE_FLAG(std::string, puzzle_solution_permuter);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_class_iterator);
 ABSL_DECLARE_FLAG(bool, puzzle_prune_reorder_classes);
 
-extern void SetupProblem(puzzle::Solver* s);
-extern puzzle::Solution ProblemSolution(const puzzle::Solver& s);
-
 TEST(Puzzle, RightAnswer) {
   std::unique_ptr<puzzle::Problem> problem = puzzle::Problem::GetInstance();
   absl::Status setup_status = problem->Setup();
   ASSERT_TRUE(setup_status.ok()) << setup_status;
 
-  absl::StatusOr<puzzle::Solution> got = problem->Solve();
+  absl::StatusOr<puzzle::OwnedSolution> got = problem->Solve();
   ASSERT_TRUE(got.ok()) << got.status();
-  absl::StatusOr<puzzle::Solution> expect = problem->GetSolution();
+  absl::StatusOr<puzzle::OwnedSolution> expect = problem->GetSolution();
   ASSERT_TRUE(expect.ok()) << expect.status();
 
   EXPECT_EQ(*got, *expect);
@@ -41,7 +38,7 @@ TEST(Puzzle, UniqueAnswer) {
   absl::Status setup_status = problem->Setup();
   ASSERT_TRUE(setup_status.ok()) << setup_status;
 
-  absl::StatusOr<std::vector<puzzle::Solution>> solutions =
+  absl::StatusOr<std::vector<puzzle::OwnedSolution>> solutions =
       problem->AllSolutions(/*limit=*/2);
   ASSERT_TRUE(solutions.ok()) << solutions.status();
   ASSERT_FALSE(solutions->empty());

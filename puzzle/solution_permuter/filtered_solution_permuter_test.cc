@@ -7,6 +7,7 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "puzzle/base/owned_solution.h"
 #include "puzzle/base/solution_filter.h"
 
 using ::testing::Ge;
@@ -27,11 +28,11 @@ TEST(FilteredSolutionPermuterTest, Simple) {
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
-  std::vector<Solution> solutions;
+  std::vector<OwnedSolution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it->position().position, solutions.size());
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
-    solutions.emplace_back(it->Clone());
+    solutions.push_back(OwnedSolution(*it));
   }
   EXPECT_THAT(solutions.size(), 6 * 6);
   for (const auto& solution : solutions) {
@@ -50,23 +51,24 @@ TEST(FilteredSolutionPermuterTest, CropFirstClass) {
                      std::move(class_descriptors));
 
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
-  ASSERT_TRUE(
-      p
-          .AddFilter(SolutionFilter(
-              "test", [](const Solution& s) { return s.Id(1).Class(0) == 1; },
-              std::vector<int>{0}))
-          .ok());
+  ASSERT_TRUE(p.AddFilter(SolutionFilter(
+                              "test",
+                              [](const SolutionView& s) {
+                                return s.Id(1).Class(0) == 1;
+                              },
+                              std::vector<int>{0}))
+                  .ok());
   ASSERT_TRUE(p.Prepare().ok());
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
-  std::vector<Solution> solutions;
+  std::vector<OwnedSolution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     EXPECT_THAT(it->position().position, Ge(solutions.size()));
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(1).Class(0), 1);
-    solutions.emplace_back(it->Clone());
+    solutions.push_back(OwnedSolution(*it));
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
   for (const auto& solution : solutions) {
@@ -87,7 +89,7 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   ASSERT_TRUE(p.AddFilter(SolutionFilter(
                               "test",
-                              [](const Solution& s) {
+                              [](const SolutionView& s) {
                                 LOG(INFO) << "(1,1) => " << s.Id(0).Class(1)
                                           << std::endl;
                                 return s.Id(1).Class(1) == 2;
@@ -98,14 +100,14 @@ TEST(FilteredSolutionPermuterTest, CropLastClass) {
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
-  std::vector<Solution> solutions;
+  std::vector<OwnedSolution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     LOG(INFO) << "Got Next" << std::endl;
     EXPECT_THAT(it->position().position, Ge(solutions.size()));
     EXPECT_THAT(history.insert(absl::StrCat(*it)).second, true) << *it;
 
     EXPECT_THAT(it->Id(1).Class(1), 2);
-    solutions.emplace_back(it->Clone());
+    solutions.push_back(OwnedSolution(*it));
   }
   EXPECT_THAT(solutions.size(), 2 * 6);
   for (const auto& solution : solutions) {
@@ -126,7 +128,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
   FilteredSolutionPermuter p(&ed, /*profiler=*/nullptr);
   ASSERT_TRUE(p.AddFilter(SolutionFilter(
                               "test",
-                              [](const Solution& s) {
+                              [](const SolutionView& s) {
                                 LOG(INFO) << "(0,0) => " << s.Id(0).Class(0);
                                 return s.Id(0).Class(0) == 1;
                               },
@@ -134,7 +136,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
                   .ok());
   ASSERT_TRUE(p.AddFilter(SolutionFilter(
                               "test",
-                              [](const Solution& s) {
+                              [](const SolutionView& s) {
                                 LOG(INFO) << "(1,1) => " << s.Id(0).Class(1);
                                 return s.Id(1).Class(1) == 2;
                               },
@@ -144,7 +146,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
 
   std::unordered_set<std::string> history;
   EXPECT_THAT(p.permutation_count(), 6 * 6);
-  std::vector<Solution> solutions;
+  std::vector<OwnedSolution> solutions;
   for (auto it = p.begin(); it != p.end(); ++it) {
     LOG(INFO) << "Got Next";
     EXPECT_THAT(it->position().position, Ge(solutions.size()));
@@ -152,7 +154,7 @@ TEST(FilteredSolutionPermuterTest, CropBothClasses) {
 
     EXPECT_THAT(it->Id(0).Class(0), 1);
     EXPECT_THAT(it->Id(1).Class(1), 2);
-    solutions.emplace_back(it->Clone());
+    solutions.push_back(OwnedSolution(*it));
   }
   EXPECT_THAT(solutions.size(), 2 * 2);
   for (const auto& solution : solutions) {

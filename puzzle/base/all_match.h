@@ -5,8 +5,8 @@
 
 #include "absl/algorithm/container.h"
 #include "absl/types/span.h"
-#include "puzzle/base/solution.h"
 #include "puzzle/base/solution_filter.h"
+#include "puzzle/base/solution_view.h"
 
 namespace puzzle {
 
@@ -14,7 +14,7 @@ namespace puzzle {
 // If `value_skip` is non-nullptr, returns the entry_id for the corresponding
 // `class_int` on the first predicate that evaluates to false.
 inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
-                     const Solution& solution) {
+                     const SolutionView& solution) {
   return absl::c_all_of(predicates,
                         [&](const SolutionFilter& c) { return c(solution); });
 }
@@ -33,7 +33,7 @@ static_assert(sizeof(ValueSkip) < 16,
 // If `value_skip` is non-nullptr, returns the entry_id for the corresponding
 // `class_int` on the first predicate that evaluates to false.
 inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
-                     const Solution& solution, int class_int,
+                     const SolutionView& solution, int class_int,
                      ValueSkip& value_skip) {
   for (const SolutionFilter& filter : predicates) {
     if (!filter(solution)) {
@@ -48,7 +48,8 @@ inline bool AllMatch(absl::Span<const SolutionFilter> predicates,
 // Returns a bit vector containint all entry_ids at `class_int` for entries in
 // `predicates` that evaluate to false on `solution`.
 inline int UnmatchedEntrySkips(absl::Span<const SolutionFilter> predicates,
-                               const Solution& solution, int class_int = -1) {
+                               const SolutionView& solution,
+                               int class_int = -1) {
   int all_entry_skips = 0;
   for (const SolutionFilter& filter : predicates) {
     if (!filter(solution)) {
