@@ -1,6 +1,8 @@
-diff -ruN -x b file-based-test-driver/MODULE.bazel file-based-test-driver.new/MODULE.bazel
---- file-based-test-driver/MODULE.bazel	1969-12-31 16:00:00
-+++ file-based-test-driver.new/MODULE.bazel	2024-06-16 16:19:37
+diff --git a/MODULE.bazel b/MODULE.bazel
+new file mode 100644
+index 0000000..bfd5d55
+--- /dev/null
++++ b/MODULE.bazel
 @@ -0,0 +1,11 @@
 +###############################################################################
 +# Bazel now uses Bzlmod by default to manage external dependencies.
@@ -13,8 +15,34 @@ diff -ruN -x b file-based-test-driver/MODULE.bazel file-based-test-driver.new/MO
 +bazel_dep(name = "abseil-cpp", version = "20240116.2", repo_name = "com_google_absl")
 +bazel_dep(name = "googletest", version = "1.14.0.bcr.1", repo_name = "com_google_googletest")
 +bazel_dep(name = "re2", version = "2024-06-01", repo_name = "com_googlesource_code_re2")
-diff -ruN -x b file-based-test-driver/WORKSPACE.bazel file-based-test-driver.new/WORKSPACE.bazel
---- file-based-test-driver/WORKSPACE.bazel	1969-12-31 16:00:00
-+++ file-based-test-driver.new/WORKSPACE.bazel	2024-06-16 16:02:58
+diff --git a/WORKSPACE.bazel b/WORKSPACE.bazel
+new file mode 100644
+index 0000000..ce1dff0
+--- /dev/null
++++ b/WORKSPACE.bazel
 @@ -0,0 +1 @@
 +workspace(name="com_google_file_based_test_driver")
+diff --git a/file_based_test_driver/base/BUILD b/file_based_test_driver/base/BUILD
+index 9279d64..469cdc0 100644
+--- a/file_based_test_driver/base/BUILD
++++ b/file_based_test_driver/base/BUILD
+@@ -259,6 +259,7 @@ cc_library(
+         "@com_google_absl//absl/strings:str_format",
+         "@com_googlesource_code_re2//:re2",
+     ],
++    copts = ["-Wno-char-subscripts"],
+ )
+ 
+ cc_library(
+diff --git a/file_based_test_driver/base/source_location.h b/file_based_test_driver/base/source_location.h
+index d67df2f..ab0f67c 100644
+--- a/file_based_test_driver/base/source_location.h
++++ b/file_based_test_driver/base/source_location.h
+@@ -133,7 +133,6 @@ class SourceLocation {
+   std::uint_least32_t line_;
+   std::uint_least32_t unused_column_ = 0;
+   const char* file_name_;
+-  const char* unused_function_name_ = nullptr;
+ };
+ 
+ }  // namespace file_based_test_driver_base
