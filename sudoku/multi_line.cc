@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   absl::Time last_flush = absl::Now();
 
   for (std::string buf; std::getline(std::cin, buf);) {
-    LOG(INFO) << "In:  " << buf << std::endl;
+    LOG(INFO) << "In:  " << buf;
     absl::Time start = absl::Now();
     ::sudoku::LineBoard line_board(buf);
 
