@@ -7,7 +7,7 @@ cc_library(
     deps = [
         "//puzzle/base:solution_filter",
         "//puzzle/base:solution_view",
-        "@com_google_absl//absl/algorithm:container",
+        "@abseil-cpp//absl/algorithm:container",
     ],
 )
 
@@ -26,11 +26,11 @@ cc_library(
     srcs = [],
     hdrs = ["descriptors.h"],
     deps = [
-        "@com_google_absl//absl/container:flat_hash_map",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/strings",
-        "@com_google_protobuf//:protobuf",
+        "@abseil-cpp//absl/container:flat_hash_map",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/strings",
+        "@protobuf//:protobuf",
         "@com_monkeynova_gunit_main//:vlog",
     ],
 )
@@ -39,7 +39,7 @@ cc_library(
     name = "position",
     hdrs = ["position.h"],
     deps = [
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/strings",
     ],
 )
 
@@ -49,10 +49,10 @@ cc_library(
     hdrs = ["profiler.h"],
     deps = [
         ":position",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/memory",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/memory",
         "@com_monkeynova_gunit_main//:vlog",
     ],
 )

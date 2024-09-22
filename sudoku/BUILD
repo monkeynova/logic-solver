@@ -4,7 +4,7 @@ cc_library(
     hdrs = ["sudoku.h"],
     deps = [
         "//ken_ken:grid",
-        "@com_google_absl//absl/flags:flag",
+        "@abseil-cpp//absl/flags:flag",
     ],
 )
 
@@ -13,8 +13,8 @@ cc_binary(
     srcs = ["multi_line.cc"],
     deps = [
         ":line_board",
-        "@com_google_absl//absl/flags:usage",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/flags:usage",
+        "@abseil-cpp//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )
@@ -25,13 +25,13 @@ cc_library(
     srcs = ["multi_line_test.cc"],
     deps = [
         ":line_board",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:parse",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:parse",
+        "@abseil-cpp//absl/strings",
         "@com_google_file_based_test_driver//file_based_test_driver",
         "@com_google_file_based_test_driver//file_based_test_driver:run_test_case_result",
         "@com_google_file_based_test_driver//file_based_test_driver:test_case_options",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:main_lib",
         "@com_monkeynova_gunit_main//:test_main",
     ],
@@ -59,9 +59,9 @@ cc_binary(
     srcs = ["single_line.cc"],
     deps = [
         ":line_board",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:usage",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:usage",
+        "@abseil-cpp//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )
@@ -97,11 +97,11 @@ cc_test(
     ],
     deps = [
         ":line_board",
-        "@com_github_google_benchmark//:benchmark",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_googletest//:gtest",
+        "@google_benchmark//:benchmark",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/log:check",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
         "@com_monkeynova_gunit_main//:vlog",
     ],
@@ -215,10 +215,10 @@ cc_library(
     ],
     deps = [
         "//puzzle:problem",
-        "@com_github_google_benchmark//:benchmark",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/memory",
-        "@com_google_googletest//:gtest",
+        "@google_benchmark//:benchmark",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/memory",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
     alwayslink = 1,
@@ -352,9 +352,9 @@ cc_binary(
     srcs = ["estimate_sudoku_boards.cc"],
     deps = [
         ":sudoku",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:usage",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:usage",
+        "@abseil-cpp//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )

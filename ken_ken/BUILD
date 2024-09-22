@@ -5,8 +5,8 @@ cc_library(
     visibility = ["//visibility:public"],
     deps = [
         "//puzzle:problem",
-        "@com_google_absl//absl/flags:flag",
-        "@com_googlesource_code_re2//:re2",
+        "@abseil-cpp//absl/flags:flag",
+        "@re2//:re2",
     ],
 )
 
@@ -16,8 +16,8 @@ cc_library(
     hdrs = ["ken_ken.h"],
     deps = [
         ":grid",
-        "@com_google_absl//absl/strings",
-        "@com_googlesource_code_re2//:re2",
+        "@abseil-cpp//absl/strings",
+        "@re2//:re2",
     ],
 )
 

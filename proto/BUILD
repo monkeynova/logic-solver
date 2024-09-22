@@ -4,7 +4,7 @@ cc_library(
     hdrs = ["proto_problem.h"],
     deps = [
         "//puzzle:problem",
-        "@com_google_protobuf//:protobuf",
+        "@protobuf//:protobuf",
     ],
 )
 

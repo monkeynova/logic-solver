@@ -28,7 +28,7 @@ cc_test(
     deps = [
         ":brute_solution_permuter",
         "//puzzle/base:owned_solution",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -57,11 +57,11 @@ cc_library(
         "//puzzle/base:solution_view",
         "//puzzle/class_permuter",
         "//puzzle/class_permuter:value_skip_to_active_set",
-        "@com_google_absl//absl/container:flat_hash_set",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/functional:function_ref",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/synchronization",
+        "@abseil-cpp//absl/container:flat_hash_set",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/functional:function_ref",
+        "@abseil-cpp//absl/status",
+        "@abseil-cpp//absl/synchronization",
     ],
 )
 
@@ -73,7 +73,7 @@ cc_test(
         ":filter_to_active_set",
         "//puzzle/base:solution_filter",
         "//puzzle/class_permuter:factory",
-        "@com_github_google_benchmark//:benchmark",
+        "@google_benchmark//:benchmark",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -101,12 +101,12 @@ cc_library(
         "//puzzle/class_permuter",
         "//thread:executor",
         "//thread:future",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/status",
-        "@com_google_absl//absl/status:statusor",
-        "@com_google_absl//absl/synchronization",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/status",
+        "@abseil-cpp//absl/status:statusor",
+        "@abseil-cpp//absl/synchronization",
         "@com_monkeynova_gunit_main//:vlog",
     ],
 )
@@ -129,10 +129,10 @@ cc_library(
         "//thread:future",
         "//thread:inline_executor",
         "//thread:pool",
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/synchronization",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/memory",
+        "@abseil-cpp//absl/synchronization",
         "@com_monkeynova_gunit_main//:vlog",
     ],
 )
@@ -144,7 +144,7 @@ cc_test(
         ":filtered_solution_permuter",
         "//puzzle/base:owned_solution",
         "//puzzle/base:solution_filter",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -158,7 +158,7 @@ cc_library(
         ":mutable_solution",
         "//puzzle/base:solution_filter",
         "//puzzle/base:solution_view",
-        "@com_google_absl//absl/status:statusor",
+        "@abseil-cpp//absl/status:statusor",
     ],
 )
 
@@ -173,7 +173,7 @@ cc_library(
         ":filtered_solution_permuter",
         ":solution_permuter",
         "//puzzle/base:profiler",
-        "@com_google_absl//absl/flags:flag",
+        "@abseil-cpp//absl/flags:flag",
     ],
 )
 

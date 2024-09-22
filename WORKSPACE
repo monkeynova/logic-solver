@@ -86,11 +86,11 @@ git_repository(
     commit = "8cf7e6f995b43641f41e9dd9a6b314684a7c0c9a",
 )
 
-load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+load("@protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
 
-load("@com_google_googletest//:googletest_deps.bzl", "googletest_deps")
+load("@googletest//:googletest_deps.bzl", "googletest_deps")
 googletest_deps()
 
-load("@com_github_google_benchmark//:bazel/benchmark_deps.bzl", "benchmark_deps")
+load("@google_benchmark//:bazel/benchmark_deps.bzl", "benchmark_deps")
 benchmark_deps()

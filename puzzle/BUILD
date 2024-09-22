@@ -12,7 +12,7 @@ cc_library(
         "//puzzle/base:solution_view",
         "//puzzle/solution_permuter",
         "//puzzle/solution_permuter:solution_permuter_factory",
-        "@com_google_absl//absl/status",
+        "@abseil-cpp//absl/status",
     ],
 )
 
@@ -25,7 +25,7 @@ cc_library(
     ],
     deps = [
         ":solver",
-        "@com_google_absl//absl/status:statusor",
+        "@abseil-cpp//absl/status:statusor",
     ],
 )
 
@@ -37,10 +37,10 @@ cc_library(
     ],
     deps = [
         ":problem",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/flags:usage",
-        "@com_google_absl//absl/memory",
-        "@com_google_absl//absl/strings",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/flags:usage",
+        "@abseil-cpp//absl/memory",
+        "@abseil-cpp//absl/strings",
         "@com_monkeynova_gunit_main//:main_lib",
     ],
 )
@@ -54,10 +54,10 @@ cc_library(
     ],
     deps = [
         ":problem",
-        "@com_github_google_benchmark//:benchmark",
-        "@com_google_absl//absl/flags:flag",
-        "@com_google_absl//absl/memory",
-        "@com_google_googletest//:gtest",
+        "@google_benchmark//:benchmark",
+        "@abseil-cpp//absl/flags:flag",
+        "@abseil-cpp//absl/memory",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
     alwayslink = 1,

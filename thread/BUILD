@@ -21,7 +21,7 @@ cc_test(
     srcs = ["inline_executor_test.cc"],
     deps = [
         ":inline_executor",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -31,7 +31,7 @@ cc_library(
     hdrs = ["pool.h"],
     deps = [
         ":executor",
-        "@com_google_absl//absl/synchronization",
+        "@abseil-cpp//absl/synchronization",
     ],
 )
 
@@ -40,7 +40,7 @@ cc_test(
     srcs = ["pool_test.cc"],
     deps = [
         ":pool",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -49,9 +49,9 @@ cc_library(
     name = "future",
     hdrs = ["future.h"],
     deps = [
-        "@com_google_absl//absl/log",
-        "@com_google_absl//absl/log:check",
-        "@com_google_absl//absl/synchronization",
+        "@abseil-cpp//absl/log",
+        "@abseil-cpp//absl/log:check",
+        "@abseil-cpp//absl/synchronization",
         "@com_monkeynova_gunit_main//:vlog",
     ],
 )
@@ -62,7 +62,7 @@ cc_test(
     deps = [
         ":future",
         ":pool",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )

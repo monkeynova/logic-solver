@@ -8,7 +8,7 @@ cc_library(
     deps = [
         "//puzzle/active_set",
         "//puzzle/base:all_match",
-        "@com_google_absl//absl/container:inlined_vector",
+        "@abseil-cpp//absl/container:inlined_vector",
     ],
 )
 
@@ -36,7 +36,7 @@ cc_library(
     hdrs = ["factorial_radix_delete_tracking.h"],
     deps = [
         ":class_permuter",
-        "@com_google_absl//absl/synchronization",
+        "@abseil-cpp//absl/synchronization",
     ],
 )
 
@@ -52,7 +52,7 @@ cc_library(
         ":factorial_radix",
         ":factorial_radix_delete_tracking",
         ":steinhaus_johnson_trotter",
-        "@com_google_absl//absl/flags:flag",
+        "@abseil-cpp//absl/flags:flag",
     ],
 )
 
@@ -64,7 +64,7 @@ cc_test(
         ":factorial_radix",
         ":factorial_radix_delete_tracking",
         ":steinhaus_johnson_trotter",
-        "@com_google_googletest//:gtest",
+        "@googletest//:gtest",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
@@ -77,8 +77,8 @@ cc_test(
         ":factorial_radix",
         ":factorial_radix_delete_tracking",
         ":steinhaus_johnson_trotter",
-        "@com_github_google_benchmark//:benchmark",
-        "@com_google_absl//absl/strings",
+        "@google_benchmark//:benchmark",
+        "@abseil-cpp//absl/strings",
         "@com_monkeynova_gunit_main//:test_main",
     ],
 )
