@@ -11,7 +11,7 @@ bazel_dep(name = "googletest", version = "1.15.2")
 bazel_dep(name = "google_benchmark", version = "1.8.5")
 bazel_dep(name = "re2", version = "2024-07-02")
 bazel_dep(name = "rules_proto", version = "6.0.2")
-bazel_dep(name = "protobuf", version = "28.0-rc2")
+bazel_dep(name = "protobuf", version = "28.2")
 bazel_dep(name = "com_monkeynova_base_workspace")
 bazel_dep(name = "com_monkeynova_gunit_main")
 bazel_dep(name = "com_google_file_based_test_driver")
@@ -20,7 +20,7 @@ git_override(
    module_name = "com_monkeynova_base_workspace",
    remote = "https://github.com/monkeynova/base-workspace.git",
    # branch = "main",
-   commit = "c3a4f468c71fe823e846754f0fd15be5a9c730d8",
+   commit = "49867f63b311391d6ccdaf99b7e5cbc5b9750120",
 )
 
 git_override(

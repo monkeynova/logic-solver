@@ -105,3 +105,7 @@ test:v4 --nocache_test_results
 build:dcheck --copt=-UNDEBUG
 run:dcheck --copt=-UNDEBUG
 test:dcheck --copt=-UNDEBUG
+
+run:benchmark_color --
+run:benchmark_color --benchmark
+run:benchmark_color --benchmark_flags=--benchmark_time_unit=us,--benchmark_color=true
