@@ -1,9 +1,9 @@
 diff --git a/MODULE.bazel b/MODULE.bazel
 new file mode 100644
-index 0000000..bfd5d55
+index 0000000..d845d14
 --- /dev/null
 +++ b/MODULE.bazel
-@@ -0,0 +1,11 @@
+@@ -0,0 +1,12 @@
 +###############################################################################
 +# Bazel now uses Bzlmod by default to manage external dependencies.
 +# Please consider migrating your external dependencies from WORKSPACE to MODULE.bazel.
@@ -15,6 +15,7 @@ index 0000000..bfd5d55
 +bazel_dep(name = "abseil-cpp", version = "20240116.2", repo_name = "com_google_absl")
 +bazel_dep(name = "googletest", version = "1.14.0.bcr.1", repo_name = "com_google_googletest")
 +bazel_dep(name = "re2", version = "2024-06-01", repo_name = "com_googlesource_code_re2")
++bazel_dep(name = "platforms", version = "0.0.10")
 diff --git a/WORKSPACE.bazel b/WORKSPACE.bazel
 new file mode 100644
 index 0000000..ce1dff0
@@ -23,14 +24,17 @@ index 0000000..ce1dff0
 @@ -0,0 +1 @@
 +workspace(name="com_google_file_based_test_driver")
 diff --git a/file_based_test_driver/base/BUILD b/file_based_test_driver/base/BUILD
-index 9279d64..469cdc0 100644
+index 9279d64..ae98d7c 100644
 --- a/file_based_test_driver/base/BUILD
 +++ b/file_based_test_driver/base/BUILD
-@@ -259,6 +259,7 @@ cc_library(
+@@ -259,6 +259,10 @@ cc_library(
          "@com_google_absl//absl/strings:str_format",
          "@com_googlesource_code_re2//:re2",
      ],
-+    copts = ["-Wno-char-subscripts"],
++    copts = select({
++        "@platforms//os:windows" : [],
++        "//conditions:default" : ["-Wno-char-subscripts"],
++    })
  )
  
  cc_library(
