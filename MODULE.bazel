@@ -14,8 +14,7 @@ bazel_dep(name = "rules_proto", version = "7.1.0")
 bazel_dep(
     name = "protobuf",
     version = "29.0",
-    # https://github.com/google/riegeli/issues/32
-    # no_update = 1,
+    # no_update = "https://github.com/google/riegeli/issues/32",
 )
 bazel_dep(name = "com_monkeynova_base_workspace")
 bazel_dep(name = "com_monkeynova_gunit_main")
