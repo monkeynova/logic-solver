@@ -11,15 +11,12 @@ bazel_dep(name = "googletest", version = "1.16.0")
 bazel_dep(name = "google_benchmark", version = "1.9.1")
 bazel_dep(name = "re2", version = "2024-07-02.bcr.1")
 bazel_dep(name = "rules_proto", version = "7.1.0")
-bazel_dep(
-    name = "protobuf",
-    version = "29.0",
-    # no_update = "https://github.com/google/riegeli/issues/32",
-)
+bazel_dep(name = "protobuf", version = "30.0")
 bazel_dep(name = "com_monkeynova_base_workspace")
 bazel_dep(name = "com_monkeynova_gunit_main")
 bazel_dep(name = "com_google_file_based_test_driver")
 bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "riegeli", version = "0.0.0-20241218-3385e3c")
 
 git_override(
    module_name = "com_monkeynova_base_workspace",
